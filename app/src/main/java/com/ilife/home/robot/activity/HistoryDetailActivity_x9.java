@@ -1,0 +1,270 @@
+package com.ilife.home.robot.activity;
+
+import android.content.Intent;
+import android.os.Bundle;
+import android.text.TextUtils;
+import android.util.Base64;
+import android.widget.TextView;
+
+import com.aliyun.iot.aep.sdk.bean.HistoryRecordBean;
+import com.ilife.home.robot.R;
+import com.ilife.home.robot.able.Constants;
+import com.ilife.home.robot.able.DeviceUtils;
+import com.ilife.home.robot.base.BackBaseActivity;
+import com.ilife.home.robot.utils.DataUtils;
+import com.ilife.home.robot.utils.MyLogger;
+import com.ilife.home.robot.view.MapView;
+
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+import butterknife.BindView;
+import io.reactivex.Single;
+import io.reactivex.SingleObserver;
+import io.reactivex.SingleOnSubscribe;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.schedulers.Schedulers;
+
+/**
+ * Created by chenjiaping on 2017/8/18.
+ */
+
+public class HistoryDetailActivity_x9 extends BackBaseActivity {
+    private final String TAG = HistoryDetailActivity_x9.class.getSimpleName();
+    private byte[] slamBytes;
+    private byte[] roadBytes;
+    private List<String> mapList;
+    private List<Integer> historyPointsList;
+    private int xMin;
+    private int xMax;
+    private int yMin;
+    private int yMax;
+    @BindView(R.id.tv_top_title)
+    TextView tv_title;
+    @BindView(R.id.mv_history_detail)
+    MapView mapView;
+    @BindView(R.id.tv_end_reason)
+    TextView tv_end_reason;
+    @BindView(R.id.tv_clean_time)
+    TextView tv_clean_time;
+    @BindView(R.id.tv_lean_area)
+    TextView tv_lean_area;
+    private String subdomain;
+    private boolean isDrawMap;
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+    }
+
+    @Override
+    public int getLayoutId() {
+        return R.layout.activity_history_detail_x9;
+    }
+
+    private void drawHistoryMap() {
+        if (mapList != null && mapList.size() > 0) {
+            //salm地图
+            String slamData = mapList.get(0);
+            if (!TextUtils.isEmpty(slamData)) {
+                slamBytes = Base64.decode(slamData, Base64.DEFAULT);
+            }
+            //历史路径
+            String roadData = mapList.get(1);
+            if (!TextUtils.isEmpty(roadData)) {
+                roadBytes = Base64.decode(roadData, Base64.DEFAULT);
+                drawRoad(roadBytes);
+            }
+        }
+        mapView.updateSlam(xMin, xMax, yMin, yMax);
+        mapView.drawMapX9(null, historyPointsList, slamBytes);
+    }
+
+    private void drawRoad(byte[] roadBytes) {
+        if (roadBytes != null && roadBytes.length >= 4 && roadBytes.length % 4 == 0) {
+            for (int j = 0; j < roadBytes.length; j += 4) {
+                int pointx = DataUtils.bytesToInt(new byte[]{roadBytes[j], roadBytes[j + 1]}, 0);//2,3
+                int pointy = DataUtils.bytesToInt(new byte[]{roadBytes[j + 2], roadBytes[j + 3]}, 0);//4,5
+                historyPointsList.add((pointx * 224) / 100 + 750);
+                historyPointsList.add((pointy * 224) / 100 + 750);
+            }
+        }
+        if (historyPointsList.size() == 4 && historyPointsList.get(0).equals(historyPointsList.get(2)) && historyPointsList.get(1).equals(historyPointsList.get(3))) {
+            historyPointsList.clear();
+        }
+    }
+
+
+    @Override
+    public void onWindowFocusChanged(boolean hasFocus) {
+        super.onWindowFocusChanged(hasFocus);
+        if (isDrawMap) {//避免多次刷新UI
+            return;
+        }
+        isDrawMap = true;
+        if (subdomain.equals(Constants.subdomain_x900) || subdomain.equals(Constants.subdomain_x910)) {
+            drawHistoryMap();
+        } else {
+            drawHistoryMapX8();
+        }
+    }
+
+    private void drawHistoryMapX8() {
+        Single.create((SingleOnSubscribe<List<Integer>>) emitter -> {
+            int lineCount = 0;
+            List<Byte> byteList = new ArrayList<>();
+            List<Integer> pointList = new ArrayList<>();
+            if (mapList != null) {
+                if (mapList.size() > 0) {
+                    for (int i = 0; i < mapList.size(); i++) {
+                        String data = mapList.get(i);
+                        byte[] bytes = Base64.decode(data, Base64.DEFAULT);
+                        if (bytes.length < 7) {
+                            MyLogger.e(TAG, "数据异常。。。。。。。");
+                            continue;
+                        }
+                        int bj = bytes[0] & 0xff;
+                        if (bj != 1) {
+                            MyLogger.e(TAG, "包含路径数据。。。。。。。。");
+                            continue;
+                        }
+                        int lx = DataUtils.bytesToInt(new byte[]{bytes[1], bytes[2]}, 0);
+                        int ly = DataUtils.bytesToInt(new byte[]{bytes[3], bytes[4]}, 0);
+                        lineCount = DataUtils.bytesToInt2(new byte[]{bytes[5], bytes[6]}, 0);
+                        for (int j = 7; j < bytes.length; j++) {
+                            byteList.add(bytes[j]);
+                        }
+                    }
+                }
+            }
+            int totalLength = 0;
+            if (byteList.size() > 0) {
+                int x = 0, y = 0, type = 0, length = 0;
+                for (int i = 2; i < byteList.size(); i += 3) {
+                    type = byteList.get(i - 1)&0xff;
+                    length = byteList.get(i)&0xff;
+                    totalLength += length;
+//                    int distanceToEnd = lineCount - x;
+//                    switch (type) {
+//                        case 0:
+//                            if (length > lineCount) {
+//                                y += length / lineCount;
+//                                length = length % lineCount;
+//                            }
+//                            if (length > distanceToEnd) {
+//                                y++;
+//                                x = length - lineCount;
+//                            } else {
+//                                x += length;
+//                            }
+//                            break;
+//                        case 1://已清扫
+//                        case 2://障碍物
+//                        case 3://已清扫
+//
+//                            break;
+//                    }
+                    for (int j = 0; j < length; j++) {
+                        if (type != 0) {
+                            pointList.add(x);
+                            pointList.add(y);
+                            pointList.add(type);
+                        }
+                        if (x < lineCount - 1) {
+                            x++;
+                        } else {
+                            x = 0;
+                            y++;
+                        }
+
+                    }
+                }
+                xMin = 0;
+                xMax = lineCount;
+                yMin = 0;
+                yMax = y;
+            }
+            MyLogger.e(TAG, "字节数：   " + byteList.size() + "-----总点数：  " + totalLength);
+            emitter.onSuccess(pointList);
+        }).subscribeOn(Schedulers.computation()).observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new SingleObserver<List<Integer>>() {
+                    @Override
+                    public void onSubscribe(Disposable d) {
+                    }
+
+                    @Override
+                    public void onSuccess(List<Integer> pointList) {
+                        mapView.updateSlam(xMin, xMax, yMin, yMax);
+                        mapView.setNeedEndPoint(false);
+                        mapView.drawMapX8(pointList);
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+
+                    }
+                });
+    }
+
+    public void initData() {//取出传递过来的集合
+        historyPointsList = new ArrayList<>();
+        subdomain = "";
+        String robotType = DeviceUtils.getRobotType(subdomain);
+        mapView.setRobotSeriesX9(robotType.equals(Constants.X900) || robotType.equals(Constants.X910));
+        mapView.setNeedRestore(false);
+        Intent intent = getIntent();
+        if (intent != null) {
+            HistoryRecordBean record = (HistoryRecordBean) intent.getSerializableExtra("Record");
+            mapList = record.getMapDataList();
+            MyLogger.e(TAG, "getDate===:" + xMin + "<--->" + xMax + "<--->" + yMin + "<--->" + yMax + "<--->");
+            long time_ = record.getStartTime();
+            String date = generateTime(time_, getString(R.string.history_adapter_month_day));
+            tv_title.setText(date);
+            tv_end_reason.setText(getResources().getString(R.string.setting_aty_end_reason, gerRealErrortTip(record.getStopCleanReason())));
+            tv_clean_time.setText(record.getCleanTotalTime() / 60 + "min");
+            tv_lean_area.setText(record.getCleanTotalArea() + "㎡");
+        }
+
+    }
+
+    public String generateTime(long time, String strFormat) {
+        SimpleDateFormat format = new SimpleDateFormat(strFormat);
+        String str = format.format(new Date((time + 10) * 1000));
+        return str;
+    }
+
+    private String gerRealErrortTip(int number) {
+        String text = "";
+        switch (number) {
+            case 1:
+                text = getResources().getString(R.string.stop_work_reason1);
+                break;
+            case 2:
+                text = getResources().getString(R.string.stop_work_reason2);
+                break;
+            case 3:
+                text = getResources().getString(R.string.stop_work_reason3);
+                break;
+            case 4:
+                text = getResources().getString(R.string.stop_work_reason4);
+                break;
+            case 5:
+                text = getResources().getString(R.string.stop_work_reason5);
+                break;
+            case 6:
+                text = getResources().getString(R.string.stop_work_reason6);
+                break;
+            default:
+                text = getResources().getString(R.string.stop_work_reason1);
+                break;
+        }
+        return text;
+    }
+
+    public void initView() {
+
+    }
+}

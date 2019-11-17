@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/rootView"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/bg_color_f5f7fa"
+    android:orientation="vertical">
+
+    <RelativeLayout style="@style/Aty_top_rl_bg">
+
+        <TextView
+            android:id="@+id/tv_title"
+            style="@style/Text_16sp_33"
+            android:layout_centerInParent="true"
+            android:text="@string/main_aty_my_robot"
+            android:textStyle="bold" />
+
+        <FrameLayout
+            android:id="@+id/image_personal"
+            android:layout_width="@dimen/dp_50"
+            android:layout_height="match_parent"
+            android:layout_alignParentEnd="true">
+
+            <ImageView
+                android:layout_width="@dimen/dp_22"
+                android:layout_height="@dimen/dp_22"
+                android:layout_gravity="center"
+                android:background="@drawable/n_icon_personal"
+                android:contentDescription="@null" />
+        </FrameLayout>
+    </RelativeLayout>
+
+    <View
+        android:id="@+id/view"
+        style="@style/View_Line_Style" />
+
+    <com.scwang.smartrefresh.layout.SmartRefreshLayout
+        android:id="@+id/refreshLayout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone">
+
+        <com.ilife.home.robot.view.SlideRecyclerView
+            android:id="@+id/recyclerView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/dp_16" />
+
+    </com.scwang.smartrefresh.layout.SmartRefreshLayout>
+
+    <RelativeLayout
+        android:id="@+id/layout_no_device"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="visible">
+
+
+        <com.ilife.home.robot.view.LightTextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_above="@id/tv_notice"
+            android:layout_centerHorizontal="true"
+            android:layout_marginStart="@dimen/dp_30"
+            android:layout_marginEnd="@dimen/dp_30"
+            android:gravity="center_horizontal"
+            android:text="@string/no_device_tip_hi"
+            android:textColor="@color/color_ff4d00"
+            android:textSize="24sp" />
+
+        <com.ilife.home.robot.view.LightTextView
+            android:id="@+id/tv_notice"
+            style="@style/Text_16sp_33"
+            android:layout_centerInParent="true"
+            android:layout_marginTop="@dimen/dp_12"
+            android:text="@string/no_device_tip_cleaning" />
+
+        <com.ilife.home.robot.view.ShadowContainer
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_marginBottom="@dimen/dp_136"
+            app:containerCornerRadius="@dimen/dp_25"
+            app:containerDeltaLength="@dimen/dp_8"
+            app:containerShadowColor="@color/color_ff4d00_66"
+            app:containerShadowRadius="@dimen/dp_6"
+            app:deltaY="@dimen/dp_2"
+            app:enable="true">
+
+            <com.ilife.home.robot.view.RegularButton
+                android:id="@+id/bt_add"
+                style="@style/Button_Style"
+                android:text="@string/main_aty_add_robot" />
+        </com.ilife.home.robot.view.ShadowContainer>
+    </RelativeLayout>
+</LinearLayout>

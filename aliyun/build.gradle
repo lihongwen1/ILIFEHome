@@ -1,0 +1,185 @@
+apply plugin: 'com.android.library'
+apply plugin: 'project-report'
+//apply from: 'release.gradle'
+
+android {
+    compileSdkVersion 28
+    buildToolsVersion "28.0.3"
+
+    defaultConfig {
+        minSdkVersion 19
+        targetSdkVersion 26
+        //兼容Gradle3.X
+        ndk {
+//            abiFilters "armeabi"
+//            abiFilters "armeabi-v7a"
+            abiFilters "arm64-v8a","armeabi-v7a"
+        }
+        multiDexEnabled true
+    }
+
+
+    buildTypes {
+        release {
+            minifyEnabled true
+            buildConfigField "String", "BUILD_COUNTRY", "\"SINGAPORE\""//国内
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }//debug 默认不开混淆
+        debug {
+            minifyEnabled false
+            buildConfigField "String", "BUILD_COUNTRY", "\"SINGAPORE\""
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+
+
+    lintOptions {
+        abortOnError false
+    }
+    dexOptions {
+        incremental true
+        javaMaxHeapSize "4g"
+    }
+
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+}
+
+buildscript {
+    repositories {
+        google()
+        maven { url 'https://maven.aliyun.com/repository/jcenter' }
+        mavenLocal()
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:3.5.2'
+    }
+}
+
+repositories {
+    google()
+    maven { url 'https://maven.aliyun.com/repository/jcenter' }
+    jcenter()
+    maven { url 'https://maven.google.com' }
+    flatDir {
+        dirs 'libs'
+    }
+
+    mavenLocal()
+
+    maven {
+        url "http://maven.aliyun.com/nexus/content/repositories/releases"
+    }
+}
+
+configurations.all {
+    resolutionStrategy.cacheDynamicVersionsFor 0, 'seconds'
+    resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
+    resolutionStrategy.force('com.aliyun.ams:alicloud-android-ut:5.1.0')
+}
+
+configurations {
+    cleanedAnnotations
+    compile.exclude group: 'org.jetbrains', module: 'annotations'
+}
+
+
+dependencies {
+
+    //更新SDK请参考如下文档：https://living.aliyun.com/doc#pre-app.html
+    /* 其他.begin */
+    implementation 'com.google.android:flexbox:0.3.1'
+    api("com.android.support:design:28.0.0") {
+        force = true
+    }
+
+    implementation 'com.android.support:multidex:1.0.3'
+    /* 其他.end */
+    implementation 'com.google.code.gson:gson:2.8.5'
+
+    api 'com.android.support.constraint:constraint-layout:1.1.2'
+
+    api 'com.android.support:appcompat-v7:28.0.0'
+
+    // glide
+    api 'com.github.bumptech.glide:glide:4.3.1'
+
+    api 'com.aliyun.iot.aep.sdk:debugcanary:0.0.1@aar'
+}
+
+/* all sdk in here */
+dependencies {
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
+    /* AEP自有SDK.begin */
+    api 'com.aliyun.iot.aep.sdk:sdk-framework:0.0.4.5'
+    api 'com.aliyun.iot.aep.sdk:threadpool:0.0.3@aar'
+    /* AEP自有SDK.end */
+
+    /* API 通道.begin */
+    api 'com.aliyun.iot.aep.sdk:apiclient:0.0.8.2'
+    /* API 通道.end*/
+    api ('com.aliyun.alink.linksdk:api-client-biz:1.0.0')
+    /* 长连接.begin*/
+    api('com.aliyun.iot.aep.sdk:connectchannel:0.0.6')
+    /* 长连接.end*/
+
+    // OA
+    //账号及用户SDK
+    api('com.aliyun.iot.sdk:account-oa-ui:0.0.7')
+    // 身份认证
+    api 'com.aliyun.iot.aep.sdk:iot-credential:0.0.2.2'
+
+    /* Bone Mobile 容器.begin */
+    api 'com.aliyun.iot.aep.page:rn:ilop_0.2.4'
+    /* Bone Mobile 容器.end */
+
+    /* 配网 SDK.begin */
+    api 'com.aliyun.alink.linksdk:ilop-devicecenter-ext-boneplugin:1.5.1'
+    api 'com.aliyun.alink.linksdk:ilop-devicecenter:1.6.8.6'
+    /* 配网 SDK.end */
+
+    /*蓝牙SDK.begin*/
+    api('com.aliyun.alink.linksdk:lpbs-plugin-breeze:1.1.0.1')
+    api 'com.aliyun.alink.linksdk:breeze-biz:1.1.3'
+    api('com.aliyun.alink.linksdk:breeze:1.2.10')
+    api 'com.aliyun.alink.linksdk:ble-library:1.2.4'
+    api 'com.aliyun.alink.linksdk:breeze-ota:1.2.2'
+    /*蓝牙SDK.end*/
+
+    // 设备模型 SDK
+    api 'com.aliyun.alink.linksdk:public-tmp-ext-boneplugin:1.4.5.5'
+
+
+    /* 日志.begin */
+    api 'com.aliyun.iot.aep.sdk:alog:0.0.5.1'
+    /* 日志.end */
+
+    /* 移动应用推送.begin */
+    api('com.aliyun.iot.aep.sdk:push:0.0.3')
+    /* 移动应用推送.end *
+
+   /* EventBus*/
+    api 'com.taobao.external:eventbus:1.0.2'
+    api 'com.aliyun.iot.aep.sdk:abus:0.0.1'
+    /* Glide */
+
+    // Dependency for Google Sign-In
+    api 'com.google.android.gms:play-services-auth:15.0.1'
+//    //facebook
+    api('com.facebook.android:facebook-android-sdk:4.20.0')
+
+    api('com.aliyun.iot.aep.sdk:jsbridge:0.1.2'){
+        force=true
+    }
+
+
+
+
+}
+
+
+

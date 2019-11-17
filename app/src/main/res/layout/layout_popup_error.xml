@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="@dimen/dp_80"
+    android:background="@color/color_ff4d00">
+    <TextView
+        android:layout_centerVertical="true"
+        style="@style/Text_20sp_ff"
+        android:id="@+id/tv_error"
+        android:layout_marginStart="@dimen/dp_30"
+        android:text="@string/adapter_error_obs"
+        />
+    <ImageView
+        android:layout_centerVertical="true"
+        android:id="@+id/image_delete"
+        android:layout_width="@dimen/dp_12"
+        android:layout_height="@dimen/dp_12"
+        android:layout_alignParentEnd="true"
+        android:layout_marginEnd="@dimen/dp_30"
+        android:background="@drawable/n_map_aty_delete"/>
+</RelativeLayout>

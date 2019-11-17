@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item android:state_enabled="true" android:state_pressed="false">
+        <shape>
+            <solid android:color="@color/color_FF4D00" />
+
+            <corners android:bottomLeftRadius="@dimen/net_step_corn" android:bottomRightRadius="@dimen/net_step_corn" android:topLeftRadius="@dimen/net_step_corn" android:topRightRadius="@dimen/net_step_corn" />
+        </shape>
+    </item>
+    <item android:state_enabled="true" android:state_pressed="true">
+        <shape>
+            <solid android:color="@color/color_FF4D00" />
+
+            <corners android:bottomLeftRadius="@dimen/net_step_corn" android:bottomRightRadius="@dimen/net_step_corn" android:topLeftRadius="@dimen/net_step_corn" android:topRightRadius="@dimen/net_step_corn" />
+        </shape>
+    </item>
+    <item android:state_enabled="true" android:state_window_focused="true">
+        <shape>
+            <solid android:color="@color/color_FF4D00" />
+            <corners android:bottomLeftRadius="@dimen/net_step_corn" android:bottomRightRadius="@dimen/net_step_corn" android:topLeftRadius="@dimen/net_step_corn" android:topRightRadius="@dimen/net_step_corn" />
+        </shape>
+    </item>
+    <item android:state_enabled="false">
+        <shape android:padding="0dp" android:shape="rectangle">
+            <solid android:color="@color/color_40FF4D00" />
+            <corners android:bottomLeftRadius="@dimen/net_step_corn" android:bottomRightRadius="@dimen/net_step_corn" android:topLeftRadius="@dimen/net_step_corn" android:topRightRadius="@dimen/net_step_corn" />
+        </shape>
+    </item>
+
+</selector>

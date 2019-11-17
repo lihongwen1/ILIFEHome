@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_gravity="center"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/qr_code_bg"
+        android:gravity="center"
+        android:orientation="vertical">
+
+        <TextView
+            style="@style/Text_16sp_33"
+            android:layout_marginTop="@dimen/dp_20"
+            android:text="@string/need_save_settings"
+            android:textStyle="bold" />
+
+        <TextView
+            style="@style/Text_16sp_ac"
+            android:layout_marginTop="@dimen/dp_10"
+            android:paddingStart="@dimen/dp_6"
+            android:paddingEnd="@dimen/dp_6"
+            android:text="@string/will_work_on_next_time" />
+
+        <View
+            style="@style/View_Line_Style"
+            android:layout_marginTop="@dimen/dp_20" />
+
+        <TextView
+            android:id="@+id/tv_ensure_virtual_x9"
+            style="@style/Text_16sp_f08300"
+            android:layout_width="match_parent"
+            android:gravity="center"
+            android:layout_marginTop="@dimen/dp_13"
+            android:text="@string/save_and_back" />
+
+        <View
+            style="@style/View_Line_Style"
+            android:layout_marginTop="@dimen/dp_13" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:gravity="center"
+            android:id="@+id/tv_cancel_virtual_x9"
+            style="@style/Text_16sp_595757"
+            android:layout_marginTop="@dimen/dp_13"
+            android:layout_marginBottom="@dimen/dp_13"
+            android:text="@string/not_saved" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/cancel_virtual_pop"
+        android:layout_marginTop="@dimen/dp_10"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/qr_code_bg"
+        android:gravity="center"
+        android:orientation="vertical">
+
+        <TextView
+            android:layout_marginBottom="@dimen/dp_14"
+            android:layout_marginTop="@dimen/dp_14"
+            style="@style/Text_16sp_595757"
+            android:text="@string/cancel_" />
+    </LinearLayout>
+
+</LinearLayout>

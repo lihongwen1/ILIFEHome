@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+    <RelativeLayout
+        style="@style/Aty_top_rl_bg">
+        <ImageView
+            android:id="@+id/image_back"
+            style="@style/Image_Back_Style"
+            android:scaleType="matrix"/>
+        <com.ilife.home.robot.view.RegularTextView
+            style="@style/Text_14sp_33"
+            android:layout_centerInParent="true"
+            android:text="历史地图"/>
+    </RelativeLayout>
+    <View style="@style/View_Line_Style"/>
+    <ImageView
+        android:id="@+id/image_map"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#ffffff"
+        android:scaleType="matrix"/>
+</LinearLayout>

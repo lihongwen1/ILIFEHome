@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_marginEnd="@dimen/dp_24"
+    android:layout_marginStart="@dimen/dp_24"
+    android:orientation="vertical">
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="@dimen/dp_24"
+        android:background="@drawable/pic_network" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="@dimen/dp_16"
+        android:text="@string/ap_wifi_timeout"
+        android:textColor="@color/color_33"
+        android:textSize="@dimen/dp_24"
+        android:textStyle="bold" />
+
+    <com.ilife.home.robot.view.MediumTextView
+        style="@style/Text_14sp_33"
+        android:layout_marginTop="@dimen/dp_16"
+        android:text="@string/tip_troubleshoot"
+        android:textStyle="bold" />
+
+    <com.ilife.home.robot.view.RegularTextView
+        style="@style/Text_14sp_33"
+        android:layout_marginTop="@dimen/dp_8"
+        android:text="@string/tip_troubles"
+        android:textColor="#ff333333"
+        android:textSize="14sp" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1" />
+
+    <Button
+        android:id="@+id/bt_retry"
+        style="@style/Button_Style"
+        android:layout_marginBottom="@dimen/dp_24"
+        android:text="@string/retry" />
+</LinearLayout>

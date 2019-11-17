@@ -1,0 +1,129 @@
+apply plugin: 'com.android.application'
+
+android {
+    compileSdkVersion 29
+    buildToolsVersion "29.0.1"
+    defaultConfig {
+        applicationId "com.ilife.home.robot"
+        minSdkVersion 19
+        targetSdkVersion 28
+        versionCode 1
+        versionName '1.1.1'
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        multiDexEnabled true
+        flavorDimensions "default"
+    }
+    signingConfigs {
+        debug {
+            v2SigningEnabled false
+            storeFile file('D:/flylin_github_respostories/qianming/ilife/ilife.jks')
+            storePassword '123456'
+            keyAlias = 'ilife'
+            keyPassword '123456'
+        }
+        release {
+            v2SigningEnabled false
+            storeFile file('D:/flylin_github_respostories/qianming/ilife/ilife.jks')
+            storePassword '123456'
+            keyAlias = 'ilife'
+            keyPassword '123456'
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled true
+            signingConfig signingConfigs.release
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }//debug 默认不开混淆
+        debug {
+            minifyEnabled false
+            signingConfig signingConfigs.debug
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    productFlavors {
+        Ali_Cn {
+            dimension "default"
+            applicationId "com.ilife.home.robot"
+            versionCode = 3
+            versionName = '1.2.0'
+            resValue "string", "app_name", "ILIFEHome"
+            buildConfigField("String", "environment", "\"product\"")
+            buildConfigField("String", "BRAND", "\"ILIFE\"")
+            buildConfigField("String", "BUGKY_KEY", "\"2b09f20d-6fca-47de-9e45-3d14223e6731\"")
+            buildConfigField("String", "BUGLY_ID", "\"76637b4e00\"")
+            buildConfigField("int", "Area", "0")
+        }
+        Ali_OverSea{
+            dimension "default"
+            applicationId "com.zaco.robot"
+            versionCode = 1
+            versionName = '1.0.0'
+            resValue "string", "app_name", "ILIFEHome海外"
+            buildConfigField("String", "environment", "\"product\"")
+            buildConfigField("String", "BRAND", "\"ILIFE\"")
+            buildConfigField("String", "BUGKY_KEY", "\"2b09f20d-6fca-47de-9e45-3d14223e6731\"")
+            buildConfigField("String", "BUGLY_ID", "\"76637b4e00\"")
+            buildConfigField("int", "Area", "1")
+        }
+    }
+
+    packagingOptions {
+        pickFirst 'lib/armeabi-v7a/libc++_shared.so'
+        pickFirst 'lib/armeabi-v8a/libc++_shared.so'
+        pickFirst 'lib/arm64-v8a/libc++_shared.so'
+        pickFirst 'lib/x86/libc++_shared.so'
+        pickFirst 'lib/x86_64/libc++_shared.so'
+    }
+    lintOptions {
+        checkReleaseBuilds false
+        abortOnError false
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+}
+
+dependencies {
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
+    androidTestImplementation 'androidx.test:core:1.2.0'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.1'
+    androidTestImplementation 'com.android.support.test:runner:1.0.2'
+    androidTestImplementation('androidx.test.espresso:espresso-core:3.2.0-beta01', {
+        exclude group: 'com.android.support', module: 'support-annotations'
+    })
+    androidTestImplementation 'androidx.test:runner:1.2.0'
+    androidTestImplementation 'androidx.test:rules:1.2.0'
+    implementation 'androidx.appcompat:appcompat:1.1.0'
+    implementation 'com.journeyapps:zxing-android-embedded:3.4.0'
+    implementation 'com.google.android.material:material:1.2.0-alpha01'
+    testImplementation 'junit:junit:4.13-beta-3'
+    implementation 'androidx.percentlayout:percentlayout:1.0.0'
+    implementation 'androidx.legacy:legacy-support-v4:1.0.0'
+    implementation 'androidx.recyclerview:recyclerview:1.1.0-rc01'
+    implementation 'com.android.support:multidex:'
+    implementation 'com.airbnb.android:lottie:3.0.3'
+    implementation 'io.reactivex.rxjava2:rxjava:2.0.7'
+    implementation 'io.reactivex.rxjava2:rxandroid:2.0.1'
+    implementation 'com.jakewharton:butterknife:10.1.0'
+    annotationProcessor 'com.jakewharton:butterknife-compiler:10.1.0'
+    implementation 'com.github.barteksc:android-pdf-viewer:3.1.0-beta.1'
+    implementation 'com.tbruyelle.rxpermissions2:rxpermissions:0.9.3@aar'
+    implementation 'commons-codec:commons-codec:20041127.091804'
+    implementation 'androidx.cardview:cardview:1.0.0'
+    implementation 'com.google.android.material:material:1.2.0-alpha01'
+    implementation 'com.badoo.mobile:android-weak-handler:1.1'
+    implementation 'com.scwang.smartrefresh:SmartRefreshLayout:1.1.0-andx-7'
+    implementation 'com.scwang.smartrefresh:SmartRefreshHeader:1.1.0-andx-7'
+    implementation 'androidx.legacy:legacy-support-v4:1.0.0'
+    implementation 'com.lijiankun24:shadowlayout:1.1.0'
+    implementation 'com.github.zackratos.ultimatebar:ultimatebar3:3.1.1'
+    implementation files('libs/bugly_crash_release.jar')
+    implementation 'com.orhanobut:logger:2.2.0'
+    implementation 'com.airbnb.android:lottie:3.0.3'
+    implementation 'com.github.bumptech.glide:glide:4.9.0'
+    implementation project(path: ':aliyun')
+}

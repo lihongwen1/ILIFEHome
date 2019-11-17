@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <include
+        android:id="@+id/rl_title"
+        layout="@layout/template_top_title" />
+
+
+    <LinearLayout
+        android:id="@+id/fl_version"
+        android:layout_width="wrap_content"
+        android:layout_height="0dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_weight="1"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:visibility="invisible">
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/update" />
+
+        <com.ilife.home.robot.view.MediumTextView
+            android:id="@+id/tv_cur_version"
+            style="@style/Text_18sp_33"
+            android:layout_gravity="center_vertical"
+            android:layout_marginTop="@dimen/dp_24" />
+
+        <com.ilife.home.robot.view.MediumTextView
+            android:id="@+id/tv_target_version"
+            style="@style/Text_18sp_33"
+            android:layout_gravity="center_vertical"
+            android:layout_marginTop="@dimen/dp_18" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/ll_update"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:visibility="gone">
+
+        <ImageView
+            android:id="@+id/iv_updating_animate"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/icon_loading"
+            android:contentDescription="@null" />
+
+        <TextView
+            android:layout_width="154dp"
+            android:layout_height="20dp"
+            android:layout_marginTop="@dimen/dp_30"
+            android:text="@string/updating"
+            android:textColor="#fff08300"
+            android:textSize="14sp" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/white"
+        android:orientation="vertical"
+        android:paddingTop="@dimen/dp_24"
+        android:paddingBottom="@dimen/dp_24">
+
+        <com.ilife.home.robot.view.MediumTextView
+            style="@style/Text_16sp_33"
+            android:layout_marginStart="@dimen/dp_30"
+            android:text="@string/ota_preupdate_title" />
+
+        <TextView
+            style="@style/Text_14sp_33"
+            android:layout_marginStart="@dimen/dp_30"
+            android:layout_marginTop="@dimen/dp_6"
+            android:text="@string/ota_preupdate_tip" />
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/btn_update"
+        style="@style/Button_Style_quick_login"
+        android:layout_marginTop="@dimen/dp_30"
+        android:layout_marginBottom="64dp" />
+</LinearLayout>

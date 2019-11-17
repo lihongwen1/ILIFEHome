@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <include layout="@layout/template_top_title" />
+
+    <View style="@style/View_Line_Style" />
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dp_60"
+        android:background="@color/white">
+
+        <com.ilife.home.robot.view.LightTextView
+            android:id="@+id/tv_robot_wifi"
+            style="@style/Text_16sp_33"
+            android:layout_centerVertical="true"
+            android:layout_marginStart="@dimen/dp_30"
+            android:text="@string/ap_aty_robot_wifi" />
+
+        <com.ilife.home.robot.view.LightEditText
+            android:id="@+id/et_ssid"
+            style="@style/EditText_16sp_ac"
+            android:layout_centerVertical="true"
+            android:layout_toStartOf="@+id/tv_set"
+            android:layout_toEndOf="@+id/tv_robot_wifi"
+            android:enabled="false"
+            android:hint="Robot-XXXX"
+            android:textColor="@color/color_33" />
+
+        <com.ilife.home.robot.view.RegularTextView
+            android:id="@+id/tv_set"
+            style="@style/Text_14sp_them_color"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            android:layout_marginEnd="@dimen/dp_30"
+            android:text="@string/ap_aty_setting" />
+    </RelativeLayout>
+
+    <View style="@style/View_Line_Style" />
+
+    <com.ilife.home.robot.view.MediumTextView
+        style="@style/Text_18sp_f08300"
+        android:layout_marginStart="@dimen/dp_30"
+        android:layout_marginTop="@dimen/dp_14"
+        android:layout_marginEnd="@dimen/dp_30"
+        android:text="@string/third_ap_tip2" />
+
+    <TextView
+        style="@style/Text_16sp_33"
+        android:layout_marginStart="@dimen/dp_30"
+        android:layout_marginTop="@dimen/dp_14"
+        android:layout_marginEnd="@dimen/dp_30"
+        android:text="@string/third_ap_aty_tip1" />
+
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1" />
+
+    <com.ilife.home.robot.view.ShadowContainer
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/dp_136"
+        app:containerCornerRadius="@dimen/dp_25"
+        app:containerDeltaLength="@dimen/dp_8"
+        app:containerShadowColor="@color/color_ff4d00_66"
+        app:containerShadowRadius="@dimen/dp_6"
+        app:deltaY="@dimen/dp_2"
+        app:enable="true">
+
+        <com.ilife.home.robot.view.RegularButton
+            android:id="@+id/bt_connect"
+            style="@style/Button_Style_quick_login"
+            android:layout_gravity="bottom|center"
+            android:clickable="false"
+            android:text="@string/add_aty_start_connect" />
+
+    </com.ilife.home.robot.view.ShadowContainer>
+</LinearLayout>

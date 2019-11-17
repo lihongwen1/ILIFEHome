@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/laylist_bg_"
+    android:layout_gravity="bottom"
+    android:orientation="vertical">
+
+    <com.ilife.home.robot.view.RegularTextView
+        style="@style/Text_18sp_33"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="@dimen/dp_24"
+        android:text="@string/set_user_icon"
+        android:textStyle="bold" />
+
+    <LinearLayout
+        android:layout_marginBottom="@dimen/dp_36"
+        android:layout_marginTop="@dimen/dp_36"
+        android:baselineAligned="false"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <FrameLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1">
+
+            <TextView
+                android:id="@+id/tv_take_photo"
+                style="@style/Text_14sp_33"
+                android:layout_gravity="center"
+                android:drawableTop="@drawable/help_icon_photo"
+                android:drawablePadding="@dimen/dp_4"
+                android:text="@string/help_aty_photo"
+                android:textStyle="bold" />
+        </FrameLayout>
+
+        <FrameLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1">
+
+            <TextView
+                android:id="@+id/tv_gallery"
+                style="@style/Text_14sp_33"
+                android:layout_gravity="center"
+                android:drawableTop="@drawable/help_icon_gallery"
+                android:drawablePadding="@dimen/dp_4"
+                android:text="@string/help_aty_album"
+                android:textStyle="bold" />
+        </FrameLayout>
+    </LinearLayout>
+</LinearLayout>

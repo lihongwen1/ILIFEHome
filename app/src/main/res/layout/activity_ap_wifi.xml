@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="center_horizontal"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:id="@+id/image_back"
+        style="@style/Aty_top_rl_bg"
+        android:background="@color/white"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <ImageView
+            style="@style/Image_Back_Style"
+            android:layout_marginStart="@dimen/dp_14"
+            android:contentDescription="@null" />
+    </LinearLayout>
+
+    <com.ilife.home.robot.view.RegularTextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/dp_52"
+        android:gravity="center"
+        android:text="@string/pairing_wifi"
+        android:textColor="@color/color_33"
+        android:textSize="@dimen/dp_32" />
+
+    <FrameLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="@dimen/dp_36">
+
+        <com.airbnb.lottie.LottieAnimationView
+            android:id="@+id/lottieAnimationView"
+            android:layout_width="@dimen/dp_240"
+            android:layout_height="@dimen/dp_240"
+            android:layout_marginTop="@dimen/dp_24"
+            app:lottie_autoPlay="true"
+            app:lottie_fileName="anim/bind_device.json"
+            app:lottie_loop="true" />
+
+        <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center">
+
+            <TextView
+                android:id="@+id/tv_bind_progress"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:includeFontPadding="false"
+                android:text="90"
+                android:textColor="@color/color_ff4d00"
+                android:textSize="@dimen/dp_72" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/dp_10"
+                android:layout_toEndOf="@id/tv_bind_progress"
+                android:includeFontPadding="false"
+                android:text="%"
+                android:textColor="@color/color_ff4d00"
+                android:textSize="@dimen/dp_24" />
+        </RelativeLayout>
+    </FrameLayout>
+
+
+    <ProgressBar
+        android:id="@+id/pb_bind_progress"
+        style="@style/progress_horizontal"
+        android:layout_width="@dimen/dp_295"
+        android:layout_height="@dimen/dp_8"
+        android:layout_marginTop="@dimen/dp_36"
+        android:max="100"
+        android:progress="0" />
+
+    <TextView
+        style="@style/Text_14sp_33"
+        android:layout_marginTop="@dimen/dp_16"
+        android:text="@string/please_not_exit_app"
+        android:textStyle="bold" />
+</LinearLayout>

@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <include layout="@layout/template_top_title" />
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dp_120">
+
+        <ImageView
+            android:id="@+id/image_product"
+            android:layout_width="@dimen/dp_100"
+            android:layout_height="@dimen/dp_100"
+            android:layout_centerVertical="true"
+            android:src="@drawable/image_x900"
+            android:layout_marginStart="@dimen/dp_40"
+            />
+
+        <com.ilife.home.robot.view.MediumTextView
+            android:id="@+id/tv_name"
+            style="@style/Text_18sp_f08300"
+            android:layout_marginStart="@dimen/dp_40"
+            android:layout_marginTop="@dimen/dp_37"
+            android:layout_toEndOf="@+id/image_product"/>
+
+        <com.ilife.home.robot.view.LightTextView
+            android:id="@+id/textView"
+            style="@style/Text_14sp_33"
+            android:layout_below="@+id/tv_name"
+            android:layout_alignStart="@+id/tv_name"
+            android:text="@string/setting_aty_type" />
+
+        <com.ilife.home.robot.view.LightTextView
+            android:id="@+id/tv_type"
+            style="@style/Text_14sp_33"
+            android:layout_below="@+id/tv_name"
+            android:layout_toEndOf="@+id/textView"
+            android:text="x800" />
+    </RelativeLayout>
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <include layout="@layout/setting_aty_list" />
+    </ScrollView>
+</LinearLayout>

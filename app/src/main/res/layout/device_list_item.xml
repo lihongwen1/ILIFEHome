@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal">
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <androidx.cardview.widget.CardView
+            android:layout_width="@dimen/dp_335"
+            android:layout_height="@dimen/dp_322"
+            android:layout_gravity="center"
+            android:foreground="?android:attr/selectableItemBackground"
+            android:background="@color/white"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="2dp"
+            app:cardPreventCornerOverlap="true"
+            app:cardUseCompatPadding="true"
+            >
+
+            <LinearLayout
+                android:id="@+id/item_content"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:orientation="vertical">
+
+                <ImageView
+                    android:id="@+id/image_product"
+                    android:layout_width="@dimen/dp_165"
+                    android:layout_height="@dimen/dp_165" />
+
+
+                <com.ilife.home.robot.view.MediumTextView
+                    android:id="@+id/tv_name"
+                    style="@style/Text_16sp_33"
+                    android:layout_marginTop="@dimen/dp_16"
+                    android:ellipsize="end"
+                    android:maxLines="1" />
+                <com.ilife.home.robot.view.LightTextView
+                    android:id="@+id/tv_status2"
+                    style="@style/Text_14sp_33"
+                    android:drawableStart="@drawable/selector_on_off_line"
+                    android:drawablePadding="@dimen/dp_8"
+                    android:layout_marginTop="@dimen/dp_16" />
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+    </FrameLayout>
+
+    <ImageView
+        android:layout_marginStart="@dimen/dp_20"
+        android:id="@+id/item_delete"
+        android:layout_width="@dimen/dp_40"
+        android:layout_height="@dimen/dp_40"
+        android:layout_gravity="center"
+        android:src="@drawable/icon_unbind_debice"
+        />
+</LinearLayout>

@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!--corner_color 边角颜色，
+        scanner_color 扫描线颜色
+        possible_result_color 扫描点颜色
+        frame_color 扫描框边线颜色
+        mask_color 模糊区域颜色
+        label_text  框上方提示
+    -->
+    <declare-styleable name="ViewfinderView">
+        <attr name="corner_color" format="color" />
+        <attr name="laser_color" format="color" />
+        <attr name="frame_color" format="color" />
+        <attr name="mask_color" format="color" />
+        <attr name="result_point_color" format="color" />
+        <attr name="result_color" format="color" />
+        <attr name="label_text_color" format="color" />
+        <attr name="label_text" format="string" />
+        <attr name="label_text_size" format="float" />
+    </declare-styleable>
+
+    <declare-styleable name="SuperEditText">
+        <attr name="ic_delete" format="reference" />
+        <attr name="delete_x" format="integer" />
+        <attr name="delete_y" format="integer" />
+        <attr name="delete_width" format="integer" />
+        <attr name="delete_height" format="integer" />
+        <attr name="is_show_delete" format="boolean" />
+        <attr name="ic_left_click" format="reference" />
+        <attr name="ic_left_unclick" format="reference" />
+        <attr name="left_x" format="integer" />
+        <attr name="left_y" format="integer" />
+        <attr name="left_width" format="integer" />
+        <attr name="left_height" format="integer" />
+
+        <attr name="lineColor_click" format="color" />
+        <attr name="lineColor_unclick" format="color" />
+        <attr name="linePosition" format="integer" />
+        <attr name="isBottomShowLine" format="boolean" />
+        <attr name="cursor" format="reference" />
+
+    </declare-styleable>
+    <declare-styleable name="GifView">
+        <attr name="gif" format="reference" />
+        <attr name="paused" format="boolean" />
+    </declare-styleable>
+
+    <declare-styleable name="CustomTheme">
+        <attr name="gifViewStyle" format="reference" />
+    </declare-styleable>
+    <declare-styleable name="ShadowContainer">
+        <attr name="containerShadowColor" format="color" />
+        <attr name="containerShadowRadius" format="dimension" />
+        <attr name="containerDeltaLength" format="dimension" />
+        <attr name="containerCornerRadius" format="dimension" />
+        <attr name="deltaX" format="dimension" />
+        <attr name="deltaY" format="dimension" />
+        <attr name="enable" format="boolean" />
+    </declare-styleable>
+    <declare-styleable name="IlifeToolbar">
+        <attr name="leftDrawable" format="reference" />
+        <attr name="rightDrawable" format="reference" />
+        <attr name="title" format="string" />
+    </declare-styleable>
+</resources>

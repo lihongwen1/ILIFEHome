@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <include layout="@layout/template_top_title" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dp_4"
+        android:orientation="horizontal">
+
+        <View
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="@drawable/shape_indicator_orange" />
+
+        <View
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_marginStart="1dp"
+            android:layout_weight="1"
+            android:background="@drawable/shape_indicator_orange" />
+
+        <View
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_marginStart="1dp"
+            android:layout_weight="1"
+            android:background="@drawable/shape_indicator_orange" />
+    </LinearLayout>
+
+
+    <LinearLayout
+        android:id="@+id/ll_ap_step2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/dp_24"
+        android:layout_marginTop="@dimen/dp_20"
+        android:layout_marginEnd="@dimen/dp_24"
+        android:gravity="center_horizontal"
+        android:orientation="vertical">
+
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/dp_250"
+            android:background="@drawable/pic_start" />
+
+        <com.ilife.home.robot.view.MediumTextView
+            android:id="@+id/text_tip2"
+            style="@style/Text_14sp_33"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/dp_16"
+            android:text="@string/ap_guide_aty_tip2_x900" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
+
+
+        <com.ilife.home.robot.view.RegularTextView
+            android:id="@+id/tv_guide_tip4"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="@string/ap_guide_tip4"
+            android:textColor="#666666"
+            android:textSize="@dimen/sp_12"
+            />
+
+        <com.ilife.home.robot.view.ToggleRadioButton
+            style="@style/Text_14sp_33"
+            android:id="@+id/rb_next_tip"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/dp_14"
+            android:text="@string/ap_guide_already_open_device" />
+
+        <com.ilife.home.robot.view.ShadowContainer
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/dp_22"
+            app:containerCornerRadius="@dimen/dp_25"
+            app:containerDeltaLength="@dimen/dp_8"
+            android:layout_marginBottom="@dimen/dp_24"
+            app:containerShadowColor="@color/color_ff4d00_66"
+            app:containerShadowRadius="@dimen/dp_6"
+            app:deltaY="@dimen/dp_2"
+            app:enable="true">
+
+            <com.ilife.home.robot.view.RegularButton
+                android:id="@+id/bt_next"
+                style="@style/Button_Style_quick_login"
+                android:text="@string/add_aty_start_connect" />
+        </com.ilife.home.robot.view.ShadowContainer>
+    </LinearLayout>
+</LinearLayout>

@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/rootView"
+    android:layout_width="@dimen/dp_222"
+    android:layout_height="@dimen/dp_222"
+    android:layout_gravity="center"
+    android:background="@drawable/bg_direction_control"
+    android:orientation="vertical">
+
+    <RelativeLayout
+        android:layout_width="@dimen/dp_220"
+        android:layout_height="@dimen/dp_220"
+        android:layout_centerInParent="true"
+        android:rotation="315">
+
+        <ImageView
+            android:id="@+id/image_forward"
+            android:layout_width="@dimen/dp_110"
+            android:layout_height="@dimen/dp_110"
+            android:layout_toRightOf="@+id/image_left"
+            android:background="@drawable/map_aty_forward_bg"
+            android:scaleType="fitXY" />
+
+        <ImageView
+            android:id="@+id/image_control_back"
+            android:layout_width="@dimen/dp_110"
+            android:layout_height="@dimen/dp_110"
+            android:layout_below="@+id/image_left"
+            android:background="@drawable/may_max_bg"
+            android:scaleType="fitXY" />
+
+        <ImageView
+            android:id="@+id/image_right"
+            android:layout_width="@dimen/dp_110"
+            android:layout_height="@dimen/dp_110"
+            android:layout_below="@+id/image_left"
+            android:layout_toEndOf="@id/image_control_back"
+            android:background="@drawable/map_aty_right_bg"
+            android:scaleType="fitXY" />
+
+        <ImageView
+            android:id="@+id/image_left"
+            android:layout_width="@dimen/dp_110"
+            android:layout_height="@dimen/dp_110"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentTop="true"
+            android:background="@drawable/map_aty_left_bg"
+            android:scaleType="fitXY" />
+    </RelativeLayout>
+
+    <ImageView
+        android:id="@+id/image_center"
+        android:layout_width="@dimen/dp_84"
+        android:layout_height="@dimen/dp_84"
+        android:layout_centerInParent="true"
+        android:background="@drawable/image_start_remote"
+        android:scaleType="fitXY" />
+</RelativeLayout>

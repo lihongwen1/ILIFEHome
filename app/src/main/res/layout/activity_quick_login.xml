@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_gravity="center_horizontal"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:orientation="vertical">
+
+            <ImageView
+                android:id="@+id/iv_logo"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/logo_zh" />
+
+            <com.ilife.home.robot.view.LightTextView
+                android:id="@+id/tv_slogan"
+                style="@style/Text_16sp_33"
+                android:layout_marginTop="@dimen/dp_16"
+                android:text="@string/ilife_slogan" />
+        </LinearLayout>
+
+        <com.ilife.home.robot.view.SuperEditText
+            android:id="@+id/et_phone_number"
+            style="@style/super_edit_text_16sp"
+            android:layout_marginStart="@dimen/dp_30"
+            android:layout_marginEnd="@dimen/dp_30"
+            android:inputType="textEmailAddress"
+            app:ic_left_click="@drawable/n_icon_personal"
+            app:ic_left_unclick="@drawable/n_icon_personal"
+            app:isBottomShowLine="true"
+            app:left_height="72"
+            app:left_width="72" />
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/dp_30"
+            android:layout_marginEnd="@dimen/dp_30">
+
+            <com.ilife.home.robot.view.SuperEditText
+                android:id="@+id/et_verification_code"
+                style="@style/super_edit_text_16sp"
+                android:hint="@string/verification_code_tip"
+                android:inputType="number"
+                app:ic_delete="@null"
+                app:ic_left_click="@drawable/icon_verification_code"
+                app:ic_left_unclick="@drawable/icon_verification_code"
+                app:isBottomShowLine="true"
+                app:is_show_delete="false"
+                app:left_height="72"
+                app:left_width="72" />
+
+            <com.ilife.home.robot.view.RegularTextView
+                android:id="@+id/tv_send_code"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_gravity="end|center_vertical"
+                android:gravity="center"
+                android:text="@string/get_ver_code_tip"
+                android:textColor="@color/color_ff4d00"
+                android:textSize="@dimen/sp_14" />
+
+            <com.ilife.home.robot.view.RegularTextView
+                android:id="@+id/tv_count_down"
+                android:layout_width="24dp"
+                android:layout_height="20dp"
+                android:layout_gravity="end|center_vertical"
+                android:textColor="@color/color_ac"
+                android:textSize="14sp"
+                android:visibility="gone" />
+        </FrameLayout>
+
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/dp_40"
+            android:orientation="vertical">
+
+            <com.ilife.home.robot.view.ShadowContainer
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:containerCornerRadius="@dimen/dp_25"
+                app:containerDeltaLength="@dimen/dp_8"
+                app:containerShadowColor="@color/color_ff4d00_66"
+                app:containerShadowRadius="@dimen/dp_6"
+                app:deltaY="@dimen/dp_2"
+                app:enable="true">
+
+                <com.ilife.home.robot.view.RegularButton
+                    android:id="@+id/bt_quick_login"
+                    style="@style/Button_Style_quick_login"
+                    android:clickable="false"
+                    android:text="@string/quick_login" />
+            </com.ilife.home.robot.view.ShadowContainer>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom|center"
+                android:layout_marginTop="@dimen/dp_24"
+                android:orientation="horizontal">
+
+                <com.ilife.home.robot.view.RegularTextView
+                    style="@style/Text_16sp_33"
+                    android:text="@string/have_account_and_login" />
+
+                <com.ilife.home.robot.view.RegularTextView
+                    android:id="@+id/tv_login"
+                    style="@style/Text_16sp_f08300"
+                    android:text="@string/have_account_and_login1" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <RelativeLayout
+            android:layout_marginTop="@dimen/dp_100"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginBottom="@dimen/dp_24"
+            android:orientation="horizontal">
+
+            <com.ilife.home.robot.view.ToggleRadioButton
+                android:id="@+id/rb_privacy_policy"
+                style="@style/Text_12sp_33"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:checked="true"
+                android:text="@string/agree_privacy_policy" />
+
+            <TextView
+                android:id="@+id/tv_privacy_policy"
+                style="@style/Text_12sp_33"
+                android:layout_alignBaseline="@id/rb_privacy_policy"
+                android:layout_toEndOf="@id/rb_privacy_policy"
+                android:includeFontPadding="true"
+                android:text="@string/personal_aty_protocol"
+                android:textColor="@color/color_ff4d00" />
+        </RelativeLayout>
+
+    </LinearLayout>
+
+
+</merge>

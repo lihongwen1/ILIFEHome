@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:background="@drawable/laylist_bg_"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+    <TextView
+        android:visibility="gone"
+        android:id="@+id/tv_list_title"
+        android:textColor="@color/color_ac"
+        android:textSize="@dimen/dp_14"
+        android:gravity="center"
+        android:text="@string/country_or_area"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dp_30" />
+    <ListView
+        android:id="@+id/listView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:divider="@null"
+        />
+</LinearLayout>

@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <include layout="@layout/template_top_title" />
+
+    <com.ilife.home.robot.view.MapView
+        android:id="@+id/mv_history_detail"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:background="@drawable/shape_gradient_map_bg" />
+
+    <LinearLayout
+        android:paddingTop="@dimen/dp_50"
+        android:paddingBottom="@dimen/dp_50"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/white">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:orientation="horizontal">
+
+            <com.ilife.home.robot.view.RegularTextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom"
+                android:text="@string/setting_aty_area"
+                android:textColor="@color/color_33"
+                android:textSize="@dimen/sp_14" />
+
+            <com.ilife.home.robot.view.EnglishRegularTextView
+                android:id="@+id/tv_lean_area"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom"
+                android:layout_marginStart="@dimen/dp_4"
+                android:text="38m"
+                android:textColor="@color/color_33"
+                android:textSize="@dimen/sp_20" />
+
+            <View
+                android:layout_width="@dimen/dp_1"
+                android:layout_height="@dimen/dp_14"
+                android:layout_gravity="bottom"
+                android:layout_marginStart="@dimen/dp_10"
+                android:layout_marginBottom="@dimen/dp_4"
+                android:background="#FFE2E2E2" />
+
+            <com.ilife.home.robot.view.RegularTextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom"
+                android:layout_marginStart="@dimen/dp_10"
+                android:text="@string/map_aty_time"
+                android:textColor="@color/color_33"
+                android:textSize="@dimen/sp_14" />
+
+            <com.ilife.home.robot.view.EnglishRegularTextView
+                android:id="@+id/tv_clean_time"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom"
+                android:layout_marginStart="@dimen/dp_4"
+                android:text="12分钟"
+                android:textColor="@color/color_33"
+                android:textSize="@dimen/sp_20" />
+        </LinearLayout>
+
+        <com.ilife.home.robot.view.RegularTextView
+            android:layout_marginTop="@dimen/dp_10"
+            android:id="@+id/tv_end_reason"
+            style="@style/Text_14sp_ac"
+            android:text="@string/setting_aty_end_reason" />
+
+    </LinearLayout>
+</LinearLayout>

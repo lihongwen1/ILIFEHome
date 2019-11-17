@@ -1,0 +1,35 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    package="com.aliyun.iot">
+
+
+    <application
+        android:icon="@mipmap/ic_launcher"
+        android:supportsRtl="true"
+        tools:ignore="GoogleAppIndexingWarning"
+        >
+        <!-- 自定义OA登录页面 -->
+        <!--locale|layoutDirection|keyboard  防止切换语言界面重启-->
+        <activity
+            android:name=".aep.sdk.page.AliLoginActivity"
+            android:configChanges="orientation|screenSize|keyboardHidden|locale|layoutDirection|keyboard"
+            android:theme="@style/ilife_ali_login" />
+        <activity
+            android:name=".aep.sdk.page.AliRegisterActivity"
+            android:configChanges="orientation|screenSize|keyboardHidden|locale|layoutDirection|keyboard"
+            android:theme="@style/ilife_ali_register" />
+        <activity
+            android:name=".aep.sdk.page.AliRegisterEmaiActivity"
+            android:configChanges="orientation|screenSize|keyboardHidden|locale|layoutDirection|keyboard"
+            android:theme="@style/ilife_ali_register_email" />
+        <activity
+            android:name=".aep.sdk.page.ResetPwdPhoneActivity"
+            android:configChanges="orientation|screenSize|keyboardHidden|locale|layoutDirection|keyboard"
+            android:theme="@style/ilife_ali_register_phone_reset_pwd" />
+        <activity
+            android:name=".aep.sdk.page.ResetPwdEmailActivity"
+            android:configChanges="orientation|screenSize|keyboardHidden|locale|layoutDirection|keyboard"
+            android:theme="@style/ilife_ali_register_phone_reset_pwd" />
+    </application>
+
+</manifest>

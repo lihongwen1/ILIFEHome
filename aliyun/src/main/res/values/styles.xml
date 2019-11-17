@@ -1,0 +1,66 @@
+<resources>
+
+    <!-- Base application theme. -->
+    <style name="AppTheme_Ali" parent="Theme.AppCompat.Light.DarkActionBar">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorAccent</item>
+        <item name="android:textColorPrimary">#ff0000</item>
+    </style>
+
+    <style name="AppTheme.NoActionBar">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+
+    <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
+
+    <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
+
+
+    <style name="ASlideDialog" parent="@android:style/Theme.Holo.Light.Dialog">
+        <item name="android:windowFrame">@null</item>
+        <item name="android:windowIsFloating">true</item>
+        <item name="android:windowIsTranslucent">false</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:backgroundDimEnabled">true</item>
+        <item name="android:backgroundDimAmount">0.5</item>
+        <item name="android:windowFullscreen">true</item>
+    </style>
+
+
+    <!--对话框样式-->
+    <style name="window_background" parent="android:Theme.Holo.Light.Dialog">
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:background">@android:color/transparent</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
+    </style>
+
+    <style name="ilife_ali_login" parent="Login">
+        <item name="ali_sdk_openaccount_attrs_next_step_bg">@drawable/ali_next_step_bg</item>
+        <item name="ali_sdk_openaccount_attrs_title_bar_text_color">@color/color_333333</item>
+    </style>
+
+    <style name="ilife_ali_register" parent="Register">
+        <item name="ali_sdk_openaccount_attrs_send_sms_code_color">@color/send_sms_code</item>
+        <item name="ali_sdk_openaccount_attrs_next_step_bg">@drawable/ali_next_step_bg</item>
+    </style>
+
+    <style name="ilife_ali_register_email" parent="EmailRegister">
+        <item name="ali_sdk_openaccount_attrs_send_sms_code_color">@color/send_sms_code</item>
+        <item name="ali_sdk_openaccount_attrs_next_step_bg">@drawable/ali_next_step_bg</item>
+    </style>
+
+    <style name="ilife_ali_register_email_reset_pwd" parent="EmailResetPassword">
+        <item name="ali_sdk_openaccount_attrs_send_sms_code_color">@color/send_sms_code</item>
+        <item name="ali_sdk_openaccount_attrs_next_step_bg">@drawable/ali_next_step_bg</item>
+    </style>
+
+    <style name="ilife_ali_register_phone_reset_pwd" parent="ResetPassword">
+        <item name="ali_sdk_openaccount_attrs_send_sms_code_color">@color/send_sms_code</item>
+        <item name="ali_sdk_openaccount_attrs_next_step_bg">@drawable/ali_next_step_bg</item>
+    </style>
+</resources>

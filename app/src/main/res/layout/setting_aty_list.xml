@@ -1,0 +1,392 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white"
+    android:orientation="vertical">
+
+    <RelativeLayout
+        android:id="@+id/rl_clock"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dp_60">
+
+        <com.ilife.home.robot.view.RegularTextView
+            style="@style/Text_16sp_33_center"
+            android:text="@string/clock_aty_appoint" />
+
+        <ImageView style="@style/Image_Style_Forward" />
+    </RelativeLayout>
+
+    <View style="@style/View_Line_Style" />
+
+    <RelativeLayout
+        android:id="@+id/rl_record"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dp_60">
+
+        <com.ilife.home.robot.view.RegularTextView
+            style="@style/Text_16sp_33_center"
+            android:text="@string/setting_aty_clean_record" />
+
+        <ImageView style="@style/Image_Style_Forward" />
+    </RelativeLayout>
+
+    <View style="@style/View_Line_Style" />
+
+    <RelativeLayout
+        android:id="@+id/rl_consume"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dp_60">
+
+        <com.ilife.home.robot.view.RegularTextView
+            style="@style/Text_16sp_33_center"
+            android:text="@string/setting_aty_consume_detail" />
+
+        <ImageView style="@style/Image_Style_Forward" />
+    </RelativeLayout>
+
+    <View style="@style/View_Line_Style" />
+
+
+    <RelativeLayout
+        android:id="@+id/rl_water"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dp_60"
+        android:background="@drawable/setting_aty_water_bg">
+
+        <com.ilife.home.robot.view.RegularTextView
+            android:id="@+id/tv_control"
+            style="@style/Text_16sp_33_center"
+            android:text="@string/setting_aty_water_control" />
+
+        <com.ilife.home.robot.view.LightTextView
+            android:id="@+id/tv_water"
+            style="@style/Text_14sp_ac"
+            android:layout_marginStart="@dimen/dp_20"
+            android:layout_marginEnd="@dimen/dp_10"
+            android:layout_toStartOf="@+id/image_down_1"
+            android:layout_toEndOf="@+id/tv_control"
+            android:gravity="end"
+            android:text="@string/setting_aty_standard" />
+
+        <ImageView
+            android:id="@+id/image_down_1"
+            style="@style/Image_Style_Down" />
+    </RelativeLayout>
+
+    <View style="@style/View_Line_Style" />
+
+    <LinearLayout
+        android:id="@+id/ll_water"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:background="@color/color_f6"
+        android:visibility="gone">
+
+        <RelativeLayout
+            android:id="@+id/rl_soft"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/dp_60">
+
+            <com.ilife.home.robot.view.LightTextView
+                android:id="@+id/tv_soft"
+                style="@style/Text_14sp_ac"
+                android:layout_marginStart="@dimen/dp_30"
+                android:text="@string/setting_aty_soft"
+                android:textColor="@drawable/tv_water_color" />
+
+            <ImageView
+                android:id="@+id/image_soft"
+                android:layout_width="@dimen/dp_18"
+                android:layout_height="@dimen/dp_18"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
+                android:layout_marginEnd="@dimen/dp_30"
+                android:background="@drawable/image_soft_bg" />
+        </RelativeLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/dp_1"
+            android:layout_marginStart="@dimen/dp_30"
+            android:layout_marginEnd="@dimen/dp_30"
+            android:background="@color/color_e2" />
+
+        <RelativeLayout
+            android:id="@+id/rl_standard"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/dp_60">
+
+            <com.ilife.home.robot.view.LightTextView
+                android:id="@+id/tv_standard"
+                style="@style/Text_14sp_ac"
+                android:layout_marginStart="@dimen/dp_30"
+                android:text="@string/setting_aty_standard"
+                android:textColor="@drawable/tv_water_color" />
+
+            <ImageView
+                android:id="@+id/image_standard"
+                android:layout_width="@dimen/dp_18"
+                android:layout_height="@dimen/dp_18"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
+                android:layout_marginEnd="@dimen/dp_30"
+                android:background="@drawable/image_soft_bg" />
+        </RelativeLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/dp_1"
+            android:layout_marginStart="@dimen/dp_30"
+            android:layout_marginEnd="@dimen/dp_30"
+            android:background="@color/color_e2" />
+
+        <RelativeLayout
+            android:id="@+id/rl_strong"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/dp_60">
+
+            <com.ilife.home.robot.view.LightTextView
+                android:id="@+id/tv_strong"
+                style="@style/Text_14sp_ac"
+                android:layout_marginStart="@dimen/dp_30"
+                android:text="@string/setting_aty_strong"
+                android:textColor="@drawable/tv_water_color" />
+
+            <ImageView
+                android:id="@+id/image_strong"
+                android:layout_width="@dimen/dp_18"
+                android:layout_height="@dimen/dp_18"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
+                android:layout_marginEnd="@dimen/dp_30"
+                android:background="@drawable/image_soft_bg" />
+        </RelativeLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/dp_1"
+            android:background="@color/color_e2" />
+    </LinearLayout>
+
+    <RelativeLayout
+        android:id="@+id/rl_mode"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dp_60">
+
+        <ImageView
+            android:id="@+id/image_down_2"
+            style="@style/Image_Style_Down" />
+
+        <com.ilife.home.robot.view.LightTextView
+            android:id="@+id/tv_mode"
+            style="@style/Text_14sp_ac"
+            android:layout_marginStart="@dimen/dp_20"
+            android:layout_marginEnd="@dimen/dp_10"
+            android:layout_toStartOf="@+id/image_down_2"
+            android:layout_toEndOf="@+id/tv_mode_"
+            android:gravity="end"
+            android:text="@string/map_aty_plan_mode" />
+
+        <com.ilife.home.robot.view.RegularTextView
+            android:id="@+id/tv_mode_"
+            style="@style/Text_16sp_33_center"
+            android:layout_alignParentStart="true"
+            android:layout_centerVertical="true"
+            android:layout_marginStart="@dimen/dp_30"
+            android:text="@string/setting_aty_clean_mode1" />
+
+        <View
+            style="@style/View_Line_Style"
+            android:layout_alignParentBottom="true" />
+    </RelativeLayout>
+
+    <LinearLayout
+        android:id="@+id/ll_mode"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:background="@color/color_f6"
+        android:visibility="gone">
+
+        <RelativeLayout
+            android:id="@+id/rl_plan"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/dp_60"
+           >
+
+            <com.ilife.home.robot.view.LightTextView
+                android:id="@+id/tv_plan"
+                style="@style/Text_14sp_ac"
+                android:layout_marginStart="@dimen/dp_30"
+                android:text="@string/setting_aty_nav_clean"
+                android:textColor="@drawable/tv_water_color" />
+
+            <ImageView
+                android:id="@+id/image_plan"
+                android:layout_width="@dimen/dp_18"
+                android:layout_height="@dimen/dp_18"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
+                android:layout_marginEnd="@dimen/dp_30"
+                android:background="@drawable/image_soft_bg" />
+        </RelativeLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/dp_1"
+            android:layout_marginStart="@dimen/dp_30"
+            android:layout_marginEnd="@dimen/dp_30"
+            android:background="@color/color_e2" />
+
+        <RelativeLayout
+            android:id="@+id/rl_random"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/dp_60"
+           >
+
+            <com.ilife.home.robot.view.LightTextView
+                android:id="@+id/tv_random"
+                style="@style/Text_14sp_ac"
+                android:layout_marginStart="@dimen/dp_30"
+                android:text="@string/setting_aty_random_clean"
+                android:textColor="@drawable/tv_water_color" />
+
+            <ImageView
+                android:id="@+id/image_random"
+                android:layout_width="@dimen/dp_18"
+                android:layout_height="@dimen/dp_18"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
+                android:layout_marginEnd="@dimen/dp_30"
+                android:background="@drawable/image_soft_bg" />
+        </RelativeLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/dp_1"
+            android:background="@color/color_e2" />
+    </LinearLayout>
+
+    <RelativeLayout
+        android:id="@+id/rl_voice"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dp_60"
+        >
+
+        <com.ilife.home.robot.view.RegularTextView
+            style="@style/Text_16sp_33_center"
+            android:text="@string/setting_aty_voice_mode" />
+
+        <ImageView
+            android:id="@+id/image_voice"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            android:layout_marginEnd="@dimen/dp_30"
+            android:background="@drawable/image_max_bg" />
+    </RelativeLayout>
+
+    <!--<View style="@style/View_Line_Style" />-->
+
+    <RelativeLayout
+        android:id="@+id/rl_suction"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dp_60">
+
+        <com.ilife.home.robot.view.RegularTextView
+            style="@style/Text_16sp_33_center"
+            android:text="@string/setting_aty_max_suction" />
+
+        <ImageView
+            android:id="@+id/image_max"
+            android:layout_width="@dimen/dp_48"
+            android:layout_height="@dimen/dp_22"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            android:layout_marginEnd="@dimen/dp_30"
+            android:background="@drawable/image_max_bg" />
+    </RelativeLayout>
+
+    <View style="@style/View_Line_Style" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dp_10"
+        android:background="@color/color_f6" />
+
+    <View style="@style/View_Line_Style" />
+
+    <RelativeLayout
+        android:id="@+id/rl_find"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dp_60">
+
+        <com.ilife.home.robot.view.RegularTextView
+            style="@style/Text_16sp_33_center"
+            android:text="@string/setting_aty_find_robot" />
+        <ImageView
+            android:id="@+id/iv_find_robot"
+            style="@style/Image_Style_Forward" />
+        <ImageView
+            android:id="@+id/imageView"
+            android:layout_width="@dimen/dp_18"
+            android:layout_height="@dimen/dp_18"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            android:layout_marginStart="@dimen/dp_19"
+            android:layout_marginEnd="@dimen/dp_30"
+            android:src="@drawable/n_icon_progress_yellow"
+            android:visibility="gone" />
+    </RelativeLayout>
+
+    <View style="@style/View_Line_Style" />
+
+
+    <RelativeLayout
+        android:visibility="gone"
+        android:id="@+id/rl_update"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dp_60">
+
+        <com.ilife.home.robot.view.RegularTextView
+            android:id="@+id/tv_ota_update"
+            style="@style/Text_16sp_33_center"
+            android:text="@string/setting_aty_ota_update" />
+        <com.ilife.home.robot.view.LightTextView
+            android:visibility="gone"
+            android:id="@+id/tv_ota_ver"
+            style="@style/Text_14sp_ac"
+            android:layout_marginStart="@dimen/dp_20"
+            android:layout_marginEnd="@dimen/dp_20"
+            android:layout_toStartOf="@+id/ota_right"
+            android:layout_toEndOf="@+id/tv_ota_update"
+            android:gravity="end"
+            android:text="@string/setting_ota_current_version" />
+
+        <ImageView
+            android:id="@+id/ota_right"
+            style="@style/Image_Style_Forward" />
+    </RelativeLayout>
+
+
+    <View style="@style/View_Line_Style" />
+
+
+    <RelativeLayout
+        android:id="@+id/rl_facReset"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dp_60">
+
+        <com.ilife.home.robot.view.RegularTextView
+            style="@style/Text_16sp_33_center"
+            android:layout_marginEnd="@dimen/dp_50"
+            android:text="@string/setting_aty_factory_reset" />
+
+        <ImageView style="@style/Image_Style_Forward" />
+    </RelativeLayout>
+
+    <View style="@style/View_Line_Style" />
+</LinearLayout>
