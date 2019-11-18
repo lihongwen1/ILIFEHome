@@ -278,9 +278,10 @@ public class MapView extends View {
     public void drawMapX8(List<Integer> dataList) {
         MyLogger.d(TAG, "----------drawMapX8---------数据长度：   " + dataList.size());
         drawBoxMapX8(dataList);
-        boxPaint.setColor(colors[0]);
+        boxPaint.setStrokeWidth(1);
+        boxPaint.setColor(getResources().getColor(R.color.color_box_70));
         boxCanvas.drawPath(obstaclePath, boxPaint);
-        boxPaint.setColor(getResources().getColor(R.color.white));
+        boxPaint.setColor(getResources().getColor(R.color.color_box_40));
         boxCanvas.drawPath(boxPath, boxPaint);
         if (needEndPoint&&(endX != 0 || endY != 0)) {
             positionCirclePaint.setColor(getResources().getColor(R.color.color_ff4d00));
@@ -977,9 +978,6 @@ public class MapView extends View {
         obstaclePath.reset();
         boxCanvas.drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR);
         int x, y, type;
-        //绘制清扫区域的白方格
-        boxPaint.setColor(getResources().getColor(R.color.white));
-        boxPaint.setStrokeWidth(1);
         float space = new BigDecimal(baseScare * 0.1f).setScale(0, BigDecimal.ROUND_HALF_DOWN).floatValue();
 //        float space=0f;
         if (pointList.size() > 0) {

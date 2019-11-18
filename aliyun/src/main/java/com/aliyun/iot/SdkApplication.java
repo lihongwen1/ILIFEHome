@@ -31,11 +31,11 @@ import com.aliyun.iot.push.PushManager;
 import java.util.ArrayList;
 import java.util.HashSet;
 
-public class SdkApplication extends AApplication {
+public abstract class SdkApplication extends AApplication {
     @Override
     public void onCreate() {
         super.onCreate();
-        String build_country = BuildConfig.BUILD_COUNTRY;// 在buildTypes 内配置不同版本类别 CHINA 国内版  OVERSEA 海外版
+        String build_country =getCountry();// 在buildTypes 内配置不同版本类别 CHINA 国内版  OVERSEA 海外版
         // Push SDK 需要在主进程和子进程都初始化
 //        PushManager.getInstance().init(this);
 //        ConfigManger.getInstance.setBundleName("com.xxxx.xxx")
@@ -215,7 +215,6 @@ public class SdkApplication extends AApplication {
 
         // APIClient更改语言后，push通道重新绑定即可更改push语言
         PushManager.getInstance().bindUser();
-
-
     }
+    protected abstract String getCountry();
 }

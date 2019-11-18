@@ -11,7 +11,7 @@
         android:layout_height="@dimen/dp_60">
 
         <com.ilife.home.robot.view.RegularTextView
-            style="@style/Text_16sp_33_center"
+            style="@style/Text_16sp_33_bold"
             android:text="@string/clock_aty_appoint" />
 
         <ImageView style="@style/Image_Style_Forward" />
@@ -25,7 +25,7 @@
         android:layout_height="@dimen/dp_60">
 
         <com.ilife.home.robot.view.RegularTextView
-            style="@style/Text_16sp_33_center"
+            style="@style/Text_16sp_33_bold"
             android:text="@string/setting_aty_clean_record" />
 
         <ImageView style="@style/Image_Style_Forward" />
@@ -39,7 +39,7 @@
         android:layout_height="@dimen/dp_60">
 
         <com.ilife.home.robot.view.RegularTextView
-            style="@style/Text_16sp_33_center"
+            style="@style/Text_16sp_33_bold"
             android:text="@string/setting_aty_consume_detail" />
 
         <ImageView style="@style/Image_Style_Forward" />
@@ -52,18 +52,17 @@
         android:id="@+id/rl_water"
         android:layout_width="match_parent"
         android:layout_height="@dimen/dp_60"
-        android:background="@drawable/setting_aty_water_bg">
+        >
 
         <com.ilife.home.robot.view.RegularTextView
             android:id="@+id/tv_control"
-            style="@style/Text_16sp_33_center"
+            style="@style/Text_16sp_33_bold"
             android:text="@string/setting_aty_water_control" />
 
         <com.ilife.home.robot.view.LightTextView
             android:id="@+id/tv_water"
             style="@style/Text_14sp_ac"
             android:layout_marginStart="@dimen/dp_20"
-            android:layout_marginEnd="@dimen/dp_10"
             android:layout_toStartOf="@+id/image_down_1"
             android:layout_toEndOf="@+id/tv_control"
             android:gravity="end"
@@ -102,7 +101,6 @@
                 android:layout_height="@dimen/dp_18"
                 android:layout_alignParentEnd="true"
                 android:layout_centerVertical="true"
-                android:layout_marginEnd="@dimen/dp_30"
                 android:background="@drawable/image_soft_bg" />
         </RelativeLayout>
 
@@ -110,7 +108,6 @@
             android:layout_width="match_parent"
             android:layout_height="@dimen/dp_1"
             android:layout_marginStart="@dimen/dp_30"
-            android:layout_marginEnd="@dimen/dp_30"
             android:background="@color/color_e2" />
 
         <RelativeLayout
@@ -131,7 +128,6 @@
                 android:layout_height="@dimen/dp_18"
                 android:layout_alignParentEnd="true"
                 android:layout_centerVertical="true"
-                android:layout_marginEnd="@dimen/dp_30"
                 android:background="@drawable/image_soft_bg" />
         </RelativeLayout>
 
@@ -139,7 +135,6 @@
             android:layout_width="match_parent"
             android:layout_height="@dimen/dp_1"
             android:layout_marginStart="@dimen/dp_30"
-            android:layout_marginEnd="@dimen/dp_30"
             android:background="@color/color_e2" />
 
         <RelativeLayout
@@ -160,7 +155,6 @@
                 android:layout_height="@dimen/dp_18"
                 android:layout_alignParentEnd="true"
                 android:layout_centerVertical="true"
-                android:layout_marginEnd="@dimen/dp_30"
                 android:background="@drawable/image_soft_bg" />
         </RelativeLayout>
 
@@ -183,7 +177,6 @@
             android:id="@+id/tv_mode"
             style="@style/Text_14sp_ac"
             android:layout_marginStart="@dimen/dp_20"
-            android:layout_marginEnd="@dimen/dp_10"
             android:layout_toStartOf="@+id/image_down_2"
             android:layout_toEndOf="@+id/tv_mode_"
             android:gravity="end"
@@ -191,10 +184,9 @@
 
         <com.ilife.home.robot.view.RegularTextView
             android:id="@+id/tv_mode_"
-            style="@style/Text_16sp_33_center"
+            style="@style/Text_16sp_33_bold"
             android:layout_alignParentStart="true"
             android:layout_centerVertical="true"
-            android:layout_marginStart="@dimen/dp_30"
             android:text="@string/setting_aty_clean_mode1" />
 
         <View
@@ -229,7 +221,6 @@
                 android:layout_height="@dimen/dp_18"
                 android:layout_alignParentEnd="true"
                 android:layout_centerVertical="true"
-                android:layout_marginEnd="@dimen/dp_30"
                 android:background="@drawable/image_soft_bg" />
         </RelativeLayout>
 
@@ -237,7 +228,6 @@
             android:layout_width="match_parent"
             android:layout_height="@dimen/dp_1"
             android:layout_marginStart="@dimen/dp_30"
-            android:layout_marginEnd="@dimen/dp_30"
             android:background="@color/color_e2" />
 
         <RelativeLayout
@@ -259,7 +249,6 @@
                 android:layout_height="@dimen/dp_18"
                 android:layout_alignParentEnd="true"
                 android:layout_centerVertical="true"
-                android:layout_marginEnd="@dimen/dp_30"
                 android:background="@drawable/image_soft_bg" />
         </RelativeLayout>
 
@@ -276,7 +265,7 @@
         >
 
         <com.ilife.home.robot.view.RegularTextView
-            style="@style/Text_16sp_33_center"
+            style="@style/Text_16sp_33_bold"
             android:text="@string/setting_aty_voice_mode" />
 
         <ImageView
@@ -285,7 +274,6 @@
             android:layout_height="wrap_content"
             android:layout_alignParentEnd="true"
             android:layout_centerVertical="true"
-            android:layout_marginEnd="@dimen/dp_30"
             android:background="@drawable/image_max_bg" />
     </RelativeLayout>
 
@@ -297,7 +285,7 @@
         android:layout_height="@dimen/dp_60">
 
         <com.ilife.home.robot.view.RegularTextView
-            style="@style/Text_16sp_33_center"
+            style="@style/Text_16sp_33_bold"
             android:text="@string/setting_aty_max_suction" />
 
         <ImageView
@@ -306,7 +294,6 @@
             android:layout_height="@dimen/dp_22"
             android:layout_alignParentEnd="true"
             android:layout_centerVertical="true"
-            android:layout_marginEnd="@dimen/dp_30"
             android:background="@drawable/image_max_bg" />
     </RelativeLayout>
 
@@ -325,7 +312,7 @@
         android:layout_height="@dimen/dp_60">
 
         <com.ilife.home.robot.view.RegularTextView
-            style="@style/Text_16sp_33_center"
+            style="@style/Text_16sp_33_bold"
             android:text="@string/setting_aty_find_robot" />
         <ImageView
             android:id="@+id/iv_find_robot"
@@ -337,7 +324,6 @@
             android:layout_alignParentEnd="true"
             android:layout_centerVertical="true"
             android:layout_marginStart="@dimen/dp_19"
-            android:layout_marginEnd="@dimen/dp_30"
             android:src="@drawable/n_icon_progress_yellow"
             android:visibility="gone" />
     </RelativeLayout>
@@ -353,14 +339,13 @@
 
         <com.ilife.home.robot.view.RegularTextView
             android:id="@+id/tv_ota_update"
-            style="@style/Text_16sp_33_center"
+            style="@style/Text_16sp_33_bold"
             android:text="@string/setting_aty_ota_update" />
         <com.ilife.home.robot.view.LightTextView
             android:visibility="gone"
             android:id="@+id/tv_ota_ver"
             style="@style/Text_14sp_ac"
             android:layout_marginStart="@dimen/dp_20"
-            android:layout_marginEnd="@dimen/dp_20"
             android:layout_toStartOf="@+id/ota_right"
             android:layout_toEndOf="@+id/tv_ota_update"
             android:gravity="end"
@@ -381,8 +366,7 @@
         android:layout_height="@dimen/dp_60">
 
         <com.ilife.home.robot.view.RegularTextView
-            style="@style/Text_16sp_33_center"
-            android:layout_marginEnd="@dimen/dp_50"
+            style="@style/Text_16sp_33_bold"
             android:text="@string/setting_aty_factory_reset" />
 
         <ImageView style="@style/Image_Style_Forward" />

@@ -62,6 +62,11 @@ public class MyApplication extends SdkApplication {
         Logger.addLogAdapter(new AndroidLogAdapter(formatStrategy));
     }
 
+    @Override
+    protected String getCountry() {
+        return BuildConfig.BUILD_COUNTRY;
+    }
+
     public void initTypeface() {
         appInitLanguage = LanguageUtils.getDefaultLanguage();
         if (Utils.isChineseLanguage()) {

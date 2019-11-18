@@ -79,8 +79,6 @@ public abstract class BaseMapActivity extends BackBaseActivity<MapX9Presenter> i
     TextView tv_start;
     @BindView(R.id.tv_status)
     TextView tv_status;
-    @BindView(R.id.tv_use_control)
-    TextView tv_use_control;
     @BindView(R.id.tv_point_x9)
     TextView tv_point;
     @BindView(R.id.tv_along_x9)
@@ -109,7 +107,7 @@ public abstract class BaseMapActivity extends BackBaseActivity<MapX9Presenter> i
     @BindView(R.id.tv_virtual_wall_x9)
     TextView tv_wall;
     @BindView(R.id.fl_bottom_x9)
-    FrameLayout fl_bottom_x9;
+    LinearLayout fl_bottom_x9;
     @BindView(R.id.fl_control_x9)
     FrameLayout fl_control_x9;
     @BindView(R.id.fl_virtual_wall)
@@ -140,9 +138,6 @@ public abstract class BaseMapActivity extends BackBaseActivity<MapX9Presenter> i
     public static final int USE_MODE_NORMAL = 1;
     public static final int USE_MODE_REMOTE_CONTROL = 2;
     protected int USE_MODE = USE_MODE_NORMAL;
-    @BindView(R.id.tv_test)
-    TextView textView;
-
     @Override
     public void attachPresenter() {
         super.attachPresenter();
@@ -341,44 +336,34 @@ public abstract class BaseMapActivity extends BackBaseActivity<MapX9Presenter> i
      */
     @Override
     public void setTvUseStatus(int tag) {
-        tv_use_control.setTextColor(getResources().getColor(R.color.white));
         switch (tag) {
-            case TAG_NORMAL:
-                tv_use_control.setText("");
-                tv_use_control.setVisibility(View.GONE);
-                break;
+//            case TAG_NORMAL:
+//                tv_status.setText("");
+//                tv_status.setVisibility(View.GONE);
+//                break;
             case TAG_CONTROL:
-                tv_use_control.setVisibility(View.VISIBLE);
-                tv_use_control.setText(getString(R.string.map_aty_use_control));
+                tv_status.setText(getString(R.string.map_aty_use_control));
                 break;
             case TAG_LEFT:
-                tv_use_control.setVisibility(View.VISIBLE);
-                tv_use_control.setText(getString(R.string.map_aty_use_left));
+                tv_status.setText(getString(R.string.map_aty_use_left));
                 break;
             case TAG_FORWARD:
-                tv_use_control.setVisibility(View.VISIBLE);
-                tv_use_control.setText(getString(R.string.map_aty_use_forward));
+                tv_status.setText(getString(R.string.map_aty_use_forward));
                 break;
             case TAG_RIGHT:
-                tv_use_control.setVisibility(View.VISIBLE);
-                tv_use_control.setText(getString(R.string.map_aty_use_right));
+                tv_status.setText(getString(R.string.map_aty_use_right));
                 break;
             case TAG_RECHAGRGE:
-                tv_use_control.setTextColor(getResources().getColor(R.color.color_ff4d00));
-                tv_use_control.setVisibility(View.VISIBLE);
-                tv_use_control.setText(R.string.map_aty_use_recharging_x9);
+                tv_status.setText(R.string.map_aty_use_recharging_x9);
                 break;
             case TAG_KEYPOINT:
-                tv_use_control.setVisibility(View.VISIBLE);
-                tv_use_control.setText(R.string.map_aty_key_pointing_x9);
+                tv_status.setText(R.string.map_aty_key_pointing_x9);
                 break;
             case TAG_ALONG:
-                tv_use_control.setVisibility(View.VISIBLE);
-                tv_use_control.setText(getString(R.string.map_aty_use_along));
+                tv_status.setText(getString(R.string.map_aty_use_along));
                 break;
             case TAG_RANDOM:
-                tv_use_control.setVisibility(View.VISIBLE);
-                tv_use_control.setText(getString(R.string.start_random_cleaning));
+                tv_status.setText(getString(R.string.start_random_cleaning));
                 break;
         }
     }
@@ -726,7 +711,6 @@ public abstract class BaseMapActivity extends BackBaseActivity<MapX9Presenter> i
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        textView.setMovementMethod(ScrollingMovementMethod.getInstance());
         fl_bottom_x9.post(() -> mMapView.resetCenter(fl_bottom_x9.getHeight()));
     }
 
@@ -742,9 +726,5 @@ public abstract class BaseMapActivity extends BackBaseActivity<MapX9Presenter> i
 
     @Override
     public void setTestText(String text) {
-        String s = textView.getText().toString();
-        s += "\n";
-        s += text;
-        textView.setText(s);
     }
 }

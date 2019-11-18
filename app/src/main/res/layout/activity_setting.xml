@@ -7,22 +7,27 @@
     <include layout="@layout/template_top_title" />
 
     <RelativeLayout
+        android:layout_marginTop="@dimen/dp_20"
+        android:layout_marginBottom="@dimen/dp_20"
+        android:layout_marginEnd="@dimen/dp_24"
+        android:background="@drawable/shape_setting_name_bg"
+        android:layout_marginStart="@dimen/dp_24"
         android:layout_width="match_parent"
         android:layout_height="@dimen/dp_120">
 
         <ImageView
+            android:layout_marginStart="@dimen/dp_10"
             android:id="@+id/image_product"
             android:layout_width="@dimen/dp_100"
             android:layout_height="@dimen/dp_100"
             android:layout_centerVertical="true"
             android:src="@drawable/image_x900"
-            android:layout_marginStart="@dimen/dp_40"
             />
 
         <com.ilife.home.robot.view.MediumTextView
             android:id="@+id/tv_name"
+            android:layout_marginStart="@dimen/dp_20"
             style="@style/Text_18sp_f08300"
-            android:layout_marginStart="@dimen/dp_40"
             android:layout_marginTop="@dimen/dp_37"
             android:layout_toEndOf="@+id/image_product"/>
 
@@ -41,6 +46,9 @@
             android:text="x800" />
     </RelativeLayout>
     <ScrollView
+        android:scrollbars="none"
+        android:layout_marginStart="@dimen/dp_24"
+        android:layout_marginEnd="@dimen/dp_24"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
         <include layout="@layout/setting_aty_list" />
