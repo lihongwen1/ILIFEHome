@@ -27,14 +27,14 @@ public class EnvConfigure {
      */
     static final public String PRODUCT_KEY_X800 = "a1nIeZXrVFg";//CHINA
     public static final String IOT_AUTH = "iot_china";//国内
-//    public static final String AUTH_CODE = "114d_cn";//国内
+    public static final String AUTH_CODE = "114d";//国内
 
     /**
      * 海外
      */
 //    public static final String PRODUCT_KEY_X800 = "a2N5l6U3gnt";//OVERSEA
 //    public static final String IOT_AUTH = "iot_ali_oversea";//OVERSEA
-    public static final String AUTH_CODE = "114d_oversea";//OVERSEA
+//    public static final String AUTH_CODE = "114d_oversea";//OVERSEA
 
 
     /**

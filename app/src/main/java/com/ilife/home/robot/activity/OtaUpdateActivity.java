@@ -81,8 +81,9 @@ public class OtaUpdateActivity extends BackBaseActivity {
     }
 
     private void updateOtaVer(int curV, int latestV) {
-        tv_current.setText("当前版本: " + curV);
-         tv_target.setText("最新版本: " + latestV);
+        ;
+        tv_current.setText("当前版本: " + Integer.toHexString(curV));
+         tv_target.setText("最新版本: " + Integer.toHexString(latestV));
         fl_version.setVisibility(View.VISIBLE);
     }
 

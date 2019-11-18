@@ -33,33 +33,6 @@
                 android:gravity="center_vertical">
 
                 <com.ilife.home.robot.view.LightTextView
-                    android:id="@+id/tv_1"
-                    style="@style/Text_14sp_ff"
-                    android:layout_centerHorizontal="true"
-                    android:text="@string/map_aty_status" />
-
-                <com.ilife.home.robot.view.RegularTextView
-                    android:id="@+id/tv_status"
-                    style="@style/Text_20sp_ff"
-                    android:layout_below="@+id/tv_1"
-                    android:layout_centerHorizontal="true"
-                    android:layout_marginTop="@dimen/dp_4"
-                    android:singleLine="true"
-                    android:text="@string/map_aty_gang" />
-            </RelativeLayout>
-
-            <View
-                android:layout_width="1dp"
-                android:layout_height="@dimen/dp_44"
-                android:background="@color/white_50" />
-
-            <RelativeLayout
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:gravity="center_vertical">
-
-                <com.ilife.home.robot.view.LightTextView
                     android:id="@+id/tv_2"
                     style="@style/Text_14sp_ff"
                     android:layout_centerHorizontal="true"
@@ -165,154 +138,99 @@
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:visibility="gone" />
-
-                    <com.ilife.home.robot.view.LightTextView
-                        android:id="@+id/tv_use_control"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_centerHorizontal="true"
-                        android:layout_marginTop="@dimen/dp_20"
-                        android:textColor="@color/white"
-                        android:textSize="@dimen/sp_20"
-                        android:visibility="visible" />
                 </RelativeLayout>
 
 
                 <!--底部操作按钮布局-->
-                <FrameLayout
+                <LinearLayout
                     android:id="@+id/fl_bottom_x9"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:background="@color/bg_color_f5f7fa"
-                    android:paddingTop="@dimen/dp_10"
-                    android:paddingBottom="@dimen/dp_24"
+                    android:layout_height="@dimen/dp_100"
+                    android:background="@drawable/bg_shape_top_radius"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:paddingStart="@dimen/dp_30"
+                    android:paddingEnd="@dimen/dp_30"
                     android:visibility="visible">
 
                     <com.ilife.home.robot.view.RegularTextView
                         android:id="@+id/tv_virtual_wall_x9"
-                        style="@style/Text_14sp_33"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="bottom"
-                        android:layout_marginStart="@dimen/dp_24"
+                        style="@style/map_text_button"
                         android:drawableTop="@drawable/selector_virtual_wall"
-                        android:drawablePadding="@dimen/dp_9"
-                        android:gravity="center"
                         android:text="@string/map_virtual_wall" />
 
                     <com.ilife.home.robot.view.RegularTextView
                         android:id="@+id/tv_bottom_recharge_x8"
-                        style="@style/Text_14sp_33"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="bottom"
-                        android:layout_marginStart="@dimen/dp_24"
+                        style="@style/map_text_button"
                         android:drawableTop="@drawable/selector_recharge"
-                        android:drawablePadding="@dimen/dp_9"
-                        android:gravity="center"
                         android:text="@string/map_aty_recharge"
                         android:visibility="gone" />
 
 
                     <com.ilife.home.robot.view.RegularTextView
                         android:id="@+id/tv_start_x9"
-                        style="@style/Text_14sp_33"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center|bottom"
+                        style="@style/map_text_button"
                         android:drawableTop="@drawable/image_start_bg"
-                        android:drawablePadding="-2dp"
-                        android:gravity="center"
                         android:text="@string/map_aty_start" />
 
                     <com.ilife.home.robot.view.RegularTextView
                         android:id="@+id/tv_control_x9"
-                        style="@style/Text_14sp_33"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="end|bottom"
-                        android:layout_marginEnd="@dimen/dp_24"
+                        style="@style/map_text_button"
                         android:drawableTop="@drawable/selector_control"
-                        android:drawablePadding="@dimen/dp_9"
-                        android:gravity="center"
                         android:text="@string/map_aty_remote" />
 
                     <com.ilife.home.robot.view.RegularTextView
                         android:id="@+id/tv_bottom_recharge_x9"
-                        style="@style/Text_14sp_33"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="end|bottom"
-                        android:layout_marginEnd="@dimen/dp_24"
+                        style="@style/map_text_button"
                         android:drawableTop="@drawable/selector_recharge"
-                        android:drawablePadding="@dimen/dp_9"
-                        android:gravity="center"
                         android:text="@string/map_aty_recharge"
                         android:visibility="gone" />
-                </FrameLayout>
+                </LinearLayout>
 
                 <!--底部沿边 重点 预约-->
                 <FrameLayout
+                    android:visibility="gone"
                     android:id="@+id/fl_control_x9"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:background="@color/bg_color_f5f7fa"
-                    android:paddingBottom="@dimen/dp_24"
-                    android:visibility="gone">
+                    android:layout_height="wrap_content">
 
-                    <com.ilife.home.robot.view.RegularTextView
-                        android:id="@+id/tv_along_x9"
-                        style="@style/Text_14sp_33"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="@dimen/dp_40"
-                        android:layout_marginTop="@dimen/sp_18"
-                        android:drawableTop="@drawable/image_along_bg"
-                        android:drawablePadding="@dimen/dp_8"
-                        android:gravity="center"
-                        android:text="@string/map_aty_along"
-                        android:textColor="@color/text_color_33_300" />
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="@dimen/dp_100"
+                        android:background="@drawable/bg_shape_top_radius"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:paddingStart="@dimen/dp_30"
+                        android:paddingEnd="@dimen/dp_30"
+                       >
 
-                    <com.ilife.home.robot.view.RegularTextView
-                        android:id="@+id/tv_point_x9"
-                        style="@style/Text_14sp_33"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center_horizontal"
-                        android:layout_marginTop="@dimen/sp_18"
-                        android:drawableTop="@drawable/image_point_bg"
-                        android:drawablePadding="@dimen/dp_8"
-                        android:gravity="center"
-                        android:text="@string/map_aty_point"
-                        android:textColor="@color/text_color_33_300" />
+                        <com.ilife.home.robot.view.RegularTextView
+                            android:id="@+id/tv_along_x9"
+                            style="@style/map_text_button"
+                            android:drawableTop="@drawable/image_along_bg"
+                            android:text="@string/map_aty_along" />
 
-                    <com.ilife.home.robot.view.RegularTextView
-                        android:id="@+id/tv_appointment_x9"
-                        style="@style/Text_14sp_33"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="end"
-                        android:layout_marginTop="@dimen/sp_18"
-                        android:layout_marginEnd="@dimen/dp_40"
-                        android:drawableTop="@drawable/selector_appointment"
-                        android:drawablePadding="@dimen/dp_8"
-                        android:gravity="center"
-                        android:text="@string/map_aty_appoint"
-                        android:textColor="@color/text_color_33_300"
-                        android:visibility="gone" />
+                        <com.ilife.home.robot.view.RegularTextView
+                            android:id="@+id/tv_point_x9"
+                            style="@style/map_text_button"
+                            android:drawableTop="@drawable/image_point_bg"
+                            android:text="@string/map_aty_point"
 
-                    <com.ilife.home.robot.view.RegularTextView
-                        android:id="@+id/tv_recharge_x9"
-                        style="@style/Text_14sp_33"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="end"
-                        android:layout_marginTop="@dimen/sp_18"
-                        android:layout_marginEnd="@dimen/dp_40"
-                        android:drawableTop="@drawable/selector_recharge"
-                        android:drawablePadding="@dimen/dp_8"
-                        android:gravity="center"
-                        android:text="@string/map_aty_recharge" />
+                            />
+
+                        <com.ilife.home.robot.view.RegularTextView
+                            android:id="@+id/tv_appointment_x9"
+                            style="@style/map_text_button"
+                            android:drawableTop="@drawable/selector_appointment"
+                            android:text="@string/map_aty_appoint"
+                            android:visibility="gone" />
+
+                        <com.ilife.home.robot.view.RegularTextView
+                            android:id="@+id/tv_recharge_x9"
+                            style="@style/map_text_button"
+                            android:drawableTop="@drawable/selector_recharge"
+                            android:text="@string/map_aty_recharge" />
+                    </LinearLayout>
 
                     <ImageView
                         android:id="@+id/iv_control_close_x9"
@@ -323,13 +241,12 @@
                         android:layout_marginEnd="@dimen/dp_14"
                         android:src="@drawable/operation_icon_closed" />
                 </FrameLayout>
-
                 <!--电子墙-->
                 <FrameLayout
                     android:id="@+id/fl_virtual_wall"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:background="@color/bg_color_f5f7fa"
+                    android:background="@drawable/bg_shape_top_radius"
                     android:paddingBottom="@dimen/dp_24"
                     android:visibility="gone">
 
@@ -379,21 +296,19 @@
                         android:textColor="#ff333333"
                         android:textSize="16sp" />
                 </FrameLayout>
-
-
             </LinearLayout>
 
-
+            <com.ilife.home.robot.view.LightTextView
+                android:id="@+id/tv_status"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="@dimen/dp_22"
+                android:text="你好，召唤师"
+                android:textColor="@color/white"
+                android:textSize="@dimen/sp_18"
+                android:visibility="visible" />
         </FrameLayout>
-
     </LinearLayout>
-    <!--用来显示调试信息的-->
-    <TextView
-        android:id="@+id/tv_test"
-        android:layout_width="@dimen/dp_200"
-        android:layout_height="@dimen/dp_300"
-        android:layout_marginTop="@dimen/dp_100"
-        android:background="@color/colorPrimary"
-        android:scrollbars="vertical"
-        android:visibility="gone" />
+
 </FrameLayout>

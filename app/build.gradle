@@ -14,31 +14,33 @@ android {
         flavorDimensions "default"
     }
     signingConfigs {
-        debug {
+        ilife {
             v2SigningEnabled false
-            storeFile file('D:/flylin_github_respostories/qianming/ilife/ilife.jks')
+            storeFile file('E:\\as_workspace\\ilife\\keystore_ilife\\ilife.jks')
             storePassword '123456'
             keyAlias = 'ilife'
             keyPassword '123456'
         }
-        release {
+        ilife_home {
             v2SigningEnabled false
-            storeFile file('D:/flylin_github_respostories/qianming/ilife/ilife.jks')
+            storeFile file('E:\\as_workspace\\ilife\\keystore_ali\\ilifehome.jks')
             storePassword '123456'
-            keyAlias = 'ilife'
+            keyAlias = 'ilifehome'
             keyPassword '123456'
         }
     }
 
     buildTypes {
         release {
-            minifyEnabled true
-            signingConfig signingConfigs.release
+            signingConfig signingConfigs.ilife_home
+//            signingConfig signingConfigs.ilife
+            minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }//debug 默认不开混淆
         debug {
+            signingConfig signingConfigs.ilife_home
+//            signingConfig signingConfigs.ilife
             minifyEnabled false
-            signingConfig signingConfigs.debug
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
@@ -48,17 +50,18 @@ android {
             dimension "default"
             applicationId "com.ilife.home.robot"
             versionCode = 3
-            versionName = '1.2.0'
+            versionName = '1.2.5'
             resValue "string", "app_name", "ILIFEHome"
             buildConfigField("String", "environment", "\"product\"")
             buildConfigField("String", "BRAND", "\"ILIFE\"")
             buildConfigField("String", "BUGKY_KEY", "\"2b09f20d-6fca-47de-9e45-3d14223e6731\"")
             buildConfigField("String", "BUGLY_ID", "\"76637b4e00\"")
             buildConfigField("int", "Area", "0")
+            buildConfigField "String", "BUILD_COUNTRY", "\"CHINA\""//国内
         }
-        Ali_OverSea{
+        Ali_OverSea {
             dimension "default"
-            applicationId "com.zaco.robot"
+            applicationId "com.ilife.home.oversea.robot"
             versionCode = 1
             versionName = '1.0.0'
             resValue "string", "app_name", "ILIFEHome海外"
@@ -67,6 +70,7 @@ android {
             buildConfigField("String", "BUGKY_KEY", "\"2b09f20d-6fca-47de-9e45-3d14223e6731\"")
             buildConfigField("String", "BUGLY_ID", "\"76637b4e00\"")
             buildConfigField("int", "Area", "1")
+            buildConfigField "String", "BUILD_COUNTRY", "\"SINGAPORE\""//国内
         }
     }
 

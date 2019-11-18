@@ -134,7 +134,7 @@ public class PersonalActivity extends BackBaseActivity implements View.OnClickLi
         Intent i;
         switch (v.getId()) {
             case R.id.rl_user_information:
-                startActivity(new Intent(PersonalActivity.this, PersonalInformationActivity.class));
+//                startActivity(new Intent(PersonalActivity.this, PersonalInformationActivity.class));
                 break;
             case R.id.rl_help:
                 i = new Intent(context, HelpActivity.class);

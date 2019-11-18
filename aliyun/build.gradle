@@ -22,12 +22,11 @@ android {
     buildTypes {
         release {
             minifyEnabled true
-            buildConfigField "String", "BUILD_COUNTRY", "\"SINGAPORE\""//国内
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-        }//debug 默认不开混淆
+        }
+        //debug 默认不开混淆
         debug {
             minifyEnabled false
-            buildConfigField "String", "BUILD_COUNTRY", "\"SINGAPORE\""
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }

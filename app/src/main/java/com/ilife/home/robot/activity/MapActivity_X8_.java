@@ -55,40 +55,12 @@ public class MapActivity_X8_ extends BaseMapActivity {
     @Override
     public void updateStartStatue(boolean isSelect, String value) {
         if (isSelect && mPresenter.getCurStatus() == MsgCodeUtils.STATUE_RECHARGE) {
-            tv_start.setTextColor(getResources().getColor(R.color.color_33));
-            tv_wall.setTextColor(getResources().getColor(R.color.color_33));
-            tv_bottom_recharge.setTextColor(getResources().getColor(R.color.color_33));
-            tv_bottom_recharge_x8.setTextColor(getResources().getColor(R.color.color_33));
-            tv_control_x9.setTextColor(getResources().getColor(R.color.color_33));
             tv_control_x9.setVisibility(View.VISIBLE);
             tv_bottom_recharge.setVisibility(View.GONE);
-            fl_bottom_x9.setBackground(new ColorDrawable(getResources().getColor(R.color.bg_color_f5f7fa)));
-        } else if (isSelect) {
-            tv_start.setTextColor(getResources().getColor(R.color.white));
-            tv_wall.setTextColor(getResources().getColor(R.color.white));
-            tv_bottom_recharge_x8.setTextColor(getResources().getColor(R.color.white));
-            tv_control_x9.setTextColor(getResources().getColor(R.color.white));
-            fl_bottom_x9.setBackground(new ColorDrawable(Color.TRANSPARENT));
-
         } else {
-            tv_start.setTextColor(getResources().getColor(R.color.color_33));
-            tv_wall.setTextColor(getResources().getColor(R.color.color_33));
-            tv_bottom_recharge.setTextColor(getResources().getColor(R.color.color_33));
-            tv_bottom_recharge_x8.setTextColor(getResources().getColor(R.color.color_33));
-            tv_control_x9.setTextColor(getResources().getColor(R.color.color_33));
             tv_control_x9.setVisibility(View.VISIBLE);
             tv_bottom_recharge.setVisibility(View.GONE);
-            fl_bottom_x9.setBackground(new ColorDrawable(getResources().getColor(R.color.bg_color_f5f7fa)));
         }
-//        if (mPresenter.getCurStatus() == MsgCodeUtils.STATUE_PLANNING) {
-//            if (mPresenter.getRobotType().equals(Constants.A8s)) {
-//                setNavigationBarColor(R.color.moka_color);
-//            } else {
-//                setNavigationBarColor(R.color.color_ff1b92e2);
-//            }
-//        } else {
-//            setNavigationBarColor(R.color.white);
-//        }
         tv_start.setText(value);
         tv_start.setSelected(isSelect);
         image_center.setSelected(isSelect);//the  start button of remote control
