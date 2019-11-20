@@ -238,7 +238,7 @@ public class AliInterfaceDelegate {
             public void onResponse(IoTRequest ioTRequest, IoTResponse ioTResponse) {
                 int responseCode = ioTResponse.getCode();
                 if (ioTRequest == null || 200 != responseCode) {
-                    onAliResponse.onFailed(ioTRequest.getPath(), 0, 0, "");
+                    onAliResponse.onFailed(ioTRequest.getPath(), 0, 0,ioTResponse.getLocalizedMsg());
                     //Alert the user that the request failed because of the network error
                 } else {
                     HashMap<String, Object> params = (HashMap<String, Object>) ioTRequest.getParams();

@@ -17,7 +17,7 @@ public interface OnDevicePoropertyResponse {
      *实时地图开始时间
      * 此时需要清空地图数据，刷新地图
      */
-    void onRealTimeMapStart();
+    void onRealTimeMapStart(long mapStarTime);
 
     /**
      * 实时地图数据

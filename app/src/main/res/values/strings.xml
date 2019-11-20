@@ -168,7 +168,7 @@
     <string name="setting_aty_type">型号：</string>
     <string name="clock_aty_appoint">定时预约</string>
     <string name="setting_aty_clean_record">清扫记录</string>
-    <string name="setting_aty_consume_detail">耗材情况</string>
+    <string name="setting_aty_consume_detail">保养与维护</string>
     <string name="setting_aty_water_control">水量控制</string>
     <string name="setting_aty_clean_mode1">清扫模式</string>
     <string name="setting_aty_max_suction">Max吸力模式</string>
@@ -197,15 +197,15 @@
     <string name="history_adapter_hour_minute">HH:mm</string>
     <string name="history_aty_no_record">没有清扫记录</string>
     <string name="consume_aty_tips">小贴士:长按重置耗材寿命</string>
-    <string name="consume_aty_side_time">边刷寿命</string>
-    <string name="consume_aty_roll_time">滚刷寿命</string>
-    <string name="consume_aty_filter_time">滤网寿命</string>
+    <string name="consume_aty_side_time">边刷</string>
+    <string name="consume_aty_roll_time">滚刷</string>
+    <string name="consume_aty_filter_time">滤网</string>
     <string name="consume_aty_resetSide">是否重置边刷寿命</string>
-    <string name="consume_aty_resetSide_over">重置后边刷会更新到最新状态</string>
+    <string name="consume_aty_resetSide_over">请确认是否已更换新边刷</string>
     <string name="consume_aty_resetRoll">是否重置滚刷寿命</string>
-    <string name="consume_aty_resetRoll_over">重置后滚刷会更新到最新状态</string>
+    <string name="consume_aty_resetRoll_over">请确认是否已更换新滚刷</string>
     <string name="consume_aty_resetFilter">是否重置滤网寿命</string>
-    <string name="consume_aty_resetFilter_over">重置后滤网会更新到最新状态</string>
+    <string name="consume_aty_resetFilter_over">请确认是否已更换新滤网 </string>
     <string name="consume_aty_reset_suc">重置成功</string>
     <string name="clock_aty_dev_offline">设备已离线</string>
     <string name="setting_aty_hit_">用户名</string>
@@ -297,7 +297,6 @@
     <string name="adapter_error_td_a9">探地组件异常</string>
     <string name="consume_aty_resetRoll_a9">是否重置滚刷寿命</string>
     <string name="consume_aty_resetRoll_over_a9">重置后滚刷会更新到最新状态</string>
-    <string name="consume_aty_roll_time_a9">滚刷寿命</string>
     <string name="consume_aty_text_2">温馨提示：每次使用后，请及时清理边刷、滚刷、高效滤网。3-6个月可更换边刷、5-12个月可更换滚刷、3-5个月可更换高效滤网。</string>
     <string name="agree_privacy_policy">注册登录表示同意</string>
     <string name="please_agree_policy">请同意%1$s</string>
@@ -312,7 +311,17 @@
     <string name="adapter_error_bs">边刷异常</string>
     <string name="consume_aty_text_2_v85">温馨提示：每次使用后，请及时清理边刷、高效滤网。3-6个月可更换边刷、3-5个月可更换高效滤网。</string>
     <string name="ap_guide_loading">机器正在启动中，请耐心等待约20秒，直至听到语音\"请按键开始清扫\"，再进行下一步。</string>
-    <string name="guide_aty_loading_next" >我知道了</string>
+    <string name="guide_aty_loading_next">我知道了</string>
     <string name="personal_information">个人信息</string>
     <string name="set_user_icon">设置头像</string>
+    <string name="consumer_tip_side">*边刷用于聚拢地面上灰尘，以覆盖更大清扫区域。长时间使用后会出现形变情况，将导致清扫效果下降。 建议每周卸下边刷清理被缠绕异物，3-6个月更换新边刷。
+*注：重装时，请注意区分左右边刷安装位置。
+</string>
+    <string name="consumer_tip_roll">*滚刷用于卷起垃圾至尘盒中。长时间使用后，可能会被毛发等异物缠绕，将导致滚刷卡死等异常现象。 建议每周卸下滚刷清理被缠绕异物，5-12个月更换新滚刷。
+*注：重装时，请注意滚刷以及滚刷盖板安装位置</string>
+    <string name="consumer_tip_fillter">*高效过滤网用于过滤气流中小颗粒灰尘，防止风扇组件被堵塞。随着清洁时间的累计，滤网会逐渐被堵塞，导致过滤效果减弱。建议每3-4次清扫后，清洁1次滤网。1-2个月更换新的滤网，以达到最佳清扫效果及延长机器寿命。
+*注：滤网禁止水洗。需轻拍或用清洁刷子清理滤网。
+</string>
+    <string name="consumer_tip">*当耗材寿命少于50%时，请视实际情况及时更换，以达到最佳的清扫效果。</string>
+    <string name="consumer_remain_time">约%1$s小时可更换</string>
 </resources>

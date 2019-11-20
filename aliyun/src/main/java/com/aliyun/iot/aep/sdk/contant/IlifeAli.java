@@ -48,6 +48,7 @@ import com.aliyun.iot.aep.sdk.login.ILogoutCallback;
 import com.aliyun.iot.aep.sdk.login.LoginBusiness;
 import com.aliyun.iot.aep.sdk.login.data.UserInfo;
 import com.google.gson.Gson;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -334,8 +335,8 @@ public class IlifeAli {
                                 RealTimeMapBean realTimeMapBean = gson.fromJson(items.getJSONObject(EnvConfigure.KEY_REALTIMEMAP).getString(EnvConfigure.KEY_VALUE), RealTimeMapBean.class);
                                 onDevicePoropertyResponse.onRealMap(realTimeMapBean);
                             } else if (items.containsKey(EnvConfigure.KEY_REAL_TIME_MAP_START)) {
-//                            long start = items.getJSONObject(EnvConfigure.KEY_REAL_TIME_MAP_START).getLongValue(EnvConfigure.KEY_TIME);
-                                onDevicePoropertyResponse.onRealTimeMapStart();
+                                long marStartTime = items.getJSONObject(EnvConfigure.KEY_REAL_TIME_MAP_START).getLongValue(EnvConfigure.KEY_TIME);
+                                onDevicePoropertyResponse.onRealTimeMapStart(marStartTime);
                             } else if (items.containsKey(EnvConfigure.KEY_BATTERY_STATE)) {
 
                             }
@@ -884,7 +885,7 @@ public class IlifeAli {
      * @param end
      * @param onAliResponse
      */
-    //地图数据多于200包的处理
+    //地图数据多于200包的处理 TODO pkgid乱序
     public void getCleaningHistory(long start, long end, OnAliResponse<List<RealTimeMapBean>> onAliResponse) {
         GetHistoryMapDelegate history = new GetHistoryMapDelegate(ioTAPIClient, iotId, start, end, onAliResponse);
         history.getRealHistoryMap();

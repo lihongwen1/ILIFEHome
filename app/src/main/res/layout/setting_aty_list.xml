@@ -8,7 +8,9 @@
     <RelativeLayout
         android:id="@+id/rl_clock"
         android:layout_width="match_parent"
-        android:layout_height="@dimen/dp_60">
+        android:layout_height="@dimen/dp_60"
+        android:layout_marginStart="@dimen/dp_24"
+        android:layout_marginEnd="@dimen/dp_24">
 
         <com.ilife.home.robot.view.RegularTextView
             style="@style/Text_16sp_33_bold"
@@ -17,12 +19,17 @@
         <ImageView style="@style/Image_Style_Forward" />
     </RelativeLayout>
 
-    <View style="@style/View_Line_Style" />
+    <View
+        style="@style/View_Line_Style"
+        android:layout_marginStart="@dimen/dp_24"
+        android:layout_marginEnd="@dimen/dp_24" />
 
     <RelativeLayout
         android:id="@+id/rl_record"
         android:layout_width="match_parent"
-        android:layout_height="@dimen/dp_60">
+        android:layout_height="@dimen/dp_60"
+        android:layout_marginStart="@dimen/dp_24"
+        android:layout_marginEnd="@dimen/dp_24">
 
         <com.ilife.home.robot.view.RegularTextView
             style="@style/Text_16sp_33_bold"
@@ -31,12 +38,17 @@
         <ImageView style="@style/Image_Style_Forward" />
     </RelativeLayout>
 
-    <View style="@style/View_Line_Style" />
+    <View
+        style="@style/View_Line_Style"
+        android:layout_marginStart="@dimen/dp_24"
+        android:layout_marginEnd="@dimen/dp_24" />
 
     <RelativeLayout
         android:id="@+id/rl_consume"
         android:layout_width="match_parent"
-        android:layout_height="@dimen/dp_60">
+        android:layout_height="@dimen/dp_60"
+        android:layout_marginStart="@dimen/dp_24"
+        android:layout_marginEnd="@dimen/dp_24">
 
         <com.ilife.home.robot.view.RegularTextView
             style="@style/Text_16sp_33_bold"
@@ -45,14 +57,17 @@
         <ImageView style="@style/Image_Style_Forward" />
     </RelativeLayout>
 
-    <View style="@style/View_Line_Style" />
-
+    <View
+        style="@style/View_Line_Style"
+        android:layout_marginStart="@dimen/dp_24"
+        android:layout_marginEnd="@dimen/dp_24" />
 
     <RelativeLayout
         android:id="@+id/rl_water"
         android:layout_width="match_parent"
         android:layout_height="@dimen/dp_60"
-        >
+        android:layout_marginStart="@dimen/dp_24"
+        android:layout_marginEnd="@dimen/dp_24">
 
         <com.ilife.home.robot.view.RegularTextView
             android:id="@+id/tv_control"
@@ -73,14 +88,17 @@
             style="@style/Image_Style_Down" />
     </RelativeLayout>
 
-    <View style="@style/View_Line_Style" />
+    <View
+        style="@style/View_Line_Style"
+        android:layout_marginStart="@dimen/dp_24"
+        android:layout_marginEnd="@dimen/dp_24" />
 
     <LinearLayout
         android:id="@+id/ll_water"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
         android:background="@color/color_f6"
+        android:orientation="vertical"
         android:visibility="gone">
 
         <RelativeLayout
@@ -97,11 +115,11 @@
 
             <ImageView
                 android:id="@+id/image_soft"
-                android:layout_width="@dimen/dp_18"
-                android:layout_height="@dimen/dp_18"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 android:layout_alignParentEnd="true"
                 android:layout_centerVertical="true"
-                android:background="@drawable/image_soft_bg" />
+                android:background="@drawable/selector_water_soft" />
         </RelativeLayout>
 
         <View
@@ -124,14 +142,15 @@
 
             <ImageView
                 android:id="@+id/image_standard"
-                android:layout_width="@dimen/dp_18"
-                android:layout_height="@dimen/dp_18"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 android:layout_alignParentEnd="true"
                 android:layout_centerVertical="true"
-                android:background="@drawable/image_soft_bg" />
+                android:background="@drawable/selector_water_standard" />
         </RelativeLayout>
 
         <View
+
             android:layout_width="match_parent"
             android:layout_height="@dimen/dp_1"
             android:layout_marginStart="@dimen/dp_30"
@@ -151,11 +170,11 @@
 
             <ImageView
                 android:id="@+id/image_strong"
-                android:layout_width="@dimen/dp_18"
-                android:layout_height="@dimen/dp_18"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 android:layout_alignParentEnd="true"
                 android:layout_centerVertical="true"
-                android:background="@drawable/image_soft_bg" />
+                android:background="@drawable/selector_water_strong" />
         </RelativeLayout>
 
         <View
@@ -167,7 +186,9 @@
     <RelativeLayout
         android:id="@+id/rl_mode"
         android:layout_width="match_parent"
-        android:layout_height="@dimen/dp_60">
+        android:layout_height="@dimen/dp_60"
+        android:layout_marginStart="@dimen/dp_24"
+        android:layout_marginEnd="@dimen/dp_24">
 
         <ImageView
             android:id="@+id/image_down_2"
@@ -198,15 +219,16 @@
         android:id="@+id/ll_mode"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
+        android:layout_marginStart="@dimen/dp_24"
+        android:layout_marginEnd="@dimen/dp_24"
         android:background="@color/color_f6"
+        android:orientation="vertical"
         android:visibility="gone">
 
         <RelativeLayout
             android:id="@+id/rl_plan"
             android:layout_width="match_parent"
-            android:layout_height="@dimen/dp_60"
-           >
+            android:layout_height="@dimen/dp_60">
 
             <com.ilife.home.robot.view.LightTextView
                 android:id="@+id/tv_plan"
@@ -233,8 +255,7 @@
         <RelativeLayout
             android:id="@+id/rl_random"
             android:layout_width="match_parent"
-            android:layout_height="@dimen/dp_60"
-           >
+            android:layout_height="@dimen/dp_60">
 
             <com.ilife.home.robot.view.LightTextView
                 android:id="@+id/tv_random"
@@ -262,7 +283,8 @@
         android:id="@+id/rl_voice"
         android:layout_width="match_parent"
         android:layout_height="@dimen/dp_60"
-        >
+        android:layout_marginStart="@dimen/dp_24"
+        android:layout_marginEnd="@dimen/dp_24">
 
         <com.ilife.home.robot.view.RegularTextView
             style="@style/Text_16sp_33_bold"
@@ -282,7 +304,9 @@
     <RelativeLayout
         android:id="@+id/rl_suction"
         android:layout_width="match_parent"
-        android:layout_height="@dimen/dp_60">
+        android:layout_height="@dimen/dp_60"
+        android:layout_marginStart="@dimen/dp_24"
+        android:layout_marginEnd="@dimen/dp_24">
 
         <com.ilife.home.robot.view.RegularTextView
             style="@style/Text_16sp_33_bold"
@@ -297,59 +321,59 @@
             android:background="@drawable/image_max_bg" />
     </RelativeLayout>
 
-    <View style="@style/View_Line_Style" />
-
     <View
-        android:layout_width="match_parent"
-        android:layout_height="@dimen/dp_10"
-        android:background="@color/color_f6" />
-
-    <View style="@style/View_Line_Style" />
+        style="@style/View_Line_Style"
+        android:layout_marginStart="@dimen/dp_24"
+        android:layout_marginEnd="@dimen/dp_24" />
 
     <RelativeLayout
         android:id="@+id/rl_find"
         android:layout_width="match_parent"
-        android:layout_height="@dimen/dp_60">
+        android:layout_height="@dimen/dp_60"
+        android:layout_marginStart="@dimen/dp_24"
+        android:layout_marginEnd="@dimen/dp_24">
 
         <com.ilife.home.robot.view.RegularTextView
             style="@style/Text_16sp_33_bold"
             android:text="@string/setting_aty_find_robot" />
+
+
         <ImageView
-            android:id="@+id/iv_find_robot"
-            style="@style/Image_Style_Forward" />
-        <ImageView
-            android:id="@+id/imageView"
+            android:id="@+id/iv_find_device"
             android:layout_width="@dimen/dp_18"
             android:layout_height="@dimen/dp_18"
             android:layout_alignParentEnd="true"
             android:layout_centerVertical="true"
             android:layout_marginStart="@dimen/dp_19"
-            android:src="@drawable/n_icon_progress_yellow"
-            android:visibility="gone" />
+            android:src="@drawable/selector_find_robot"
+            />
     </RelativeLayout>
 
     <View style="@style/View_Line_Style" />
 
 
     <RelativeLayout
-        android:visibility="gone"
         android:id="@+id/rl_update"
         android:layout_width="match_parent"
-        android:layout_height="@dimen/dp_60">
+        android:layout_height="@dimen/dp_60"
+        android:layout_marginStart="@dimen/dp_24"
+        android:layout_marginEnd="@dimen/dp_24"
+        android:visibility="gone">
 
         <com.ilife.home.robot.view.RegularTextView
             android:id="@+id/tv_ota_update"
             style="@style/Text_16sp_33_bold"
             android:text="@string/setting_aty_ota_update" />
+
         <com.ilife.home.robot.view.LightTextView
-            android:visibility="gone"
             android:id="@+id/tv_ota_ver"
             style="@style/Text_14sp_ac"
             android:layout_marginStart="@dimen/dp_20"
             android:layout_toStartOf="@+id/ota_right"
             android:layout_toEndOf="@+id/tv_ota_update"
             android:gravity="end"
-            android:text="@string/setting_ota_current_version" />
+            android:text="@string/setting_ota_current_version"
+            android:visibility="gone" />
 
         <ImageView
             android:id="@+id/ota_right"
@@ -357,13 +381,18 @@
     </RelativeLayout>
 
 
-    <View style="@style/View_Line_Style" />
+    <View
+        style="@style/View_Line_Style"
+        android:layout_marginStart="@dimen/dp_24"
+        android:layout_marginEnd="@dimen/dp_24" />
 
 
     <RelativeLayout
         android:id="@+id/rl_facReset"
         android:layout_width="match_parent"
-        android:layout_height="@dimen/dp_60">
+        android:layout_height="@dimen/dp_60"
+        android:layout_marginStart="@dimen/dp_24"
+        android:layout_marginEnd="@dimen/dp_24">
 
         <com.ilife.home.robot.view.RegularTextView
             style="@style/Text_16sp_33_bold"

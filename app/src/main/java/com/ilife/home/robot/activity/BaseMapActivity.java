@@ -138,6 +138,7 @@ public abstract class BaseMapActivity extends BackBaseActivity<MapX9Presenter> i
     public static final int USE_MODE_NORMAL = 1;
     public static final int USE_MODE_REMOTE_CONTROL = 2;
     protected int USE_MODE = USE_MODE_NORMAL;
+
     @Override
     public void attachPresenter() {
         super.attachPresenter();
@@ -216,6 +217,7 @@ public abstract class BaseMapActivity extends BackBaseActivity<MapX9Presenter> i
 
     @Override
     public void updateStatue(String value) {
+        tv_status.setTextColor(getResources().getColor(R.color.white));
         tv_status.setText(value);
     }
 
@@ -336,11 +338,11 @@ public abstract class BaseMapActivity extends BackBaseActivity<MapX9Presenter> i
      */
     @Override
     public void setTvUseStatus(int tag) {
+       int color=getResources().getColor(R.color.white);
         switch (tag) {
-//            case TAG_NORMAL:
-//                tv_status.setText("");
-//                tv_status.setVisibility(View.GONE);
-//                break;
+            case TAG_NORMAL:
+                tv_status.setText("");
+                break;
             case TAG_CONTROL:
                 tv_status.setText(getString(R.string.map_aty_use_control));
                 break;
@@ -354,6 +356,7 @@ public abstract class BaseMapActivity extends BackBaseActivity<MapX9Presenter> i
                 tv_status.setText(getString(R.string.map_aty_use_right));
                 break;
             case TAG_RECHAGRGE:
+                color=getResources().getColor(R.color.color_33);
                 tv_status.setText(R.string.map_aty_use_recharging_x9);
                 break;
             case TAG_KEYPOINT:
@@ -366,6 +369,7 @@ public abstract class BaseMapActivity extends BackBaseActivity<MapX9Presenter> i
                 tv_status.setText(getString(R.string.start_random_cleaning));
                 break;
         }
+        tv_status.setTextColor(color);
     }
 
 
@@ -389,9 +393,6 @@ public abstract class BaseMapActivity extends BackBaseActivity<MapX9Presenter> i
                 electricityDrawable.stop();
             }
         }
-        if (curStatus != MsgCodeUtils.STATUE_REMOTE_CONTROL) {
-            setTvUseStatus(TAG_NORMAL);
-        }
     }
 
 
@@ -400,25 +401,26 @@ public abstract class BaseMapActivity extends BackBaseActivity<MapX9Presenter> i
      * 设置电池图标
      */
     public void setBatteryImage(int curStatus, int batteryNo) {
-        if (curStatus == 0x09 || curStatus == 0x0b) {
+        MyLogger.d(TAG,"当前电量：    "+batteryNo);
+        if (curStatus == MsgCodeUtils.STATUE_CHARGING || curStatus ==MsgCodeUtils.STATUE_CHARGING_) {//充电座模式&直冲模式
             if (batteryNo <= 6) {
-                image_ele.setImageResource(R.drawable.map_aty_battery1_ing);   //红色
+                image_ele.setImageResource(R.drawable.battery_ing_empty);   //红色
             } else if (batteryNo < 35) {
-                image_ele.setImageResource(R.drawable.map_aty_battery2_ing);   //一格
+                image_ele.setImageResource(R.drawable.battery_ing_1);   //一格
             } else if (batteryNo < 75) {
-                image_ele.setImageResource(R.drawable.map_aty_battery3_ing);   //两格
+                image_ele.setImageResource(R.drawable.battery_ing_2);   //两格
             } else {
-                image_ele.setImageResource(R.drawable.map_aty_battery4_ing);   //满格
+                image_ele.setImageResource(R.drawable.battery_ing_3);   //满格
             }
         } else {
             if (batteryNo <= 6) {
-                image_ele.setImageResource(R.drawable.map_aty_battery1);   //红色
+                image_ele.setImageResource(R.drawable.battery_empty);   //红色
             } else if (batteryNo < 35) {
-                image_ele.setImageResource(R.drawable.map_aty_battery2);   //一格
+                image_ele.setImageResource(R.drawable.battery_1);   //一格
             } else if (batteryNo < 75) {
-                image_ele.setImageResource(R.drawable.map_aty_battery4);   //两格
+                image_ele.setImageResource(R.drawable.battery_2);   //两格
             } else {
-                image_ele.setImageResource(R.drawable.map_aty_battery3);   //满格
+                image_ele.setImageResource(R.drawable.battery_3);   //满格
             }
         }
 
@@ -434,7 +436,9 @@ public abstract class BaseMapActivity extends BackBaseActivity<MapX9Presenter> i
             case R.id.image_center:
                 image_center.setSelected(image_center.isSelected());
             case R.id.tv_start_x9: //done
-                if (mPresenter.isWork(mPresenter.getCurStatus())) {
+                if (mPresenter.getCurStatus() == MsgCodeUtils.STATUE_RECHARGE) {//回冲直接暂停
+                    mPresenter.setPropertiesWithParams(AliSkills.get().enterPauseMode(IlifeAli.getInstance().getWorkingDevice().getIotId()));
+                } else if (mPresenter.isWork(mPresenter.getCurStatus())) {
                     UniversalDialog universalDialog = new UniversalDialog();
                     universalDialog.setTitle(Utils.getString(R.string.choose_your_action)).setHintTip(Utils.getString(R.string.please_set_task))
                             .setLeftText(Utils.getString(R.string.finsh_cur_task)).setRightText(Utils.getString(R.string.pause_cur_task)).exchangeButtonColor()

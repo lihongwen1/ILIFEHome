@@ -2,38 +2,51 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/bg_color_f5f7fa"
     android:orientation="vertical">
 
     <include layout="@layout/template_top_title" />
 
-    <View
-      style="@style/View_Line_Style"
-        />
+    <View style="@style/View_Line_Style" />
+
     <FrameLayout
+
+        android:layout_marginEnd="@dimen/dp_24"
+        android:layout_marginStart="@dimen/dp_24"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
         <androidx.recyclerview.widget.RecyclerView
+            android:layout_marginTop="@dimen/dp_12"
             android:id="@+id/recyclerView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:visibility="visible" />
 
-        <FrameLayout
-            android:visibility="gone"
-            android:id="@+id/fl_noRecord"
+        <LinearLayout
+            android:id="@+id/ll_noRecord"
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="match_parent"
+            android:gravity="center_horizontal"
+            android:orientation="vertical"
+            android:visibility="gone">
+
+            <ImageView
+                android:layout_marginTop="@dimen/dp_20"
+                android:layout_width="@dimen/dp_200"
+                android:layout_height="@dimen/dp_200"
+                android:background="@drawable/pic_cleaning_record" />
 
             <com.ilife.home.robot.view.RegularTextView
-                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/dp_16"
                 android:layout_width="wrap_content"
-                android:textColor="@color/color_ac"
-                android:textSize="@dimen/sp_24"
+                android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:text="@string/history_aty_no_record"
+                android:textColor="@color/color_666666"
+                android:textSize="@dimen/sp_16"
                 android:visibility="visible" />
-        </FrameLayout>
+        </LinearLayout>
 
     </FrameLayout>
 

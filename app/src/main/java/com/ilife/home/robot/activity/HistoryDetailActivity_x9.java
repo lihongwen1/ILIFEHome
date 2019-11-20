@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Base64;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.aliyun.iot.aep.sdk.bean.HistoryRecordBean;
@@ -46,8 +47,13 @@ public class HistoryDetailActivity_x9 extends BackBaseActivity {
     TextView tv_title;
     @BindView(R.id.mv_history_detail)
     MapView mapView;
+
+    @BindView(R.id.tv_history_date)
+    TextView tv_history_date;
     @BindView(R.id.tv_end_reason)
     TextView tv_end_reason;
+    @BindView(R.id.iv_cleaning_flag)
+    ImageView iv_cleaning_flag;
     @BindView(R.id.tv_clean_time)
     TextView tv_clean_time;
     @BindView(R.id.tv_lean_area)
@@ -221,11 +227,13 @@ public class HistoryDetailActivity_x9 extends BackBaseActivity {
             mapList = record.getMapDataList();
             MyLogger.e(TAG, "getDate===:" + xMin + "<--->" + xMax + "<--->" + yMin + "<--->" + yMax + "<--->");
             long time_ = record.getStartTime();
-            String date = generateTime(time_, getString(R.string.history_adapter_month_day));
-            tv_title.setText(date);
+            String date = generateTime(time_, "YY/MM/dd HH:mm");
+            tv_title.setText("清扫详情");
+            tv_history_date.setText(date);
             tv_end_reason.setText(getResources().getString(R.string.setting_aty_end_reason, gerRealErrortTip(record.getStopCleanReason())));
             tv_clean_time.setText(record.getCleanTotalTime() / 60 + "min");
             tv_lean_area.setText(record.getCleanTotalArea() + "㎡");
+            iv_cleaning_flag.setImageResource(record.getStopCleanReason()==1?R.drawable.annal_icon_finish:R.drawable.annal_icon_problem);
         }
 
     }

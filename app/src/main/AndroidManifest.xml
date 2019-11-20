@@ -154,6 +154,7 @@
             android:name="com.ilife.home.robot.activity.PersonalInformationActivity"
             android:launchMode="singleTop"
             android:screenOrientation="portrait" />
+        <activity android:name=".activity.ConsumerDetailActivity" />
 
         <provider
             android:name="androidx.core.content.FileProvider"

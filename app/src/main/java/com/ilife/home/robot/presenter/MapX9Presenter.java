@@ -265,6 +265,8 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
     @Override
     public void prepareToReloadData() {
         isGetHistory = false;
+        workTime=0;
+        cleanArea=0;
         historyRoadList.clear();
         realTimePoints.clear();//X900 series
         pointList.clear();//X800 series
@@ -322,7 +324,7 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
                     errorCode = code;
                     mView.showErrorPopup(errorCode);
                     if (errorCode != 0) {
-                        setStatus(curStatus, errorCode);
+                        setStatus(curStatus, batteryNo);
                     }
                 });
                 registerPropReceiver();
@@ -532,10 +534,12 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
             }
 
             @Override
-            public void onRealTimeMapStart() {
+            public void onRealTimeMapStart(long startTime) {
                 MyLogger.d(TAG, "registerPropReceiver----onRealTimeMapStart");
                 //TODO 清空地图相关数据
-
+                mapStartTime = startTime;
+                prepareToReloadData();
+//                getHistoryDataX8();
             }
 
             @Override
@@ -567,7 +571,7 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
                 MyLogger.d(TAG, "ERRORCODE-----" + code);
                 errorCode = code;
                 mView.showErrorPopup(errorCode);
-                setStatus(curStatus, errorCode);
+                setStatus(curStatus, batteryNo);
             }
         });
     }
@@ -601,21 +605,14 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
                             getDevStatus();
                             MyLogger.d(TAG, "gain the device status again");
                         }
-                        if (curStatus != functionCode) {
-                            curStatus = functionCode;
-                            setStatus(curStatus, -1);
-                        }
                         break;
                 }
             }
 
             @Override
             public void onFailed(String path, int tag, int code, String message) {
-                if (code == MsgCodeUtils.UPLOADMSG) {//上传地图数据的请求不提示超时
-                    return;
-                }
                 // TODO 错误码处理
-//                ToastUtils.showErrorToast(MyApplication.getInstance(), code);
+                ToastUtils.showToast(message);
             }
         });
 

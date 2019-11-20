@@ -137,10 +137,8 @@ public class SettingActivity extends BackBaseActivity implements OnAliSetPropert
     LinearLayout ll_water;
     @BindView(R.id.ll_mode)
     LinearLayout ll_mode;
-    @BindView(R.id.imageView)
-    ImageView imageView;
-    @BindView(R.id.iv_find_robot)
-    ImageView iv_find_robot;
+    @BindView(R.id.iv_find_device)
+    ImageView iv_find_device;
     LayoutInflater inflater;
     Animation animation;
     private CompositeDisposable mDisposable;
@@ -150,9 +148,8 @@ public class SettingActivity extends BackBaseActivity implements OnAliSetPropert
             if (msg.what == TAG_FIND_DONE) {
                 if (rl_find != null) {
                     rl_find.setClickable(true);
-                    imageView.setVisibility(View.GONE);
-                    imageView.clearAnimation();
-                    iv_find_robot.setVisibility(View.VISIBLE);
+                    iv_find_device.setSelected(false);
+                    iv_find_device.clearAnimation();
                 }
 
             }
@@ -364,9 +361,8 @@ public class SettingActivity extends BackBaseActivity implements OnAliSetPropert
             case R.id.rl_find:
                 IlifeAli.getInstance().findDevice(this);
                 rl_find.setClickable(false);
-                imageView.setVisibility(View.VISIBLE);
-                iv_find_robot.setVisibility(View.GONE);
-                imageView.startAnimation(animation);
+                iv_find_device.setSelected(true);
+                iv_find_device.startAnimation(animation);
                 break;
             case R.id.rl_plan://X800 mo have this function
                 //TODO 待实现
@@ -534,8 +530,8 @@ public class SettingActivity extends BackBaseActivity implements OnAliSetPropert
 
     public void findDone() {
         rl_find.setClickable(true);
-        imageView.setVisibility(View.GONE);
-        imageView.clearAnimation();
+        iv_find_device.setSelected(false);
+        iv_find_device.clearAnimation();
     }
 
     public void goToMain() {

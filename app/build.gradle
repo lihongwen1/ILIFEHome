@@ -16,14 +16,16 @@ android {
     signingConfigs {
         ilife {
             v2SigningEnabled false
-            storeFile file('E:\\as_workspace\\ilife\\keystore_ilife\\ilife.jks')
+//            storeFile file('E:\\as_workspace\\ilife\\keystore_ilife\\ilife.jks')
+            storeFile file('D:\\flylin_github_respostories\\qianming\\ilife\\ilife.jks')
             storePassword '123456'
             keyAlias = 'ilife'
             keyPassword '123456'
         }
         ilife_home {
             v2SigningEnabled false
-            storeFile file('E:\\as_workspace\\ilife\\keystore_ali\\ilifehome.jks')
+//            storeFile file('E:\\as_workspace\\ilife\\keystore_ali\\ilifehome.jks')
+            storeFile file('D:\\flylin_github_respostories\\qianming\\ali\\ilifehome.jks')
             storePassword '123456'
             keyAlias = 'ilifehome'
             keyPassword '123456'
@@ -50,7 +52,7 @@ android {
             dimension "default"
             applicationId "com.ilife.home.robot"
             versionCode = 3
-            versionName = '1.2.5'
+            versionName = '1.2.8'
             resValue "string", "app_name", "ILIFEHome"
             buildConfigField("String", "environment", "\"product\"")
             buildConfigField("String", "BRAND", "\"ILIFE\"")

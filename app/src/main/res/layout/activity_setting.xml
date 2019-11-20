@@ -47,8 +47,6 @@
     </RelativeLayout>
     <ScrollView
         android:scrollbars="none"
-        android:layout_marginStart="@dimen/dp_24"
-        android:layout_marginEnd="@dimen/dp_24"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
         <include layout="@layout/setting_aty_list" />

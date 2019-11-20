@@ -16,6 +16,7 @@ import com.aliyun.iot.aep.sdk.contant.IlifeAli;
 import com.ilife.home.robot.R;
 import com.ilife.home.robot.base.BackBaseActivity;
 import com.ilife.home.robot.utils.MyLogger;
+import com.ilife.home.robot.utils.ToastUtils;
 
 import java.util.concurrent.TimeUnit;
 
@@ -43,6 +44,7 @@ public class OtaUpdateActivity extends BackBaseActivity {
     LinearLayout ll_update;
     @BindView(R.id.tv_top_title)
     TextView title;
+    private boolean isUpdateSucess;
 
     protected CompositeDisposable mDisposable;
 
@@ -83,23 +85,33 @@ public class OtaUpdateActivity extends BackBaseActivity {
     private void updateOtaVer(int curV, int latestV) {
         ;
         tv_current.setText("当前版本: " + Integer.toHexString(curV));
-         tv_target.setText("最新版本: " + Integer.toHexString(latestV));
+        tv_target.setText("最新版本: " + Integer.toHexString(latestV));
         fl_version.setVisibility(View.VISIBLE);
     }
 
     private void updateBtnStatus(int status, int progress) {
         btn_update.setTag(status);
-        btn_update.setSelected(status == 1);
-        btn_update.setClickable(status == 1);
+        boolean isClickable = status == 1 || progress == 100;
+        btn_update.setSelected(isClickable);
+        btn_update.setClickable(isClickable);
         switch (status) {
             case 0://无更新
-                btn_update.setText("无更新");
+                if (progress == 100) {
+                    ToastUtils.showToast("固件升级成功");
+                    btn_update.setText("完成");
+                    isUpdateSucess = true;
+                    if (mDisposable != null) {
+                        mDisposable.dispose();
+                    }
+                } else {
+                    btn_update.setText("已是最新版本");
+                }
                 break;
             case 1://有更新
                 btn_update.setText("立即更新");
                 break;
             case 2://更新中
-                btn_update.setText("%"+progress);
+                btn_update.setText("固件升级中。。。");
                 break;
             case 3:
                 btn_update.setText("升级失败");
@@ -150,21 +162,29 @@ public class OtaUpdateActivity extends BackBaseActivity {
 
     @OnClick(R.id.btn_update)
     public void onClick(View view) {
-        if ((int) view.getTag() == 1) {
-            IlifeAli.getInstance().setProperties(AliSkills.get().enterOTAMode(IlifeAli.getInstance().getIotId()), new OnAliSetPropertyResponse() {
-                @Override
-                public void onSuccess(String path, int tag, int functionCode, int responseCode) {
-                    MyLogger.d(TAG, "进入OTA升级模式成功");
-                    updateBtnStatus(2, 0);
-                    pollingForUpdateProgress();
-                }
+        if (isUpdateSucess) {
+            finish();
+        } else {
+            if ((int) view.getTag() == 1) {
+                IlifeAli.getInstance().setProperties(AliSkills.get().enterOTAMode(IlifeAli.getInstance().getIotId()), new OnAliSetPropertyResponse() {
+                    @Override
+                    public void onSuccess(String path, int tag, int functionCode, int responseCode) {
+                        if (isUpdateSucess) {
+                            return;
+                        }
+                        MyLogger.d(TAG, "进入OTA升级模式成功");
+                        updateBtnStatus(2, 0);
+                        pollingForUpdateProgress();
+                    }
 
-                @Override
-                public void onFailed(String path, int tag, int code, String message) {
-                    MyLogger.e(TAG, "进入OTA升级模式失败" + message);
-                }
-            });
+                    @Override
+                    public void onFailed(String path, int tag, int code, String message) {
+                        MyLogger.e(TAG, "进入OTA升级模式失败" + message);
+                    }
+                });
+            }
         }
+
     }
 
     @Override

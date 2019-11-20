@@ -116,7 +116,7 @@ public class PersonalActivity extends BackBaseActivity implements View.OnClickLi
         }
         String version = getVersion();
         if (!TextUtils.isEmpty(version)) {
-            tv_version.setText(getString(R.string.personal_aty_version, version, BuildConfig.Area==0?"CN":"OVERSEA"));
+            tv_version.setText(getString(R.string.personal_aty_version, version, BuildConfig.Area == 0 ? "CN" : "OVERSEA"));
         }
         /**
          * user contact information,email or phone number
@@ -129,12 +129,12 @@ public class PersonalActivity extends BackBaseActivity implements View.OnClickLi
     }
 
 
-    @OnClick({R.id.rl_user_information, R.id.rl_help, R.id.rl_scan, R.id.bt_logout, R.id.rl_protocol, R.id.tv_userName, R.id.rl_share})
+    @OnClick({R.id.rl_user_information, R.id.rl_help, R.id.rl_scan, R.id.bt_logout, R.id.rl_protocol, R.id.rl_share})
     public void onClick(View v) {
         Intent i;
         switch (v.getId()) {
             case R.id.rl_user_information:
-//                startActivity(new Intent(PersonalActivity.this, PersonalInformationActivity.class));
+                showRenameDialog();
                 break;
             case R.id.rl_help:
                 i = new Intent(context, HelpActivity.class);
@@ -161,9 +161,6 @@ public class PersonalActivity extends BackBaseActivity implements View.OnClickLi
                     i = new Intent(context, ZacoProtocolActivity.class);
                     startActivity(i);
                 }
-                break;
-            case R.id.tv_userName:
-                showRenameDialog();
                 break;
             case R.id.rl_share:
                 if (IlifeAli.getInstance().isLogin()) {

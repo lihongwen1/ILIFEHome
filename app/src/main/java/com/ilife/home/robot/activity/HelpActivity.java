@@ -18,6 +18,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
@@ -70,7 +71,7 @@ public class HelpActivity extends BackBaseActivity implements View.OnClickListen
     Context context;
     LayoutInflater inflater;
     EditText et_email, et_type, et_content;
-    RelativeLayout rl_type;
+    FrameLayout rl_type;
     File captureFile, albumFile;
     CustomPopupWindow typePop;
     BottomSheetDialog areaDialog;
@@ -140,7 +141,7 @@ public class HelpActivity extends BackBaseActivity implements View.OnClickListen
         }
         et_type = (EditText) findViewById(R.id.et_type);
         et_content = (EditText) findViewById(R.id.et_content);
-        rl_type = (RelativeLayout) findViewById(R.id.rl_type);
+        rl_type =findViewById(R.id.rl_type);
         view = findViewById(R.id.view);
         tv_title.setText(R.string.personal_aty_help);
         et_content.addTextChangedListener(new MyTextWatcher());
@@ -370,7 +371,7 @@ public class HelpActivity extends BackBaseActivity implements View.OnClickListen
         KeyboardUtils.hideSoftInput(this);
         if (typePop == null) {
             CustomPopupWindow.Builder builder = new CustomPopupWindow.Builder(this);
-            typePop = builder.setBgDarkAlpha(0.6f).setView(R.layout.typelist).size(et_type.getWidth() + 4, 0).setOutsideTouchable(true).setFocusable(true).create();
+            typePop = builder.setBgDarkAlpha(0.6f).setView(R.layout.typelist).size(rl_type.getWidth(), 0).setOutsideTouchable(true).setFocusable(true).create();
             typePop.initView(() -> {
                 ListView listView = typePop.getPopupWindow().getContentView().findViewById(R.id.listView);
                 listView.setAdapter(new ArrayAdapter<>(this, R.layout.simple_list_item, R.id.simple_list_item_textView, types));
@@ -381,7 +382,7 @@ public class HelpActivity extends BackBaseActivity implements View.OnClickListen
             });
         }
         if (!typePop.isShowing()) {
-            int xOff = (int) (rl_type.getLeft() + getResources().getDimension(R.dimen.dp_30) - 2);
+            int xOff = (int) (rl_type.getLeft());
             typePop.showAsDropDown(rl_type, xOff, Utils.dip2px(this, 4));
         }
 

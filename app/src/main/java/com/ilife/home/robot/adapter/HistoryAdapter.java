@@ -25,6 +25,7 @@ public class HistoryAdapter extends BaseQuickAdapter<HistoryRecordBean, BaseView
         long time_ = historyRecord.getStartTime();
         holder.setText(R.id.tv_date, generateTime(time_, Utils.getString(R.string.history_adapter_month_day)));
         holder.setText(R.id.tv_time, generateTime(time_,"HH:mm:ss"));
+        holder.setImageResource(R.id.iv_cleaning_tag,historyRecord.getStopCleanReason()==1?R.drawable.annal_icon_finish:R.drawable.annal_icon_problem);
     }
 
 

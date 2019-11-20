@@ -13,10 +13,11 @@
         android:layout_height="@dimen/dp_60"
         android:background="@color/white">
         <com.ilife.home.robot.view.LightTextView
-            style="@style/Text_16sp_ac"
+            style="@style/Text_16sp_33"
             android:id="@+id/tv_week"
             android:text="@string/clock_aty_sun"
             android:layout_centerVertical="true"
+            android:textStyle="bold"
             android:layout_marginStart="@dimen/dp_30"
             android:textColor="@drawable/clock_tv_color"/>
         <com.ilife.home.robot.view.LightTextView

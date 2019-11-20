@@ -1,7 +1,6 @@
 package com.ilife.home.robot.activity;
 
 import android.app.Dialog;
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 
@@ -10,12 +9,9 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.view.View;
-import android.widget.FrameLayout;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.JSONObject;
 import com.aliyun.iot.aep.sdk._interface.OnAliResponse;
 import com.aliyun.iot.aep.sdk.bean.HistoryRecordBean;
 import com.aliyun.iot.aep.sdk.contant.IlifeAli;
@@ -23,7 +19,6 @@ import com.ilife.home.robot.adapter.HistoryAdapter;
 import com.ilife.home.robot.base.BackBaseActivity;
 import com.ilife.home.robot.able.DeviceUtils;
 import com.ilife.home.robot.utils.DialogUtils;
-import com.ilife.home.robot.utils.MyLogger;
 import com.ilife.home.robot.utils.SpUtils;
 import com.ilife.home.robot.utils.ToastUtils;
 import com.ilife.home.robot.utils.Utils;
@@ -48,7 +43,7 @@ public class HistoryActivity_x9 extends BackBaseActivity implements View.OnClick
     private HistoryRecordBean[] records;
     RecyclerView recyclerView;
     HistoryAdapter adapter;
-    FrameLayout fl_noRecord;
+    LinearLayout fl_noRecord;
     TextView tv_title;
     Dialog dialog;
     private long start, end;
@@ -71,13 +66,13 @@ public class HistoryActivity_x9 extends BackBaseActivity implements View.OnClick
         context = this;
         dialog = DialogUtils.createLoadingDialog(context);
         dialog.dismiss();
-        fl_noRecord = (FrameLayout) findViewById(R.id.fl_noRecord);
+        fl_noRecord = findViewById(R.id.ll_noRecord);
         tv_title = findViewById(R.id.tv_top_title);
         tv_title.setText(R.string.setting_aty_clean_record);
         recordList = new ArrayList<>();
         recyclerView = (RecyclerView) findViewById(R.id.recyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(context));
-        adapter = new HistoryAdapter(Utils.isChineseLanguage() ? R.layout.layout_histroy_item : R.layout.layout_histroy_item_en, recordList);
+        adapter = new HistoryAdapter(R.layout.layout_histroy_item, recordList);
         adapter.setOnItemClickListener((adapter, view, position) -> {
             Intent intent = new Intent(HistoryActivity_x9.this, HistoryDetailActivity_x9.class);
             Bundle bundle = new Bundle();
@@ -86,7 +81,7 @@ public class HistoryActivity_x9 extends BackBaseActivity implements View.OnClick
             startActivity(intent);
         });
         recyclerView.setAdapter(adapter);
-        recyclerView.addItemDecoration(new RecyclerViewDivider(this, LinearLayoutManager.VERTICAL, 4,
+        recyclerView.addItemDecoration(new RecyclerViewDivider(this, LinearLayoutManager.VERTICAL, getResources().getDimensionPixelOffset(R.dimen.dp_8),
                 ContextCompat.getColor(this, R.color.bg_color_f5f7fa)));
     }
 

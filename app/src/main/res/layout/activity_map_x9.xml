@@ -102,45 +102,50 @@
 
         </LinearLayout>
 
+
         <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1">
-
+            <!--             地图布局-->
             <com.ilife.home.robot.view.MapView
                 android:id="@+id/v_map"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:visibility="visible" />
+                android:layout_marginBottom="@dimen/dp_100" />
 
-            <LinearLayout
+            <!--            遥控布局，延伸到底部-->
+            <include
+                android:id="@+id/layout_remote_control"
+                layout="@layout/window_direction_x9"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:orientation="vertical">
-                <!--中间地图布局-->
-                <RelativeLayout
-                    android:id="@+id/relativeLayout"
-                    android:layout_width="match_parent"
-                    android:layout_height="0dp"
-                    android:layout_weight="1">
+                android:layout_marginBottom="@dimen/dp_100"
+                android:visibility="gone" />
+            <!--              回冲布局，延伸到底部-->
+            <include
+                android:id="@+id/layout_recharge"
+                layout="@layout/layout_recharge_x900"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:visibility="gone" />
 
-                    <include
-                        android:id="@+id/layout_remote_control"
-                        layout="@layout/window_direction_x9"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_centerInParent="true"
-                        android:visibility="gone" />
+            <!--            机器状态提示文字-->
+            <com.ilife.home.robot.view.LightTextView
+                android:id="@+id/tv_status"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="@dimen/dp_22"
+                android:text="——"
+                android:textColor="@color/white"
+                android:textSize="@dimen/sp_18" />
 
-                    <include
-                        android:id="@+id/layout_recharge"
-                        layout="@layout/layout_recharge_x900"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:visibility="gone" />
-                </RelativeLayout>
-
-
+            <!--            底部操作区域-->
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/dp_100"
+                android:layout_gravity="bottom">
                 <!--底部操作按钮布局-->
                 <LinearLayout
                     android:id="@+id/fl_bottom_x9"
@@ -189,10 +194,10 @@
 
                 <!--底部沿边 重点 预约-->
                 <FrameLayout
-                    android:visibility="gone"
                     android:id="@+id/fl_control_x9"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
+                    android:layout_height="wrap_content"
+                    android:visibility="gone">
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -201,8 +206,7 @@
                         android:gravity="center_vertical"
                         android:orientation="horizontal"
                         android:paddingStart="@dimen/dp_30"
-                        android:paddingEnd="@dimen/dp_30"
-                       >
+                        android:paddingEnd="@dimen/dp_30">
 
                         <com.ilife.home.robot.view.RegularTextView
                             android:id="@+id/tv_along_x9"
@@ -239,7 +243,8 @@
                         android:layout_gravity="end"
                         android:layout_marginTop="@dimen/dp_14"
                         android:layout_marginEnd="@dimen/dp_14"
-                        android:src="@drawable/operation_icon_closed" />
+                        android:rotation="90"
+                        android:src="@drawable/n_btn_forward" />
                 </FrameLayout>
                 <!--电子墙-->
                 <FrameLayout
@@ -296,19 +301,12 @@
                         android:textColor="#ff333333"
                         android:textSize="16sp" />
                 </FrameLayout>
-            </LinearLayout>
+            </FrameLayout>
 
-            <com.ilife.home.robot.view.LightTextView
-                android:id="@+id/tv_status"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal"
-                android:layout_marginTop="@dimen/dp_22"
-                android:text="你好，召唤师"
-                android:textColor="@color/white"
-                android:textSize="@dimen/sp_18"
-                android:visibility="visible" />
+
         </FrameLayout>
+
+
     </LinearLayout>
 
 </FrameLayout>
