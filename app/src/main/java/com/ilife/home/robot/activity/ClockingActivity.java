@@ -1,7 +1,6 @@
 package com.ilife.home.robot.activity;
 
 import android.app.Dialog;
-import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -23,8 +22,8 @@ import com.aliyun.iot.aep.sdk.contant.EnvConfigure;
 import com.aliyun.iot.aep.sdk.contant.IlifeAli;
 import com.badoo.mobile.util.WeakHandler;
 import com.ilife.home.robot.base.BackBaseActivity;
+import com.ilife.home.robot.fragment.UniversalDialog;
 import com.ilife.home.robot.utils.AlertDialogUtils;
-import com.ilife.home.robot.utils.DialogUtils;
 import com.ilife.home.robot.utils.MyLogger;
 import com.ilife.home.robot.utils.ToastUtils;
 import com.ilife.home.robot.utils.TimePickerUIUtil;
@@ -47,7 +46,6 @@ public class ClockingActivity extends BackBaseActivity {
     final String TAG = ClockingActivity.class.getSimpleName();
     final String UNDER_LINE = "_";
     final int TAG_REFRESH_OVER = 0x01;
-    Dialog dialog;
     TextView tv_confirm;
     TextView tv_cancel;
     RecyclerView recyclerView;
@@ -62,8 +60,8 @@ public class ClockingActivity extends BackBaseActivity {
     String last;
     @BindView(R.id.tv_top_title)
     TextView tv_title;
-//    ContentResolver cv;
-
+    private int selectPosition;
+    private UniversalDialog workTimeDialog;
 
     WeakHandler handler = new WeakHandler(new Handler.Callback() {
         @Override
@@ -98,7 +96,6 @@ public class ClockingActivity extends BackBaseActivity {
     public void initView() {
         context = this;
         tv_title.setText(R.string.clock_aty_appoint);
-        dialog = DialogUtils.createLoadingDialog_(context);
         inflater = LayoutInflater.from(context);
         refreshLayout = (SmartRefreshLayout) findViewById(R.id.refreshLayout);
         refreshLayout.setOnRefreshListener(refreshLayout -> getClockInfo());
@@ -175,7 +172,7 @@ public class ClockingActivity extends BackBaseActivity {
 
         @Override
         public void onClick(View v) {
-            DialogUtils.hideDialog(alertDialog);
+            AlertDialogUtils.hidden(alertDialog);
             switch (v.getId()) {
                 case R.id.tv_cancel:
 
@@ -183,9 +180,18 @@ public class ClockingActivity extends BackBaseActivity {
                 case R.id.tv_confirm:
                     hour = timePicker.getCurrentHour();
                     minute = timePicker.getCurrentMinute();
+                    selectPosition = position;
                     String current = hour + UNDER_LINE + minute;
-                    if (!current.equals(last)) {
-                        setSchedule(position, 1);
+                    if ((hour > 5 && hour < 20) || (hour == 5 && minute > 0)) {//可用时间段(预约夜间时间提醒)
+                        setSchedule(selectPosition, 1);
+                    } else {//不可用时间
+                        if (workTimeDialog == null) {
+                            workTimeDialog = new UniversalDialog();
+                            workTimeDialog.setTitle(getString(R.string.clock_dialog_title)).setHintTip(getString(R.string.clock_dialog_content))
+                                    .setLeftText(getString(R.string.clock_dialog_cancel)).setRightText(getString(R.string.clock_dialog_finish))
+                                    .setOnRightButtonClck(() -> setSchedule(selectPosition, 1));
+                        }
+                        workTimeDialog.show(getSupportFragmentManager(), "work_time");
                     }
                     break;
             }
