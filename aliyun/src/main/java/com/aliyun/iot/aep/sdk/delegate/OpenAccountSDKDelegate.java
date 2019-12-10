@@ -2,6 +2,7 @@ package com.aliyun.iot.aep.sdk.delegate;
 
 import android.app.Application;
 
+import com.aliyun.alink.linksdk.tmp.utils.LogCat;
 import com.aliyun.iot.aep.sdk.apiclient.IoTAPIClientImpl;
 import com.aliyun.iot.aep.sdk.apiclient.hook.IoTAuthProvider;
 import com.aliyun.iot.aep.sdk.contant.EnvConfigure;
@@ -13,7 +14,6 @@ import com.aliyun.iot.aep.sdk.log.ALog;
 import com.aliyun.iot.aep.sdk.login.ILoginStatusChangeListener;
 import com.aliyun.iot.aep.sdk.login.LoginBusiness;
 import com.aliyun.iot.aep.sdk.page.AliLoginActivity;
-import com.aliyun.iot.push.PushManager;
 
 import java.util.Map;
 
@@ -53,13 +53,9 @@ public final class OpenAccountSDKDelegate extends SimpleSDKDelegateImp {
         IoTAuthProvider provider = new IoTCredentialProviderImpl(IoTCredentialManageImpl.getInstance(app));
         IoTAPIClientImpl.getInstance().registerIoTAuthProvider(EnvConfigure.IOT_AUTH, provider);
 
-        LoginBusiness.getLoginAdapter().registerLoginListener(new ILoginStatusChangeListener() {
-            @Override
-            public void onLoginStatusChange() {
-                if(LoginBusiness.isLogin()) {
-                    PushManager.getInstance().bindUser();
-                }
-            }
+        LoginBusiness.getLoginAdapter().registerLoginListener(() -> {
+            //TODO 实现用户感知登录状态改变
+            LogCat.e("ILIFE_ALI_", "用户登录状态改变");
         });
 
         return 0;

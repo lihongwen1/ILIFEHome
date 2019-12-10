@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:inputBox="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
+
+
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fillViewport="true" >
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingLeft="10dp"
+            android:paddingRight="10dp"
+            android:paddingTop="15dp" >
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/ali_sdk_openaccount_bg_corners_white"
+                android:orientation="vertical" >
+
+                <com.alibaba.sdk.android.openaccount.ui.widget.InputBoxWithClear
+                    android:id="@+id/mail_input_box"
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    android:gravity="center_vertical"
+                    inputBox:ali_sdk_openaccount_attrs_hint="@string/ali_sdk_openaccount_text_mail"
+                    inputBox:ali_sdk_openaccount_attrs_inputType="textNormal"
+                    inputBox:ali_sdk_openaccount_attrs_leftIconText="@string/ali_sdk_openaccount_icon_user" />
+
+                <include layout="@layout/ali_sdk_openaccount_horizontal_frame_edge" />
+
+                <com.alibaba.sdk.android.openaccount.ui.widget.SmsCodeInputBox
+                    android:id="@+id/check_code_input_box"
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    inputBox:ali_sdk_openaccount_attrs_hint="@string/ali_sdk_openaccount_text_check_code"/>
+            </LinearLayout>
+            <TextView
+                android:id="@+id/ali_oa_send_email_success_tip"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:drawableLeft="@drawable/openaccount_ic_tip"
+                android:gravity="center_vertical"
+                android:text="@string/ali_sdk_openaccount_email_code_success_hint"
+                android:textSize="14sp"
+                android:visibility="invisible"
+                />
+            <com.aliyun.iot.aep.sdk.page.view.NextStepButton
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/ali_sdk_openaccount_text_next_step" />
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>

@@ -5,7 +5,7 @@ public class OTAInfoBean {
     private int UpdateProgess;
     private int CurrentVer;
     private int TargetVer;
-
+   private String wholeTargetVer;
     public int getUpdateState() {
         return UpdateState;
     }
@@ -36,5 +36,13 @@ public class OTAInfoBean {
 
     public void setTargetVer(int targetVer) {
         TargetVer = targetVer;
+    }
+
+    public String getWholeTargetVer() {
+        return wholeTargetVer;
+    }
+
+    public void setWholeTargetVer(String wholeTargetVer) {
+        this.wholeTargetVer = wholeTargetVer;
     }
 }

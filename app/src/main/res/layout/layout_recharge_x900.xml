@@ -1,29 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_gravity="center_vertical"
     android:layout_height="match_parent"
-    android:background="@color/bg_color_f5f7fa"
-    android:paddingBottom="@dimen/dp_100"
+    android:layout_gravity="center_vertical"
+    android:background="@drawable/bg_grid"
     android:gravity="center"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:paddingBottom="@dimen/dp_100">
 
     <ImageView
         android:id="@+id/iv_recharge_stand"
-        android:layout_marginTop="@dimen/dp_74"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:src="@drawable/recharge_stand" />
-    <ImageView
-        android:layout_marginTop="-24dp"
-        android:id="@+id/image_animation"
-        android:background="@drawable/recharge_animation_list"
+        android:layout_width="@dimen/dp_64"
+        android:layout_height="@dimen/dp_46"
+        android:src="@drawable/pic_charging_base" />
+
+    <com.airbnb.lottie.LottieAnimationView
+        android:layout_marginTop="@dimen/dp_17"
+        android:layout_marginBottom="@dimen/dp_9"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        app:lottie_autoPlay="true"
+        app:lottie_fileName="anim/recharge.json"
+        app:lottie_loop="true" />
+
     <ImageView
         android:id="@+id/iv_recharge_model"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:src="@drawable/rechage_device_x900" />
+        android:layout_width="@dimen/dp_120"
+        android:layout_height="@dimen/dp_120"
+        android:src="@drawable/n_x800" />
 
 </LinearLayout>

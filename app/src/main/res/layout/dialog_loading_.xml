@@ -9,7 +9,6 @@
     android:orientation="vertical">
 
     <com.airbnb.lottie.LottieAnimationView
-        android:id="@+id/lottieAnimationView"
         android:layout_width="@dimen/dp_40"
         android:layout_height="@dimen/dp_40"
         android:layout_marginTop="@dimen/dp_24"
@@ -39,7 +38,7 @@
         app:deltaY="@dimen/dp_2"
         app:enable="true">
 
-        <com.ilife.home.robot.view.RegularButton
+        <Button
             android:id="@+id/bt_loading_i_know"
             style="@style/Button_Style_quick_login"
             android:paddingStart="@dimen/dp_40"

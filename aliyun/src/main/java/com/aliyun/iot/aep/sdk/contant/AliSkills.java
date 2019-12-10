@@ -49,6 +49,17 @@ public class AliSkills {
         return params;
     }
 
+    public HashMap<String, Object> enterTemporaryointMode(String iotId) {
+        params.clear();
+        params.put(EnvConfigure.KEY_IOT_ID, iotId);
+        HashMap<String, Integer> workMode = new HashMap<>();
+        workMode.put(EnvConfigure.KEY_WORK_MODE, MsgCodeUtils.STATUE_TEMPORARY_POINT);
+        params.put(EnvConfigure.KEY_PATH, EnvConfigure.KEY_WORK_MODE);
+        params.put(EnvConfigure.KEY_ITEMS, workMode);
+        params.put(EnvConfigure.KEY_TAG, MsgCodeUtils.STATUE_TEMPORARY_POINT + "");
+        return params;
+    }
+
     public HashMap<String,Object> enterAlongMode(String iotId) {
         params.clear();
         params.put(EnvConfigure.KEY_IOT_ID, iotId);

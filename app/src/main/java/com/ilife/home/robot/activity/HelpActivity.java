@@ -2,7 +2,6 @@ package com.ilife.home.robot.activity;
 
 import android.Manifest;
 import android.app.Activity;
-import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -11,9 +10,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
-import android.text.Editable;
 import android.text.TextUtils;
-import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ArrayAdapter;
@@ -22,7 +19,6 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AlertDialog;
@@ -30,6 +26,8 @@ import androidx.core.content.FileProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.aliyun.iot.aep.sdk._interface.OnAliResponseSingle;
+import com.aliyun.iot.aep.sdk.bean.DeviceInfoBean;
 import com.aliyun.iot.aep.sdk.contant.EnvConfigure;
 import com.aliyun.iot.aep.sdk.contant.IlifeAli;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
@@ -39,10 +37,10 @@ import com.ilife.home.robot.able.DeviceUtils;
 import com.ilife.home.robot.adapter.HelpFeedImgAdapter;
 import com.ilife.home.robot.app.MyApplication;
 import com.ilife.home.robot.base.BackBaseActivity;
+import com.ilife.home.robot.fragment.TextSelectorDialog;
 import com.ilife.home.robot.utils.AlertDialogUtils;
 import com.ilife.home.robot.utils.AppUtils;
 import com.ilife.home.robot.utils.BitmapUtils;
-import com.ilife.home.robot.utils.DialogUtils;
 import com.ilife.home.robot.utils.KeyboardUtils;
 import com.ilife.home.robot.utils.ToastUtils;
 import com.ilife.home.robot.utils.UserUtils;
@@ -70,7 +68,7 @@ public class HelpActivity extends BackBaseActivity implements View.OnClickListen
     final int CROP_PIC = 0x03;
     Context context;
     LayoutInflater inflater;
-    EditText et_email, et_type, et_content;
+    EditText et_email, et_content;
     FrameLayout rl_type;
     File captureFile, albumFile;
     CustomPopupWindow typePop;
@@ -80,9 +78,6 @@ public class HelpActivity extends BackBaseActivity implements View.OnClickListen
     Activity activity;
     View view;
     Uri takePicUri;
-    Dialog dialog;
-    @BindView(R.id.tv_numbs)
-    TextView tv_numbs;
     @BindView(R.id.tv_top_title)
     TextView tv_title;
     @BindView(R.id.rv_feed_image)
@@ -110,14 +105,20 @@ public class HelpActivity extends BackBaseActivity implements View.OnClickListen
     LinearLayout ll_area_container;
     @BindView(R.id.tv_area)
     TextView tv_area;
+    @BindView(R.id.tv_type)
+    TextView tv_type;
+    @BindView(R.id.tv_question_type)
+    TextView tv_question_type;
     private List<Bitmap> images = new ArrayList<>();
     private HelpFeedImgAdapter rvAdapter;
     private int replacePosition = -1;//标记需要替换的feed image的位置
     private int permissionFlag = 0;
+    private TextSelectorDialog deviceTypeDialog, questionTypeDialog;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+//        addLayoutListener(findViewById(R.id.scrollView), findViewById(R.id.bt_confirm));
         initFile();
     }
 
@@ -129,7 +130,6 @@ public class HelpActivity extends BackBaseActivity implements View.OnClickListen
     public void initView() {
         context = this;
         activity = this;
-        dialog = DialogUtils.createLoadingDialog_(context);
         inflater = LayoutInflater.from(context);
 
         types = DeviceUtils.getSupportDevices();
@@ -139,12 +139,11 @@ public class HelpActivity extends BackBaseActivity implements View.OnClickListen
         } else {
             et_email.setHint(R.string.personal_input_email);
         }
-        et_type = (EditText) findViewById(R.id.et_type);
         et_content = (EditText) findViewById(R.id.et_content);
-        rl_type =findViewById(R.id.rl_type);
+        rl_type = findViewById(R.id.rl_type);
         view = findViewById(R.id.view);
         tv_title.setText(R.string.personal_aty_help);
-        et_content.addTextChangedListener(new MyTextWatcher());
+        UserUtils.setInputFilter(et_content, 600);
         rv_feed_image.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
         rv_feed_image.setAdapter(rvAdapter = new HelpFeedImgAdapter(context, R.layout.item_feed_image, images));
         rv_feed_image.addItemDecoration(new SpaceItemDecoration(Utils.dip2px(this, 6), true));
@@ -202,8 +201,7 @@ public class HelpActivity extends BackBaseActivity implements View.OnClickListen
             tv_phone_time2.setText(Utils.getString(R.string.zaco_phone_server_time));
             tv_email.setText("support@zacorobot.eu");
         }
-
-
+        tv_type.setHint(getResources().getString(IlifeAli.getInstance().getmAcUserDevices().size() == 0 ? R.string.help_aty_chose_product_type : R.string.help_aty_chose_product));
     }
 
     @Override
@@ -237,7 +235,7 @@ public class HelpActivity extends BackBaseActivity implements View.OnClickListen
     }
 
 
-    @OnClick({R.id.et_type, R.id.image_add, R.id.bt_confirm, R.id.area_contact1, R.id.area_contact2})
+    @OnClick({R.id.rl_type, R.id.image_add, R.id.bt_confirm, R.id.area_contact1, R.id.area_contact2, R.id.rl_question_type})
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.area_contact1:
@@ -255,9 +253,48 @@ public class HelpActivity extends BackBaseActivity implements View.OnClickListen
                     }
                 }).dispose();
                 break;
-            case R.id.et_type:
-                showDeviceTypePopup();
-//                showAreaPopup(new String[]{"中国","美国","德国"});
+            case R.id.rl_type:
+
+                if (deviceTypeDialog == null) {
+                    TextSelectorDialog.Builder builder = new TextSelectorDialog.Builder();
+                    List<DeviceInfoBean> devices = IlifeAli.getInstance().getmAcUserDevices();
+                    String[] array;
+                    if (devices.size() == 0) {
+                        array = getResources().getStringArray(R.array.array_device_type);
+                    } else {
+                        array = new String[devices.size()];
+                        String niclName;
+                        for (int i = 0; i < devices.size(); i++) {
+                            niclName = devices.get(i).getNickName();
+                            array[i] = TextUtils.isEmpty(niclName) ? devices.get(i).getDeviceName() : niclName;
+                        }
+                    }
+                    deviceTypeDialog = builder.setArray(array).setCancelOutSide(false).setOnTextSelect(
+                            (position, text) -> {
+                                tv_type.setTag(position);
+                                tv_type.setText(text);
+                            }
+                    ).build();
+                }
+                if (!deviceTypeDialog.isAdded()) {
+                    deviceTypeDialog.show(getSupportFragmentManager(), "text_device");
+                }
+                break;
+            case R.id.rl_question_type:
+                if (questionTypeDialog == null) {
+                    TextSelectorDialog.Builder builder = new TextSelectorDialog.Builder();
+                    questionTypeDialog = builder.setArray(getResources().getStringArray(R.array.array_question_type)).setCancelOutSide(false).setOnTextSelect(new TextSelectorDialog.OnTextSelect() {
+                        @Override
+                        public void onSelect(int position, String text) {
+                            tv_question_type.setText(text);
+                            tv_question_type.setTag(position + 1);
+                        }
+
+                    }).build();
+                }
+                if (!questionTypeDialog.isAdded()) {
+                    questionTypeDialog.show(getSupportFragmentManager(), "text_question");
+                }
                 break;
             case R.id.image_add:
                 permissionFlag = 0;
@@ -311,51 +348,47 @@ public class HelpActivity extends BackBaseActivity implements View.OnClickListen
                 startActivityForResult(intent, ALBUM);
                 break;
             case R.id.bt_confirm:
+
+                String robotType = tv_type.getText().toString().trim();
+                if (TextUtils.isEmpty(robotType)) {
+                    ToastUtils.showToast(context, getString(IlifeAli.getInstance().getmAcUserDevices().size() == 0 ? R.string.help_aty_chose_product_type : R.string.help_aty_chose_product));
+                    return;
+                }
+                String question_type = tv_question_type.getText().toString().trim();
+                if (TextUtils.isEmpty(question_type)) {
+                    ToastUtils.showToast(context, getString(R.string.help_aty_choose_question_type));
+                    return;
+                }
+                int type = (int) tv_question_type.getTag();//问题类型；
+                String contents = et_content.getText().toString().trim();
+                if (TextUtils.isEmpty(contents)) {
+                    ToastUtils.showToast(context, getString(R.string.help_aty_content));
+                    return;
+                }
                 String email = et_email.getText().toString().trim();
                 if (!Utils.checkAccountUseful(email)) {
                     return;
                 }
-                String type = et_type.getText().toString().trim();
-                if (TextUtils.isEmpty(type)) {
-                    ToastUtils.showToast(context, getString(R.string.feedback_aty_type_null));
-                    return;
-                }
-                String contents = et_content.getText().toString().trim();
-                if (TextUtils.isEmpty(contents)) {
-                    ToastUtils.showToast(context, getString(R.string.help_aty_content_isnull));
-                    return;
-                }
-                if (Utils.isChinaEnvironment()) {
-                    if (!UserUtils.isEmail(email) && !UserUtils.isPhone(email)) {
-                        if (Utils.isSupportPhone()) {
-                            ToastUtils.showToast(MyApplication.getInstance(), Utils.getString(R.string.regist_wrong_account));
-                        } else {
-                            ToastUtils.showToast(MyApplication.getInstance(), Utils.getString(R.string.regist_wrong_email));
-                        }
-                        return;
-                    }
-                } else {
-                    if (!UserUtils.isEmail(email)) {
-                        ToastUtils.showToast(context, getString(R.string.regist_wrong_email));
-                        return;
-                    }
-                }
-                dialog.show();
-                IlifeAli.getInstance().commitFeedback(email, contents, type, AppUtils.getVersion(this), "", aBoolean -> {
-                    runOnUiThread(() -> {
-                        dialog.dismiss();
-                        if (aBoolean) {
-                            ToastUtils.showToast(context, getString(R.string.help_aty_commit_suc));
-                            removeActivity();
-                        } else {
-                            ToastUtils.showToast(context, getString(R.string.help_aty_commit));
-                        }
-                    });
-
-                });
+                showLoadingDialog();
+                //TODO 反馈iot id修改
+                boolean isHaveRobot = IlifeAli.getInstance().getmAcUserDevices().size() > 0;
+                String iotId = isHaveRobot ? IlifeAli.getInstance().getmAcUserDevices().get((Integer) tv_type.getTag()).getIotId() : "";
+                String robotName = isHaveRobot ? robotType : "";
+                String productKey =isHaveRobot? IlifeAli.getInstance().getmAcUserDevices().get((Integer) tv_type.getTag()).getProductKey():DeviceUtils.getProductKeyByRobotType(robotType);
+                IlifeAli.getInstance().commitFeedback(email, contents, type, robotName, AppUtils.getVersion(this), iotId,
+                        productKey, aBoolean -> {
+                            hideLoadingDialog();
+                            if (aBoolean) {
+                                ToastUtils.showToast(context, getString(R.string.help_aty_commit_suc));
+                                removeActivity();
+                            } else {
+                                ToastUtils.showToast(context, getString(R.string.help_aty_commit));
+                            }
+                        });
                 break;
         }
     }
+
 
     private void initFile() {
         File imageFile = new File(Environment.getExternalStorageDirectory().getPath() + "/ilife");
@@ -376,7 +409,7 @@ public class HelpActivity extends BackBaseActivity implements View.OnClickListen
                 ListView listView = typePop.getPopupWindow().getContentView().findViewById(R.id.listView);
                 listView.setAdapter(new ArrayAdapter<>(this, R.layout.simple_list_item, R.id.simple_list_item_textView, types));
                 listView.setOnItemClickListener((parent, view1, position, id) -> {
-                    et_type.setText(types[position]);
+                    tv_type.setText(types[position]);
                     typePop.dissmiss();
                 });
             });
@@ -429,37 +462,6 @@ public class HelpActivity extends BackBaseActivity implements View.OnClickListen
 
 
     }
-
-    class MyTextWatcher implements TextWatcher {
-        private CharSequence temp;//监听前的文本
-        private int editStart;//光标开始位置
-        private int editEnd;//光标结束位置
-        private final int charMaxNum = 140;
-
-        @Override
-        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-            temp = s;
-        }
-
-        @Override
-        public void onTextChanged(CharSequence s, int start, int before, int count) {
-            tv_numbs.setText(getString(R.string.help_aty_text_count, (charMaxNum - s.length()) + ""));
-        }
-
-        @Override
-        public void afterTextChanged(Editable s) {
-            editStart = et_content.getSelectionStart();
-            editEnd = et_content.getSelectionEnd();
-            if (temp.length() > charMaxNum) {
-                ToastUtils.showToast(context, getString(R.string.feedback_aty_count_limit));
-                s.delete(editStart - 1, editEnd);
-                int tempSelection = editStart;
-                et_content.setText(s);
-                et_content.setSelection(tempSelection);
-            }
-        }
-    }
-
 
     public void showPhotoDialog() {
         if (alertDialog == null) {

@@ -7,7 +7,6 @@ import android.view.View;
 
 import com.aliyun.iot.aep.sdk.contant.MsgCodeUtils;
 import com.ilife.home.robot.able.DeviceUtils;
-import com.ilife.home.robot.utils.SpUtils;
 import com.ilife.home.robot.utils.ToastUtils;
 import com.ilife.home.robot.R;
 
@@ -24,7 +23,7 @@ public class MapActivity_X9_ extends BaseMapActivity {
     @Override
     public void initView() {
         super.initView();
-        iv_recharge_model.setImageResource(DeviceUtils.getRechargeImageSrc(mPresenter.getRobotType(), SpUtils.getBoolean(this,MainActivity.KEY_DEV_WHITE)));
+        iv_recharge_model.setImageResource(DeviceUtils.getRobotPic(mPresenter.getRobotType()));
     }
 
     @Override
@@ -85,9 +84,6 @@ public class MapActivity_X9_ extends BaseMapActivity {
 
     @Override
     public void updateRecharge(boolean isRecharge) {
-        if (USE_MODE==USE_MODE_REMOTE_CONTROL){
-            setTvUseStatus(TAG_RECHAGRGE);
-        }
         if (layout_recharge.getVisibility() == View.VISIBLE && isRecharge) {//避免重复刷新UI导致异常
             return;
         }
@@ -96,7 +92,6 @@ public class MapActivity_X9_ extends BaseMapActivity {
         tv_bottom_recharge_x8.setSelected(isRecharge);
         if (USE_MODE == USE_MODE_REMOTE_CONTROL) {
             layout_recharge.setVisibility(View.VISIBLE);
-            electricityDrawable.start();
         }
     }
 }

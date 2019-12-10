@@ -31,6 +31,7 @@
             android:layout_marginStart="1dp"
             android:layout_weight="1"
             android:background="@drawable/shape_indicator_gray" />
+
     </LinearLayout>
 
     <LinearLayout
@@ -46,7 +47,7 @@
             android:layout_height="wrap_content"
             android:background="@drawable/pic_homewifi"/>
 
-        <com.ilife.home.robot.view.LightTextView
+        <TextView
             style="@style/Text_14sp_them_color"
             android:layout_marginTop="@dimen/dp_16"
             android:text="@string/wifi_guide_aty_tip2" />
@@ -63,7 +64,7 @@
                 android:text="@string/ap_aty_input_wifi_ssid"
                 android:textColor="@color/color_c7c7c7" />
 
-            <com.ilife.home.robot.view.RegularTextView
+            <TextView
                 style="@style/Text_14sp_them_color"
                 android:layout_gravity="end|center"
                 android:drawableEnd="@drawable/orange_right_arrow"
@@ -102,7 +103,7 @@
             android:layout_marginBottom="@dimen/dp_10"
             android:orientation="horizontal">
 
-            <com.ilife.home.robot.view.LightEditText
+            <EditText
                 android:id="@+id/et_pass"
                 style="@style/EditText_16sp_33"
                 android:layout_gravity="center"
@@ -137,7 +138,7 @@
             app:deltaY="@dimen/dp_2"
             app:enable="true">
 
-            <com.ilife.home.robot.view.RegularButton
+            <Button
                 android:id="@+id/bt_next"
                 style="@style/Button_Style_quick_login"
                 android:shadowColor="@color/clock_aty_tv_unpressed"

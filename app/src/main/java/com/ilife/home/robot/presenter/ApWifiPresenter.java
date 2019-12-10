@@ -52,7 +52,9 @@ public class ApWifiPresenter extends BasePresenter<ApWifiContract.View> implemen
 
             @Override
             public void onError(Throwable e) {
-                mView.bindFail(e.getMessage());
+                if (isViewAttached()) {
+                    mView.bindFail(e.getMessage());
+                }
             }
         });
 

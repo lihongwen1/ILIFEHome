@@ -1,88 +1,87 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="wrap_content"
+    android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_gravity="center"
-    android:background="@drawable/qr_code_bg"
+    android:background="@drawable/shape_bg_dialog"
     android:orientation="vertical">
 
     <LinearLayout
-        android:orientation="vertical"
-        android:gravity="center_horizontal"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal"
+        android:orientation="vertical">
 
         <TextView
             android:id="@+id/tv_dialog_title"
             style="@style/Text_16sp_33"
-            android:layout_marginTop="@dimen/dp_20"
+            android:layout_marginTop="@dimen/dp_24"
             android:gravity="center"
             android:text="@string/open_gps_location"
             android:textStyle="bold" />
 
-        <com.ilife.home.robot.view.MediumEditTextView
-            android:enabled="false"
-            android:id="@+id/et_dialog_hint_tip"
-            style="@style/EditText_14sp_ac"
-            android:paddingTop="@dimen/dp_8"
-            android:paddingBottom="@dimen/dp_8"
-            android:layout_marginTop="@dimen/dp_20"
+        <TextView
+            android:id="@+id/tv_dialog_hint_tip"
+            style="@style/Text_14sp_ac"
             android:layout_marginStart="@dimen/dp_16"
+            android:layout_marginTop="@dimen/dp_12"
             android:layout_marginEnd="@dimen/dp_16"
             android:gravity="center"
-            android:hint="@string/open_gps_location_tip" />
+            android:text="@string/open_gps_location_tip"
+            />
     </LinearLayout>
 
-    <View
-        style="@style/View_Line_Style"
-        android:layout_marginStart="@dimen/dp_1"
-        android:layout_marginTop="@dimen/dp_20"
-        android:layout_marginEnd="@dimen/dp_1" />
 
     <LinearLayout
         android:id="@+id/ll_normal"
-        android:layout_width="match_parent"
+        android:layout_marginStart="@dimen/dp_24"
+        android:layout_marginEnd="@dimen/dp_24"
+        android:layout_marginTop="@dimen/dp_24"
+        android:layout_marginBottom="@dimen/dp_16"
         android:layout_height="@dimen/dp_48"
+        android:layout_width="match_parent"
         android:orientation="horizontal">
 
-        <com.ilife.home.robot.view.RegularTextView
+        <TextView
             android:id="@+id/tv_dialog_left"
             android:layout_width="0dp"
-            android:layout_height="match_parent"
+            android:layout_height="@dimen/dp_40"
             android:layout_weight="1"
+            android:background="@drawable/shape_bg_color"
             android:gravity="center"
             android:includeFontPadding="false"
             android:text="@string/personal_aty_cancel"
-            android:textColor="@color/color_ff4d00"
+            android:textColor="@color/white"
             android:textSize="@dimen/sp_16" />
 
-        <View
-            android:layout_width="@dimen/dp_1"
-            android:layout_height="match_parent"
-            android:layout_marginBottom="@dimen/dp_2"
-            android:background="@color/bg_color_f5f7fa" />
+        <Space
+            android:layout_width="@dimen/dp_16"
+            android:layout_height="match_parent"/>
 
-        <com.ilife.home.robot.view.RegularTextView
+        <TextView
             android:id="@+id/tv_dialog_right"
             android:layout_width="0dp"
-            android:layout_height="match_parent"
+            android:layout_height="@dimen/dp_40"
             android:layout_weight="1"
             android:gravity="center"
             android:includeFontPadding="false"
             android:text="@string/dialog_del_confirm"
-            android:textColor="@color/color_595757"
+            android:textColor="@color/color_FF4D00"
+            android:background="@drawable/shape_bg_gray"
             android:textSize="@dimen/sp_16" />
     </LinearLayout>
 
-    <com.ilife.home.robot.view.RegularTextView
+    <TextView
         android:id="@+id/tv_dialog_mid"
         android:layout_width="match_parent"
+        android:layout_margin="@dimen/dp_24"
         android:layout_height="@dimen/dp_48"
         android:layout_gravity="center_horizontal"
+        android:background="@drawable/shape_bg_color"
         android:gravity="center"
         android:includeFontPadding="false"
         android:text="@string/dialog_del_confirm"
-        android:textColor="@color/color_ff4d00"
+        android:textColor="@color/white"
         android:textSize="@dimen/sp_16"
         android:visibility="gone" />
 </LinearLayout>

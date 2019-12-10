@@ -1,7 +1,5 @@
 package com.ilife.home.robot.activity;
 
-import android.app.Dialog;
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
@@ -17,21 +15,18 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import androidx.appcompat.app.AlertDialog;
-
 import com.aliyun.iot.aep.sdk._interface.OnAliSetPropertyResponse;
 import com.aliyun.iot.aep.sdk.bean.DeviceInfoBean;
 import com.aliyun.iot.aep.sdk.contant.EnvConfigure;
 import com.aliyun.iot.aep.sdk.contant.IlifeAli;
 import com.aliyun.iot.aep.sdk.contant.MsgCodeUtils;
 import com.badoo.mobile.util.WeakHandler;
+import com.ilife.home.robot.BuildConfig;
 import com.ilife.home.robot.R;
 import com.ilife.home.robot.able.Constants;
 import com.ilife.home.robot.able.DeviceUtils;
 import com.ilife.home.robot.base.BackBaseActivity;
 import com.ilife.home.robot.fragment.UniversalDialog;
-import com.ilife.home.robot.utils.AlertDialogUtils;
-import com.ilife.home.robot.utils.DialogUtils;
 import com.ilife.home.robot.utils.MyLogger;
 import com.ilife.home.robot.utils.SpUtils;
 import com.ilife.home.robot.utils.ToastUtils;
@@ -142,6 +137,7 @@ public class SettingActivity extends BackBaseActivity implements OnAliSetPropert
     LayoutInflater inflater;
     Animation animation;
     private CompositeDisposable mDisposable;
+    private RenameActivity renameFragment;
     WeakHandler handler = new WeakHandler(new Handler.Callback() {
         @Override
         public boolean handleMessage(Message msg) {
@@ -179,97 +175,54 @@ public class SettingActivity extends BackBaseActivity implements OnAliSetPropert
 
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        name = IlifeAli.getInstance().getWorkingDevice().getNickName();
+        if (name == null || name.isEmpty()) {
+            devName = IlifeAli.getInstance().getWorkingDevice().getDeviceName();
+            tv_name.setText(devName);
+        } else {
+            tv_name.setText(name);
+        }
+    }
+
     public void initData() {
         mDisposable = new CompositeDisposable();
         DeviceInfoBean infoBean = IlifeAli.getInstance().getWorkingDevice();
         animation = AnimationUtils.loadAnimation(context, R.anim.anims);
         animation.setInterpolator(new LinearInterpolator());
-        devName = infoBean.getDeviceName();
-        name = infoBean.getNickName();
         mode = infoBean.getStatus();
         waterLevel = infoBean.getDeviceInfo().getWaterLevel();
         isMaxMode = infoBean.getDeviceInfo().isMaxMode();
         voiceOpen = infoBean.getDeviceInfo().isVoiceOpen();
         setMode(mode);
         setStatus(waterLevel, isMaxMode, voiceOpen);
-        if (!TextUtils.isEmpty(name)) {
-            tv_name.setText(name);
-        } else {
-            tv_name.setText(devName);
-        }
-        String robotType = DeviceUtils.getRobotType("");
+        String robotType = DeviceUtils.getRobotType(IlifeAli.getInstance().getWorkingDevice().getProductKey());
         int product;
         switch (robotType) {
-            case Constants.X785:
-                product = R.drawable.n_x785;
-                rl_voice.setVisibility(View.GONE);
-                break;
-            case Constants.X787:
-                product = R.drawable.n_x787;
-                rl_voice.setVisibility(View.GONE);
-                break;
             case Constants.X800:
-                if (SpUtils.getBoolean(this, MainActivity.KEY_DEV_WHITE)) {
-                    product = R.drawable.n_x800_white;
-                } else {
-                    product = R.drawable.n_x800;
-                }
-                rl_mode.setVisibility(View.GONE);
-                rl_update.setVisibility(View.VISIBLE);
-                break;
-            case Constants.X900:
-                product = R.drawable.n_x900;
-                rl_update.setVisibility(View.VISIBLE);
-                rl_mode.setVisibility(View.GONE);
-                break;
-            case Constants.A8s:
-                product = R.drawable.n_a8s;
-                rl_mode.setVisibility(View.GONE);
-                break;
-            case Constants.A9s:
-                if (Utils.isIlife()) {
-                    product = R.drawable.n_x800;
-                    rl_mode.setVisibility(View.GONE);
-                } else {
-                    product = R.drawable.n_a9s;
-                    rl_mode.setVisibility(View.GONE);
-                }
-                rl_update.setVisibility(View.VISIBLE);
-                break;
-            case Constants.V85:
-                product = R.drawable.n_v85;
-                rl_record.setVisibility(View.GONE);
-                rl_voice.setVisibility(View.GONE);
-                break;
-            case Constants.X910:
-                product = R.drawable.n_x910;
-                rl_update.setVisibility(View.VISIBLE);
-                rl_mode.setVisibility(View.GONE);
-                break;
-            case Constants.V3x:
-            case Constants.V5x:
-                product = R.drawable.n_v5x;
-                rl_record.setVisibility(View.GONE);
-                rl_voice.setVisibility(View.GONE);
-                rl_mode.setVisibility(View.GONE);
-                break;
-            case Constants.A7:
-                product = R.drawable.n_x787;
-                rl_voice.setVisibility(View.GONE);
-                rl_record.setVisibility(View.GONE);
-                rl_water.setVisibility(View.GONE);
-                break;
-            case Constants.A9:
                 product = R.drawable.n_x800;
                 rl_mode.setVisibility(View.GONE);
-                rl_water.setVisibility(View.GONE);
                 rl_update.setVisibility(View.VISIBLE);
+                break;
+            case Constants.X800W:
+                product = R.drawable.n_x800_w;
+                rl_mode.setVisibility(View.GONE);
+                rl_update.setVisibility(View.VISIBLE);
+                robotType = Constants.X800;//X800白色款，需显示为X800
+                break;
+            case Constants.V3x:
+                product = R.drawable.n_v3x;
+                rl_record.setVisibility(View.GONE);
+                rl_voice.setVisibility(View.GONE);
+                rl_mode.setVisibility(View.GONE);
                 break;
             default:
                 product = R.drawable.n_x800;
                 break;
         }
-        tv_type.setText(robotType);
+        tv_type.setText(BuildConfig.BRAND + " " + robotType);
         image_product.setImageResource(product);
     }
 
@@ -326,7 +279,9 @@ public class SettingActivity extends BackBaseActivity implements OnAliSetPropert
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.tv_name:
-                showRenameDialog();
+                Intent intent = new Intent(SettingActivity.this, RenameActivity.class);
+                intent.putExtra(RenameActivity.KEY_RENAME_TYPE, 1);
+                startActivity(intent);
                 break;
             case R.id.rl_water:
                 if (ll_water.getVisibility() == View.GONE) {
@@ -364,7 +319,7 @@ public class SettingActivity extends BackBaseActivity implements OnAliSetPropert
                 iv_find_device.setSelected(true);
                 iv_find_device.startAnimation(animation);
                 break;
-            case R.id.rl_plan://X800 mo have this function
+            case R.id.rl_plan://X800 not have this function
                 //TODO 待实现
                 if (!image_plan.isSelected()) {
                     mode = MsgCodeUtils.STATUE_PLANNING;
@@ -390,7 +345,13 @@ public class SettingActivity extends BackBaseActivity implements OnAliSetPropert
                 //TODO 待实现
                 break;
             case R.id.rl_suction:
-                IlifeAli.getInstance().setMaxMode(isMaxMode ? 1 : 0, this);
+                int status = IlifeAli.getInstance().getWorkingDevice().getWork_status();
+                if (status == MsgCodeUtils.STATUE_RECHARGE || status == MsgCodeUtils.STATUE_POINT || status == MsgCodeUtils.STATUE_TEMPORARY_POINT) {
+                    ToastUtils.showToast(Utils.getString(R.string.settiing_change_suction_tip));
+                } else {
+                    IlifeAli.getInstance().setMaxMode(isMaxMode ? 1 : 0, this);
+
+                }
                 break;
             case R.id.rl_soft:
                 IlifeAli.getInstance().waterControl(0, this);
@@ -402,51 +363,13 @@ public class SettingActivity extends BackBaseActivity implements OnAliSetPropert
                 IlifeAli.getInstance().waterControl(2, this);
                 break;
             case R.id.rl_update:
-                Intent intent = new Intent(context, OtaUpdateActivity.class);
-                startActivity(intent);
+                if (IlifeAli.getInstance().getWorkingDevice().getOwned() == 1) {
+                    startActivity(new Intent(context, OtaUpdateActivity.class));
+                } else {
+                    ToastUtils.showToast(context, getString(R.string.setting_aty_only_admin));
+                }
                 break;
         }
-    }
-
-
-    private void showRenameDialog() {
-        name = tv_name.getText().toString();
-        UniversalDialog universalDialog = new UniversalDialog();
-        universalDialog.setDialogType(UniversalDialog.TYPE_NORMAL).setCanEdit(true).setTitle(name).setHintTip(Utils.getString(R.string.setting_aty_hit))
-                .setOnRightButtonWithValueClck(value -> {
-                    name = value;
-                    if (TextUtils.isEmpty(name)) {
-                        ToastUtils.showToast(context, getString(R.string.setting_aty_hit));
-                        return;
-                    }
-                    int maxLength;
-                    if (Utils.isChinaEnvironment()) {
-                        maxLength = 12;
-                    } else {
-                        maxLength = 30;
-                    }
-                    if (name.length() > maxLength) {
-                        ToastUtils.showToast(getResources().getString(R.string.name_max_length, maxLength + ""));
-                        return;
-                    }
-                    universalDialog.dismiss();
-                    if (SpUtils.getBoolean(this, MainActivity.KEY_DEV_WHITE)) {
-                        name += Constants.ROBOT_WHITE_TAG;
-                    }
-                    IlifeAli.getInstance().reNameDevice(name, isSuccess -> {
-                        if (isSuccess) {
-                            ToastUtils.showToast(context, context.getString(R.string.bind_aty_reName_suc));
-                            if (name.contains(Constants.ROBOT_WHITE_TAG)) {
-                                name = name.replace(Constants.ROBOT_WHITE_TAG, "");
-                            }
-                            IlifeAli.getInstance().getWorkingDevice().setNickName(name);
-                            tv_name.setText(name);
-                        } else {
-                            ToastUtils.showToast(context, context.getString(R.string.bind_aty_reName_fail));
-                        }
-
-                    });
-                }).show(getSupportFragmentManager(), "rename");
     }
 
 
@@ -495,12 +418,9 @@ public class SettingActivity extends BackBaseActivity implements OnAliSetPropert
                     case EnvConfigure.VALUE_FAC_RESET:
                         if (responseCode == 200) {
                             MyLogger.d(TAG, "恢复出厂设置成功");
-                            Disposable dis = Observable.timer(6, TimeUnit.SECONDS).observeOn(AndroidSchedulers.mainThread()).subscribe(new Consumer<Long>() {
-                                @Override
-                                public void accept(Long aLong) throws Exception {
-                                    MyLogger.d(TAG, "进入主页面------------");
-                                    goToMain();
-                                }
+                            Disposable dis = Observable.timer(6, TimeUnit.SECONDS).observeOn(AndroidSchedulers.mainThread()).subscribe(aLong -> {
+                                MyLogger.d(TAG, "进入主页面------------");
+                                goToMain();
                             });
                             mDisposable.add(dis);
                         }

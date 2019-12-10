@@ -1,7 +1,10 @@
 package com.aliyun.iot.aep.sdk.delegate;
 
 import android.content.Context;
+import android.net.wifi.WifiManager;
+import android.nfc.tech.NfcA;
 import android.os.CountDownTimer;
+import android.os.Message;
 import android.util.Log;
 
 import com.alibaba.fastjson.JSON;
@@ -20,17 +23,28 @@ import com.aliyun.iot.aep.sdk.apiclient.IoTAPIClient;
 import com.aliyun.iot.aep.sdk.apiclient.IoTAPIClientFactory;
 import com.aliyun.iot.aep.sdk.apiclient.callback.IoTCallback;
 import com.aliyun.iot.aep.sdk.apiclient.callback.IoTResponse;
+import com.aliyun.iot.aep.sdk.apiclient.emuns.Env;
 import com.aliyun.iot.aep.sdk.apiclient.emuns.Scheme;
 import com.aliyun.iot.aep.sdk.apiclient.request.IoTRequest;
 import com.aliyun.iot.aep.sdk.apiclient.request.IoTRequestBuilder;
 import com.aliyun.iot.aep.sdk.contant.EnvConfigure;
+import com.aliyun.iot.aep.sdk.log.ALog;
+import com.aliyun.iot.aep.sdk.util.WifiUtils;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
+
+import static android.content.Context.WIFI_SERVICE;
 
 /**
  *
@@ -47,20 +61,19 @@ public class BindDeviceDelagate {
     private int autoUpprogress;
     private int realProgress;
     private int timerTimes;
-
-    public BindDeviceDelagate(Context context, String homeSsid, String homePassword, int TIMEOUT, OnAliBindDeviceResponse<String> onBindDeviceComplete) {
-        this.context = context;
-        this.homeSsid = homeSsid;
-        this.homePassword = homePassword;
-        this.TIMEOUT = TIMEOUT;
-        this.onBindDeviceComplete = onBindDeviceComplete;
-    }
-
-    public BindDeviceDelagate(Context context, String homeSsid, String homePassword, OnAliBindDeviceResponse<String> onBindDeviceComplete) {
+    private String productKey;
+    private List<DeviceInfo> localFindDevice;
+    private int BINDIND_STEP = 0;//0-未开始 1-finding 2-binding 3-fail 4-success
+    public BindDeviceDelagate(Context context, String homeSsid, String homePassword, String productKey, OnAliBindDeviceResponse<String> onBindDeviceComplete) {
         this.context = context;
         this.homeSsid = homeSsid;
         this.homePassword = homePassword;
         this.onBindDeviceComplete = onBindDeviceComplete;
+        this.localFindDevice = new ArrayList<>();
+        if (productKey == null) {
+            productKey = "";
+        }
+        this.productKey = productKey;
     }
 
     public void cancel() {
@@ -87,11 +100,38 @@ public class BindDeviceDelagate {
                         }
                         onBindDeviceComplete.onProgress(realProgress);
                     }
+
                 }
             }, 0, 1000);
         }
         discoveryDevice();
     }
+
+//    private void discoveryDevice() {
+//        Log.d("Bind_DEBICE", "开始发现设备");
+//        EnumSet<DiscoveryType> discoveryTypeEnumSet = EnumSet.allOf(DiscoveryType.class);
+//        LocalDeviceMgr.getInstance().startDiscovery(context, discoveryTypeEnumSet, null, new IDeviceDiscoveryListener() {
+//            @Override
+//            public void onDeviceFound(DiscoveryType discoveryType, List<DeviceInfo> list) {
+//                Log.d("Bind_DEBICE", "discoveryType:  " + discoveryType.getDescription());
+//                Log.d("Bind_DEBICE", "--发现设备--" + JSON.toJSONString(list));
+//                final List<DeviceInfo> foundDevice = new ArrayList<>();
+//                if (list != null && list.size() > 0) {
+//                    for (DeviceInfo deviceInfo : list) {
+//                        if (deviceInfo.productKey.equals(productKey)) {
+//                            foundDevice.add(deviceInfo);
+//                        }
+//                    }
+//                } else {
+//                    Log.d("Bind_DEBICE", "未发现设备");
+//                    bindFail(0, "not found any device by call onDeviceFound");
+//                }
+////                filterDevice(foundDevice);
+//            }
+//
+//        });
+//    }
+
 
     private void discoveryDevice() {
         Log.d("Bind_DEBICE", "开始发现设备");
@@ -104,7 +144,7 @@ public class BindDeviceDelagate {
                     boolean isFindDevice = false;
                     String targetId = null;
                     for (DeviceInfo deviceInfo : list) {
-                        if (deviceInfo.productKey.equals(EnvConfigure.PRODUCT_KEY_X800)) {
+                        if (deviceInfo.productKey.equals(productKey) && deviceInfo.deviceName == null) {
                             LocalDeviceMgr.getInstance().stopDiscovery();
                             isFindDevice = true;
                             targetId = deviceInfo.id;
@@ -113,13 +153,7 @@ public class BindDeviceDelagate {
                     }
                     if (isFindDevice && targetId != null) {
                         startAddDevice(targetId);
-                    } else {
-                        Log.d("Bind_DEBICE", "未发现设备");
-                        bindFail(0, "not found any device by call onDeviceFound");
                     }
-                } else {
-                    Log.d("Bind_DEBICE", "未发现设备");
-                    bindFail(0, "not found any device by call onDeviceFound");
                 }
             }
 
@@ -127,10 +161,84 @@ public class BindDeviceDelagate {
     }
 
 
+    /**
+     * 服务器过滤设备
+     *
+     * @param foundDevice 已经通过product key过滤的设备
+     */
+    private void filterDevice(List<DeviceInfo> foundDevice) {
+        Log.d("Bind_DEBICE", "开始过滤设备。。。。");
+        List<Map<String, String>> devices = new ArrayList<>();
+        for (DeviceInfo deviceItem : foundDevice) {
+            Map<String, String> device = new HashMap<>(2);
+            device.put("productKey", deviceItem.productKey);
+            device.put("deviceName", deviceItem.deviceName);
+            devices.add(device);
+        }
+        IoTRequest request = new IoTRequestBuilder()
+                .setPath(EnvConfigure.PATH_BIND_SERVER_FILTER)
+                .setApiVersion(EnvConfigure.API_VER)
+                .addParam("iotDevices", devices)
+                .setAuthType(EnvConfigure.IOT_AUTH)
+                .build();
+
+        new IoTAPIClientFactory().getClient().send(request, new IoTCallback() {
+            @Override
+            public void onFailure(IoTRequest ioTRequest, Exception e) {
+                Log.d("Bind_DEBICE", "过滤设备失败");
+            }
+
+            @Override
+            public void onResponse(IoTRequest ioTRequest, IoTResponse ioTResponse) {
+                if (200 != ioTResponse.getCode()) {
+                    return;
+                }
+
+                if (!(ioTResponse.getData() instanceof JSONArray)) {
+                    return;
+                }
+
+                JSONArray items = (JSONArray) ioTResponse.getData();
+                //有返回数据，表示服务端支持此pk，dn
+                if (null != items) {
+                    Log.d("Bind_DEBICE", "有返回数据，表示服务端支持此pk，dn" + ioTResponse.getData());
+                    List<String> names = parseFilterDevice(items);//过滤后可以配网绑定的设备
+                    for (DeviceInfo info : foundDevice) {
+                        for (String name : names) {
+                            if (name.contains(info.id)) {
+                                localFindDevice.add(info);
+                            }
+                        }
+                    }
+                }
+                //过滤设备完成，发现设备即可开始绑定
+                if (localFindDevice.size() > 0) {
+                    LocalDeviceMgr.getInstance().stopDiscovery();
+                    startAddDevice(localFindDevice.get(0).id);
+                }
+            }
+        });
+    }
+
+
+    private List<String> parseFilterDevice(JSONArray jsonArray) {
+        List<String> names = new ArrayList<>();
+        for (int i = 0; i < jsonArray.length(); i++) {
+            try {
+                JSONObject jsonObject = jsonArray.getJSONObject(i);
+                names.add(jsonObject.getString("deviceName"));
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+        return names;
+    }
+
+
     private void startAddDevice(String id) {
-        Log.d("Bind_DEBICE", "开始添加设备");
+        Log.d("Bind_DEBICE", "开始添加设备，设备ID为：" + id);
         DeviceInfo deviceInfo = new DeviceInfo();
-        deviceInfo.productKey = EnvConfigure.PRODUCT_KEY_X800;
+        deviceInfo.productKey = productKey;
         deviceInfo.id = id;
         deviceInfo.linkType = LinkType.ALI_SOFT_AP.getName();
         AddDeviceBiz.getInstance().setDevice(deviceInfo);
@@ -158,7 +266,7 @@ public class BindDeviceDelagate {
 
             @Override
             public void onProvisioning() {
-                Log.d("Bind_DEBICE", "配网中。。。。。。。。。。。");
+                Log.d("Bind_DEBICE", "配网中。。。。。。。。。。。开始连接家庭网络");
                 // 配网中
                 //may be need to connect to the  device hotspot
             }
@@ -220,13 +328,13 @@ public class BindDeviceDelagate {
             @Override
             public void onFailure(IoTRequest ioTRequest, Exception e) {
                 //bind fail
-                Log.d("Bind_DEBICE", "绑定设备失败"+e.getLocalizedMessage());
+                Log.d("Bind_DEBICE", "绑定设备失败" + e.getMessage());
                 bindFail(0, e.getMessage());
             }
 
             @Override
             public void onResponse(IoTRequest ioTRequest, IoTResponse ioTResponse) {
-                Log.d("Bind_DEBICE", "绑定设备成功。。。。");
+                Log.d("Bind_DEBICE", "绑定设备成功。。。。" + ioTResponse.getCode() + "----" + ioTResponse.getMessage() + ioTResponse.getData().toString());
                 if (ioTResponse.getCode() == 200 && ioTResponse.getData() instanceof String) {
                     //bind success
                     final String iotId = (String) ioTResponse.getData();

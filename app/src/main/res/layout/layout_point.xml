@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:background="@drawable/bg_grid"
+    android:paddingBottom="@dimen/dp_100">
+
+    <ImageView
+        android:id="@+id/iv_point_robot"
+        android:layout_width="@dimen/dp_120"
+        android:layout_height="@dimen/dp_120"
+        android:layout_gravity="center"
+        android:src="@drawable/n_x800" />
+    <com.airbnb.lottie.LottieAnimationView
+        android:layout_width="@dimen/dp_164"
+        android:layout_height="@dimen/dp_164"
+        android:layout_gravity="center"
+        app:lottie_autoPlay="true"
+        app:lottie_fileName="anim/point.json"
+        app:lottie_loop="true" />
+
+</FrameLayout>

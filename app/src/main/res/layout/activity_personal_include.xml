@@ -5,7 +5,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <com.ilife.home.robot.view.RegularTextView
+    <TextView
         style="@style/Text_16sp_33"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -40,10 +40,10 @@
 
 
     <LinearLayout
-        android:layout_marginTop="@dimen/dp_16"
-        android:background="@drawable/shape_bg_round_radius"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/dp_16"
+        android:background="@drawable/shape_bg_round_radius"
         android:orientation="vertical">
 
         <RelativeLayout
@@ -59,20 +59,20 @@
                 android:layout_marginStart="@dimen/dp_30"
                 android:background="@drawable/n_icon_tel" />
 
-            <com.ilife.home.robot.view.AvantGardTextView
+            <TextView
                 android:id="@+id/tv_telNum"
                 style="@style/Text_14sp_33"
                 android:layout_marginStart="@dimen/dp_18"
                 android:layout_toEndOf="@+id/image_tel1_all"
                 android:text="400-963-8886" />
 
-            <com.ilife.home.robot.view.LightTextView
+            <TextView
                 android:id="@+id/tv_phone_time_pre"
                 style="@style/Text_12sp_33"
                 android:layout_alignBaseline="@id/tv_telNum"
                 android:layout_toRightOf="@id/tv_telNum" />
 
-            <com.ilife.home.robot.view.LightTextView
+            <TextView
                 android:id="@+id/tv_phone_time"
                 style="@style/Text_12sp_33"
                 android:layout_below="@id/tv_telNum"
@@ -95,20 +95,20 @@
                 android:layout_marginStart="@dimen/dp_30"
                 android:background="@drawable/n_icon_tel" />
 
-            <com.ilife.home.robot.view.AvantGardTextView
+            <TextView
                 android:id="@+id/tv_telNum2"
                 style="@style/Text_14sp_33"
                 android:layout_marginStart="@dimen/dp_18"
                 android:layout_toEndOf="@+id/image_tel1_all2"
                 android:text="400-963-8886" />
 
-            <com.ilife.home.robot.view.LightTextView
+            <TextView
                 android:id="@+id/tv_phone_time2_pre"
                 style="@style/Text_12sp_33"
                 android:layout_alignBaseline="@id/tv_telNum2"
                 android:layout_toRightOf="@id/tv_telNum2" />
 
-            <com.ilife.home.robot.view.LightTextView
+            <TextView
                 android:id="@+id/tv_phone_time2"
                 style="@style/Text_12sp_33"
                 android:layout_below="@id/tv_telNum2"
@@ -120,8 +120,7 @@
 
         <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="@dimen/dp_60"
-            >
+            android:layout_height="@dimen/dp_60">
 
             <ImageView
                 android:id="@+id/image_email"
@@ -131,7 +130,7 @@
                 android:layout_marginStart="@dimen/dp_30"
                 android:background="@drawable/n_icon_email" />
 
-            <com.ilife.home.robot.view.AvantGardTextView
+            <TextView
                 android:id="@+id/tv_email"
                 style="@style/Text_14sp_33"
                 android:layout_centerVertical="true"
@@ -141,30 +140,12 @@
         </RelativeLayout>
     </LinearLayout>
 
-    <com.ilife.home.robot.view.RegularTextView
+    <TextView
         style="@style/Text_16sp_33"
         android:layout_centerVertical="true"
         android:layout_marginTop="@dimen/dp_16"
         android:text="@string/personal_aty_feedback" />
 
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="@dimen/dp_60"
-        android:layout_marginTop="@dimen/dp_10"
-        android:background="@drawable/shape_bg_round_radius">
-
-        <com.ilife.home.robot.view.LightEditText
-            android:id="@+id/et_email"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_marginStart="@dimen/dp_20"
-            android:hint="@string/personal_input_email"
-            android:includeFontPadding="false"
-            android:background="@null"
-            android:inputType="textEmailAddress|phone"
-            android:textColorHint="@color/color_c7c7c7"
-            android:textSize="@dimen/sp_14" />
-    </RelativeLayout>
 
     <FrameLayout
         android:id="@+id/rl_type"
@@ -173,23 +154,53 @@
         android:layout_marginTop="@dimen/dp_10"
         android:background="@drawable/shape_bg_round_radius">
 
-        <com.ilife.home.robot.view.LightEditText
-            android:id="@+id/et_type"
+        <TextView
+            android:id="@+id/tv_type"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_marginStart="@dimen/dp_20"
-            android:focusable="false"
-            android:hint="@string/personal_aty_chose_type"
             android:background="@null"
+            android:focusable="false"
+            android:gravity="center_vertical"
+            android:hint="@string/help_aty_chose_product_type"
             android:includeFontPadding="false"
-            android:textColorHint="@color/color_ac"
+            android:textColorHint="@color/color_c7c7c7"
             android:textSize="@dimen/sp_14" />
+
         <ImageView
-            android:layout_marginEnd="@dimen/dp_16"
-            android:layout_gravity="end|center"
-            android:src="@drawable/list_button_menu"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
+            android:layout_height="wrap_content"
+            android:layout_gravity="end|center"
+            android:layout_marginEnd="@dimen/dp_16"
+            android:src="@drawable/list_button_menu" />
+    </FrameLayout>
+
+    <FrameLayout
+        android:id="@+id/rl_question_type"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dp_60"
+        android:layout_marginTop="@dimen/dp_10"
+        android:background="@drawable/shape_bg_round_radius">
+
+        <TextView
+            android:id="@+id/tv_question_type"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginStart="@dimen/dp_20"
+            android:background="@null"
+            android:focusable="false"
+            android:gravity="center_vertical"
+            android:hint="@string/help_aty_choose_question_type"
+            android:includeFontPadding="false"
+            android:textColorHint="@color/color_c7c7c7"
+            android:textSize="@dimen/sp_14" />
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end|center"
+            android:layout_marginEnd="@dimen/dp_16"
+            android:src="@drawable/list_button_menu" />
     </FrameLayout>
 
     <FrameLayout
@@ -198,26 +209,18 @@
         android:layout_marginTop="@dimen/dp_10"
         android:background="@drawable/shape_bg_round_radius">
 
-        <com.ilife.home.robot.view.LightEditText
+        <EditText
             android:id="@+id/et_content"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:layout_marginStart="@dimen/dp_20"
             android:layout_marginTop="@dimen/dp_10"
+            android:background="@null"
             android:gravity="start"
             android:hint="@string/help_aty_content"
             android:includeFontPadding="false"
-            android:layout_marginStart="@dimen/dp_20"
-            android:textColorHint="@color/color_ac"
-            android:background="@null"
+            android:textColorHint="@color/color_c7c7c7"
             android:textSize="@dimen/sp_14" />
-
-        <com.ilife.home.robot.view.LightTextView
-            android:id="@+id/tv_numbs"
-            style="@style/Text_12sp_ac"
-            android:layout_gravity="bottom|end"
-            android:layout_marginEnd="@dimen/dp_20"
-            android:layout_marginBottom="@dimen/dp_16"
-            android:text="@string/personal_aty_count" />
     </FrameLayout>
 
     <LinearLayout
@@ -237,11 +240,11 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/dp_13">
 
-            <com.ilife.home.robot.view.LightTextView
+            <TextView
                 style="@style/Text_12sp_ac"
                 android:text="@string/help_aty_add_pic" />
 
-            <com.ilife.home.robot.view.EnglishRegularTextView
+            <TextView
                 style="@style/Text_12sp_ac"
                 android:layout_height="match_parent"
                 android:text="@string/help_aty_add_pic1" />
@@ -271,24 +274,41 @@
 
     </LinearLayout>
 
-    <Space
-        android:layout_weight="1"
+
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="0dp"/>
+        android:layout_height="@dimen/dp_60"
+        android:layout_marginTop="@dimen/dp_10"
+        android:background="@drawable/shape_bg_round_radius">
+
+        <EditText
+            android:id="@+id/et_email"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginStart="@dimen/dp_20"
+            android:background="@null"
+            android:hint="@string/login_aty_input_email_phone"
+            android:includeFontPadding="false"
+            android:inputType="textEmailAddress"
+            android:textColorHint="@color/color_c7c7c7"
+            android:textSize="@dimen/sp_14" />
+    </RelativeLayout>
+
     <com.ilife.home.robot.view.ShadowContainer
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="@dimen/dp_24"
         app:containerCornerRadius="@dimen/dp_25"
+        android:layout_marginTop="@dimen/dp_24"
         app:containerDeltaLength="@dimen/dp_8"
         app:containerShadowColor="@color/color_ff4d00_66"
         app:containerShadowRadius="@dimen/dp_6"
         app:deltaY="@dimen/dp_2"
         app:enable="true">
 
-        <com.ilife.home.robot.view.RegularTextView
+        <TextView
             android:id="@+id/bt_confirm"
             style="@style/Button_Style"
-            android:text="@string/confirm" />
+            android:text="@string/help_confirm_question" />
     </com.ilife.home.robot.view.ShadowContainer>
 </LinearLayout>

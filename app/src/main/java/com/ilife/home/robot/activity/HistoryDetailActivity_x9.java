@@ -12,6 +12,7 @@ import com.ilife.home.robot.R;
 import com.ilife.home.robot.able.Constants;
 import com.ilife.home.robot.able.DeviceUtils;
 import com.ilife.home.robot.base.BackBaseActivity;
+import com.ilife.home.robot.bean.Coordinate;
 import com.ilife.home.robot.utils.DataUtils;
 import com.ilife.home.robot.utils.MyLogger;
 import com.ilife.home.robot.view.MapView;
@@ -119,10 +120,10 @@ public class HistoryDetailActivity_x9 extends BackBaseActivity {
     }
 
     private void drawHistoryMapX8() {
-        Single.create((SingleOnSubscribe<List<Integer>>) emitter -> {
+        Single.create((SingleOnSubscribe<List<Coordinate>>) emitter -> {
             int lineCount = 0;
             List<Byte> byteList = new ArrayList<>();
-            List<Integer> pointList = new ArrayList<>();
+            List<Coordinate> pointList = new ArrayList<>();
             if (mapList != null) {
                 if (mapList.size() > 0) {
                     for (int i = 0; i < mapList.size(); i++) {
@@ -147,37 +148,18 @@ public class HistoryDetailActivity_x9 extends BackBaseActivity {
                 }
             }
             int totalLength = 0;
+            Coordinate coordinate;
             if (byteList.size() > 0) {
                 int x = 0, y = 0, type = 0, length = 0;
                 for (int i = 2; i < byteList.size(); i += 3) {
-                    type = byteList.get(i - 1)&0xff;
-                    length = byteList.get(i)&0xff;
+                    type = byteList.get(i - 1) & 0xff;
+                    length = byteList.get(i) & 0xff;
                     totalLength += length;
-//                    int distanceToEnd = lineCount - x;
-//                    switch (type) {
-//                        case 0:
-//                            if (length > lineCount) {
-//                                y += length / lineCount;
-//                                length = length % lineCount;
-//                            }
-//                            if (length > distanceToEnd) {
-//                                y++;
-//                                x = length - lineCount;
-//                            } else {
-//                                x += length;
-//                            }
-//                            break;
-//                        case 1://已清扫
-//                        case 2://障碍物
-//                        case 3://已清扫
-//
-//                            break;
-//                    }
+
                     for (int j = 0; j < length; j++) {
                         if (type != 0) {
-                            pointList.add(x);
-                            pointList.add(y);
-                            pointList.add(type);
+                            coordinate = new Coordinate(x, y, type);
+                            pointList.add(coordinate);
                         }
                         if (x < lineCount - 1) {
                             x++;
@@ -196,13 +178,13 @@ public class HistoryDetailActivity_x9 extends BackBaseActivity {
             MyLogger.e(TAG, "字节数：   " + byteList.size() + "-----总点数：  " + totalLength);
             emitter.onSuccess(pointList);
         }).subscribeOn(Schedulers.computation()).observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new SingleObserver<List<Integer>>() {
+                .subscribe(new SingleObserver<List<Coordinate>>() {
                     @Override
                     public void onSubscribe(Disposable d) {
                     }
 
                     @Override
-                    public void onSuccess(List<Integer> pointList) {
+                    public void onSuccess(List<Coordinate> pointList) {
                         mapView.updateSlam(xMin, xMax, yMin, yMax);
                         mapView.setNeedEndPoint(false);
                         mapView.drawMapX8(pointList);
@@ -227,13 +209,13 @@ public class HistoryDetailActivity_x9 extends BackBaseActivity {
             mapList = record.getMapDataList();
             MyLogger.e(TAG, "getDate===:" + xMin + "<--->" + xMax + "<--->" + yMin + "<--->" + yMax + "<--->");
             long time_ = record.getStartTime();
-            String date = generateTime(time_, "YY/MM/dd HH:mm");
+            String date = generateTime(time_, "yyyy/MM/dd HH:mm");
             tv_title.setText("清扫详情");
             tv_history_date.setText(date);
             tv_end_reason.setText(getResources().getString(R.string.setting_aty_end_reason, gerRealErrortTip(record.getStopCleanReason())));
             tv_clean_time.setText(record.getCleanTotalTime() / 60 + "min");
             tv_lean_area.setText(record.getCleanTotalArea() + "㎡");
-            iv_cleaning_flag.setImageResource(record.getStopCleanReason()==1?R.drawable.annal_icon_finish:R.drawable.annal_icon_problem);
+            iv_cleaning_flag.setImageResource(record.getStopCleanReason() == 1 ? R.drawable.annal_icon_finish : R.drawable.annal_icon_problem);
         }
 
     }

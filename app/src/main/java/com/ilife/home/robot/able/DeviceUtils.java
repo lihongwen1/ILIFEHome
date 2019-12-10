@@ -5,7 +5,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 
+import com.aliyun.iot.aep.sdk.contant.EnvConfigure;
 import com.aliyun.iot.aep.sdk.contant.MsgCodeUtils;
+import com.ilife.home.robot.app.MyApplication;
 import com.ilife.home.robot.utils.MyLogger;
 import com.ilife.home.robot.R;
 
@@ -14,89 +16,48 @@ import com.ilife.home.robot.R;
  */
 
 public class DeviceUtils {
-    public static String getPhysicalDeviceId(Activity activity) {
-        Intent intent = activity.getIntent();
-        String physicalDeviceId = null;
-        if (intent != null) {
-            Bundle bundle = intent.getExtras();
-            if (bundle != null) {
-                physicalDeviceId = bundle.getString("physicalDeviceId");
-            }
-        }
-        return physicalDeviceId;
-    }
+
 
     public static String getServiceName(String subdomain) {
         String serviceName = "";
         return serviceName;
     }
 
-    public static String getRobotType(String subdomain) {
-        String robotType = "X800";
+
+    public static String getProductKeyByRobotType(String robotType) {
+        String procutKey="";
+        switch (robotType) {
+            case Constants.X800:
+                procutKey=EnvConfigure.PRODUCT_KEY_X800;
+                break;
+            case Constants.X800W:
+                procutKey=EnvConfigure.PRODUCT_KEY_X800_W;
+                break;
+            case Constants.V3x:
+                procutKey=EnvConfigure.PRODUCT_KEY_X320;
+                break;
+        }
+        return procutKey;
+    }
+
+    public static String getRobotType(String productKey) {
+        String robotType = "";
+        switch (productKey) {
+            case EnvConfigure.PRODUCT_KEY_X800:
+                robotType = Constants.X800;
+                break;
+            case EnvConfigure.PRODUCT_KEY_X800_W:
+                robotType = Constants.X800W;
+                break;
+            case EnvConfigure.PRODUCT_KEY_X320:
+                robotType=Constants.V3x;
+                break;
+        }
         MyLogger.i("ROBOT_TYPE", "-------" + robotType + "------------");
         return robotType;
     }
 
-    public static long getOwner(Activity activity) {
-        Intent intent = activity.getIntent();
-        long owner = 0;
-        if (intent != null) {
-            Bundle bundle = intent.getExtras();
-            if (bundle != null) {
-                owner = bundle.getLong("owner");
-            }
-        }
-        return owner;
-    }
 
-    public static long getDeviceId(Activity activity) {
-        Intent intent = activity.getIntent();
-        long deviceId = 0;
-        if (intent != null) {
-            Bundle bundle = intent.getExtras();
-            if (bundle != null) {
-                deviceId = bundle.getLong("deviceId");
-            }
-        }
-        return deviceId;
-    }
-
-    public static boolean getCanChange(Activity activity) {
-        Intent intent = activity.getIntent();
-        boolean canChange = false;
-        if (intent != null) {
-            Bundle bundle = intent.getExtras();
-            if (bundle != null) {
-                canChange = bundle.getBoolean("canChange");
-            }
-        }
-        return canChange;
-    }
-
-
-    public static String getDevName(Activity activity) {
-        Intent intent = activity.getIntent();
-        String devName = null;
-        if (intent != null) {
-            Bundle bundle = intent.getExtras();
-            if (bundle != null) {
-                devName = bundle.getString("devName");
-            }
-        }
-        return devName;
-    }
-
-    public static String getSubdomain(Activity activity) {
-        Intent intent = activity.getIntent();
-        String devName = null;
-        if (intent != null) {
-            Bundle bundle = intent.getExtras();
-            if (bundle != null) {
-                devName = bundle.getString("subdomain");
-            }
-        }
-        return devName;
-    }
 
 
     /**
@@ -105,44 +66,20 @@ public class DeviceUtils {
      * @param robotType
      * @return
      */
-    public static int getRechargeImageSrc(String robotType, boolean isWhite) {
+    public static int getRobotPic(String robotType) {
         int src;
         switch (robotType) {
-            case Constants.X910:
-                src = R.drawable.rechage_device_x910;
-                break;
-            case Constants.X900:
-                src = R.drawable.rechage_device_x900;
-                break;
-            case Constants.A9:
-            case Constants.A9s:
             case Constants.X800:
-                if (isWhite) {
-                    src = R.drawable.rechage_device_x800w;
-                } else {
-                    src = R.drawable.rechage_device_x800;
-                }
+                src = R.drawable.n_x800;
                 break;
-            case Constants.A7:
-            case Constants.X787:
-                src = R.drawable.rechage_device_x787;
-                break;
-            case Constants.X785:
-                src = R.drawable.rechage_device_x785;
-                break;
-            case Constants.A8s:
-                src = R.drawable.rechage_device_a8s;
-                break;
-            case Constants.V85:
-                src = R.drawable.rechage_device_v85;
+            case Constants.X800W:
+                src = R.drawable.n_x800_w;
                 break;
             case Constants.V3x:
-            case Constants.V5x:
-                src = R.drawable.rechage_device_v5x;
+                src=R.drawable.n_v3x;
                 break;
             default:
-                src = R.drawable.rechage_device_x800;
-                break;
+                src = R.drawable.n_x800;
 
         }
         return src;
@@ -239,10 +176,10 @@ public class DeviceUtils {
                 strError = context.getString(R.string.adapter_error_sxt);
                 break;
             case 23:
-                strError = context.getString(R.string.adapter_error_xj);
+                strError = context.getString(R.string.adapter_error_gl);
                 break;
             case 24:
-                strError="光流组件异常";
+                strError = "";
                 break;
             case 0x25:
                 strError = context.getString(R.string.adapter_error_qt);
@@ -269,19 +206,19 @@ public class DeviceUtils {
             } else if (b == MsgCodeUtils.STATUE_RANDOM) {
                 str = context.getString(R.string.map_aty_random);
             } else if (b == MsgCodeUtils.STATUE_ALONG) {
-                str = context.getString(R.string.map_aty_along);
+                str = context.getString(R.string.map_aty_along_ing);
             } else if (b == MsgCodeUtils.STATUE_POINT) {
-                str = context.getString(R.string.map_aty_point);
+                str = context.getString(R.string.map_aty_point_ing);
             } else if (b == MsgCodeUtils.STATUE_PLANNING) {
                 str = context.getString(R.string.map_aty_plan_mode);
             } else if (b == MsgCodeUtils.STATUE_VIRTUAL_EDIT) {
                 str = context.getString(R.string.map_aty_edit_mode);
             } else if (b == MsgCodeUtils.STATUE_RECHARGE) {
-                str = context.getString(R.string.map_aty_recharge);
+                str = context.getString(R.string.map_aty_recharging);
             } else if (b == MsgCodeUtils.STATUE_CHARGING) {
                 str = context.getString(R.string.map_aty_charge);
             } else if (b == MsgCodeUtils.STATUE_REMOTE_CONTROL) {
-                str = context.getString(R.string.map_aty_remote);
+                str = context.getString(R.string.map_aty_remote_ing);
             } else if (b == MsgCodeUtils.STATUE_CHARGING_) {
                 str = context.getString(R.string.map_aty_charge);
             } else if (b == MsgCodeUtils.STATUE_PAUSE) {
@@ -294,7 +231,7 @@ public class DeviceUtils {
     }
 
     public static String[] getSupportDevices() {
-        return new String[]{"X800"};
+        return MyApplication.getInstance().getResources().getStringArray(R.array.array_device_type);
     }
 
 

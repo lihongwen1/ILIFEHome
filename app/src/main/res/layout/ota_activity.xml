@@ -4,41 +4,41 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <include
-        android:id="@+id/rl_title"
-        layout="@layout/template_top_title" />
+    <include layout="@layout/template_top_title" />
 
 
     <LinearLayout
-        android:id="@+id/fl_version"
+        android:id="@+id/ll_version"
         android:layout_width="wrap_content"
         android:layout_height="0dp"
         android:layout_gravity="center_horizontal"
         android:layout_weight="1"
         android:gravity="center"
         android:orientation="vertical"
-        android:visibility="invisible">
+        android:visibility="visible">
 
         <ImageView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:src="@drawable/update" />
 
-        <com.ilife.home.robot.view.MediumTextView
+        <TextView
             android:id="@+id/tv_cur_version"
             style="@style/Text_18sp_33"
             android:layout_gravity="center_vertical"
+            android:textStyle="bold"
             android:layout_marginTop="@dimen/dp_24" />
 
-        <com.ilife.home.robot.view.MediumTextView
+        <TextView
             android:id="@+id/tv_target_version"
             style="@style/Text_18sp_33"
+            android:textStyle="bold"
             android:layout_gravity="center_vertical"
             android:layout_marginTop="@dimen/dp_18" />
     </LinearLayout>
 
     <LinearLayout
-        android:id="@+id/ll_update"
+        android:id="@+id/ll_updating"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
@@ -47,19 +47,42 @@
         android:visibility="gone">
 
         <ImageView
-            android:id="@+id/iv_updating_animate"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:background="@drawable/icon_loading"
+            android:background="@drawable/update"
             android:contentDescription="@null" />
 
-        <TextView
-            android:layout_width="154dp"
-            android:layout_height="20dp"
-            android:layout_marginTop="@dimen/dp_30"
-            android:text="@string/updating"
-            android:textColor="#fff08300"
-            android:textSize="14sp" />
+        <LinearLayout
+            android:layout_marginTop="@dimen/dp_32"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/tv_upgrade_progress"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="0"
+                android:textColor="@color/color_ff4d00"
+                android:textSize="@dimen/sp_32" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="%"
+                android:textColor="@color/color_ff4d00"
+                android:textSize="@dimen/dp_14" />
+        </LinearLayout>
+
+        <ProgressBar
+            android:id="@+id/pb_upgrade"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="@dimen/dp_240"
+            android:layout_height="@dimen/dp_4"
+            android:layout_marginTop="@dimen/dp_8"
+            android:max="100"
+            android:progress="80"
+            android:progressDrawable="@drawable/progress_bg_gradient" />
     </LinearLayout>
 
     <LinearLayout
@@ -67,17 +90,19 @@
         android:layout_height="wrap_content"
         android:background="@color/white"
         android:orientation="vertical"
+        android:paddingStart="@dimen/dp_24"
         android:paddingTop="@dimen/dp_24"
+        android:paddingEnd="@dimen/dp_24"
         android:paddingBottom="@dimen/dp_24">
 
-        <com.ilife.home.robot.view.MediumTextView
+        <TextView
             style="@style/Text_16sp_33"
-            android:layout_marginStart="@dimen/dp_30"
+            android:textStyle="bold"
             android:text="@string/ota_preupdate_title" />
 
         <TextView
             style="@style/Text_14sp_33"
-            android:layout_marginStart="@dimen/dp_30"
+            android:textColor="@color/color_666666"
             android:layout_marginTop="@dimen/dp_6"
             android:text="@string/ota_preupdate_tip" />
     </LinearLayout>
@@ -85,6 +110,7 @@
     <Button
         android:id="@+id/btn_update"
         style="@style/Button_Style_quick_login"
+        android:textStyle="bold"
         android:layout_marginTop="@dimen/dp_30"
         android:layout_marginBottom="64dp" />
 </LinearLayout>

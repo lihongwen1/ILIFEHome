@@ -6,7 +6,6 @@
     android:layout_height="match_parent">
     <TextView
         android:visibility="gone"
-        android:id="@+id/tv_list_title"
         android:textColor="@color/color_ac"
         android:textSize="@dimen/dp_14"
         android:gravity="center"

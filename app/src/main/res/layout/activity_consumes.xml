@@ -35,7 +35,6 @@
                 android:layout_height="wrap_content">
 
                 <TextView
-                    android:id="@+id/tv_side"
                     style="@style/Text_14sp_33"
                     android:text="@string/consume_aty_side_time" />
 
@@ -49,22 +48,15 @@
                     android:textSize="16sp" />
             </LinearLayout>
 
-            <TextView
-                android:id="@+id/tv_side_remain_time"
-                android:layout_width="94dp"
-                android:layout_height="17dp"
-                android:layout_marginTop="@dimen/dp_16"
-                android:textColor="#ff666666"
-                android:textSize="12sp" />
 
             <ProgressBar
                 android:id="@+id/pb_side"
                 style="?android:attr/progressBarStyleHorizontal"
                 android:layout_width="match_parent"
-                android:layout_height="@dimen/dp_2"
+                android:layout_height="@dimen/dp_4"
                 android:layout_marginTop="@dimen/dp_8"
                 android:max="100"
-                android:progressDrawable="@drawable/progress_bg" />
+                android:progressDrawable="@drawable/progress_bg_grenn" />
         </LinearLayout>
         <ImageView
             android:layout_marginStart="@dimen/dp_24"
@@ -116,23 +108,16 @@
                     android:textSize="16sp" />
             </LinearLayout>
 
-            <TextView
-                android:id="@+id/tv_roll_remain_time"
-                android:layout_width="94dp"
-                android:layout_height="17dp"
-                android:layout_marginTop="@dimen/dp_16"
-                android:textColor="#ff666666"
-                android:textSize="12sp" />
 
 
             <ProgressBar
                 android:id="@+id/pb_roll"
                 style="?android:attr/progressBarStyleHorizontal"
                 android:layout_width="match_parent"
-                android:layout_height="@dimen/dp_2"
+                android:layout_height="@dimen/dp_4"
                 android:layout_marginTop="@dimen/dp_6"
                 android:max="100"
-                android:progressDrawable="@drawable/progress_bg" />
+                android:progressDrawable="@drawable/progress_bg_grenn" />
         </LinearLayout>
 
         <ImageView
@@ -173,7 +158,6 @@
 
 
                 <TextView
-                    android:id="@+id/tv_filter"
                     style="@style/Text_14sp_33"
                     android:text="@string/consume_aty_filter_time"
                     android:textSize="@dimen/sp_14" />
@@ -188,23 +172,16 @@
                     android:textSize="16sp" />
             </LinearLayout>
 
-            <TextView
-                android:id="@+id/tv_filter_remain_time"
-                android:layout_width="94dp"
-                android:layout_height="17dp"
-                android:layout_marginTop="@dimen/dp_16"
-                android:textColor="#ff666666"
-                android:textSize="12sp" />
 
 
             <ProgressBar
                 android:id="@+id/pb_filter"
                 style="?android:attr/progressBarStyleHorizontal"
                 android:layout_width="match_parent"
-                android:layout_height="@dimen/dp_2"
+                android:layout_height="@dimen/dp_4"
                 android:layout_marginTop="@dimen/dp_6"
                 android:max="100"
-                android:progressDrawable="@drawable/progress_bg" />
+                android:progressDrawable="@drawable/progress_bg_grenn" />
         </LinearLayout>
 
         <ImageView
@@ -212,7 +189,7 @@
             style="@style/Image_Style_Forward" />
     </LinearLayout>
 
-        <com.ilife.home.robot.view.LightTextView
+        <TextView
             android:layout_marginStart="@dimen/dp_24"
             android:layout_marginEnd="@dimen/dp_24"
             android:layout_marginTop="@dimen/dp_16"

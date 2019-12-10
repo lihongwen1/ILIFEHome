@@ -17,14 +17,14 @@
         android:orientation="vertical"
         android:visibility="visible">
 
-        <com.ilife.home.robot.view.MediumTextView
+        <TextView
             android:id="@+id/text_tip1"
             style="@style/Text_18sp_33"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/dp_30"
             android:layout_marginTop="@dimen/dp_16"
             android:layout_marginEnd="@dimen/dp_30"
-            android:text="@string/ap_guide_aty_tip1_x900" />
+            android:text="@string/ap_guide_aty_tip1_x800" />
 
         <com.ilife.home.robot.view.GifView
             android:layout_marginTop="@dimen/dp_8"
@@ -43,14 +43,14 @@
         android:orientation="vertical"
         android:visibility="gone">
 
-        <com.ilife.home.robot.view.MediumTextView
+        <TextView
             android:id="@+id/text_tip2"
             style="@style/Text_18sp_33"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/dp_30"
             android:layout_marginTop="@dimen/dp_16"
             android:layout_marginEnd="@dimen/dp_30"
-            android:text="@string/ap_guide_aty_tip2_x900" />
+            android:text="@string/ap_guide_sty_typ2_x800" />
 
         <com.ilife.home.robot.view.GifView
             android:layout_marginTop="@dimen/dp_10"
@@ -69,7 +69,7 @@
         android:gravity="center"
         android:orientation="vertical">
 
-        <com.ilife.home.robot.view.RegularTextView
+        <TextView
             android:visibility="invisible"
             android:id="@+id/tv_guide_tip4"
             android:layout_width="match_parent"
@@ -80,7 +80,7 @@
             android:textColor="#ff333333"
             android:textSize="16sp" />
 
-        <com.ilife.home.robot.view.ToggleRadioButton
+        <com.aliyun.iot.aep.sdk.page.ToggleRadioButton
             android:id="@+id/rb_next_tip"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -100,7 +100,7 @@
             app:deltaY="@dimen/dp_2"
             app:enable="true">
 
-            <com.ilife.home.robot.view.RegularButton
+            <Button
                 android:id="@+id/bt_next"
                 style="@style/Button_Style_quick_login"
                 android:text="@string/guide_aty_next" />

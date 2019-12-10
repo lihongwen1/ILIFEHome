@@ -7,7 +7,7 @@
 
     <include layout="@layout/template_top_title" />
 
-    <FrameLayout
+    <ScrollView
         android:id="@+id/scrollView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -15,5 +15,5 @@
         android:paddingEnd="@dimen/dp_24"
         android:scrollbars="none">
         <include layout="@layout/activity_personal_include" />
-    </FrameLayout>
+    </ScrollView>
 </LinearLayout>

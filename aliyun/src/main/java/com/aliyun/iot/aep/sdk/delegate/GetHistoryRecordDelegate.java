@@ -70,12 +70,18 @@ public class GetHistoryRecordDelegate {
             public void onResponse(IoTRequest ioTRequest, IoTResponse ioTResponse) {
                 if (ioTResponse.getCode() == 200) {
                     String result = ioTResponse.getData().toString();
+                    Log.d("HISTORY_MAP","历史地图数据："+result);
                     ArrayList<ArrayList<String>> dataList = new ArrayList<>();
                     JSONObject jsonObject = JSON.parseObject(result);
                     JSONArray jsonArray = jsonObject.getJSONArray(EnvConfigure.KEY_ITEMS);
                     Gson gson = new Gson();
                     HistoryRecordBean bean;
+                    HistoryRecordBean exitBean;
                     int startTime = 0;
+                    if (jsonArray==null){
+                        onAliResponse.onFailed(0,"没有数据");
+                        return;
+                    }
                     int dataSize = jsonArray.size();
                     if (dataSize > 0) {
                         for (int i = 0; i < jsonArray.size(); i++) {
@@ -91,17 +97,20 @@ public class GetHistoryRecordDelegate {
                             Log.i("HISTORY_MAP_Index",mapBeans.indexOfKey(startTime)+"");
                             Log.e("HISTORY_MAP", generateTime(bean.getStartTime(),"MM月dd日HH:mm:ss") + "---------" + bean.getPackId() + "------------" + bean.getPackNum());
 
-                            if (mapBeans.get(startTime)!=null) {
-                                mapBeans.get(startTime).addCleanData(bean.getCleanMapData());
-                            } else {
+                            exitBean=mapBeans.get(startTime);
+                            if (exitBean==null) {
                                 bean.addCleanData(bean.getCleanMapData());
                                 mapBeans.put(startTime, bean);
+                            } else if (!exitBean.getMapDataList().contains(bean.getCleanMapData())){
+                                mapBeans.get(startTime).addCleanData(bean.getCleanMapData());
+                            }else {
+                                Log.d("HISTORY_MAP","存在pkgid相同的数据包。。。");
                             }
                         }
                     }
                     if (dataSize > 200 && startTime > start) {
                         end = startTime;
-                        Log.e("HISTORY_MAP","开始下一次清扫");
+                        Log.e("HISTORY_MAP","开始下一次获取下一包历史记录");
                         getHistoryRecords();
                     } else {
                         List<HistoryRecordBean> beans = new ArrayList<>();

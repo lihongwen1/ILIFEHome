@@ -16,6 +16,7 @@ import android.view.View;
 
 import com.ilife.home.robot.R;
 import com.ilife.home.robot.app.MyApplication;
+import com.ilife.home.robot.bean.Coordinate;
 import com.ilife.home.robot.model.bean.SlamLineBean;
 import com.ilife.home.robot.model.bean.VirtualWallBean;
 import com.ilife.home.robot.utils.BitmapUtils;
@@ -59,7 +60,7 @@ public class MapView extends View {
     private List<SlamLineBean> lastLineBeans = new ArrayList<>();
     private Paint boxPaint;
     private RectF curVirtualWall = new RectF();
-    private ArrayList<Integer> pointList = new ArrayList<>();
+    private ArrayList<Coordinate> pointList = new ArrayList<>();
     private boolean isSetExtraDrag;
     private float startX = 0, startY = 0, endX = 0, endY = 0;
     private Canvas boxCanvas, slamCanvas;
@@ -71,7 +72,8 @@ public class MapView extends View {
     private Runnable restoreRunnable;//控制延迟15s后恢复地图
     private boolean isNeedRestore = true;
     private int paddingBottom;//改变地图居中中心点
-    private boolean needEndPoint=true;
+    private boolean needEndPoint = true;
+
     public MapView(Context context) {
         super(context);
         init();
@@ -275,16 +277,23 @@ public class MapView extends View {
         invalidateUI();
     }
 
-    public void drawMapX8(List<Integer> dataList) {
+    public void drawMapX8(List<Coordinate> dataList) {
         MyLogger.d(TAG, "----------drawMapX8---------数据长度：   " + dataList.size());
         drawBoxMapX8(dataList);
         boxPaint.setStrokeWidth(1);
-        boxPaint.setColor(getResources().getColor(R.color.color_box_70));
+        /**
+         * 绘制障碍物
+         */
+        boxPaint.setColor(getResources().getColor(R.color.color_obstacle_box_));
         boxCanvas.drawPath(obstaclePath, boxPaint);
-        boxPaint.setColor(getResources().getColor(R.color.color_box_40));
+        /**
+         * 绘制已清扫区域
+         */
+        boxPaint.setColor(getResources().getColor(R.color.color_road_box));
         boxCanvas.drawPath(boxPath, boxPaint);
-        if (needEndPoint&&(endX != 0 || endY != 0)) {
-            positionCirclePaint.setColor(getResources().getColor(R.color.color_ff4d00));
+
+        if (needEndPoint && endX != 0 && endY != 0) {
+            positionCirclePaint.setColor(getResources().getColor(R.color.color_map_start_point));
             boxCanvas.drawCircle(endX, endY, Utils.dip2px(MyApplication.getInstance(), 12), positionCirclePaint);
         }
         invalidateUI();
@@ -327,7 +336,7 @@ public class MapView extends View {
     // TODO it should't be created ,when it's size is less than the old
     //the value of baseScare can affects the  sharpness of the map
     public void updateSlam(int xMin, int xMax, int yMin, int yMax) {
-        MyLogger.e(TAG,"xM:"+xMin+"  xMax:  "+xMax+" yMin: "+yMin+"  yMax:   "+yMax);
+        MyLogger.e(TAG, "xM:" + xMin + "  xMax:  " + xMax + " yMin: " + yMin + "  yMax:   " + yMax);
         int xLength = xMax - xMin;
         int yLength = yMax - yMin;
         if (xLength <= 0 || yLength <= 0) {
@@ -952,20 +961,21 @@ public class MapView extends View {
     }
 
 
-
     /**
      * 绘制x800的黄方格地图
      *
      * @param dataList
      */
-    private void drawBoxMapX8(List<Integer> dataList) {
+    private void drawBoxMapX8(List<Coordinate> dataList) {
+        endX = 0;
+        endY = 0;
         MyLogger.d(TAG, "drawBoxMapX8-------数据长度：   " + dataList.size());
         if (boxCanvas == null && boxBitmap == null) {
             boxCanvas = new Canvas();
             boxBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
             boxCanvas.setBitmap(boxBitmap);
         }
-        if (dataList == null || dataList.size() == 0) {
+        if (dataList.size() == 0) {
             boxPath.reset();
             obstaclePath.reset();
             boxCanvas.drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR);
@@ -979,13 +989,14 @@ public class MapView extends View {
         boxCanvas.drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR);
         int x, y, type;
         float space = new BigDecimal(baseScare * 0.1f).setScale(0, BigDecimal.ROUND_HALF_DOWN).floatValue();
-//        float space=0f;
+        Coordinate coordinate;
         if (pointList.size() > 0) {
-            for (int i = 2; i < pointList.size(); i += 3) {
-                x = pointList.get(i - 2);
-                y = pointList.get(i - 1);
-                type = pointList.get(i);
-                switch (type){
+            for (int i = 0; i < pointList.size(); i++) {
+                coordinate = pointList.get(i);
+                x = coordinate.getX();
+                y = coordinate.getY();
+                type = coordinate.getType();
+                switch (type) {
                     case 0:
                         //未清扫区域
                         break;
@@ -998,7 +1009,6 @@ public class MapView extends View {
                     case 3:
                         obstaclePath.addRect(matrixCoordinateX(x), matrixCoordinateY(y), matrixCoordinateX(x) + baseScare - space, matrixCoordinateY(y) + baseScare - space, Path.Direction.CCW);
                         break;
-
                 }
             }
         }

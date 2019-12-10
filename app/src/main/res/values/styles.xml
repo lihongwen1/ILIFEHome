@@ -18,22 +18,6 @@
         <item name="android:windowFullscreen">true</item>
     </style>
 
-    <style name="dialog_anim" parent="android:Animation">
-        <item name="android:windowEnterAnimation">@anim/dialog_enter</item>
-        <item name="android:windowExitAnimation">@anim/dialog_exit</item>
-    </style>
-
-
-    <style name="MyDialogStyle">
-        <item name="android:windowBackground">@android:color/transparent</item>
-        <item name="android:windowFrame">@null</item>
-        <item name="android:windowNoTitle">true</item>
-        <item name="android:windowIsFloating">true</item>
-        <item name="android:windowIsTranslucent">true</item>
-        <item name="android:windowContentOverlay">@null</item>
-        <item name="android:windowAnimationStyle">@android:style/Animation.Dialog</item>
-        <item name="android:backgroundDimEnabled">false</item>
-    </style>
 
     <style name="PopWindowAnimStyle">
         <item name="android:windowShowAnimation">@anim/dialog_enter_loading</item>
@@ -68,9 +52,9 @@
 
 
     <style name="Image_Back_Style">
-        <item name="android:layout_width">@dimen/dp_30</item>
-        <item name="android:layout_height">@dimen/dp_30</item>
-        <item name="android:background">@drawable/n_image_back</item>
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:src">@drawable/nav_button_back</item>
     </style>
 
     <style name="View_Line_Style">
@@ -85,19 +69,6 @@
         <item name="android:background">@color/white</item>
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">@dimen/dp_44</item>
-    </style>
-
-    <style name="EditText_14sp_ac">
-        <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">wrap_content</item>
-        <item name="android:background">@null</item>
-        <item name="android:textColor">@color/color_33</item>
-        <item name="android:textColorHint">@color/color_ac</item>
-        <item name="android:textSize">@dimen/sp_14</item>
-        <item name="android:paddingTop">@dimen/dp_4</item>
-        <item name="android:paddingBottom">@dimen/dp_4</item>
-        <item name="android:layout_centerVertical">true</item>
-        <item name="android:includeFontPadding">false</item>
     </style>
 
     <style name="EditText_16sp_ac">
@@ -220,23 +191,6 @@
         <item name="android:textSize">@dimen/sp_16</item>
     </style>
 
-    <style name="Text_16sp_33">
-        <item name="android:layout_width">wrap_content</item>
-        <item name="android:layout_height">wrap_content</item>
-        <item name="android:textColor">@color/color_33</item>
-        <item name="android:textSize">@dimen/sp_16</item>
-        <item name="android:includeFontPadding">false</item>
-        <item name="android:paddingBottom">2dp</item>
-    </style>
-
-    <style name="super_edit_text_16sp">
-        <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">@dimen/dp_60</item>
-        <item name="android:gravity">center_vertical</item>
-        <item name="android:textSize">@dimen/sp_16</item>
-        <item name="android:textColor">@color/color_33</item>
-    </style>
-
 
     <style name="Text_14sp_them_color">
         <item name="android:layout_width">wrap_content</item>
@@ -246,14 +200,13 @@
         <item name="android:includeFontPadding">false</item>
     </style>
 
-    <style name="Text_16sp_33_bold">
+    <style name="Text_16sp_33">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:textColor">@color/color_33</item>
         <item name="android:textSize">@dimen/sp_16</item>
         <item name="android:layout_centerVertical">true</item>
         <item name="android:includeFontPadding">false</item>
-        <item name="android:textStyle">bold</item>
         <item name="android:paddingBottom">@dimen/dp_2</item>
     </style>
 
@@ -320,6 +273,26 @@
         <item name="colorAccent">@color/colorAccent</item>
     </style>
 
+    <style name="normal_dialog" parent="Theme.AppCompat.DayNight.Dialog">
+        <!-- 窗口背景色 -->
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <!--是否有覆盖-->
+        <item name="android:windowContentOverlay">@null</item>
+        <!-- 浮于Activity之上 -->
+        <item name="android:windowIsFloating">true</item>
+        <!-- 边框 -->
+        <item name="android:windowFrame">@null</item>
+        <!-- Dialog以外的区域模糊效果 -->
+        <item name="android:backgroundDimEnabled">false</item>
+        <!-- 无标题 -->
+        <item name="android:windowNoTitle">true</item>
+        <!-- 半透明 -->
+        <item name="android:windowIsTranslucent">true</item>
+        <!--进出动画-->
+        <item name="android:windowAnimationStyle">@style/PopWindowAnimStyle</item>
+        <item name="colorAccent">@color/colorAccent</item>
+    </style>
+
     <style name="AlertDialog_Style">
         <item name="android:editTextStyle">@style/Timer_Edit_Style</item>
         <item name="android:windowBackground">@android:color/transparent</item>
@@ -351,52 +324,6 @@
         <item name="android:includeFontPadding">false</item>
     </style>
 
-    <style name="Text_dialog_confirm">
-        <item name="android:layout_width">0dp</item>
-        <item name="android:layout_height">match_parent</item>
-        <item name="android:layout_weight">1</item>
-        <item name="android:textColor">@color/color_33</item>
-        <item name="android:textSize">@dimen/sp_16</item>
-        <item name="android:includeFontPadding">false</item>
-        <item name="android:gravity">center</item>
-        <item name="android:text">@string/dialog_del_confirm</item>
-    </style>
-
-    <style name="Text_dialog_cancel">
-        <item name="android:layout_width">0dp</item>
-        <item name="android:layout_height">match_parent</item>
-        <item name="android:layout_weight">1</item>
-        <item name="android:textColor">@color/color_ff4d00</item>
-        <item name="android:textSize">@dimen/sp_16</item>
-        <item name="android:includeFontPadding">false</item>
-        <item name="android:gravity">center</item>
-        <item name="android:text">@string/personal_aty_cancel</item>
-    </style>
-
-    <style name="dialogTheme" parent="Theme.AppCompat.Dialog">
-        <!-- 边框 -->
-        <item name="android:windowFrame">@null</item>
-        <!-- 测试了下也是内容背景色 会覆盖android:windowBackground-->
-        <!--<item name="android:background">@android:color/holo_red_dark</item>-->
-        <!--
-            如果width和height都是MATCH_PARENT 对话框外的背景色就无效了
-            int width = ViewGroup.LayoutParams.MATCH_PARENT;
-            int height = ViewGroup.LayoutParams.WRAP_CONTENT;
-            dialog.getWindow().setLayout(width, height);//全屏
-            dialog.getWindow().setGravity(Gravity.BOTTOM);//内容设置在底部
-            gravity 和 宽高设置实测无效！！！！！！还是需要代码来设置
-        -->
-        <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">wrap_content</item>
-        <!-- 内容的背景色.对于全屏很重要，系统的内容宽度是不全屏的，替换为自己的后宽度可以全屏-->
-        <!--相当于 dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));-->
-        <item name="android:windowBackground">@android:color/transparent</item>
-        <!-- 是否有背景色 -->
-        <item name="android:backgroundDimEnabled">true</item>
-        <!-- 灰色的百分比 0就是全透明了-->
-        <item name="android:backgroundDimAmount">0.4</item>
-    </style>
-
     <style name="Widget.GifView" parent="@android:style/Widget" />
 
     <style name="progress_horizontal">
@@ -410,11 +337,4 @@
         <item name="android:mirrorForRtl">true</item>
     </style>
 
-    <style name="popupwindow_anim_style">
-
-        <!-- 指定显示的动画xml -->
-        <item name="android:windowEnterAnimation">@anim/dialog_enter</item>
-        <!-- 指定消失的动画xml -->
-        <item name="android:windowExitAnimation">@anim/dialog_exit</item>
-    </style>
 </resources>

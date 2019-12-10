@@ -54,11 +54,10 @@
 
 
         </LinearLayout>
-
-        <com.alibaba.sdk.android.openaccount.ui.widget.NextStepButton
+        <com.aliyun.iot.aep.sdk.page.view.NextStepButton
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/ali_sdk_openaccount_text_login" />
+            android:text="@string/ali_sdk_openaccount_text_login"
+            android:layout_height="wrap_content" />
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -85,7 +84,36 @@
                 android:text="@string/ali_sdk_openaccount_text_forget_password"
                 android:textSize="16sp" />
         </LinearLayout>
+        <Space
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
 
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginBottom="24dp"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/rb_privacy_policy"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="注册登录表示同意"
+                android:textColor="@color/color_333333"
+                android:textSize="12sp" />
+
+            <TextView
+                android:id="@+id/tv_privacy_policy"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:includeFontPadding="true"
+                android:text="隐私政策与用户协议"
+                android:textColor="@color/color_FF4D00"
+                android:textSize="12sp" />
+        </LinearLayout>
     </LinearLayout>
+
 
 </LinearLayout>

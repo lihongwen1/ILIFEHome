@@ -21,6 +21,7 @@ import com.ilife.home.robot.activity.MainActivity;
 import com.ilife.home.robot.activity.SettingActivity;
 import com.ilife.home.robot.app.MyApplication;
 import com.ilife.home.robot.base.BasePresenter;
+import com.ilife.home.robot.bean.Coordinate;
 import com.ilife.home.robot.contract.MapX9Contract;
 import com.ilife.home.robot.utils.DataUtils;
 import com.ilife.home.robot.utils.MyLogger;
@@ -51,35 +52,19 @@ import io.reactivex.schedulers.Schedulers;
 //TODO 重点，延边，遥控模式下机器会清扫完成，此时可以清空地图数据(机器进入待机模式后，会从头开始清扫，此时可以清空地图数据)
 public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements MapX9Contract.Presenter {
     private final String TAG = "MapX9Presenter";
-    public static final String KEY_IS_MAX = "isMaxMode";
-    public static final String KEY_MOP_FORCE = "waterLevel";
-    public static final String KEY_VOICE_OPEN = "voiceOpen";
-    private long deviceId;
-    private String physicalId, subdomain, robotType;
-    private Gson gson;
-    private byte[] slamBytes;
+    private String robotType;
     private int curStatus, errorCode, batteryNo = -1, workTime = 0, cleanArea = 0, virtualStatus;
     private ArrayList<Integer> realTimePoints, historyRoadList;
     private List<int[]> wallPointList = new ArrayList<>();
     private List<int[]> existPointList = new ArrayList<>();
-    /**
-     * 实时地图相关
-     */
-    private byte[] bytes_subscribe;
-    private int package_index = 1;
-    private long lastStartTime;
 
-    /**
-     * 查询设备状态相关
-     */
-    private int waterLevel;
-    private int device_type;
-    private byte[] virtualContentBytes;
+
+    private byte[] slamBytes, virtualContentBytes;
     /**
      * x800实时地图数据
      */
-    private ArrayList<Integer> pointList;// map集合
-    private boolean isInitSlamTimer, isGainDevStatus, isGetHistory;
+    private ArrayList<Coordinate> pointList;// map集合
+    private boolean isGainDevStatus, isGetHistory;
     private boolean haveMap = true;//标记机型是否有地图 V85机器没有地图，但是有地图清扫数据
     private boolean havMapData = true;//A7 无地图，也无地图清扫数据
     private int minX, maxX, minY, maxY;//数据的边界，X800系列机器会用到
@@ -91,14 +76,11 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
     public void attachView(MapX9Contract.View view) {
         super.attachView(view);
         mComDisposable = new CompositeDisposable();
-        gson = new Gson();
         realTimePoints = new ArrayList<>();
         historyRoadList = new ArrayList<>();
         pointList = new ArrayList<>();
-        deviceId = SpUtils.getLong(MyApplication.getInstance(), MainActivity.KEY_DEVICEID);
-        subdomain = SpUtils.getSpString(MyApplication.getInstance(), MainActivity.KEY_SUBDOMAIN);
-        physicalId = SpUtils.getSpString(MyApplication.getInstance(), MainActivity.KEY_PHYCIALID);
-        robotType = DeviceUtils.getRobotType(subdomain);
+        robotType = DeviceUtils.getRobotType(IlifeAli.getInstance().getWorkingDevice().getProductKey());
+        adjustTime();
         if (robotType.equals(Constants.V3x) || robotType.equals(Constants.V5x) || robotType.equals(Constants.V85) || robotType.equals(Constants.A7)) {
             haveMap = false;
         }
@@ -106,9 +88,8 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
             havMapData = false;
         }
         if (robotType.equals(Constants.V5x) || robotType.equals(Constants.V3x)) {//V5x只有随机模式
-            SpUtils.saveInt(MyApplication.getInstance(), physicalId + SettingActivity.KEY_MODE, MsgCodeUtils.STATUE_RANDOM);
+            SpUtils.saveInt(MyApplication.getInstance(), IlifeAli.getInstance().getWorkingDevice().getProductKey() + SettingActivity.KEY_MODE, MsgCodeUtils.STATUE_RANDOM);
         }
-        adjustTime();
     }
 
     @Override
@@ -129,22 +110,25 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
 
 
     @Override
-    public void updateSlamX8(ArrayList<Integer> src, int offset) {
+    public void updateSlamX8(ArrayList<Coordinate> src, int offset) {
         if (src == null || src.size() < 2) {
             return;
         }
+        Coordinate coordinate;
         if (minX == 0 && minY == 0 && maxX == 0 && maxY == 0) {
-            minX = src.get(0);
-            minY = src.get(1);
-            maxX = src.get(0);
-            maxY = src.get(1);
+            coordinate = src.get(0);
+            minX = coordinate.getX();
+            minY = coordinate.getY();
+            maxX = coordinate.getX();
+            maxY = coordinate.getY();
             offset = 0;
             MyLogger.d(TAG, "data is  clear, and  need to reset all params");
         }
         int x, y;
-        for (int i = offset + 2; i < src.size(); i += 3) {
-            x = src.get(i - 2);
-            y = src.get(i - 1);
+        for (int i = 0; i < src.size(); i++) {
+            coordinate = src.get(i);
+            x = coordinate.getX();
+            y = coordinate.getY();
             if (minX > x) {
                 minX = x;
             }
@@ -233,6 +217,8 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
         byte[] pointCoor = new byte[2];
         if (!TextUtils.isEmpty(mapData)) {
             byte[] bytes = Base64.decode(mapData, Base64.DEFAULT);
+            Coordinate coordinate;
+            int index;
             if (bytes != null && bytes.length > 0) {
                 for (int i = 4; i < bytes.length; i += 5) {
                     int type = bytes[i];
@@ -245,9 +231,17 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
                     pointCoor[0] = bytes[i - 2];
                     pointCoor[1] = bytes[i - 1];
                     int y = DataUtils.bytesToInt(pointCoor, 0) + 750;
-                    pointList.add(1500 - x);
-                    pointList.add(y);
-                    pointList.add(type);
+                    coordinate = new Coordinate(1500 - x, y, type);
+                    index = pointList.indexOf(coordinate);
+                    if (index == -1) {
+                        MyLogger.d("清扫数据", type + "-(" + (x - 750) + "," + (y - 750) + ")");
+                        pointList.add(coordinate);
+                    } else {
+                        MyLogger.d("清扫数据-重复点", type + "-(" + (x - 750) + "," + (y - 750) + ")");
+                        pointList.remove(index);
+                        pointList.add(coordinate);
+//                        pointList.get(index).setType(type);
+                    }
                 }
             }
         }
@@ -265,8 +259,8 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
     @Override
     public void prepareToReloadData() {
         isGetHistory = false;
-        workTime=0;
-        cleanArea=0;
+        workTime = 0;
+        cleanArea = 0;
         historyRoadList.clear();
         realTimePoints.clear();//X900 series
         pointList.clear();//X800 series
@@ -333,7 +327,6 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
                     errorCode = 0;
                     batteryNo = propertyBean.getBattery();
                     curStatus = propertyBean.getWorkMode();
-                    waterLevel = propertyBean.getWaterLevel();
                     MyLogger.d(TAG, "gain the device status success and the status is :" + curStatus + "--------");
                     IlifeAli.getInstance().getWorkingDevice().setDeviceInfo(propertyBean);
                     setStatus(curStatus, batteryNo);
@@ -384,6 +377,11 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
         }
     }
 
+    @Override
+    public boolean isSupportPause() {
+        return robotType.equals(Constants.X800) || robotType.equals(Constants.X800W);
+    }
+
     private void refreshMap() {
         if (slamBytes != null && realTimePoints != null && historyRoadList != null && existPointList != null) {
             if (isX900Series()) {
@@ -404,24 +402,24 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
         if (!isViewAttached()) {
             return;
         }
+        IlifeAli.getInstance().getWorkingDevice().setWork_status(curStatus);//保存工作状态
         mView.updateCleanArea(getAreaValue());
         mView.updateCleanTime(getTimeValue());
         if (batteryNo != -1) {//set battery icon
             mView.setBatteryImage(curStatus, batteryNo);
+        }
+        if (curStatus == MsgCodeUtils.STATUE_RANDOM || curStatus == MsgCodeUtils.STATUE_PLANNING || curStatus == MsgCodeUtils.STATUE_CHARGING_ || curStatus == MsgCodeUtils.STATUE_CHARGING || (curStatus == MsgCodeUtils.STATUE_RECHARGE && !isX900Series())) {
+            mView.setCurrentBottom(BaseMapActivity.USE_MODE_NORMAL);//进入一级控制界面
+        }
+        if (curStatus == MsgCodeUtils.STATUE_REMOTE_CONTROL || curStatus == MsgCodeUtils.STATUE_POINT
+                || curStatus == MsgCodeUtils.STATUE_ALONG) {//进入二级控制界面
+            mView.setCurrentBottom(BaseMapActivity.USE_MODE_REMOTE_CONTROL);
         }
         mView.clearAll(curStatus);//清空所有不常显示布局，以便根据status更新显示布局
         boolean isWork = isWork(curStatus);
         mView.updateStatue(DeviceUtils.getStatusStr(MyApplication.getInstance(), curStatus, errorCode));//待机，规划
         mView.updateStartStatue(isWork, isWork ? Utils.getString(R.string.map_aty_stop) : Utils.getString(R.string.map_aty_start));
         mView.updateOperationViewStatue(curStatus);
-        if (curStatus == MsgCodeUtils.STATUE_RANDOM || curStatus == MsgCodeUtils.STATUE_PLANNING || curStatus == MsgCodeUtils.STATUE_CHARGING_ || curStatus == MsgCodeUtils.STATUE_CHARGING || (curStatus == MsgCodeUtils.STATUE_RECHARGE && !isX900Series())) {
-            mView.setCurrentBottom(BaseMapActivity.USE_MODE_NORMAL);
-        }
-        if (curStatus == MsgCodeUtils.STATUE_REMOTE_CONTROL || curStatus == MsgCodeUtils.STATUE_POINT
-                || curStatus == MsgCodeUtils.STATUE_ALONG) {
-            mView.setCurrentBottom(BaseMapActivity.USE_MODE_REMOTE_CONTROL);
-        }
-
         mView.showBottomView();
         if (haveMap && isViewAttached() && isDrawMap()) {
 //            mView.setMapViewVisible(true);
@@ -437,16 +435,14 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
             case MsgCodeUtils.STATUE_VIRTUAL_EDIT://电子墙编辑模式
                 mView.showVirtualEdit();
                 break;
+            case MsgCodeUtils.STATUE_TEMPORARY_POINT://临时重点
             case MsgCodeUtils.STATUE_POINT://重点
                 mView.updatePoint(true);
-                mView.setTvUseStatus(BaseMapActivity.TAG_KEYPOINT);
                 break;
             case MsgCodeUtils.STATUE_ALONG://沿墙模式
                 mView.updateAlong(true);
-                mView.setTvUseStatus(BaseMapActivity.TAG_ALONG);
                 break;
             case MsgCodeUtils.STATUE_RANDOM:
-                mView.setTvUseStatus(BaseMapActivity.TAG_RANDOM);
                 break;
             case MsgCodeUtils.STATUE_WAIT:
                 mView.setUnconditionalRecreate(true);
@@ -506,7 +502,11 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
         if (curStatus == MsgCodeUtils.STATUE_RECHARGE || !havMapData || (!isDrawMap() && curStatus != MsgCodeUtils.STATUE_RANDOM && curStatus != MsgCodeUtils.STATUE_TEMPORARY_POINT)) {
             return Utils.getString(R.string.map_aty_gang);
         } else {
-            return area + "㎡";
+            String areaStr = area + "㎡";
+            if (areaStr.equals("0.0㎡")) {
+                areaStr = "0.00㎡";
+            }
+            return areaStr;
         }
     }
 
@@ -539,7 +539,11 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
                 //TODO 清空地图相关数据
                 mapStartTime = startTime;
                 prepareToReloadData();
-//                getHistoryDataX8();
+                mView.updateCleanTime(getTimeValue());
+                mView.updateCleanArea(getAreaValue());
+                if (haveMap && pointList != null && isDrawMap()) {
+                    mView.drawMapX8(pointList);
+                }
             }
 
             @Override
@@ -588,17 +592,6 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
                         IlifeAli.getInstance().getWorkingDevice().getDeviceInfo().setMaxMode(tag == EnvConfigure.VALUE_SET_MAX);
                         break;
                     case EnvConfigure.KEY_CLEAN_DIRECTION://遥控器模式
-                        int tag_code = -1;
-                        if (functionCode == MsgCodeUtils.PROCEED_FORWARD) {
-                            tag_code = BaseMapActivity.TAG_FORWARD;
-                        } else if (functionCode == MsgCodeUtils.PROCEED_LEFT) {
-                            tag_code = BaseMapActivity.TAG_LEFT;
-                        } else if (functionCode == MsgCodeUtils.PROCEED_RIGHT) {
-                            tag_code = BaseMapActivity.TAG_RIGHT;
-                        }
-                        if (tag_code != -1) {
-                            mView.setTvUseStatus(tag_code);
-                        }
                         break;
                     case EnvConfigure.KEY_WORK_MODE://下发工作模式
                         if (!isGainDevStatus) {
@@ -612,7 +605,7 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
             @Override
             public void onFailed(String path, int tag, int code, String message) {
                 // TODO 错误码处理
-                ToastUtils.showToast(message);
+                ToastUtils.showToast(Utils.getString(R.string.error_toast_timeout));
             }
         });
 
@@ -678,12 +671,12 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
 
     @Override
     public boolean pointToAlong() {
-        return robotType.equals(Constants.V3x) || robotType.equals(Constants.V5x) || robotType.equals(Constants.V85) || robotType.equals(Constants.X785) || robotType.equals(Constants.X787) || robotType.equals(Constants.A7);
+        return robotType.equals(Constants.X800);
     }
 
     @Override
     public void enterAlongMode() {
-        if ((curStatus == MsgCodeUtils.STATUE_POINT && pointToAlong()) || curStatus == MsgCodeUtils.STATUE_WAIT || curStatus == MsgCodeUtils.STATUE_ALONG || curStatus == MsgCodeUtils.STATUE_REMOTE_CONTROL ||
+        if (curStatus == MsgCodeUtils.STATUE_WAIT || curStatus == MsgCodeUtils.STATUE_ALONG || curStatus == MsgCodeUtils.STATUE_REMOTE_CONTROL ||
                 curStatus == MsgCodeUtils.STATUE_PAUSE) {
             if (curStatus == MsgCodeUtils.STATUE_ALONG) {
                 setPropertiesWithParams(AliSkills.get().enterWaitMode(IlifeAli.getInstance().getWorkingDevice().getIotId()));
@@ -699,10 +692,12 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
 
     @Override
     public void enterPointMode() {
-        if ((curStatus == MsgCodeUtils.STATUE_ALONG && pointToAlong()) || curStatus == MsgCodeUtils.STATUE_WAIT || curStatus == MsgCodeUtils.STATUE_POINT || curStatus == MsgCodeUtils.STATUE_REMOTE_CONTROL ||
-                curStatus == MsgCodeUtils.STATUE_PAUSE) {
-            if (curStatus == MsgCodeUtils.STATUE_POINT) {
+        if ((curStatus == MsgCodeUtils.STATUE_ALONG && pointToAlong()) || curStatus == MsgCodeUtils.STATUE_WAIT || curStatus == MsgCodeUtils.STATUE_POINT || curStatus == MsgCodeUtils.STATUE_TEMPORARY_POINT ||
+                curStatus == MsgCodeUtils.STATUE_PAUSE || curStatus == MsgCodeUtils.STATUE_PLANNING) {
+            if (curStatus == MsgCodeUtils.STATUE_POINT) {//重点-进入待机
                 setPropertiesWithParams(AliSkills.get().enterWaitMode(IlifeAli.getInstance().getWorkingDevice().getIotId()));
+            } else if (curStatus == MsgCodeUtils.STATUE_TEMPORARY_POINT) {//临时重点-进入规划
+                setPropertiesWithParams(AliSkills.get().enterPlanningMode(IlifeAli.getInstance().getWorkingDevice().getIotId()));
             } else {
                 setPropertiesWithParams(AliSkills.get().enterPointMode(IlifeAli.getInstance().getWorkingDevice().getIotId()));
             }
@@ -713,10 +708,6 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
         }
     }
 
-    @Override
-    public int getDevice_type() {
-        return device_type;
-    }
 
     @Override
     public void enterRechargeMode() {
@@ -740,7 +731,7 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
 
     @Override
     public boolean isRandomMode() {
-        return SpUtils.getInt(MyApplication.getInstance(), physicalId + SettingActivity.KEY_MODE) == MsgCodeUtils.STATUE_RANDOM;
+        return SpUtils.getInt(MyApplication.getInstance(), IlifeAli.getInstance().getWorkingDevice().getProductKey() + SettingActivity.KEY_MODE) == MsgCodeUtils.STATUE_RANDOM;
     }
 
 

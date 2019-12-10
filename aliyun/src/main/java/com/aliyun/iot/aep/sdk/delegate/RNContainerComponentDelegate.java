@@ -24,10 +24,10 @@ public class RNContainerComponentDelegate extends SimpleSDKDelegateImp {
     @Override
     public int init(final Application application, SDKConfigure sdkConfigure, Map<String, String> map) {
         // plugin env
-        String pluginEnv = "test";
+        String pluginEnv = "activity_register_phone";
         pluginEnv = map.get(KEY_RN_CONTAINER_PLUGIN_ENV);
         if (TextUtils.isEmpty(pluginEnv)) {
-            pluginEnv = "test";
+            pluginEnv = "activity_register_phone";
         }
         map.put(KEY_RN_CONTAINER_PLUGIN_ENV, pluginEnv);
 
@@ -38,8 +38,8 @@ public class RNContainerComponentDelegate extends SimpleSDKDelegateImp {
         } else if ("release".equalsIgnoreCase(serverEnv)) {
             serverEnv = "production";
         } else if ("pre".equalsIgnoreCase(serverEnv)) {
-            serverEnv = "test";
-        } else if ("test".equalsIgnoreCase(serverEnv)) {
+            serverEnv = "activity_register_phone";
+        } else if ("activity_register_phone".equalsIgnoreCase(serverEnv)) {
             serverEnv = "development";
         }
 

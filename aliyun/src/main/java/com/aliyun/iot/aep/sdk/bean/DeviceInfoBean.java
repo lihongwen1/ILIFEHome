@@ -34,6 +34,15 @@ public class DeviceInfoBean {
     private int status;
     private String nickName;
     private PropertyBean deviceInfo;
+    private int work_status;
+
+    public int getWork_status() {
+        return work_status;
+    }
+
+    public void setWork_status(int work_status) {
+        this.work_status = work_status;
+    }
 
     public long getGmtModified() {
         return gmtModified;

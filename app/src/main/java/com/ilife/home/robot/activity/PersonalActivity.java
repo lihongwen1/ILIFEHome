@@ -1,7 +1,6 @@
 package com.ilife.home.robot.activity;
 
 import android.Manifest;
-import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
@@ -14,7 +13,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AlertDialog;
@@ -52,8 +50,6 @@ import java.util.Map;
 
 import butterknife.BindView;
 import butterknife.OnClick;
-import io.reactivex.annotations.NonNull;
-import io.reactivex.functions.Consumer;
 
 /**
  * Created by chengjiaping on 2018/8/13.
@@ -81,6 +77,7 @@ public class PersonalActivity extends BackBaseActivity implements View.OnClickLi
     ArrayList<DeviceInfoBean> mDeviceList;
     ArrayList<String> formats;
 
+    private RenameActivity renameFragment;
 
     @Override
     public int getLayoutId() {
@@ -89,9 +86,10 @@ public class PersonalActivity extends BackBaseActivity implements View.OnClickLi
 
     @Override
     public void initView() {
+        ((ImageView) findViewById(R.id.image_back)).setImageResource(R.drawable.nav_button_back_w);
+        ((TextView) findViewById(R.id.tv_top_title)).setTextColor(getResources().getColor(R.color.white));
         ((TextView) findViewById(R.id.tv_top_title)).setText(R.string.personal_aty_personal_center);
         findViewById(R.id.ll_title).setBackgroundColor(getResources().getColor(R.color.zxing_transparent));
-
     }
 
     public void initData() {
@@ -110,13 +108,9 @@ public class PersonalActivity extends BackBaseActivity implements View.OnClickLi
         dialog_width = (int) getResources().getDimension(R.dimen.dp_300);
         dialog_height = (int) getResources().getDimension(R.dimen.dp_140);
         dialog_height_ = (int) getResources().getDimension(R.dimen.dp_146);
-        String userName = IlifeAli.getInstance().getUserInfo().userNick;
-        if (!TextUtils.isEmpty(userName)) {
-            tv_userName.setText(userName);
-        }
         String version = getVersion();
         if (!TextUtils.isEmpty(version)) {
-            tv_version.setText(getString(R.string.personal_aty_version, version, BuildConfig.Area == 0 ? "CN" : "OVERSEA"));
+            tv_version.setText(getString(R.string.personal_aty_version, version, BuildConfig.Area == EnvConfigure.AREA_CHINA ? "CN" : "OVERSEA"));
         }
         /**
          * user contact information,email or phone number
@@ -128,13 +122,23 @@ public class PersonalActivity extends BackBaseActivity implements View.OnClickLi
         tv_user_email.setText(phone);
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        String userName = IlifeAli.getInstance().getUserInfo().userNick;
+        if (!TextUtils.isEmpty(userName)) {
+            tv_userName.setText(userName);
+        }
+    }
 
-    @OnClick({R.id.rl_user_information, R.id.rl_help, R.id.rl_scan, R.id.bt_logout, R.id.rl_protocol, R.id.rl_share})
+    @OnClick({R.id.rl_user_information, R.id.rl_help, R.id.rl_scan, R.id.bt_logout, R.id.tv_user_agreement, R.id.tv_protocol_privacy, R.id.rl_share})
     public void onClick(View v) {
         Intent i;
         switch (v.getId()) {
             case R.id.rl_user_information:
-                showRenameDialog();
+                Intent intent = new Intent(PersonalActivity.this, RenameActivity.class);
+                intent.putExtra(RenameActivity.KEY_RENAME_TYPE, 2);
+                startActivity(intent);
                 break;
             case R.id.rl_help:
                 i = new Intent(context, HelpActivity.class);
@@ -153,14 +157,15 @@ public class PersonalActivity extends BackBaseActivity implements View.OnClickLi
             case R.id.bt_logout:
                 showLogoutDialog();
                 break;
-            case R.id.rl_protocol:
-                if (Utils.isIlife()) {
-                    i = new Intent(context, ProtocolActivity.class);
-                    startActivity(i);
-                } else {
-                    i = new Intent(context, ZacoProtocolActivity.class);
-                    startActivity(i);
-                }
+            case R.id.tv_user_agreement:
+                i = new Intent(context, ProtocolActivity.class);
+                i.putExtra(ProtocolActivity.KEY_TYPE,1);
+                startActivity(i);
+                break;
+            case R.id.tv_protocol_privacy:
+                i = new Intent(context, ProtocolActivity.class);
+                i.putExtra(ProtocolActivity.KEY_TYPE,2);
+                startActivity(i);
                 break;
             case R.id.rl_share:
                 if (IlifeAli.getInstance().isLogin()) {
@@ -184,7 +189,7 @@ public class PersonalActivity extends BackBaseActivity implements View.OnClickLi
 
     private void showLogoutDialog() {
         UniversalDialog logoutDialog = new UniversalDialog();
-        logoutDialog.setDialogType(UniversalDialog.TYPE_NORMAL).setTitleColor(getResources().getColor(R.color.color_ff4d00)).
+        logoutDialog.setDialogType(UniversalDialog.TYPE_NORMAL).
                 setTitle(Utils.getString(R.string.personal_acy_exit)).setHintTip(Utils.getString(R.string.personal_aty_exit_content)).
                 setOnRightButtonClck(() -> {
                     IlifeAli.getInstance().logOut(new OnAliResponse<String>() {
@@ -204,38 +209,6 @@ public class PersonalActivity extends BackBaseActivity implements View.OnClickLi
                 }).show(getSupportFragmentManager(), "logout");
     }
 
-    private void showRenameDialog() {
-        UniversalDialog logoutDialog = new UniversalDialog();
-        logoutDialog.setDialogType(UniversalDialog.TYPE_NORMAL).setCanEdit(true).setTitle(Utils.getString(R.string.personal_aty_set_name))
-                .setHintTip(Utils.getString(R.string.user_nickname)).setOnRightButtonWithValueClck((name) -> {
-            if (TextUtils.isEmpty(name)) {
-                ToastUtils.showToast(context, getString(R.string.setting_aty_devName_null));
-                return;
-            }
-
-            if (name.length() > Utils.getInputMaxLength()) {
-                ToastUtils.showToast(getResources().getString(R.string.name_max_length, Utils.getInputMaxLength() + ""));
-                return;
-            }
-            if (!name.equals(userName)) {
-                changeNickName(name);
-            }
-            logoutDialog.dismiss();
-        }).show(getSupportFragmentManager(), "rename");
-    }
-
-
-    public void changeNickName(final String name) {
-        IlifeAli.getInstance().resetNickName(name, isSuccess -> runOnUiThread(() -> {
-            if (isSuccess) {
-                ToastUtils.showToast(context, getString(R.string.personal_aty_reset_suc));
-                userName = name;
-                tv_userName.setText(name);
-            } else {
-                ToastUtils.showToast(context, getString(R.string.personal_aty_reset_fail));
-            }
-        }));
-    }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -262,7 +235,7 @@ public class PersonalActivity extends BackBaseActivity implements View.OnClickLi
 
     public void getOwnerList() {
         mDeviceList.clear();
-        List<DeviceInfoBean> mAcUserDevices = MyApplication.getInstance().getmAcUserDevices();
+        List<DeviceInfoBean> mAcUserDevices = IlifeAli.getInstance().getmAcUserDevices();
         if (mAcUserDevices != null && mAcUserDevices.size() > 0) {
             for (int i = 0; i < mAcUserDevices.size(); i++) {
                 long ownerId = mAcUserDevices.get(i).getOwned();

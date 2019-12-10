@@ -31,7 +31,6 @@ public class BindFailActivity extends BaseActivity {
     @OnClick(R.id.bt_retry)
     public void onclick(View v) {
         if (v.getId() == R.id.bt_retry) {
-            Constants.IS_FIRST_AP = false;
             Intent intent = new Intent(this, ConnectHomeWifiActivity.class);
             startActivity(intent);
             removeActivity();

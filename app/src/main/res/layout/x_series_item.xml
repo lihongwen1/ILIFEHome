@@ -17,7 +17,7 @@
         android:layout_marginTop="@dimen/dp_13"
         android:src="@drawable/n_x900" />
 
-    <com.ilife.home.robot.view.EnglishRegularTextView
+    <TextView
         android:id="@+id/tv_product"
         style="@style/Text_16sp_f08300"
         android:layout_gravity="center_horizontal"

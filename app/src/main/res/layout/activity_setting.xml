@@ -24,26 +24,35 @@
             android:src="@drawable/image_x900"
             />
 
-        <com.ilife.home.robot.view.MediumTextView
+        <TextView
             android:id="@+id/tv_name"
             android:layout_marginStart="@dimen/dp_20"
             style="@style/Text_18sp_f08300"
+            android:textColor="@color/color_33"
             android:layout_marginTop="@dimen/dp_37"
             android:layout_toEndOf="@+id/image_product"/>
 
-        <com.ilife.home.robot.view.LightTextView
+        <TextView
             android:id="@+id/textView"
             style="@style/Text_14sp_33"
+            android:textColor="@color/color_c7c7c7"
             android:layout_below="@+id/tv_name"
             android:layout_alignStart="@+id/tv_name"
             android:text="@string/setting_aty_type" />
 
-        <com.ilife.home.robot.view.LightTextView
+        <TextView
             android:id="@+id/tv_type"
             style="@style/Text_14sp_33"
+            android:textColor="@color/color_c7c7c7"
             android:layout_below="@+id/tv_name"
             android:layout_toEndOf="@+id/textView"
             android:text="x800" />
+
+        <ImageView style="@style/Image_Style_Forward"
+            android:layout_alignParentEnd="true"
+            android:layout_marginEnd="@dimen/dp_20"
+            android:layout_centerVertical="true"
+            />
     </RelativeLayout>
     <ScrollView
         android:scrollbars="none"

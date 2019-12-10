@@ -6,7 +6,7 @@
     android:layout_gravity="bottom"
     android:orientation="vertical">
 
-    <com.ilife.home.robot.view.RegularTextView
+    <TextView
         style="@style/Text_18sp_33"
         android:layout_gravity="center_horizontal"
         android:layout_marginTop="@dimen/dp_24"

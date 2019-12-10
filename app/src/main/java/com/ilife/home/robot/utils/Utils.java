@@ -43,7 +43,7 @@ public class Utils {
     }
 
     public static boolean isSupportPhone() {
-        return BuildConfig.Area == EnvConfigure.AREA_CHINA;
+        return true;
     }
 
     public static boolean isChineseLanguage() {

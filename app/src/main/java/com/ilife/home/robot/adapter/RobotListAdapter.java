@@ -6,6 +6,8 @@ import android.text.TextUtils;
 import androidx.annotation.NonNull;
 
 import com.aliyun.iot.aep.sdk.bean.DeviceInfoBean;
+import com.ilife.home.robot.able.Constants;
+import com.ilife.home.robot.able.DeviceUtils;
 import com.ilife.home.robot.base.BaseQuickAdapter;
 import com.ilife.home.robot.base.BaseViewHolder;
 import com.ilife.home.robot.R;
@@ -44,13 +46,14 @@ public class RobotListAdapter extends BaseQuickAdapter<DeviceInfoBean, BaseViewH
         if (type == TYPE_ADD) {//添加机器人按钮
             holder.addOnClickListener(R.id.iv_add_device);
         } else {
-            holder.setImageResource(context, R.id.image_product, R.drawable.n_x800);
-            String nickName=data.get(position).getNickName();
-            holder.setText(R.id.tv_name, TextUtils.isEmpty(nickName)? data.get(position).getDeviceName():nickName);
+            String robotType = DeviceUtils.getRobotType(data.get(position).getProductKey());
+            holder.setImageResource(context, R.id.image_product,DeviceUtils.getRobotPic(robotType));
+            String nickName = data.get(position).getNickName();
+            holder.setText(R.id.tv_name, TextUtils.isEmpty(nickName) ? data.get(position).getDeviceName() : nickName);
             int states = data.get(position).getStatus();
-            holder.setText(R.id.tv_status2, states == 1 ? R.string.device_adapter_device_online:R.string.device_adapter_device_offline);
-            holder.setTextColor(R.id.tv_status2, states == 1 ?  context.getResources().getColor(R.color.color_ff4d00):context.getResources().getColor(R.color.color_81));
-            holder.setSelect(R.id.tv_status2,states==1);
+            holder.setText(R.id.tv_status2, states == 1 ? R.string.device_adapter_device_online : R.string.device_adapter_device_offline);
+            holder.setTextColor(R.id.tv_status2, states == 1 ? context.getResources().getColor(R.color.color_33) : context.getResources().getColor(R.color.color_c7c7c7));
+            holder.setSelect(R.id.tv_status2, states == 1);
             holder.addOnClickListener(R.id.item_delete);
         }
     }

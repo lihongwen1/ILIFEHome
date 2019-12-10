@@ -25,10 +25,10 @@ public class ToastUtils {
 
     public static void showErrorToast(Context context, int code) {
         //默认显示连接超时
-        String msg = context.getString(R.string.login_aty_timeout);
+        String msg = context.getString(R.string.error_toast_timeout);
         switch (code) {
             case 1993:
-                msg = context.getString(R.string.login_aty_timeout);
+                msg = context.getString(R.string.error_toast_timeout);
                 break;
             case 1986:
                 msg = context.getString(R.string.add_aty_no_wifi);

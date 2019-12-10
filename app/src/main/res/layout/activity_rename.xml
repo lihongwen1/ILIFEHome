@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <include layout="@layout/template_top_title" />
+    <EditText
+        android:id="@+id/et_rename"
+        android:layout_marginTop="@dimen/dp_20"
+        android:layout_marginEnd="@dimen/dp_24"
+        android:layout_marginStart="@dimen/dp_24"
+        android:background="@drawable/shape_rename_bg"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dp_60"
+        android:text="你的小主人"
+        android:paddingLeft="@dimen/dp_24"
+        android:textColor="@color/color_33"
+        android:textSize="@dimen/dp_16"
+        />
+</LinearLayout>

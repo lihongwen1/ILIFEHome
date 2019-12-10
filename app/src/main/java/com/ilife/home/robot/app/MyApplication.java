@@ -30,13 +30,8 @@ import java.util.List;
 public class MyApplication extends SdkApplication {
     private final String TAG = MyApplication.class.getSimpleName();
     private static MyApplication instance;
-    private List<DeviceInfoBean> mAcUserDevices;
+
     public String appInitLanguage;
-    public Typeface tf_light;
-    public Typeface tf_regular;
-    public Typeface tf_robot_regular;
-    public Typeface avantGard;
-    public Typeface tf_medium;
     private List<Activity> activities;
 
     @Override
@@ -48,7 +43,6 @@ public class MyApplication extends SdkApplication {
         IlifeAli.getInstance().init(instance);
         configToast();
         closeAndroidPDialog();
-        initTypeface();
         /**
          * tencent bugly crash日志上传
          */
@@ -67,24 +61,8 @@ public class MyApplication extends SdkApplication {
         return BuildConfig.BUILD_COUNTRY;
     }
 
-    public void initTypeface() {
-        appInitLanguage = LanguageUtils.getDefaultLanguage();
-        if (Utils.isChineseLanguage()) {
-            tf_light = Typeface.createFromAsset(getAssets(), "fonts/SourceHanSansCNLight.ttf");
-            tf_regular = Typeface.createFromAsset(getAssets(), "fonts/SourceHanSansCNRegular.ttf");
-            tf_medium = Typeface.createFromAsset(getAssets(), "fonts/SourceHanSansCNMedium.ttf");
-        } else {
-            tf_light = Typeface.createFromAsset(getAssets(), "fonts/ROBOTO-LIGHT.ttf");
-            tf_regular = Typeface.createFromAsset(getAssets(), "fonts/Roboto-Regular.ttf");
-            tf_medium = Typeface.createFromAsset(getAssets(), "fonts/ROBOTO-MEDIUM.ttf");
-        }
-        tf_robot_regular = Typeface.createFromAsset(getAssets(), "fonts/Roboto-Regular.ttf");
-        avantGard = Typeface.createFromAsset(getAssets(), "fonts/ITCAvantGardeStd-Demi.ttf");
-
-    }
-
     private void configToast() {
-        Toasty.Config.getInstance().tintIcon(true).tintIcon(false).setToastTypeface(tf_regular).
+        Toasty.Config.getInstance().tintIcon(true).tintIcon(false).
                 setTextSize(16).allowQueue(false).apply();
     }
 
@@ -127,21 +105,6 @@ public class MyApplication extends SdkApplication {
         } catch (Exception e) {
             e.printStackTrace();
         }
-    }
-
-    public List<DeviceInfoBean> getmAcUserDevices() {
-        if (mAcUserDevices == null) {
-            mAcUserDevices = new ArrayList<>();
-        }
-        return mAcUserDevices;
-    }
-
-    public void setmAcUserDevices(List<DeviceInfoBean> devices) {
-        if (mAcUserDevices == null) {
-            mAcUserDevices = new ArrayList<>();
-        }
-        mAcUserDevices.clear();
-        mAcUserDevices.addAll(devices);
     }
 
 

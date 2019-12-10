@@ -19,7 +19,7 @@
             android:gravity="center_horizontal"
             android:orientation="vertical">
 
-            <com.ilife.home.robot.view.RegularTextView
+            <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/dp_64"
@@ -31,10 +31,11 @@
                 android:id="@+id/iv_bind_device"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/dp_16"
+                android:layout_marginTop="@dimen/dp_36"
                 android:src="@drawable/rechage_device_x900" />
 
-            <com.ilife.home.robot.view.LightTextView
+            <TextView
+                android:layout_marginTop="@dimen/dp_36"
                 style="@style/Text_14sp_66"
                 android:text="@string/bind_suc_aty_name" />
 
@@ -48,7 +49,6 @@
                 android:gravity="center"
                 android:textColor="@color/color_33"
                 android:textSize="@dimen/sp_16" />
-
             <com.ilife.home.robot.view.ShadowContainer
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -60,7 +60,7 @@
                 app:deltaY="@dimen/dp_2"
                 app:enable="true">
 
-                <com.ilife.home.robot.view.RegularButton
+                <Button
                     android:id="@+id/bt_done"
                     style="@style/Button_Style"
                     android:text="@string/bind_suc_sty_robot_done" />

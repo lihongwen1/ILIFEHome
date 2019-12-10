@@ -18,10 +18,8 @@ import com.aliyun.iot.aep.sdk.contant.IlifeAli;
 import com.ilife.home.robot.adapter.HistoryAdapter;
 import com.ilife.home.robot.base.BackBaseActivity;
 import com.ilife.home.robot.able.DeviceUtils;
-import com.ilife.home.robot.utils.DialogUtils;
 import com.ilife.home.robot.utils.SpUtils;
 import com.ilife.home.robot.utils.ToastUtils;
-import com.ilife.home.robot.utils.Utils;
 import com.ilife.home.robot.view.RecyclerViewDivider;
 import com.ilife.home.robot.R;
 
@@ -45,7 +43,6 @@ public class HistoryActivity_x9 extends BackBaseActivity implements View.OnClick
     HistoryAdapter adapter;
     LinearLayout fl_noRecord;
     TextView tv_title;
-    Dialog dialog;
     private long start, end;
 
     @Override
@@ -64,8 +61,6 @@ public class HistoryActivity_x9 extends BackBaseActivity implements View.OnClick
 
     public void initView() {
         context = this;
-        dialog = DialogUtils.createLoadingDialog(context);
-        dialog.dismiss();
         fl_noRecord = findViewById(R.id.ll_noRecord);
         tv_title = findViewById(R.id.tv_top_title);
         tv_title.setText(R.string.setting_aty_clean_record);

@@ -8,16 +8,14 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.TextView;
 
+import com.aliyun.iot.aep.sdk.contant.EnvConfigure;
 import com.aliyun.iot.aep.sdk.contant.IlifeAli;
 import com.ilife.home.robot.BuildConfig;
 import com.ilife.home.robot.R;
 import com.ilife.home.robot.able.Constants;
 import com.ilife.home.robot.able.DeviceUtils;
-import com.ilife.home.robot.base.BackBaseActivity;
 import com.ilife.home.robot.base.BaseActivity;
-import com.ilife.home.robot.utils.SpUtils;
 import com.ilife.home.robot.utils.ToastUtils;
 import com.ilife.home.robot.utils.UserUtils;
 import com.ilife.home.robot.utils.Utils;
@@ -44,7 +42,6 @@ public class BindSucActivity extends BaseActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        addLayoutListener(findViewById(R.id.rootView), bt_done);
     }
 
     @Override
@@ -64,14 +61,13 @@ public class BindSucActivity extends BaseActivity {
     }
 
     public void initData() {
-        Bundle bundle = getIntent().getExtras();
-        if (bundle != null) {
-            if (SpUtils.getBoolean(this, SelectActivity_x.KEY_BIND_WHITE)) {
-                SpUtils.saveString(this, KEY_BIND_WHITE_DEV_ID, IlifeAli.getInstance().getIotId());
-            }
+        iv_bind_device.setImageResource(DeviceUtils.getRobotPic(DeviceUtils.getRobotType(IlifeAli.getInstance().getBindingProductKey())));
+        String devName;
+        if (IlifeAli.getInstance().getBindingProductKey().equals(EnvConfigure.PRODUCT_KEY_X800_W)) {//白色仍旧名为X800
+            devName = BuildConfig.BRAND + " " + Constants.X800;
+        } else {
+            devName = BuildConfig.BRAND + " " + DeviceUtils.getRobotType(IlifeAli.getInstance().getBindingProductKey());//ILIFE X800
         }
-        iv_bind_device.setImageResource(DeviceUtils.getRechargeImageSrc(DeviceUtils.getRobotType(""), SpUtils.getBoolean(this, SelectActivity_x.KEY_BIND_WHITE)));
-        String devName = BuildConfig.BRAND + " " + DeviceUtils.getRobotType("");//ILIFE X800
         et_devName.setText(devName);
         et_devName.setSelection(et_devName.getText().toString().trim().length());
         UserUtils.setInputFilter(et_devName, Utils.getInputMaxLength());
@@ -88,8 +84,8 @@ public class BindSucActivity extends BaseActivity {
             if (TextUtils.isEmpty(name)) {
                 ToastUtils.showToast(context, getString(R.string.setting_aty_hit));
             } else {
-                IlifeAli.getInstance().reNameDevice(SpUtils.getBoolean(this, SelectActivity_x.KEY_BIND_WHITE) ? name + Constants.ROBOT_WHITE_TAG : name, isSUccess -> {
-                    if (isSUccess) {
+                IlifeAli.getInstance().reNameDevice(name, issuccess -> {
+                    if (issuccess) {
                         ToastUtils.showToast(context, context.getString(R.string.bind_aty_reName_suc));
                     } else {
                         ToastUtils.showToast(context, getString(R.string.bind_aty_reName_fail));

@@ -30,6 +30,14 @@
             android:name=".aep.sdk.page.ResetPwdEmailActivity"
             android:configChanges="orientation|screenSize|keyboardHidden|locale|layoutDirection|keyboard"
             android:theme="@style/ilife_ali_register_phone_reset_pwd" />
+        <activity
+            android:name=".aep.sdk.page.EmailResetFillActivity"
+            android:configChanges="orientation|screenSize|keyboardHidden|locale|layoutDirection|keyboard"
+            android:theme="@style/ilife_ali_reset_fill_pwd" />
+        <activity
+            android:name=".aep.sdk.page.ResetPWDFillActivity"
+            android:configChanges="orientation|screenSize|keyboardHidden|locale|layoutDirection|keyboard"
+            android:theme="@style/ilife_ali_reset_fill_pwd" />
     </application>
 
 </manifest>

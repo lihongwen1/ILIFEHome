@@ -10,11 +10,6 @@ android {
         minSdkVersion 19
         targetSdkVersion 26
         //兼容Gradle3.X
-        ndk {
-//            abiFilters "armeabi"
-//            abiFilters "armeabi-v7a"
-            abiFilters "arm64-v8a","armeabi-v7a"
-        }
         multiDexEnabled true
     }
 
@@ -162,18 +157,18 @@ dependencies {
     /* 移动应用推送.end *
 
    /* EventBus*/
-    api 'com.taobao.external:eventbus:1.0.2'
-    api 'com.aliyun.iot.aep.sdk:abus:0.0.1'
+//    api 'com.taobao.external:eventbus:1.0.2'
+//    api 'com.aliyun.iot.aep.sdk:abus:0.0.1'
     /* Glide */
 
     // Dependency for Google Sign-In
-    api 'com.google.android.gms:play-services-auth:15.0.1'
+//    api 'com.google.android.gms:play-services-auth:15.0.1'
 //    //facebook
-    api('com.facebook.android:facebook-android-sdk:4.20.0')
+//    api('com.facebook.android:facebook-android-sdk:4.20.0')
 
-    api('com.aliyun.iot.aep.sdk:jsbridge:0.1.2'){
-        force=true
-    }
+//    api('com.aliyun.iot.aep.sdk:jsbridge:0.1.2'){
+//        force=true
+//    }
 
 
 

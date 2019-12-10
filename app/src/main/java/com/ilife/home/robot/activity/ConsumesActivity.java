@@ -19,6 +19,7 @@ import com.ilife.home.robot.able.Constants;
 import com.ilife.home.robot.able.DeviceUtils;
 import com.ilife.home.robot.base.BackBaseActivity;
 import com.ilife.home.robot.fragment.UniversalDialog;
+import com.ilife.home.robot.utils.MyLogger;
 import com.ilife.home.robot.utils.Utils;
 
 import java.util.ArrayList;
@@ -43,12 +44,6 @@ public class ConsumesActivity extends BackBaseActivity {
     TextView tv_roll;
     @BindView(R.id.tv_1)
     TextView tv_tips;
-    @BindView(R.id.tv_filter_remain_time)
-    TextView tv_filter_remain_time;
-    @BindView(R.id.tv_side_remain_time)
-    TextView tv_side_remain_time;
-    @BindView(R.id.tv_roll_remain_time)
-    TextView tv_roll_remain_time;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -75,10 +70,14 @@ public class ConsumesActivity extends BackBaseActivity {
     }
 
     public void initData() {
-        queryConsumer();
         tv_top_title.setText(R.string.setting_aty_consume_detail);
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        queryConsumer();
+    }
 
     @OnClick({R.id.rl_roll, R.id.rl_filter, R.id.rl_side})
     public void onClick(View view) {
@@ -101,25 +100,31 @@ public class ConsumesActivity extends BackBaseActivity {
 
     }
 
+    private void setConsumerProgress(int progress, ProgressBar pb_consumer, TextView consumerPercent) {
+        pb_consumer.setProgress(progress);
+        consumerPercent.setText(progress + "%");
+        if (progress >= 80) {
+            pb_consumer.setProgressDrawable(getResources().getDrawable(R.drawable.progress_bg_grenn));
+        } else if (progress >= 20) {
+            pb_consumer.setProgressDrawable(getResources().getDrawable(R.drawable.progress_bg_yellow));
+        } else {
+            pb_consumer.setProgressDrawable(getResources().getDrawable(R.drawable.progress_bg_red));
+        }
+    }
 
     private void queryConsumer() {
         IlifeAli.getInstance().queryConsumer(new OnAliResponse<String>() {
             @Override
             public void onSuccess(String response) {
                 if (!TextUtils.isEmpty(response)) {
+                    MyLogger.d(TAG,"耗材数据： "+response);
                     JSONObject json = JSONObject.parseObject(response);
                     int sideBrushLife = json.getJSONObject(EnvConfigure.KEY_PARTS_STATUS).getJSONObject(EnvConfigure.KEY_VALUE).getIntValue(EnvConfigure.KEY_SIDE_BRUSH_LIFE);
                     int rollBrushLife = json.getJSONObject(EnvConfigure.KEY_PARTS_STATUS).getJSONObject(EnvConfigure.KEY_VALUE).getIntValue(EnvConfigure.KEY_MAIN_BRUSH_LIFE);
                     int filterIife = json.getJSONObject(EnvConfigure.KEY_PARTS_STATUS).getJSONObject(EnvConfigure.KEY_VALUE).getIntValue(EnvConfigure.KEY_FILTER_LIFE);
-                    pb_side.setProgress(sideBrushLife);
-                    pb_roll.setProgress(rollBrushLife);
-                    pb_filter.setProgress(filterIife);
-                    tv_percent_side.setText(sideBrushLife + "%");
-                    tv_percent_roll.setText(rollBrushLife + "%");
-                    tv_percent_filter.setText(filterIife + "%");
-                    tv_filter_remain_time.setText(getResources().getString(R.string.consumer_remain_time, (int) (300 * filterIife / 100f) + ""));
-                    tv_roll_remain_time.setText(getResources().getString(R.string.consumer_remain_time, (int) (300 * rollBrushLife / 100f) + ""));
-                    tv_side_remain_time.setText(getResources().getString(R.string.consumer_remain_time, (int) (300 * sideBrushLife / 100f) + ""));
+                    setConsumerProgress(sideBrushLife, pb_side, tv_percent_side);
+                    setConsumerProgress(rollBrushLife, pb_roll, tv_percent_roll);
+                    setConsumerProgress(filterIife, pb_filter, tv_percent_filter);
                 }
             }
 

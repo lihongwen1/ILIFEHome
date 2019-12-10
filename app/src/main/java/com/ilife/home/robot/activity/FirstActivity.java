@@ -1,15 +1,31 @@
 package com.ilife.home.robot.activity;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
+import android.text.Spannable;
+import android.text.SpannableString;
+import android.text.SpannableStringBuilder;
+import android.text.TextPaint;
+import android.text.style.ClickableSpan;
+import android.text.style.ForegroundColorSpan;
+import android.view.Gravity;
+import android.view.View;
 import android.widget.ImageView;
+import android.widget.Toast;
+
+import androidx.annotation.NonNull;
 
 import com.aliyun.iot.aep.sdk._interface.OnAliResponse;
 import com.aliyun.iot.aep.sdk.contant.IlifeAli;
 import com.badoo.mobile.util.WeakHandler;
 import com.ilife.home.robot.R;
 import com.ilife.home.robot.base.BaseActivity;
+import com.ilife.home.robot.fragment.UniversalDialog;
+import com.ilife.home.robot.utils.SpUtils;
 import com.ilife.home.robot.utils.ToastUtils;
 import com.ilife.home.robot.utils.Utils;
 import com.tbruyelle.rxpermissions2.RxPermissions;
@@ -24,8 +40,7 @@ import butterknife.BindView;
 public class FirstActivity extends BaseActivity {
     private final String TAG = FirstActivity.class.getSimpleName();
     private final int GOTOMAIN = 0x11;
-    @BindView(R.id.iv_launcher)
-    ImageView iv_launcher;
+    private UniversalDialog protocolDialog;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -46,18 +61,31 @@ public class FirstActivity extends BaseActivity {
 
     @Override
     public void initView() {
-        if (Utils.isChinaEnvironment()) {
-            iv_launcher.setImageResource(R.drawable.launcher_page_zh);
-        } else {
-            iv_launcher.setImageResource(R.drawable.launcher_page);
+
+    }
+
+    private void showProtocolDialog() {
+        if (protocolDialog == null) {
+            protocolDialog = new UniversalDialog();
+            String text = "您即将使用ILIFE的智能设备，并通过ILIFEHome应用程序享受服务。为了您在使用ILIFE服务时得到充分的信任，请您仔细阅读《服务协议》和《隐私政策》。如您同意，请点击“接受”开始享受我们的服务。";
+            SpannableString sb = new SpannableString(text);
+            sb.setSpan(new MyClickText(1), 65, 71, Spannable.SPAN_INCLUSIVE_INCLUSIVE);
+            sb.setSpan(new MyClickText(2), 72, 78, Spannable.SPAN_INCLUSIVE_INCLUSIVE);
+            protocolDialog.setTitle("ILIFEHome隐私政策与用户协议").setHintTip(sb, Gravity.START, getResources().getColor(R.color.color_33)).setLeftText("取消").setRightText("接受")
+                    .setRightDrawable(R.drawable.shape_bg_color)
+                    .setOnLeftButtonClck(this::finish).setOnRightButtonClck(() -> {
+                SpUtils.saveBoolean(FirstActivity.this, "key_agree_protocol", true);
+                checkPermission();
+            });
+        }
+        if (!protocolDialog.isAdded()) {
+            protocolDialog.show(getSupportFragmentManager(), "protocol");
         }
     }
 
     private WeakHandler handler = new WeakHandler(msg -> {
-        switch (msg.what) {
-            case GOTOMAIN:
-                gotoMain();
-                break;
+        if (msg.what == GOTOMAIN) {
+            gotoMain();
         }
         return false;
     });
@@ -65,7 +93,11 @@ public class FirstActivity extends BaseActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        checkPermission();
+        if (!SpUtils.getBoolean(this, "key_agree_protocol")) {
+            showProtocolDialog();
+        } else {
+            checkPermission();
+        }
     }
 
     private void checkPermission() {
@@ -98,5 +130,30 @@ public class FirstActivity extends BaseActivity {
         });
 
     }
+
+    private class MyClickText extends ClickableSpan {
+        private int type;
+
+        public MyClickText(int type) {
+            this.type = type;
+        }
+
+        @Override
+        public void updateDrawState(TextPaint ds) {
+            super.updateDrawState(ds);
+            //设置文本的颜色
+            ds.setColor(getResources().getColor(R.color.color_ff4d00));
+            //超链接形式的下划线，false 表示不显示下划线，true表示显示下划线
+            ds.setUnderlineText(false);
+        }
+
+        @Override
+        public void onClick(View view) {
+            Intent intent=new Intent(FirstActivity.this, ProtocolActivity.class);
+            intent.putExtra(ProtocolActivity.KEY_TYPE,type);
+            startActivity(intent);
+        }
+    }
+
 
 }

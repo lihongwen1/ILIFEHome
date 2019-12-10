@@ -19,6 +19,30 @@ import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 
 public class MainPresenter extends BasePresenter<MainContract.View> implements MainContract.Presenter {
+
+
+    @Override
+    public void attachView(MainContract.View view) {
+        super.attachView(view);
+        IlifeAli.getInstance().settTokenInvalidListener(aBoolean -> {
+            MyLogger.d("ILIFE_ALI_", "用户回话超时。。。");
+            //登录失效，弹框，重新登录
+            IlifeAli.getInstance().forceLogin(new OnAliResponse<Boolean>() {
+                @Override
+                public void onSuccess(Boolean result) {
+                    //重新登录成功
+                    MyLogger.d("ILIFE_ALI_", "重新登录成功。。。。");
+                }
+
+                @Override
+                public void onFailed(int code, String message) {
+                    //重新登录失败
+                    MyLogger.d("ILIFE_ALI_", "重新登录失败。。。。");
+                }
+            });
+        });
+    }
+
     /**
      * 请求设备列表，刷新设备状态
      */

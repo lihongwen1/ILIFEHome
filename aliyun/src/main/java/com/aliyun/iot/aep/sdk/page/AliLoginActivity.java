@@ -1,13 +1,18 @@
 package com.aliyun.iot.aep.sdk.page;
 
+import android.content.ComponentName;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.CompoundButton;
+import android.widget.RadioButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -20,8 +25,10 @@ import com.alibaba.sdk.android.openaccount.ui.OpenAccountUIConfigs;
 import com.alibaba.sdk.android.openaccount.ui.OpenAccountUIService;
 import com.alibaba.sdk.android.openaccount.ui.callback.EmailRegisterCallback;
 import com.alibaba.sdk.android.openaccount.ui.callback.EmailResetPasswordCallback;
+import com.alibaba.sdk.android.openaccount.ui.util.ToastUtils;
 import com.alibaba.sdk.android.openaccount.ui.widget.TitleBar;
 import com.alibaba.sdk.android.openaccount.util.ResourceUtils;
+import com.alibaba.sdk.android.push.common.util.SharedPreferencesUtils;
 import com.aliyun.iot.R;
 import com.aliyun.iot.aep.sdk.dialog.RegisterSelectorDialogFragment;
 import com.aliyun.iot.aep.sdk.dialog.ResetSelectorDialogFragment;
@@ -41,8 +48,8 @@ public class AliLoginActivity extends com.alibaba.sdk.android.openaccount.ui.ui.
     protected void onCreate(Bundle savedInstanceState) {
         //显示登录页和手机忘记密码页的选择国家区号
         super.onCreate(savedInstanceState);
-        OpenAccountUIConfigs.AccountPasswordLoginFlow.supportForeignMobileNumbers = true;
-        OpenAccountUIConfigs.MobileResetPasswordLoginFlow.supportForeignMobileNumbers = true;
+        OpenAccountUIConfigs.AccountPasswordLoginFlow.supportForeignMobileNumbers = false;
+        OpenAccountUIConfigs.MobileResetPasswordLoginFlow.supportForeignMobileNumbers = false;
         TRANSPARENT();
         registerSelectorDialogFragment = new RegisterSelectorDialogFragment();
         registerSelectorDialogFragment.setOnClickListener(registerListenr);
@@ -50,26 +57,24 @@ public class AliLoginActivity extends com.alibaba.sdk.android.openaccount.ui.ui.
         resetSelectorDialogFragment.setOnClickListener(resetListenr);
         this.resetPasswordTV = (TextView) this.findViewById(ResourceUtils.getRId(this, "reset_password"));
         if (this.resetPasswordTV != null) {
-            this.resetPasswordTV.setOnClickListener(new View.OnClickListener() {
-                public void onClick(View v) {
-                    resetSelectorDialogFragment.showAllowingStateLoss(getSupportFragmentManager(), "");
-                }
-            });
+            this.resetPasswordTV.setOnClickListener(v -> resetSelectorDialogFragment.showAllowingStateLoss(getSupportFragmentManager(), ""));
         }
         this.registerTV = (TextView) this.findViewById(ResourceUtils.getRId(this, "register"));
         if (this.registerTV != null) {
-            this.registerTV.setOnClickListener(new View.OnClickListener() {
-                public void onClick(View v) {
-                    registerSelectorDialogFragment.showAllowingStateLoss(getSupportFragmentManager(), "");
-                }
+            this.registerTV.setOnClickListener(v -> {
+                registerSelectorDialogFragment.showAllowingStateLoss(getSupportFragmentManager(), "");
             });
         }
         if (getSupportActionBar() != null) {
             //隐藏掉navigation bar button
             getSupportActionBar().setDisplayHomeAsUpEnabled(false);
         }
+        this.findViewById(R.id.tv_privacy_policy).setOnClickListener(v -> {
+            Intent intent = new Intent();
+            intent.setComponent(new ComponentName("com.ilife.home.robot", "com.ilife.home.robot.activity.ProtocolActivity"));
+            startActivity(intent);
+        });
     }
-
 
     private View.OnClickListener registerListenr = new View.OnClickListener() {
         @Override

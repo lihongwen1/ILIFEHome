@@ -37,7 +37,7 @@
                 android:layout_height="@dimen/dp_200"
                 android:background="@drawable/pic_cleaning_record" />
 
-            <com.ilife.home.robot.view.RegularTextView
+            <TextView
                 android:layout_marginTop="@dimen/dp_16"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"

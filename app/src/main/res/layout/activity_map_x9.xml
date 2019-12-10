@@ -32,13 +32,13 @@
                 android:layout_weight="1"
                 android:gravity="center_vertical">
 
-                <com.ilife.home.robot.view.LightTextView
+                <TextView
                     android:id="@+id/tv_2"
                     style="@style/Text_14sp_ff"
                     android:layout_centerHorizontal="true"
                     android:text="@string/setting_aty_area" />
 
-                <com.ilife.home.robot.view.RegularTextView
+                <TextView
                     android:id="@+id/tv_area"
                     style="@style/Text_20sp_ff"
                     android:layout_below="@+id/tv_2"
@@ -58,13 +58,13 @@
                 android:layout_weight="1"
                 android:gravity="center_vertical">
 
-                <com.ilife.home.robot.view.LightTextView
+                <TextView
                     android:id="@+id/tv_3"
                     style="@style/Text_14sp_ff"
                     android:layout_centerHorizontal="true"
                     android:text="@string/map_aty_time" />
 
-                <com.ilife.home.robot.view.RegularTextView
+                <TextView
                     android:id="@+id/tv_time"
                     style="@style/Text_20sp_ff"
                     android:layout_below="@+id/tv_3"
@@ -84,7 +84,7 @@
                 android:layout_weight="1"
                 android:gravity="center_vertical">
 
-                <com.ilife.home.robot.view.LightTextView
+                <TextView
                     android:id="@+id/tv_4"
                     style="@style/Text_14sp_ff"
                     android:layout_centerHorizontal="true"
@@ -120,7 +120,6 @@
                 layout="@layout/window_direction_x9"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_marginBottom="@dimen/dp_100"
                 android:visibility="gone" />
             <!--              回冲布局，延伸到底部-->
             <include
@@ -130,8 +129,24 @@
                 android:layout_height="match_parent"
                 android:visibility="gone" />
 
+            <!--            重点布局-->
+            <include
+                android:id="@+id/layout_point"
+                layout="@layout/layout_point"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:visibility="gone" />
+
+            <!--            延边布局-->
+            <include
+                android:id="@+id/layout_along"
+                layout="@layout/layout_along"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:visibility="gone" />
+
             <!--            机器状态提示文字-->
-            <com.ilife.home.robot.view.LightTextView
+            <TextView
                 android:id="@+id/tv_status"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -158,13 +173,13 @@
                     android:paddingEnd="@dimen/dp_30"
                     android:visibility="visible">
 
-                    <com.ilife.home.robot.view.RegularTextView
+                    <TextView
                         android:id="@+id/tv_virtual_wall_x9"
                         style="@style/map_text_button"
                         android:drawableTop="@drawable/selector_virtual_wall"
                         android:text="@string/map_virtual_wall" />
 
-                    <com.ilife.home.robot.view.RegularTextView
+                    <TextView
                         android:id="@+id/tv_bottom_recharge_x8"
                         style="@style/map_text_button"
                         android:drawableTop="@drawable/selector_recharge"
@@ -172,19 +187,19 @@
                         android:visibility="gone" />
 
 
-                    <com.ilife.home.robot.view.RegularTextView
+                    <TextView
                         android:id="@+id/tv_start_x9"
                         style="@style/map_text_button"
                         android:drawableTop="@drawable/image_start_bg"
                         android:text="@string/map_aty_start" />
 
-                    <com.ilife.home.robot.view.RegularTextView
+                    <TextView
                         android:id="@+id/tv_control_x9"
                         style="@style/map_text_button"
                         android:drawableTop="@drawable/selector_control"
                         android:text="@string/map_aty_remote" />
 
-                    <com.ilife.home.robot.view.RegularTextView
+                    <TextView
                         android:id="@+id/tv_bottom_recharge_x9"
                         style="@style/map_text_button"
                         android:drawableTop="@drawable/selector_recharge"
@@ -208,13 +223,13 @@
                         android:paddingStart="@dimen/dp_30"
                         android:paddingEnd="@dimen/dp_30">
 
-                        <com.ilife.home.robot.view.RegularTextView
+                        <TextView
                             android:id="@+id/tv_along_x9"
                             style="@style/map_text_button"
                             android:drawableTop="@drawable/image_along_bg"
                             android:text="@string/map_aty_along" />
 
-                        <com.ilife.home.robot.view.RegularTextView
+                        <TextView
                             android:id="@+id/tv_point_x9"
                             style="@style/map_text_button"
                             android:drawableTop="@drawable/image_point_bg"
@@ -222,14 +237,14 @@
 
                             />
 
-                        <com.ilife.home.robot.view.RegularTextView
+                        <TextView
                             android:id="@+id/tv_appointment_x9"
                             style="@style/map_text_button"
                             android:drawableTop="@drawable/selector_appointment"
                             android:text="@string/map_aty_appoint"
                             android:visibility="gone" />
 
-                        <com.ilife.home.robot.view.RegularTextView
+                        <TextView
                             android:id="@+id/tv_recharge_x9"
                             style="@style/map_text_button"
                             android:drawableTop="@drawable/selector_recharge"
@@ -243,8 +258,7 @@
                         android:layout_gravity="end"
                         android:layout_marginTop="@dimen/dp_14"
                         android:layout_marginEnd="@dimen/dp_14"
-                        android:rotation="90"
-                        android:src="@drawable/n_btn_forward" />
+                        android:src="@drawable/opration_button_back" />
                 </FrameLayout>
                 <!--电子墙-->
                 <FrameLayout

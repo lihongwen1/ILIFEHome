@@ -12,7 +12,7 @@
         android:layout_centerHorizontal="true"
         android:layout_marginTop="@dimen/dp_30"
         android:scaleType="fitXY"/>
-    <com.ilife.home.robot.view.RegularTextView
+    <TextView
         style="@style/Text_12sp_33"
         android:layout_centerHorizontal="true"
         android:text="@string/personal_aty_scan_code"

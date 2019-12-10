@@ -32,7 +32,6 @@
         android:allowBackup="true"
         android:icon="@mipmap/icon"
         android:label="@string/app_name"
-        android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         tools:replace="android:allowBackup,android:icon"
         android:name=".app.MyApplication"
@@ -110,15 +109,15 @@
             android:launchMode="singleTop"
             android:screenOrientation="portrait" />
         <activity
-            android:name="com.ilife.home.robot.activity.ApGuideActivityX900"
-            android:launchMode="singleTop"
-            android:screenOrientation="portrait" />
-        <activity
             android:name="com.ilife.home.robot.activity.ApGuideOpenPowerActivity"
             android:launchMode="singleTop"
             android:screenOrientation="portrait" />
         <activity
             android:name="com.ilife.home.robot.activity.ApGuideReadyRobotWifi"
+            android:launchMode="singleTop"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name="com.ilife.home.robot.activity.ConnectRobotWifActivity"
             android:launchMode="singleTop"
             android:screenOrientation="portrait" />
         <activity
@@ -136,6 +135,10 @@
             android:screenOrientation="portrait" />
         <activity
             android:name="com.ilife.home.robot.activity.OtaUpdateActivity"
+            android:launchMode="singleTop"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name="com.ilife.home.robot.activity.RenameActivity"
             android:launchMode="singleTop"
             android:screenOrientation="portrait" />
         <activity

@@ -2,6 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@drawable/shape_gradient_map_bg"
     android:orientation="vertical">
 
     <include layout="@layout/template_top_title" />
@@ -15,14 +16,13 @@
         <com.ilife.home.robot.view.MapView
             android:id="@+id/mv_history_detail"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:background="@drawable/shape_gradient_map_bg" />
+            android:layout_height="match_parent" />
 
         <TextView
             android:id="@+id/tv_history_date"
-            android:layout_marginTop="@dimen/dp_12"
             style="@style/Text_14sp_ff"
             android:layout_gravity="center_horizontal"
+            android:layout_marginTop="@dimen/dp_12"
             android:text="2019/06/14  17:17" />
     </FrameLayout>
 
@@ -34,9 +34,9 @@
         android:orientation="vertical">
 
         <LinearLayout
-            android:layout_marginTop="@dimen/dp_16"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/dp_16"
             android:gravity="center"
             android:orientation="horizontal">
 
@@ -46,7 +46,7 @@
                 android:gravity="center"
                 android:orientation="vertical">
 
-                <com.ilife.home.robot.view.EnglishRegularTextView
+                <TextView
                     android:id="@+id/tv_lean_area"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -54,7 +54,7 @@
                     android:textColor="@color/color_ff4d00"
                     android:textSize="@dimen/sp_24" />
 
-                <com.ilife.home.robot.view.RegularTextView
+                <TextView
                     style="@style/Text_14sp_66"
                     android:layout_marginTop="@dimen/dp_4"
                     android:text="@string/setting_aty_area" />
@@ -75,7 +75,7 @@
                 android:gravity="center"
                 android:orientation="vertical">
 
-                <com.ilife.home.robot.view.EnglishRegularTextView
+                <TextView
                     android:id="@+id/tv_clean_time"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -83,7 +83,7 @@
                     android:textColor="@color/color_ff4d00"
                     android:textSize="@dimen/sp_24" />
 
-                <com.ilife.home.robot.view.RegularTextView
+                <TextView
                     style="@style/Text_14sp_66"
                     android:layout_marginTop="@dimen/dp_4"
                     android:text="@string/map_aty_time" />
@@ -93,10 +93,10 @@
         </LinearLayout>
 
         <LinearLayout
-            android:layout_marginBottom="@dimen/dp_16"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/dp_14"
+            android:layout_marginBottom="@dimen/dp_16"
             android:gravity="center"
             android:orientation="horizontal">
 

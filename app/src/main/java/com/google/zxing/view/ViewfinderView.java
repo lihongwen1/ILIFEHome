@@ -148,7 +148,8 @@ public final class ViewfinderView extends View implements View.OnTouchListener {
             //绘制提示信息
             drawTextInfo(canvas, frame);
 
-            drawBitmap(canvas, frame);
+//            绘制手电筒
+//            drawBitmap(canvas, frame);
             // Draw a red "laser scanner" line through the middle to show decoding is active
             drawLaserScanner(canvas, frame);
 

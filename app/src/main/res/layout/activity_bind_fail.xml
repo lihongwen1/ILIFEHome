@@ -23,13 +23,13 @@
         android:textSize="@dimen/dp_24"
         android:textStyle="bold" />
 
-    <com.ilife.home.robot.view.MediumTextView
+    <TextView
         style="@style/Text_14sp_33"
         android:layout_marginTop="@dimen/dp_16"
         android:text="@string/tip_troubleshoot"
         android:textStyle="bold" />
 
-    <com.ilife.home.robot.view.RegularTextView
+    <TextView
         style="@style/Text_14sp_33"
         android:layout_marginTop="@dimen/dp_8"
         android:text="@string/tip_troubles"

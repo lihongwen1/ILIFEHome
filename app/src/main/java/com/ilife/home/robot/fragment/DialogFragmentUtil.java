@@ -16,7 +16,7 @@ import androidx.fragment.app.DialogFragment;
 import com.ilife.home.robot.R;
 
 public class DialogFragmentUtil extends DialogFragment {
-    private Builder builder;
+    protected Builder builder;
 
 
     public DialogFragmentUtil(Builder builder) {
@@ -26,7 +26,7 @@ public class DialogFragmentUtil extends DialogFragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setStyle(DialogFragment.STYLE_NO_FRAME, R.style.universal_dialog);
+        setStyle(DialogFragment.STYLE_NO_FRAME, R.style.normal_dialog);
     }
 
     @Override
@@ -35,9 +35,9 @@ public class DialogFragmentUtil extends DialogFragment {
         Window window = getDialog().getWindow();
         getDialog().setCanceledOnTouchOutside(builder.cancelOutSide);
         WindowManager.LayoutParams wlp = window.getAttributes();
-        wlp.width = WindowManager.LayoutParams.MATCH_PARENT;
+        wlp.width = WindowManager.LayoutParams.WRAP_CONTENT;
         wlp.height = WindowManager.LayoutParams.WRAP_CONTENT;
-        wlp.gravity = Gravity.BOTTOM;
+        wlp.gravity = Gravity.CENTER;
         window.setAttributes(wlp);
     }
 
@@ -50,7 +50,7 @@ public class DialogFragmentUtil extends DialogFragment {
         return view;
     }
 
-    private void initView(View view) {
+    protected void initView(View view) {
         View.OnClickListener onClickListener;
         int id;
         for (int i = 0; i < builder.clickMap.size(); i++) {
@@ -60,9 +60,14 @@ public class DialogFragmentUtil extends DialogFragment {
         }
     }
 
+
+
+
+
     public static class Builder {
         int layoutId;
         boolean cancelOutSide;
+        int arrayId;
         SparseArray<View.OnClickListener> clickMap;
 
         public Builder() {
@@ -71,6 +76,11 @@ public class DialogFragmentUtil extends DialogFragment {
 
         public Builder setLayoutId(int layoutId) {
             this.layoutId = layoutId;
+            return this;
+        }
+
+        public Builder setArrayId(int arrayId) {
+            this.arrayId = arrayId;
             return this;
         }
 

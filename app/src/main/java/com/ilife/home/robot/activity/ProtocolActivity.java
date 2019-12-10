@@ -7,9 +7,8 @@ import android.widget.TextView;
 
 import com.ilife.home.robot.base.BackBaseActivity;
 import com.ilife.home.robot.R;
+import com.ilife.home.robot.utils.Utils;
 import com.ilife.home.robot.view.TouchablePDF;
-
-import java.util.Locale;
 
 import butterknife.BindView;
 
@@ -23,6 +22,8 @@ public class ProtocolActivity extends BackBaseActivity {
     TextView tv_title;
     @BindView(R.id.tv_page_indicator)
     TextView tv_page_indicator;
+    public static final String KEY_TYPE = "type";
+    private int type;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -34,22 +35,34 @@ public class ProtocolActivity extends BackBaseActivity {
         return R.layout.activity_protocol;
     }
 
+
+    @Override
+    public void initData() {
+        super.initData();
+        type = getIntent().getIntExtra(KEY_TYPE, 0);
+    }
+
     @SuppressLint("ClickableViewAccessibility")
     public void initView() {
-        String lan = Locale.getDefault().getLanguage();
-        String fileName;
-        if (lan.equals("zh")) {
-            fileName = "ilife_zh.pdf";
-        } else if (lan.equals("de")) {
-            fileName = "ilife_de.pdf";
-        } else if (lan.equals("ja")) {
-            fileName = "ilife_jp.pdf";
-        } else {
-            fileName = "ilife_en.pdf";
+        String fileName = "";
+        String titile = "";
+        switch (type) {
+            case 0:
+                fileName = "ilife_zh.pdf";
+                titile = Utils.getString(R.string.personal_aty_protocol);
+                break;
+            case 1:
+                fileName = "user_agreement.pdf";
+                titile = Utils.getString(R.string.personal_aty_protocol_agreement);
+                break;
+            case 2:
+                fileName = "privacy_policy.pdf";
+                titile = Utils.getString(R.string.personal_aty_protocol_privacy);
+
+                break;
         }
-//        String fileName = lan.equals("zh")?"ilife_zh.pdf":"ilife_en.pdf";
         pdfView = findViewById(R.id.pdfView);
-        tv_title.setText(R.string.personal_aty_protocol);
+        tv_title.setText(titile);
         pdfView.fromAsset(fileName)// all pages are displayed by default
                 .enableSwipe(true) // allows to block changing pages using swipe
                 .swipeHorizontal(false)
@@ -70,6 +83,7 @@ public class ProtocolActivity extends BackBaseActivity {
                 tv_page_indicator.startAnimation(
                         AnimationUtils.loadAnimation(ProtocolActivity.this, R.anim.alpha_text));
             }
+
             @Override
             public void actionDown() {
                 tv_page_indicator.clearAnimation();

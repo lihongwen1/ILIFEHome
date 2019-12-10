@@ -12,7 +12,7 @@
         android:layout_width="@dimen/dp_200"
         android:layout_height="@dimen/dp_200"
         android:layout_marginTop="@dimen/dp_20"
-        android:background="@drawable/n_icon_bianshua" />
+        />
 
     <TextView
         android:id="@+id/tv_consumer"
@@ -24,86 +24,44 @@
         android:id="@+id/pb_consumer"
         style="?android:attr/progressBarStyleHorizontal"
         android:layout_width="@dimen/dp_240"
-        android:layout_height="@dimen/dp_2"
+        android:layout_height="@dimen/dp_4"
         android:layout_marginTop="@dimen/dp_16"
         android:max="100"
         android:progress="80"
-        android:progressDrawable="@drawable/progress_bg" />
+        android:progressDrawable="@drawable/progress_bg_grenn" />
 
     <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/dp_16"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:gravity="center"
-        android:orientation="horizontal">
+        android:orientation="vertical">
+
+        <TextView
+            style="@style/Text_14sp_66"
+            android:layout_marginTop="@dimen/dp_4"
+            android:text="剩余寿命" />
 
         <LinearLayout
+            android:orientation="horizontal"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            android:orientation="vertical">
+            android:layout_height="wrap_content">
 
-            <com.ilife.home.robot.view.RegularTextView
-                style="@style/Text_14sp_66"
-                android:layout_marginTop="@dimen/dp_4"
-                android:text="使用时长" />
-            <LinearLayout
-                android:orientation="horizontal"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content">
-            <com.ilife.home.robot.view.EnglishRegularTextView
-                android:id="@+id/tv_consumer_time"
+            <TextView
+                android:id="@+id/consumer_percent"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="7"
+                android:text="96"
                 android:textColor="@color/color_ff4d00"
                 android:textSize="@dimen/sp_32" />
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="h"
-                    android:textColor="@color/color_ff4d00"
-                    android:textSize="@dimen/dp_14" />
-            </LinearLayout>
-        </LinearLayout>
 
-        <Space
-            android:layout_width="@dimen/dp_36"
-            android:layout_height="match_parent" />
-
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            android:orientation="vertical">
-
-            <com.ilife.home.robot.view.RegularTextView
-                style="@style/Text_14sp_66"
-                android:layout_marginTop="@dimen/dp_4"
-                android:text="剩余寿命" />
-
-            <LinearLayout
-                android:orientation="horizontal"
+            <TextView
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content">
-
-                <com.ilife.home.robot.view.EnglishRegularTextView
-                    android:id="@+id/consumer_percent"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="96"
-                    android:textColor="@color/color_ff4d00"
-                    android:textSize="@dimen/sp_32" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="%"
-                    android:textColor="@color/color_ff4d00"
-                    android:textSize="@dimen/dp_14" />
-            </LinearLayout>
+                android:layout_height="wrap_content"
+                android:text="%"
+                android:textColor="@color/color_ff4d00"
+                android:textSize="@dimen/dp_14" />
         </LinearLayout>
-
     </LinearLayout>
 
     <TextView

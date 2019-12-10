@@ -14,14 +14,14 @@
         android:layout_height="@dimen/dp_60"
         android:background="@color/white">
 
-        <com.ilife.home.robot.view.LightTextView
+        <TextView
             android:id="@+id/tv_robot_wifi"
             style="@style/Text_16sp_33"
             android:layout_centerVertical="true"
             android:layout_marginStart="@dimen/dp_30"
             android:text="@string/ap_aty_robot_wifi" />
 
-        <com.ilife.home.robot.view.LightEditText
+        <EditText
             android:id="@+id/et_ssid"
             style="@style/EditText_16sp_ac"
             android:layout_centerVertical="true"
@@ -31,7 +31,7 @@
             android:hint="Robot-XXXX"
             android:textColor="@color/color_33" />
 
-        <com.ilife.home.robot.view.RegularTextView
+        <TextView
             android:id="@+id/tv_set"
             style="@style/Text_14sp_them_color"
             android:layout_alignParentEnd="true"
@@ -42,7 +42,7 @@
 
     <View style="@style/View_Line_Style" />
 
-    <com.ilife.home.robot.view.MediumTextView
+    <TextView
         style="@style/Text_18sp_f08300"
         android:layout_marginStart="@dimen/dp_30"
         android:layout_marginTop="@dimen/dp_14"
@@ -73,7 +73,7 @@
         app:deltaY="@dimen/dp_2"
         app:enable="true">
 
-        <com.ilife.home.robot.view.RegularButton
+        <Button
             android:id="@+id/bt_connect"
             style="@style/Button_Style_quick_login"
             android:layout_gravity="bottom|center"

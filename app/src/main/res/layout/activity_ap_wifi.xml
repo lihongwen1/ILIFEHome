@@ -19,7 +19,7 @@
             android:contentDescription="@null" />
     </LinearLayout>
 
-    <com.ilife.home.robot.view.RegularTextView
+    <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/dp_52"
@@ -35,7 +35,6 @@
         android:layout_marginTop="@dimen/dp_36">
 
         <com.airbnb.lottie.LottieAnimationView
-            android:id="@+id/lottieAnimationView"
             android:layout_width="@dimen/dp_240"
             android:layout_height="@dimen/dp_240"
             android:layout_marginTop="@dimen/dp_24"

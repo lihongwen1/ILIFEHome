@@ -25,7 +25,11 @@ public class EnvConfigure {
     /**
      * 国内
      */
-    static final public String PRODUCT_KEY_X800 = "a1nIeZXrVFg";//CHINA
+    static final public String PRODUCT_KEY_X800= "a1nIeZXrVFg";//CHINA
+    static final public String PRODUCT_KEY_X800_W = "a1cdxiwZfP9";//CHINA
+    static final public String PRODUCT_KEY_X320 = "a1r76ksgLTV";//CHINA
+
+
     public static final String IOT_AUTH = "iot_china";//国内
     public static final String AUTH_CODE = "114d";//国内
 
@@ -68,6 +72,9 @@ public class EnvConfigure {
     public static final String PATH_QUERY_OTA_VER = "/thing/ota/info/queryByUser";
     public static final String PATH_OTA_UPGRADE = "/thing/ota/batchUpgradeByUser";
     public static final String PATH_OTA_QUERY_UPGRADE_PROGRESS = "/thing/ota/progress/getByUser";
+    public static final String PATH_REPORY_OTA_VER="/thing/ota/version/reportByUser";
+    public static final String PATH_BIND_SERVER_FILTER="/awss/enrollee/product/filter";
+    public static final String PATH_RESET_FACTORY="/living/device/reset";
     /**
      * topic/method
      */
@@ -85,6 +92,7 @@ public class EnvConfigure {
      * 设备功能定义标识符 key
      */
     public static final String KEY_IOT_ID = "iotId";
+    public static final String KEY_IOT_IDS = "iotIds";
     public static final String KEY_ITEMS = "items";
     public static final String KEY_ACCOUNT_META = "accountMetaV2";
     public static final String KEY_TAG = "tag";
@@ -103,6 +111,7 @@ public class EnvConfigure {
     public static final String KEY_SCHEDULE_MINUTES = "ScheduleMinutes";
     public static final String KEY_SCHEDULE_WEEK = "ScheduleWeek";
     public static final String KEY_SCHEDULE_AREA = "ScheduleArea";
+    public static final String KEY_SCHEDULE_TYPE = "ScheduleType";
     public static final String KEY_VALUE = "value";
     public static final String KEY_DEV_NICKNAME = "nickName";
     public static final String KEY_IDENTITY_ID = "identityId";
@@ -143,6 +152,7 @@ public class EnvConfigure {
     public static final String KEY_TOTAL_TIME = "CleanTotalTime";
     public static final String KEY_TOTAL_AREA = "CleanTotalArea";
     public static final String KEY_CLEAN_MAP_DATA = "CleanMapData";
+    public static final String KEY_VERSION = "version";
     /**
      * value
      */

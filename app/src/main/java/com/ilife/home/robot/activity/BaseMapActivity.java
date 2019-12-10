@@ -23,6 +23,7 @@ import android.widget.TextView;
 import com.aliyun.iot.aep.sdk.contant.AliSkills;
 import com.aliyun.iot.aep.sdk.contant.IlifeAli;
 import com.aliyun.iot.aep.sdk.contant.MsgCodeUtils;
+import com.ilife.home.robot.bean.Coordinate;
 import com.ilife.home.robot.fragment.UniversalDialog;
 import com.ilife.home.robot.able.DeviceUtils;
 import com.ilife.home.robot.app.MyApplication;
@@ -57,10 +58,8 @@ public abstract class BaseMapActivity extends BackBaseActivity<MapX9Presenter> i
     public static final int TAG_RECHAGRGE = 0x03;
     public static final int TAG_KEYPOINT = 0x04;
     public static final int TAG_ALONG = 0x05;
-    public static final int TAG_LEFT = 0x06;
-    public static final int TAG_RIGHT = 0x07;
-    public static final int TAG_FORWARD = 0x08;
     public static final int TAG_RANDOM = 0x09;
+    public static final int TAG_KEY_TEMPORARY_POINT = 0x10;
     private CustomPopupWindow exitVirtualWallPop;
     private UniversalDialog virtualWallTipDialog;
     @BindView(R.id.ll_map_container)
@@ -93,8 +92,6 @@ public abstract class BaseMapActivity extends BackBaseActivity<MapX9Presenter> i
     TextView tv_bottom_recharge;
     @BindView(R.id.fl_top_menu)
     FrameLayout fl_setting;
-    @BindView(R.id.image_animation)
-    ImageView image_animation;
     Animation animation, animation_alpha;
     @BindView(R.id.layout_recharge)
     View layout_recharge;
@@ -115,7 +112,6 @@ public abstract class BaseMapActivity extends BackBaseActivity<MapX9Presenter> i
     @BindView(R.id.image_center)
     ImageView image_center;
     PopupWindow errorPopup;
-    AnimationDrawable electricityDrawable;
     @BindView(R.id.tv_add_virtual_x9)
     TextView tv_add_virtual;
     @BindView(R.id.tv_delete_virtual_x9)
@@ -135,6 +131,14 @@ public abstract class BaseMapActivity extends BackBaseActivity<MapX9Presenter> i
     ImageView iv_recharge_model;
     @BindView(R.id.iv_recharge_stand)
     ImageView iv_recharge_stand;
+    @BindView(R.id.layout_point)
+    View layout_point;
+    @BindView(R.id.iv_point_robot)
+    ImageView iv_point_robot;
+    @BindView(R.id.layout_along)
+    View layout_along;
+    @BindView(R.id.iv_along_robot)
+    ImageView iv_along_robot;
     public static final int USE_MODE_NORMAL = 1;
     public static final int USE_MODE_REMOTE_CONTROL = 2;
     protected int USE_MODE = USE_MODE_NORMAL;
@@ -198,7 +202,6 @@ public abstract class BaseMapActivity extends BackBaseActivity<MapX9Presenter> i
 
     public void initView() {
         errorPopup = new PopupWindow();
-        electricityDrawable = (AnimationDrawable) image_animation.getBackground();
         setDevName();
         fl_setting.setVisibility(View.VISIBLE);
         mMapView.setRobotSeriesX9(mPresenter.isX900Series());
@@ -215,10 +218,19 @@ public abstract class BaseMapActivity extends BackBaseActivity<MapX9Presenter> i
         tv_time.setText(value);
     }
 
+    /**
+     * @param value 设备当前状态，empty代表刷新
+     */
     @Override
     public void updateStatue(String value) {
-        tv_status.setTextColor(getResources().getColor(R.color.white));
-        tv_status.setText(value);
+        if (USE_MODE == USE_MODE_REMOTE_CONTROL || mPresenter.getCurStatus() == MsgCodeUtils.STATUE_RECHARGE) {
+            tv_status.setTextColor(getResources().getColor(R.color.color_33));
+        } else {
+            tv_status.setTextColor(getResources().getColor(R.color.white));
+        }
+        if (!value.isEmpty()) {
+            tv_status.setText(value);
+        }
     }
 
     @Override
@@ -277,7 +289,7 @@ public abstract class BaseMapActivity extends BackBaseActivity<MapX9Presenter> i
      */
     private void showSetWallDialog() {
         UniversalDialog universalDialog = new UniversalDialog();
-        universalDialog.setDialogType(UniversalDialog.TYPE_NORMAL).setTitle(Utils.getString(R.string.map_aty_set_wall)).exchangeButtonColor()
+        universalDialog.setDialogType(UniversalDialog.TYPE_NORMAL).setTitle(Utils.getString(R.string.map_aty_set_wall))
                 .setHintTip(Utils.getString(R.string.map_aty_will_stop)).setOnRightButtonClck(() ->
                 mPresenter.enterVirtualMode()).show(getSupportFragmentManager(), "add_wall");
     }
@@ -330,49 +342,6 @@ public abstract class BaseMapActivity extends BackBaseActivity<MapX9Presenter> i
         }
     }
 
-
-    /**
-     * 设置当前操作提示文字
-     *
-     * @param tag
-     */
-    @Override
-    public void setTvUseStatus(int tag) {
-       int color=getResources().getColor(R.color.white);
-        switch (tag) {
-            case TAG_NORMAL:
-                tv_status.setText("");
-                break;
-            case TAG_CONTROL:
-                tv_status.setText(getString(R.string.map_aty_use_control));
-                break;
-            case TAG_LEFT:
-                tv_status.setText(getString(R.string.map_aty_use_left));
-                break;
-            case TAG_FORWARD:
-                tv_status.setText(getString(R.string.map_aty_use_forward));
-                break;
-            case TAG_RIGHT:
-                tv_status.setText(getString(R.string.map_aty_use_right));
-                break;
-            case TAG_RECHAGRGE:
-                color=getResources().getColor(R.color.color_33);
-                tv_status.setText(R.string.map_aty_use_recharging_x9);
-                break;
-            case TAG_KEYPOINT:
-                tv_status.setText(R.string.map_aty_key_pointing_x9);
-                break;
-            case TAG_ALONG:
-                tv_status.setText(getString(R.string.map_aty_use_along));
-                break;
-            case TAG_RANDOM:
-                tv_status.setText(getString(R.string.start_random_cleaning));
-                break;
-        }
-        tv_status.setTextColor(color);
-    }
-
-
     /**
      * 清空不常显示的布局,电子墙编辑模式，回冲动画，沿边动画，重点动画,操作提示文本（etc:重点清扫）
      *
@@ -389,9 +358,6 @@ public abstract class BaseMapActivity extends BackBaseActivity<MapX9Presenter> i
             tv_bottom_recharge.setSelected(false);
             tv_bottom_recharge_x8.setSelected(false);
             layout_recharge.setVisibility(View.GONE);
-            if (electricityDrawable.isRunning()) {
-                electricityDrawable.stop();
-            }
         }
     }
 
@@ -401,8 +367,8 @@ public abstract class BaseMapActivity extends BackBaseActivity<MapX9Presenter> i
      * 设置电池图标
      */
     public void setBatteryImage(int curStatus, int batteryNo) {
-        MyLogger.d(TAG,"当前电量：    "+batteryNo);
-        if (curStatus == MsgCodeUtils.STATUE_CHARGING || curStatus ==MsgCodeUtils.STATUE_CHARGING_) {//充电座模式&直冲模式
+        MyLogger.d(TAG, "当前电量：    " + batteryNo);
+        if (curStatus == MsgCodeUtils.STATUE_CHARGING || curStatus == MsgCodeUtils.STATUE_CHARGING_) {//充电座模式&直冲模式
             if (batteryNo <= 6) {
                 image_ele.setImageResource(R.drawable.battery_ing_empty);   //红色
             } else if (batteryNo < 35) {
@@ -439,12 +405,16 @@ public abstract class BaseMapActivity extends BackBaseActivity<MapX9Presenter> i
                 if (mPresenter.getCurStatus() == MsgCodeUtils.STATUE_RECHARGE) {//回冲直接暂停
                     mPresenter.setPropertiesWithParams(AliSkills.get().enterPauseMode(IlifeAli.getInstance().getWorkingDevice().getIotId()));
                 } else if (mPresenter.isWork(mPresenter.getCurStatus())) {
-                    UniversalDialog universalDialog = new UniversalDialog();
-                    universalDialog.setTitle(Utils.getString(R.string.choose_your_action)).setHintTip(Utils.getString(R.string.please_set_task))
-                            .setLeftText(Utils.getString(R.string.finsh_cur_task)).setRightText(Utils.getString(R.string.pause_cur_task)).exchangeButtonColor()
-                            .setOnLeftButtonClck(() -> mPresenter.setPropertiesWithParams(AliSkills.get().enterWaitMode(IlifeAli.getInstance().getWorkingDevice().getIotId()))).setOnRightButtonClck(() ->
-                            mPresenter.setPropertiesWithParams(AliSkills.get().enterPauseMode(IlifeAli.getInstance().getWorkingDevice().getIotId())))
-                            .show(getSupportFragmentManager(), "choose_action");
+                    if (mPresenter.isSupportPause()) {//支持暂停弹框
+                        UniversalDialog universalDialog = new UniversalDialog();
+                        universalDialog.setTitle(Utils.getString(R.string.choose_your_action)).setHintTip(Utils.getString(R.string.please_set_task))
+                                .setLeftText(Utils.getString(R.string.finsh_cur_task)).setRightText(Utils.getString(R.string.pause_cur_task))
+                                .setOnLeftButtonClck(() -> mPresenter.setPropertiesWithParams(AliSkills.get().enterWaitMode(IlifeAli.getInstance().getWorkingDevice().getIotId()))).setOnRightButtonClck(() ->
+                                mPresenter.setPropertiesWithParams(AliSkills.get().enterPauseMode(IlifeAli.getInstance().getWorkingDevice().getIotId())))
+                                .show(getSupportFragmentManager(), "choose_action");
+                    }else {
+                        mPresenter.setPropertiesWithParams(AliSkills.get().enterWaitMode(IlifeAli.getInstance().getWorkingDevice().getIotId()));
+                    }
                 } else if (mPresenter.getCurStatus() == MsgCodeUtils.STATUE_CHARGING_) {//适配器充电模式不允许启动机器
                     ToastUtils.showToast(MyApplication.getInstance(), Utils.getString(R.string.map_aty_charge));
                 } else {
@@ -458,23 +428,27 @@ public abstract class BaseMapActivity extends BackBaseActivity<MapX9Presenter> i
             case R.id.tv_bottom_recharge_x9://会跳转到遥控界面
                 mPresenter.enterRechargeMode();
                 break;
-            case R.id.tv_control_x9://显示沿边，遥控等操作UI
+            case R.id.tv_control_x9://进入二级操作界面
                 if (mPresenter.getCurStatus() == MsgCodeUtils.STATUE_CHARGING || mPresenter.getCurStatus() == MsgCodeUtils.STATUE_CHARGING_) {
                     ToastUtils.showToast(MyApplication.getInstance(), Utils.getString(R.string.map_aty_charge));
+                } else if (mPresenter.getCurStatus() == MsgCodeUtils.STATUE_RECHARGE) {
+                    ToastUtils.showToast(MyApplication.getInstance(), Utils.getString(R.string.map_aty_can_not_execute));
                 } else {
+                    USE_MODE = USE_MODE_REMOTE_CONTROL;
+                    updateStatue("");
                     showRemoteView();
                 }
                 break;
             case R.id.ib_virtual_wall_tip://显示电子墙提示
                 showVirtualWallTip();
                 break;
-            case R.id.iv_control_close_x9:
+            case R.id.iv_control_close_x9://退出二级操作界面
                 USE_MODE = USE_MODE_NORMAL;
                 if (mPresenter.getCurStatus() == MsgCodeUtils.STATUE_WAIT || mPresenter.getCurStatus() == MsgCodeUtils.STATUE_PAUSE) {
                     mPresenter.refreshStatus();
-                } else {
-                    mPresenter.setPropertiesWithParams(AliSkills.get().enterWaitMode(IlifeAli.getInstance().getWorkingDevice().getIotId()));
                 }
+                updateStatue("");
+                showBottomView();
                 break;
             case R.id.fl_top_menu:
                 Intent i = new Intent(this, SettingActivity.class);
@@ -621,13 +595,25 @@ public abstract class BaseMapActivity extends BackBaseActivity<MapX9Presenter> i
                     switch (v.getId()) {
                         /* 遥控器方向键*/
                         case R.id.image_left:
-                            mPresenter.setPropertiesWithParams(AliSkills.get().turnLeft(IlifeAli.getInstance().getIotId()));
+                            if (!mPresenter.isWork(mPresenter.getCurStatus())) {
+                                mPresenter.setPropertiesWithParams(AliSkills.get().turnLeft(IlifeAli.getInstance().getIotId()));
+                            } else {
+                                ToastUtils.showToast(this, getString(R.string.map_aty_can_not_execute));
+                            }
                             break;
                         case R.id.image_right:
-                            mPresenter.setPropertiesWithParams(AliSkills.get().turnRight(IlifeAli.getInstance().getIotId()));
+                            if (!mPresenter.isWork(mPresenter.getCurStatus())) {
+                                mPresenter.setPropertiesWithParams(AliSkills.get().turnRight(IlifeAli.getInstance().getIotId()));
+                            } else {
+                                ToastUtils.showToast(this, getString(R.string.map_aty_can_not_execute));
+                            }
                             break;
                         case R.id.image_forward:
-                            mPresenter.setPropertiesWithParams(AliSkills.get().turnForward(IlifeAli.getInstance().getIotId()));
+                            if (!mPresenter.isWork(mPresenter.getCurStatus())) {
+                                mPresenter.setPropertiesWithParams(AliSkills.get().turnForward(IlifeAli.getInstance().getIotId()));
+                            } else {
+                                ToastUtils.showToast(this, getString(R.string.map_aty_can_not_execute));
+                            }
                             break;
                         case R.id.image_control_back://max吸力
                             mPresenter.reverseMaxMode();
@@ -697,9 +683,12 @@ public abstract class BaseMapActivity extends BackBaseActivity<MapX9Presenter> i
 
     @Override
     public void updateOperationViewStatue(int surStatues) {
-        tv_point.setSelected(surStatues == 0x05);
-        tv_along.setSelected(surStatues == 0x04);
-        tv_recharge_x9.setSelected(surStatues == 0x08);
+        tv_point.setSelected(surStatues == MsgCodeUtils.STATUE_POINT || surStatues == MsgCodeUtils.STATUE_TEMPORARY_POINT);
+        tv_along.setSelected(surStatues == MsgCodeUtils.STATUE_ALONG);
+        tv_recharge_x9.setSelected(surStatues == MsgCodeUtils.STATUE_RECHARGE);
+        layout_along.setVisibility(surStatues == MsgCodeUtils.STATUE_ALONG ? View.VISIBLE : View.GONE);
+        layout_point.setVisibility(surStatues == MsgCodeUtils.STATUE_POINT || surStatues == MsgCodeUtils.STATUE_TEMPORARY_POINT ? View.VISIBLE : View.GONE);
+
     }
 
     @Override
@@ -708,7 +697,7 @@ public abstract class BaseMapActivity extends BackBaseActivity<MapX9Presenter> i
     }
 
     @Override
-    public void drawMapX8(ArrayList<Integer> dataList) {
+    public void drawMapX8(ArrayList<Coordinate> dataList) {
         mMapView.drawMapX8(dataList);
     }
 

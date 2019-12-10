@@ -46,23 +46,24 @@
 
 
         <ImageView
+            android:id="@+id/iv_open_power"
             android:layout_width="match_parent"
             android:layout_height="@dimen/dp_250"
             android:background="@drawable/pic_open_power" />
 
-        <com.ilife.home.robot.view.MediumTextView
+        <TextView
             android:id="@+id/text_tip1"
             style="@style/Text_14sp_33"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/dp_16"
-            android:text="@string/ap_guide_aty_tip1_x900" />
+            android:text="@string/ap_guide_aty_tip1_x800" />
 
         <View
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1" />
 
-        <com.ilife.home.robot.view.ToggleRadioButton
+        <com.aliyun.iot.aep.sdk.page.ToggleRadioButton
             android:id="@+id/rb_next_tip"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -83,7 +84,7 @@
             app:deltaY="@dimen/dp_2"
             app:enable="true">
 
-            <com.ilife.home.robot.view.RegularButton
+            <Button
                 android:id="@+id/bt_next"
                 style="@style/Button_Style_quick_login"
                 android:text="@string/guide_aty_next" />

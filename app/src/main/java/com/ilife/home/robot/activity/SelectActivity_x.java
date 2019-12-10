@@ -8,6 +8,8 @@ import android.widget.TextView;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.aliyun.iot.aep.sdk.contant.EnvConfigure;
+import com.aliyun.iot.aep.sdk.contant.IlifeAli;
 import com.ilife.home.robot.BuildConfig;
 import com.ilife.home.robot.R;
 import com.ilife.home.robot.able.Constants;
@@ -31,7 +33,6 @@ import butterknife.BindView;
 //DONE
 public class SelectActivity_x extends BackBaseActivity {
     final String TAG = SelectActivity_x.class.getSimpleName();
-    public static final String KEY_BIND_WHITE = "key_bind_white";
     Context context;
     @BindView(R.id.recyclerView)
     RecyclerView recyclerView;
@@ -39,8 +40,7 @@ public class SelectActivity_x extends BackBaseActivity {
     @BindView(R.id.tv_top_title)
     TextView tvTitle;
     private List<CleanningRobot> robots = new ArrayList<>();
-    private String[] supportRobots;
-
+    private static final String KEY_BINDING_PK="product_key";
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -67,65 +67,25 @@ public class SelectActivity_x extends BackBaseActivity {
     }
 
     private void initAdapter() {
-        supportRobots = DeviceUtils.getSupportDevices();
+        String[] supportRobots = DeviceUtils.getSupportDevices();
         String robotName;
 
         for (String deviceType : supportRobots) {
             robotName = BuildConfig.BRAND + " " + deviceType;
             switch (deviceType) {
-                case Constants.X900:
-                    robots.add(new CleanningRobot(R.drawable.n_x900, robotName));
+                case Constants.X800:
+                    robots.add(new CleanningRobot(R.drawable.n_x800, robotName+" • 黑", EnvConfigure.PRODUCT_KEY_X800));
+                    robots.add(new CleanningRobot(R.drawable.n_x800_w, robotName+" • 白",EnvConfigure.PRODUCT_KEY_X800_W));
                     break;
-                case Constants.X800://国内X800包含 黑色款和白色款
-                    robots.add(new CleanningRobot(R.drawable.n_x800, robotName));
-//                    robots.add(new CleanningRobot(R.drawable.n_x800_white, robotName + " • 白"));
-                    break;
-                case Constants.X787:
-                    robots.add(new CleanningRobot(R.drawable.n_x787, robotName));
-                    break;
-                case Constants.X785:
-                    robots.add(new CleanningRobot(R.drawable.n_x785, robotName));
-                    break;
-                case Constants.A8s:
-                    robots.add(new CleanningRobot(R.drawable.n_a8s, robotName));
-                    break;
-                case Constants.A9s:
-                    if (Utils.isIlife()) {
-                        robots.add(new CleanningRobot(R.drawable.n_x800, robotName));
-                    } else {
-                        robots.add(new CleanningRobot(R.drawable.n_a9s, robotName));
-                    }
-                    break;
-
                 case Constants.V3x:
-                    robots.add(new CleanningRobot(R.drawable.n_v5x, robotName));
+                    robots.add(new CleanningRobot(R.drawable.n_v3x, robotName,EnvConfigure.PRODUCT_KEY_X320));
                     break;
-                case Constants.V85:
-                    robots.add(new CleanningRobot(R.drawable.n_v85, robotName));
-                    break;
-                case Constants.X910:
-                    robots.add(new CleanningRobot(R.drawable.n_x910, robotName));
-                    break;
-                case Constants.V5x:
-                    robots.add(new CleanningRobot(R.drawable.n_v5x, robotName));
-                    break;
-                case Constants.A9:
-                    robots.add(new CleanningRobot(R.drawable.n_x800, robotName));
-                    break;
-                case Constants.A7:
-                    robots.add(new CleanningRobot(R.drawable.n_x787, robotName));
-                    break;
-
             }
         }
         adapter = new XAdapter(R.layout.x_series_item, robots);
         adapter.setOnItemClickListener((adapter, view, position) -> {
-            if (robots.get(position).getName().contains("白")) {
-                SpUtils.saveBoolean(context, KEY_BIND_WHITE, true);
-            }else {
-                SpUtils.saveBoolean(context, KEY_BIND_WHITE, false);
-            }
             Intent i = new Intent(context, ConnectHomeWifiActivity.class);
+            IlifeAli.getInstance().setBindingProductKey(robots.get(position).getProductKey());
             startActivity(i);
         });
     }
@@ -133,7 +93,6 @@ public class SelectActivity_x extends BackBaseActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        Constants.IS_FIRST_AP = true;
     }
 
 

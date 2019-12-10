@@ -1,6 +1,7 @@
 package com.ilife.home.robot.contract;
 
 import com.ilife.home.robot.base.BaseView;
+import com.ilife.home.robot.bean.Coordinate;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -42,7 +43,6 @@ public interface MapX9Contract {
 
         void setMapViewVisible(boolean isViesible);
 
-        void setTvUseStatus(int tag);
 
         void showBottomView();
 
@@ -66,7 +66,7 @@ public interface MapX9Contract {
 
         void drawMapX9(ArrayList<Integer> roadList, ArrayList<Integer> historyRoadList, byte[] slamBytes);
 
-        void drawMapX8(ArrayList<Integer> dataList);
+        void drawMapX8(ArrayList<Coordinate> dataList);
 
         boolean isActivityInteraction();
 
@@ -76,14 +76,11 @@ public interface MapX9Contract {
     interface Presenter {
         void adjustTime();
 
-        int getDevice_type();
-
         String getRobotType();
 
         void getHistoryRoadX9();
 
         void queryVirtualWall();
-
 
 
         void getDevStatus();
@@ -132,7 +129,7 @@ public interface MapX9Contract {
          */
         boolean isDrawMap();
 
-        void updateSlamX8(ArrayList<Integer> src, int offset);
+        void updateSlamX8(ArrayList<Coordinate> src, int offset);
 
         boolean isX900Series();
 
@@ -146,6 +143,8 @@ public interface MapX9Contract {
 
 
         void refreshStatus();
+
+        boolean isSupportPause();
 
     }
 

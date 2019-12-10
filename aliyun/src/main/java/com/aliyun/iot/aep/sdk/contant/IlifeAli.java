@@ -1,7 +1,10 @@
 package com.aliyun.iot.aep.sdk.contant;
 
 import android.os.Build;
+import android.os.Message;
 import android.util.Log;
+
+import androidx.annotation.RequiresApi;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
@@ -27,12 +30,14 @@ import com.aliyun.iot.aep.sdk.apiclient.IoTAPIClientFactory;
 import com.aliyun.iot.aep.sdk.apiclient.callback.IoTCallback;
 import com.aliyun.iot.aep.sdk.apiclient.callback.IoTResponse;
 import com.aliyun.iot.aep.sdk.apiclient.callback.IoTUIThreadCallback;
+import com.aliyun.iot.aep.sdk.apiclient.emuns.Env;
 import com.aliyun.iot.aep.sdk.apiclient.emuns.Scheme;
 import com.aliyun.iot.aep.sdk.apiclient.request.IoTRequest;
 import com.aliyun.iot.aep.sdk.apiclient.request.IoTRequestBuilder;
 import com.aliyun.iot.aep.sdk.bean.DeviceInfoBean;
 import com.aliyun.iot.aep.sdk.bean.HistoryRecordBean;
 import com.aliyun.iot.aep.sdk.bean.OTAInfoBean;
+import com.aliyun.iot.aep.sdk.bean.OTAUpgradeBean;
 import com.aliyun.iot.aep.sdk.bean.PropertyBean;
 import com.aliyun.iot.aep.sdk.bean.RealTimeMapBean;
 import com.aliyun.iot.aep.sdk.bean.ScheduleBean;
@@ -50,6 +55,8 @@ import com.aliyun.iot.aep.sdk.login.data.UserInfo;
 import com.google.gson.Gson;
 
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -60,6 +67,10 @@ import java.util.TimeZone;
  * //TODO WORKINGDEVICE 需要序列化到本地
  */
 public class IlifeAli {
+    /**
+     * 用户所有的设备
+     */
+    private List<DeviceInfoBean> mAcUserDevices;
     private static final String TAG = "ILIFE_ALI_";
     private static IlifeAli instance;
     private OnAliResponseSingle<Boolean> tTokenInvalidListener;//登录失效监听
@@ -72,6 +83,7 @@ public class IlifeAli {
     private String iotId;
     private IMobileDownstreamListener downListener;
     private IMobileSubscrbieListener topicListener;//订阅topic
+    private String bindingProductKey;//绑定中设备的product key;
 
     public static synchronized IlifeAli getInstance() {
         if (instance == null) {
@@ -84,6 +96,7 @@ public class IlifeAli {
         return instance;
     }
 
+
     private IoTRequest buildRequest(String path, HashMap<String, Object> params) {
         return new IoTRequestBuilder()
                 .setAuthType(EnvConfigure.IOT_AUTH)
@@ -94,6 +107,20 @@ public class IlifeAli {
                 .build();
     }
 
+    public List<DeviceInfoBean> getmAcUserDevices() {
+        if (mAcUserDevices == null) {
+            mAcUserDevices = new ArrayList<>();
+        }
+        return mAcUserDevices;
+    }
+
+    public void setmAcUserDevices(List<DeviceInfoBean> devices) {
+        if (mAcUserDevices == null) {
+            mAcUserDevices = new ArrayList<>();
+        }
+        mAcUserDevices.clear();
+        mAcUserDevices.addAll(devices);
+    }
 
     /**
      * 解注册，重置变量 etc
@@ -132,6 +159,7 @@ public class IlifeAli {
         this.tTokenInvalidListener = tTokenInvalidListener;
     }
 
+
     /**
      * 初始化账号，通道等
      *
@@ -140,6 +168,12 @@ public class IlifeAli {
     public void init(AApplication context) {
         this.aApplication = context;
         ioTAPIClient = new IoTAPIClientFactory().getClient();
+        IoTCredentialManageImpl.getInstance(context).setIotTokenInvalidListener(() -> {
+            //会话失效
+            if (tTokenInvalidListener != null) {
+                tTokenInvalidListener.onResponse(true);
+            }
+        });
         //TODO 登录失败处理
     }
 
@@ -164,7 +198,6 @@ public class IlifeAli {
      */
     public boolean isLogin() {
         boolean isLogin = LoginBusiness.isLogin();
-        ;
         Log.d(TAG, "是否已登录。。。" + isLogin);
         return isLogin;
     }
@@ -220,7 +253,7 @@ public class IlifeAli {
      * @param onBindDeviceComplete
      */
     public void bindDevice(String homeSsid, String homePassword, OnAliBindDeviceResponse<String> onBindDeviceComplete) {
-        BindDeviceDelagate bindDeviceDelagate = new BindDeviceDelagate(aApplication, homeSsid, homePassword, onBindDeviceComplete);
+        BindDeviceDelagate bindDeviceDelagate = new BindDeviceDelagate(aApplication, homeSsid, homePassword, bindingProductKey, onBindDeviceComplete);
         bindDeviceDelagate.connectDevice();
     }
 
@@ -271,14 +304,14 @@ public class IlifeAli {
             @Override
             public void onFailure(IoTRequest ioTRequest, Exception e) {
                 //unbind fail
-                onAliResponse.onFailed(0, e.getMessage());
+                onAliResponse.onFailed(0, e.getLocalizedMessage());
             }
 
             @Override
             public void onResponse(IoTRequest ioTRequest, IoTResponse ioTResponse) {
                 //unbind success
                 if (ioTResponse.getCode() != 200) {
-                    onAliResponse.onFailed(0, ioTResponse.getMessage());
+                    onAliResponse.onFailed(0, ioTResponse.getLocalizedMsg());
                 } else {
                     onAliResponse.onSuccess(true);
                 }
@@ -338,7 +371,8 @@ public class IlifeAli {
                                 long marStartTime = items.getJSONObject(EnvConfigure.KEY_REAL_TIME_MAP_START).getLongValue(EnvConfigure.KEY_TIME);
                                 onDevicePoropertyResponse.onRealTimeMapStart(marStartTime);
                             } else if (items.containsKey(EnvConfigure.KEY_BATTERY_STATE)) {
-
+                                int battery = items.getJSONObject(EnvConfigure.KEY_BATTERY_STATE).getIntValue(EnvConfigure.KEY_VALUE);
+                                onDevicePoropertyResponse.onBatterState(battery);
                             }
                         }
                     } else if (method.equals(EnvConfigure.METHOD_THING_EVENT)) {
@@ -407,7 +441,7 @@ public class IlifeAli {
         ioTAPIClient.send(buildRequest(EnvConfigure.PATH_GET_PROPERTIES, params), new IoTUIThreadCallback(new IoTCallback() {
             @Override
             public void onFailure(IoTRequest ioTRequest, Exception e) {
-                onAliResponse.onFailed(0, e.getMessage());
+                onAliResponse.onFailed(0, e.getLocalizedMessage());
             }
 
             @Override
@@ -427,10 +461,15 @@ public class IlifeAli {
                     }
 //                    long historyTimeLine = jsonObject.getJSONObject(EnvConfigure.KEY_HISTORY_START_TIME).getIntValue(EnvConfigure.KEY_VALUE);
                     long historyTimeLine = System.currentTimeMillis() - 7 * 24 * 60 * 60 * 1000;//获取一周的清扫记录
-                    boolean voiceOpen = jsonObject.getJSONObject(EnvConfigure.KEY_BEEP_NO_DISTURB).getJSONObject(EnvConfigure.KEY_VALUE).getIntValue(EnvConfigure.KEY_SWITCH) == 0;
+                    boolean voiceOpen = true;
+                    if (jsonObject.containsKey(EnvConfigure.KEY_BEEP_NO_DISTURB)) {
+                        voiceOpen = jsonObject.getJSONObject(EnvConfigure.KEY_BEEP_NO_DISTURB).getJSONObject(EnvConfigure.KEY_VALUE).getIntValue(EnvConfigure.KEY_SWITCH) == 0;
+                    } else {
+                        Log.d(TAG, "数据无语音开关字段");
+                    }
                     onAliResponse.onSuccess(new PropertyBean(max, workMode, battery, waterLevel, startTimeLine, historyTimeLine, voiceOpen));
                 } else {
-                    onAliResponse.onFailed(0, ioTResponse.getMessage());
+                    onAliResponse.onFailed(0, ioTResponse.getLocalizedMsg());
                 }
             }
         }));
@@ -456,14 +495,14 @@ public class IlifeAli {
         ioTAPIClient.send(request, new IoTUIThreadCallback(new IoTCallback() {
             @Override
             public void onFailure(IoTRequest ioTRequest, Exception e) {
-                onAliResponse.onFailed(0, e.getMessage());
+                onAliResponse.onFailed(0, e.getLocalizedMessage());
             }
 
             @Override
             public void onResponse(IoTRequest ioTRequest, IoTResponse ioTResponse) {
                 Log.e(TAG, "user account data:" + ioTResponse.getData().toString());
                 if (ioTResponse.getCode() != 200) {
-                    onAliResponse.onFailed(0, ioTResponse.getMessage());
+                    onAliResponse.onFailed(0, ioTResponse.getLocalizedMsg());
                 } else {
                     onAliResponse.onSuccess(ioTResponse.getData().toString());
 
@@ -480,7 +519,7 @@ public class IlifeAli {
      * "apiVer": "1.0.5"
      * },
      * "params": {
-     * "request": {"identityId":"50e5opda16ebf5558e000a660ac9632a038c2479", "accountMetaV2":{"phone":"15757286621", "appKey":"60039075","nickName":"test"}}
+     * "request": {"identityId":"50e5opda16ebf5558e000a660ac9632a038c2479", "accountMetaV2":{"phone":"15757286621", "appKey":"60039075","nickName":"activity_register_phone"}}
      * },
      * "version": "1.0"
      * }
@@ -535,13 +574,13 @@ public class IlifeAli {
         ioTAPIClient.send(buildRequest(EnvConfigure.PATH_GENE_SHARE_CODE, params), new IoTUIThreadCallback(new IoTCallback() {
             @Override
             public void onFailure(IoTRequest ioTRequest, Exception e) {
-                onAliResponse.onFailed(0, e.getMessage());
+                onAliResponse.onFailed(0, e.getLocalizedMessage());
             }
 
             @Override
             public void onResponse(IoTRequest ioTRequest, IoTResponse ioTResponse) {
                 if (ioTResponse.getCode() != 200) {
-                    onAliResponse.onFailed(0, ioTResponse.getMessage());
+                    onAliResponse.onFailed(0, ioTResponse.getLocalizedMsg());
                 } else {
                     onAliResponse.onSuccess(ioTResponse.getData().toString());
                 }
@@ -571,20 +610,23 @@ public class IlifeAli {
      * @param appVersion
      * @param iotId
      * @param onAliResponse
+     * @param type          问题类型
+     * @param robotName     机器类型
      */
-    public void commitFeedback(String contact, String content, String type, String appVersion, String iotId, final OnAliResponseSingle<Boolean> onAliResponse) {
+    public void commitFeedback(String contact, String content, int type, String robotName, String appVersion, String iotId, String productKey, final OnAliResponseSingle<Boolean> onAliResponse) {
         HashMap<String, Object> params = new HashMap<>();
-        params.put("mobileSystem", "Android");
-        params.put("appVersion", appVersion);
-        params.put("type", 103);
-        params.put("productKey", EnvConfigure.PRODUCT_KEY_X800);
+        params.put("type", type);
+        params.put("productKey", productKey);
         params.put("content", content);
-        params.put("iotId", iotId);
         params.put("mobileModel", Build.MODEL);
         params.put("contact", contact);
-        params.put("topic", "意见反馈主题");
-        params.put("devicename", "智意扫地机-" + type);
-        ioTAPIClient.send(buildRequest(EnvConfigure.PATH_ADD_FEEDBACK, params), new IoTCallback() {
+        params.put("mobileSystem", "Android");
+        params.put("appVersion", appVersion);
+        params.put("iotId", iotId);
+        params.put("topic", "");
+        params.put("devicename", robotName);
+        Log.d(TAG, "上传数据：" + params.toString());
+        ioTAPIClient.send(buildRequest(EnvConfigure.PATH_ADD_FEEDBACK, params), new IoTUIThreadCallback(new IoTCallback() {
             @Override
             public void onFailure(IoTRequest ioTRequest, Exception e) {
                 onAliResponse.onResponse(false);
@@ -592,9 +634,14 @@ public class IlifeAli {
 
             @Override
             public void onResponse(IoTRequest ioTRequest, IoTResponse ioTResponse) {
-                onAliResponse.onResponse(true);
+                if (ioTResponse.getCode() == 200) {
+                    onAliResponse.onResponse(true);
+                } else {
+                    Log.e(TAG, "发送反馈数据失败：" + ioTResponse.getLocalizedMsg());
+                    onAliResponse.onResponse(false);
+                }
             }
-        });
+        }));
     }
 
 
@@ -604,7 +651,8 @@ public class IlifeAli {
         HashMap<String, Object> params = new HashMap<>();
         JSONObject json = JSONObject.parseObject(tz);
         json.getJSONObject("TimeZone").put("TimeZone", timeZone.getRawOffset() / (3600 * 1000));
-        json.getJSONObject("TimeZone").put("SummerTime", timeZone.getDSTSavings());
+        Date date = new GregorianCalendar().getTime();
+        json.getJSONObject("TimeZone").put("SummerTime", timeZone.inDaylightTime(date) ? 1 : 0);
         params.put(EnvConfigure.KEY_IOT_ID, iotId);
         params.put(EnvConfigure.KEY_ITEMS, json);
         ioTAPIClient.send(buildRequest(EnvConfigure.PATH_SET_PROPERTIES, params), new IoTCallback() {
@@ -615,7 +663,7 @@ public class IlifeAli {
 
             @Override
             public void onResponse(IoTRequest ioTRequest, IoTResponse ioTResponse) {
-                Log.d(TAG, "设置时钟成功。。。。。。。。。。。。");
+                Log.d(TAG, "设置时钟成功。。。。。。。。。。。。" + json.toString());
             }
         });
     }
@@ -659,7 +707,7 @@ public class IlifeAli {
         ioTAPIClient.send(buildRequest(EnvConfigure.PATH_SET_PROPERTIES, params), new IoTUIThreadCallback(new IoTCallback() {
             @Override
             public void onFailure(IoTRequest ioTRequest, Exception e) {
-                onResponse.onFailed(ioTRequest.getPath(), EnvConfigure.VALUE_FIND_ROBOT, 0, e.getMessage());
+                onResponse.onFailed(ioTRequest.getPath(), EnvConfigure.VALUE_FIND_ROBOT, 0, e.getLocalizedMessage());
             }
 
             @Override
@@ -679,7 +727,24 @@ public class IlifeAli {
         ioTAPIClient.send(buildRequest(EnvConfigure.PATH_SET_PROPERTIES, params), new IoTUIThreadCallback(new IoTCallback() {
             @Override
             public void onFailure(IoTRequest ioTRequest, Exception e) {
-                onResponse.onFailed(ioTRequest.getPath(), EnvConfigure.VALUE_FAC_RESET, 0, e.getMessage());
+                onResponse.onFailed(ioTRequest.getPath(), EnvConfigure.VALUE_FAC_RESET, 0, e.getLocalizedMessage());
+            }
+
+            @Override
+            public void onResponse(IoTRequest ioTRequest, IoTResponse ioTResponse) {
+                onResponse.onSuccess(EnvConfigure.PATH_SET_PROPERTIES, EnvConfigure.VALUE_FAC_RESET, 1, ioTResponse.getCode());
+//                cloudResetFactory(onResponse);
+            }
+        }));
+    }
+
+    private void cloudResetFactory(final OnAliSetPropertyResponse onResponse) {
+        HashMap<String, Object> params = new HashMap<>();
+        params.put(EnvConfigure.KEY_IOT_ID, iotId);
+        ioTAPIClient.send(buildRequest(EnvConfigure.PATH_RESET_FACTORY, params), new IoTUIThreadCallback(new IoTCallback() {
+            @Override
+            public void onFailure(IoTRequest ioTRequest, Exception e) {
+                onResponse.onFailed(ioTRequest.getPath(), EnvConfigure.VALUE_FAC_RESET, 0, e.getLocalizedMessage());
             }
 
             @Override
@@ -711,7 +776,7 @@ public class IlifeAli {
         ioTAPIClient.send(buildRequest(EnvConfigure.PATH_SET_PROPERTIES, params), new IoTUIThreadCallback(new IoTCallback() {
             @Override
             public void onFailure(IoTRequest ioTRequest, Exception e) {
-                onResponse.onFailed(ioTRequest.getPath(), EnvConfigure.VALUE_SET_WATER, 0, e.getMessage());
+                onResponse.onFailed(ioTRequest.getPath(), EnvConfigure.VALUE_SET_WATER, 0, e.getLocalizedMessage());
             }
 
             @Override
@@ -740,7 +805,7 @@ public class IlifeAli {
         ioTAPIClient.send(buildRequest(EnvConfigure.PATH_SET_PROPERTIES, params), new IoTUIThreadCallback(new IoTCallback() {
             @Override
             public void onFailure(IoTRequest ioTRequest, Exception e) {
-                onResponse.onFailed(ioTRequest.getPath(), EnvConfigure.VALUE_SET_MAX, 0, e.getMessage());
+                onResponse.onFailed(ioTRequest.getPath(), EnvConfigure.VALUE_SET_MAX, 0, e.getLocalizedMessage());
             }
 
             @Override
@@ -764,7 +829,7 @@ public class IlifeAli {
         ioTAPIClient.send(buildRequest(EnvConfigure.PATH_SET_PROPERTIES, params), new IoTUIThreadCallback(new IoTCallback() {
             @Override
             public void onFailure(IoTRequest ioTRequest, Exception e) {
-                onResponse.onFailed(ioTRequest.getPath(), EnvConfigure.VALUE_SET_VOICE_SWITCH, 0, e.getMessage());
+                onResponse.onFailed(ioTRequest.getPath(), EnvConfigure.VALUE_SET_VOICE_SWITCH, 0, e.getLocalizedMessage());
             }
 
             @Override
@@ -780,7 +845,12 @@ public class IlifeAli {
 
 
     public void setSchedule(int position, final int open, final int hour, final int minute, final OnAliResponse<ScheduleBean> onResponse) {
-        final String schedule = "{\"Schedule\":{\"ScheduleHour\":0,\"ScheduleType\":0,\"ScheduleEnd\":300,\"ScheduleEnable\":0,\"ScheduleMode\":6,\"ScheduleWeek\":1,\"ScheduleArea\":\"AAAAAAAAAAAAAAAA\",\"ScheduleMinutes\":0}}";
+        String schedule;
+        if (workingDevice.getProductKey().equals(EnvConfigure.PRODUCT_KEY_X320)) {
+            schedule = "{\"Schedule\":{\"ScheduleHour\":0,\"ScheduleEnd\":300,\"ScheduleEnable\":0,\"ScheduleMode\":3,\"ScheduleWeek\":1,\"ScheduleArea\":1,\"ScheduleMinutes\":0}}";
+        } else {
+            schedule = "{\"Schedule\":{\"ScheduleHour\":0,\"ScheduleType\":0,\"ScheduleEnd\":300,\"ScheduleEnable\":0,\"ScheduleMode\":6,\"ScheduleWeek\":1,\"ScheduleArea\":\"AAAAAAAAAAAAAAAA\",\"ScheduleMinutes\":0}}";
+        }
         position = position == 0 ? 7 : position;
         String str = EnvConfigure.KEY_SCHEDULE + position;
         String schedule_ = schedule.replaceFirst(EnvConfigure.KEY_SCHEDULE, str);
@@ -789,7 +859,7 @@ public class IlifeAli {
         json.getJSONObject(str).put(EnvConfigure.KEY_SCHEDULE_HOUR, hour);
         json.getJSONObject(str).put(EnvConfigure.KEY_SCHEDULE_MINUTES, minute);
         json.getJSONObject(str).put(EnvConfigure.KEY_SCHEDULE_WEEK, position);
-        HashMap params = new HashMap();
+        HashMap<String, Object> params = new HashMap();
         params.clear();
         params.put(EnvConfigure.KEY_IOT_ID, iotId);
         params.put(EnvConfigure.KEY_ITEMS, json);
@@ -798,7 +868,7 @@ public class IlifeAli {
         ioTAPIClient.send(buildRequest(EnvConfigure.PATH_SET_PROPERTIES, params), new IoTUIThreadCallback(new IoTCallback() {
             @Override
             public void onFailure(IoTRequest ioTRequest, Exception e) {
-                onResponse.onFailed(0, e.getMessage());
+                onResponse.onFailed(0, e.getLocalizedMessage());
             }
 
             @Override
@@ -809,6 +879,8 @@ public class IlifeAli {
                     scheduleBean.setScheduleMinutes(minute);
                     scheduleBean.setScheduleHour(hour);
                     onResponse.onSuccess(scheduleBean);
+                } else {
+                    Log.e(TAG, "预约错误：" + ioTResponse.getLocalizedMsg());
                 }
             }
         }));
@@ -821,7 +893,7 @@ public class IlifeAli {
         ioTAPIClient.send(buildRequest(EnvConfigure.PATH_GET_PROPERTIES, params), new IoTUIThreadCallback(new IoTCallback() {
             @Override
             public void onFailure(IoTRequest ioTRequest, Exception e) {
-                onAliResponse.onFailed(0, e.getMessage());
+                onAliResponse.onFailed(0, e.getLocalizedMessage());
             }
 
             @Override
@@ -841,13 +913,19 @@ public class IlifeAli {
         ioTAPIClient.send(buildRequest(EnvConfigure.PATH_GET_PROPERTIES, params), new IoTUIThreadCallback(new IoTCallback() {
             @Override
             public void onFailure(IoTRequest ioTRequest, Exception e) {
-                onAliResponse.onFailed(0, e.getMessage());
+                onAliResponse.onFailed(0, e.getLocalizedMessage());
             }
 
             @Override
             public void onResponse(IoTRequest ioTRequest, IoTResponse ioTResponse) {
                 if (ioTResponse.getCode() == 200) {
-                    onAliResponse.onSuccess(ioTResponse.getData().toString());
+                    String data = ioTResponse.getData().toString();
+                    if (data.contains(EnvConfigure.KEY_PARTS_STATUS)) {
+                        onAliResponse.onSuccess(data);
+                    } else {
+                        Log.e(TAG, "获取耗材数据不完整");
+                        onAliResponse.onFailed(0, "数据不完整");
+                    }
                 }
             }
         }));
@@ -866,7 +944,7 @@ public class IlifeAli {
         ioTAPIClient.send(buildRequest(EnvConfigure.PATH_SET_PROPERTIES, params), new IoTUIThreadCallback(new IoTCallback() {
             @Override
             public void onFailure(IoTRequest ioTRequest, Exception e) {
-                onAliResponse.onFailed(0, e.getMessage());
+                onAliResponse.onFailed(0, e.getLocalizedMessage());
             }
 
             @Override
@@ -902,12 +980,107 @@ public class IlifeAli {
         delegate.getHistoryRecords();
     }
 
+
     /**
-     * 查询固件升级版本
+     * 云端查询固件升级安装包版本
      *
      * @param onAliResponse
      */
-    public void queryOtaVersion(final OnAliResponse<OTAInfoBean> onAliResponse) {
+    public void queryOTAInstallPkg(final OnAliResponse<OTAInfoBean> onAliResponse) {
+        HashMap<String, Object> params = new HashMap<>();
+        params.clear();
+        params.put(EnvConfigure.KEY_IOT_ID, iotId);
+        ioTAPIClient.send(buildRequest(EnvConfigure.PATH_QUERY_OTA_VER, params), new IoTUIThreadCallback(new IoTCallback() {
+            @Override
+            public void onFailure(IoTRequest ioTRequest, Exception e) {
+                onAliResponse.onFailed(0, e.getLocalizedMessage());
+            }
+
+            @Override
+            public void onResponse(IoTRequest ioTRequest, IoTResponse ioTResponse) {
+                if (ioTResponse.getCode() != 200 || ioTResponse.getData() == null) {
+                    onAliResponse.onFailed(0, "response error,and error message is" + ioTResponse.getLocalizedMsg());
+                } else {
+                    String content = ioTResponse.getData().toString();
+                    Log.d(TAG, "获取设备OTA信息：" + ioTResponse.getData().toString());
+                    OTAInfoBean otaInfoBean = new OTAInfoBean();
+                    JSONObject jsonObject = JSON.parseObject(ioTResponse.getData().toString());
+                    if (jsonObject != null) {
+                        String tarVer = jsonObject.getString("version");//mcu-00.99.99.09-app-1.1.0.05-20191123.084932
+                        String[] values = tarVer.split("-");
+                        int tVer = Integer.valueOf(values[1].replace(".", ""));
+                        otaInfoBean.setTargetVer(tVer);
+                        String curVer = jsonObject.getString("currentVersion");//mcu-00.20.03.09-app-1.1.0.05-20191123.084932
+                        String[] cValues = curVer.split("-");
+                        int cVer = Integer.valueOf(cValues[1].replace(".", ""));
+                        otaInfoBean.setCurrentVer(cVer);
+                        otaInfoBean.setWholeTargetVer(tarVer);
+                        onAliResponse.onSuccess(otaInfoBean);
+                    } else {
+                        onAliResponse.onFailed(0, "未获取到OTA版本");
+                    }
+                }
+            }
+        }));
+    }
+
+    public void ensureDownloadOTA(OnAliResponse<Boolean> onAliResponse) {
+        HashMap<String, Object> params = new HashMap<>();
+        List<String> iotIds = new ArrayList<>();
+        iotIds.add(iotId);
+        params.put(EnvConfigure.KEY_IOT_IDS, iotIds);
+        ioTAPIClient.send(buildRequest(EnvConfigure.PATH_OTA_UPGRADE, params), new IoTUIThreadCallback(new IoTCallback() {
+            @Override
+            public void onFailure(IoTRequest ioTRequest, Exception e) {
+                Log.d(TAG, "确认设备升级失败---" + e.getLocalizedMessage());
+                onAliResponse.onFailed(-1, e.getLocalizedMessage());
+            }
+
+            @Override
+            public void onResponse(IoTRequest ioTRequest, IoTResponse ioTResponse) {
+                Log.d(TAG, "确认设备升级---" + ioTResponse.getData().toString());
+                if (ioTResponse.getCode() == 200) {
+                    onAliResponse.onSuccess(true);
+                } else {
+                    onAliResponse.onFailed(-1, ioTResponse.getLocalizedMsg());
+                }
+            }
+        }));
+
+    }
+
+    public void queryDownloadProgress(String ver, OnAliResponse<OTAUpgradeBean> onAliResponse) {
+        HashMap<String, Object> params = new HashMap<>();
+        params.put(EnvConfigure.KEY_IOT_ID, iotId);
+        params.put(EnvConfigure.KEY_VERSION, ver);
+        ioTAPIClient.send(buildRequest(EnvConfigure.PATH_OTA_QUERY_UPGRADE_PROGRESS, params), new IoTUIThreadCallback(new IoTCallback() {
+            @Override
+            public void onFailure(IoTRequest ioTRequest, Exception e) {
+                Log.d(TAG, "获取设备固件升级进度信息失败---" + e.getLocalizedMessage());
+                onAliResponse.onFailed(-1, e.getLocalizedMessage());
+            }
+
+            @Override
+            public void onResponse(IoTRequest ioTRequest, IoTResponse ioTResponse) {
+                Log.d(TAG, "获取设备固件升级进度信息---" + ioTResponse.getData().toString());
+                if (ioTResponse.getCode() == 200 && ioTResponse.getData() != null) {
+                    Gson gson = new Gson();
+                    OTAUpgradeBean upgradeBean = gson.fromJson(ioTResponse.getData().toString(), OTAUpgradeBean.class);
+                    onAliResponse.onSuccess(upgradeBean);
+                } else {
+                    onAliResponse.onFailed(-1, ioTResponse.getLocalizedMsg());
+                }
+            }
+        }));
+    }
+
+
+    /**
+     * 查询主机是否有可升级的固件版本
+     *
+     * @param onAliResponse
+     */
+    public void queryRobotOtaVer(final OnAliResponse<OTAInfoBean> onAliResponse) {
         HashMap<String, Object> params = new HashMap<>();
         params.put(EnvConfigure.KEY_TAG, EnvConfigure.VALUE_GET_PROPERTY);
         params.put("identifier", EnvConfigure.KEY_OTA_INFO);
@@ -932,20 +1105,74 @@ public class IlifeAli {
                         if (otaInfoBean == null) {
                             onAliResponse.onFailed(0, "response error,and error message is" + ioTResponse.getMessage());
                         } else {
+                            if (otaInfoBean.getUpdateProgess() == 100 && otaInfoBean.getUpdateState() == 0) {//进度100，状态为0,代表更新成功
+                                otaInfoBean.setUpdateState(4);
+                            }
                             onAliResponse.onSuccess(otaInfoBean);
                         }
                     } else {
-//                        onAliResponse.onFailed(0, "response error,and error message is 未发现OTA信息" );
-                        OTAInfoBean otaInfoBean = new OTAInfoBean();
-                        otaInfoBean.setCurrentVer(100);
-                        otaInfoBean.setTargetVer(101);
-                        otaInfoBean.setUpdateProgess(0);
-                        otaInfoBean.setUpdateState(1);
-                        onAliResponse.onSuccess(otaInfoBean);
+                        onAliResponse.onFailed(0, "response error,and error message is 未发现OTA信息");
                     }
                 }
             }
         }));
     }
 
+
+    public void reportInstallPkgVer(String version) {
+        HashMap<String, Object> params = new HashMap<>();
+        params.put(EnvConfigure.KEY_IOT_ID, iotId);
+        params.put(EnvConfigure.KEY_VERSION, version);
+        ioTAPIClient.send(buildRequest(EnvConfigure.PATH_REPORY_OTA_VER, params), new IoTUIThreadCallback(new IoTCallback() {
+            @Override
+            public void onFailure(IoTRequest ioTRequest, Exception e) {
+                Log.d(TAG, "上班版本号失败---" + e.getLocalizedMessage());
+            }
+
+            @Override
+            public void onResponse(IoTRequest ioTRequest, IoTResponse ioTResponse) {
+                Log.d(TAG, "上班版本号成功---");
+            }
+        }));
+    }
+
+
+    /**
+     * 获取支持添加的设备列表
+     */
+    public void getSupportDeviceListFromSever() {
+        Map<String, Object> maps = new HashMap<>();
+        IoTRequestBuilder builder = new IoTRequestBuilder()
+                .setPath("/thing/productInfo/getByAppKey")
+                .setApiVersion("1.1.3")
+                .setAuthType(EnvConfigure.IOT_AUTH)
+                .setParams(maps);
+
+        IoTRequest request = builder.build();
+
+        IoTAPIClient ioTAPIClient = new IoTAPIClientFactory().getClient();
+        ioTAPIClient.send(request, new IoTCallback() {
+            @Override
+            public void onFailure(IoTRequest ioTRequest, Exception e) {
+                Log.d(TAG, "0----");
+            }
+
+            @Override
+            public void onResponse(IoTRequest ioTRequest, IoTResponse ioTResponse) {
+                final int code = ioTResponse.getCode();
+                final String msg = ioTResponse.getMessage();
+                Log.d(TAG, "DATA:  " + ioTResponse.getData().toString());
+
+            }
+        });
+    }
+
+
+    public String getBindingProductKey() {
+        return bindingProductKey;
+    }
+
+    public void setBindingProductKey(String bindingProductKey) {
+        this.bindingProductKey = bindingProductKey;
+    }
 }

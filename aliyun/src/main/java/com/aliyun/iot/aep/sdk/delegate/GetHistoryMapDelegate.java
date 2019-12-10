@@ -17,6 +17,7 @@ import com.aliyun.iot.aep.sdk.bean.RealTimeMapBean;
 import com.aliyun.iot.aep.sdk.contant.EnvConfigure;
 import com.google.gson.Gson;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
@@ -85,6 +86,7 @@ public class GetHistoryMapDelegate {
                             end = timeStamp;
                             getRealHistoryMap();
                         } else {
+                            Collections.reverse(beanList);
                             onAliResponse.onSuccess(beanList);
                         }
                     }

@@ -1,36 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-
-    <!--东南亚-->
-    <string-array name="device_name_ilife_as">
-        <item>"A7"</item>
-        <item>"A9s"</item>
-    </string-array>
-    <!--欧洲-->
-    <string-array name="device_name_ilife_eu">
-        <item>"A7"</item>
-        <item>"A9s"</item>
-    </string-array>
-    <!--美国-->
-    <string-array name="device_name_ilife_us">
-        <item>"A7"</item>
-        <item>"A9"</item>
-    </string-array>
-    <!--国内-->
-    <string-array name="device_name_ilife_cn">
-        <item>"X900"</item>
-        <item>"X800"</item>
-        <item>"X787"</item>
-        <item>"X785"</item>
-        <!--<item>"V3x"</item>-->
-    </string-array>
-    <!--ZACO-->
-    <string-array name="device_name_zaco">
-        <!--<item>"X910"</item>-->
-        <item>"A9s"</item>
-        <item>"A8s"</item>
-        <item>"V85"</item>
-        <item>"V5x"</item>
+    <string-array name="array_device_type">
+        <item>X800</item>
+        <item>V3x</item>
     </string-array>
     <string-array name="array_week">
         <item>@string/clock_aty_sun</item>
@@ -40,5 +12,12 @@
         <item>@string/clock_aty_thur</item>
         <item>@string/clock_aty_fri</item>
         <item>@string/clock_aty_sat</item>
+    </string-array>
+    <string-array name="array_question_type">
+        <item>@string/help_question_device</item>
+        <item>@string/help_question_binding</item>
+        <item>@string/help_question_advice</item>
+<!--        <item>@string/help_question_app</item>-->
+<!--        <item>@string/help_question_other</item>-->
     </string-array>
 </resources>

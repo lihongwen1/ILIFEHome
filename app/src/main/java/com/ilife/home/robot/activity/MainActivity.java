@@ -79,7 +79,6 @@ public class MainActivity extends BaseActivity<MainPresenter> implements View.On
                     if (refreshLayout != null) {
                         refreshLayout.finishRefresh();
                     }
-                    hideLoadingDialog();
                     break;
             }
             return true;
@@ -106,7 +105,7 @@ public class MainActivity extends BaseActivity<MainPresenter> implements View.On
     @Override
     public void initView() {
         context = this;
-        mAcUserDevices = MyApplication.getInstance().getmAcUserDevices();
+        mAcUserDevices = IlifeAli.getInstance().getmAcUserDevices();
         rect = new Rect();
         bt_add.setOnClickListener(this);
         initAdapter();
@@ -187,8 +186,6 @@ public class MainActivity extends BaseActivity<MainPresenter> implements View.On
     protected void onResume() {
         super.onResume();
         removeAllActivityExclude();
-        showLoadingDialog();
-        boolean isRest = getIntent().getBooleanExtra(EnvConfigure.KEY_IS_FAC_RESET, false);
         mPresenter.getDeviceList();
     }
 
@@ -202,8 +199,9 @@ public class MainActivity extends BaseActivity<MainPresenter> implements View.On
     public void updateDeviceList(List<DeviceInfoBean> acUserDevices) {
         if (acUserDevices.size() == 0) {
             showButton();
+            IlifeAli.getInstance().getmAcUserDevices().clear();
         } else {
-            MyApplication.getInstance().setmAcUserDevices(acUserDevices);
+            IlifeAli.getInstance().setmAcUserDevices(acUserDevices);
             showList();
         }
     }

@@ -1,6 +1,5 @@
 package com.ilife.home.robot.base;
 
-import android.app.Dialog;
 import android.graphics.Rect;
 import android.os.Build;
 import android.os.Bundle;
@@ -11,15 +10,14 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.aliyun.iot.aep.sdk._interface.OnAliResponse;
 import com.aliyun.iot.aep.sdk.contant.IlifeAli;
+import com.ilife.home.robot.activity.MainActivity;
 import com.ilife.home.robot.activity.PersonalActivity;
 import com.ilife.home.robot.app.MyApplication;
-import com.ilife.home.robot.utils.DialogUtils;
+import com.ilife.home.robot.fragment.DialogFragmentUtil;
 import com.ilife.home.robot.utils.MyLogger;
 import com.ilife.home.robot.utils.StatusBarUtil;
 import com.ilife.home.robot.utils.ToastUtils;
 import com.ilife.home.robot.R;
-
-import java.util.Locale;
 
 import butterknife.ButterKnife;
 import butterknife.Unbinder;
@@ -32,7 +30,7 @@ public abstract class BaseActivity<T extends BasePresenter> extends AppCompatAct
     protected T mPresenter;
     protected long exitTime;
     private Unbinder mUnBinder;
-    private Dialog loadingDialog;
+    private DialogFragmentUtil loadingDialog;
     private MyApplication application;
     protected BaseActivity context;
     protected boolean isActivityInteraction;
@@ -40,10 +38,6 @@ public abstract class BaseActivity<T extends BasePresenter> extends AppCompatAct
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (!Locale.getDefault().getLanguage().equals(MyApplication.getInstance().appInitLanguage)) {
-            MyLogger.d("BaseActivity", "app language is change");
-            MyApplication.getInstance().initTypeface();
-        }
         context = this;
         setContentView(getLayoutId());
         mUnBinder = ButterKnife.bind(this);
@@ -60,24 +54,7 @@ public abstract class BaseActivity<T extends BasePresenter> extends AppCompatAct
             application = (MyApplication) getApplication();
         }
         addActivity();
-        IlifeAli.getInstance().settTokenInvalidListener(aBoolean -> {
-            MyLogger.d("ILIFE_ALI_", "用户回话超时。。。");
-            //登录失效，弹框，重新登录
-            IlifeAli.getInstance().forceLogin(new OnAliResponse<Boolean>() {
-                @Override
-                public void onSuccess(Boolean result) {
-                    //重新登录成功
-                    MyLogger.d("ILIFE_ALI_", "重新登录成功。。。。");
-                }
-
-                @Override
-                public void onFailed(int code, String message) {
-                    //重新登录失败
-                    MyLogger.d("ILIFE_ALI_", "重新登录失败。。。。");
-                }
-            });
-        });
-        MyLogger.i("LIFE_CYCLE","onCreate");
+        MyLogger.i("LIFE_CYCLE", "onCreate");
     }
 
 
@@ -135,7 +112,7 @@ public abstract class BaseActivity<T extends BasePresenter> extends AppCompatAct
     @Override
     protected void onResume() {
         super.onResume();
-        MyLogger.i("LIFE_CYCLE","onResume");
+        MyLogger.i("LIFE_CYCLE", "onResume");
     }
 
     @Override
@@ -146,7 +123,7 @@ public abstract class BaseActivity<T extends BasePresenter> extends AppCompatAct
         if (mPresenter != null) {
             mPresenter.detachView();
         }
-        MyLogger.i("LIFE_CYCLE","onDestroy");
+        MyLogger.i("LIFE_CYCLE", "onDestroy");
         super.onDestroy();
     }
 
@@ -170,14 +147,16 @@ public abstract class BaseActivity<T extends BasePresenter> extends AppCompatAct
 
     protected void showLoadingDialog() {
         if (loadingDialog == null) {
-            loadingDialog = DialogUtils.createLoadingDialog_(this);
+            DialogFragmentUtil.Builder builder = new DialogFragmentUtil.Builder();
+            loadingDialog = builder.setLayoutId(R.layout.layout_loading_dialog).setCancelOutSide(false).build();
         }
-        loadingDialog.show();
+        loadingDialog.show(getSupportFragmentManager(), "refresh");
+
     }
 
     protected void hideLoadingDialog() {
-        if (loadingDialog != null && loadingDialog.isShowing()) {
-            DialogUtils.closeDialog(loadingDialog);
+        if (loadingDialog != null && loadingDialog.isAdded()) {
+            loadingDialog.dismiss();
         }
     }
 

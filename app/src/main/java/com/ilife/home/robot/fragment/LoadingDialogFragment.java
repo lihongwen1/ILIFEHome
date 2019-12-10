@@ -6,13 +6,13 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.Button;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
 
 import com.ilife.home.robot.R;
-import com.ilife.home.robot.view.RegularButton;
 
 import java.util.concurrent.TimeUnit;
 
@@ -22,7 +22,7 @@ import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 
 public class LoadingDialogFragment extends DialogFragment {
-    private RegularButton button;
+    private Button button;
     private Disposable disposable;
 
     @Override

@@ -54,6 +54,7 @@ public class Constants {
     //国内
     public static final String X900 = "X900";
     public static final String X800 = "X800";
+    public static final String X800W = "X800 • 白";
     public static final String X787 = "X787";
     public static final String X785 = "X785";
     public static final String V3x = "V3x";
@@ -67,22 +68,5 @@ public class Constants {
     public static final String A9 = "A9";
     public static final String A7 = "A7";
 
-
-
-
-    public static final int SERVICE_VERSION = 1;
-
-    public static final int EMAIL_MODE_Europe = 2;
-
-    public static final int EMAIL_MODE_InLand_TEST = 1;
-
-    public static final int EMAIL_MODE_InLand_FORMAL = 3;
-
-    public static final int OTATYPE = 1;
-    public static boolean IS_FIRST_AP = true;//标记首次配网，可自动连接wifi，重试需要手动连接robot wifi
-
     public static final String BRAND_ILIFE = "ILIFE";
-    public static final String BRAND_ZACO = "ZACO";
-
-    public static final String ROBOT_WHITE_TAG="#0XFFFFFF";
 }

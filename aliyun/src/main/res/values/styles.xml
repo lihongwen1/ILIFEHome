@@ -41,6 +41,7 @@
 
     <style name="ilife_ali_login" parent="Login">
         <item name="colorPrimaryDark">#ff0000</item>"
+        <item name="colorAccent">@color/color_FF4D00</item>
         <item name="ali_sdk_openaccount_attrs_next_step_bg">@drawable/ali_next_step_bg</item>
         <item name="ali_sdk_openaccount_attrs_title_bar_text_color">@color/color_333333</item>
     </style>
@@ -48,13 +49,17 @@
     <style name="ilife_ali_register" parent="Register">
         <item name="colorPrimaryDark">#ff0000</item>"
         <item name="ali_sdk_openaccount_attrs_send_sms_code_color">@color/send_sms_code</item>
-        <item name="ali_sdk_openaccount_attrs_next_step_bg">@drawable/ali_next_step_bg</item>
+        <item name="ali_sdk_openaccount_attrs_next_step_bg">@drawable/ali_next_step_bg</item>0.
     </style>
+
 
     <style name="ilife_ali_register_email" parent="EmailRegister">
         <item name="colorPrimaryDark">#ff0000</item>"
         <item name="ali_sdk_openaccount_attrs_send_sms_code_color">@color/send_sms_code</item>
         <item name="ali_sdk_openaccount_attrs_next_step_bg">@drawable/ali_next_step_bg</item>
+        <item name="ali_sdk_openaccount_attrs_title_bar_title">
+            @string/ali_sdk_openaccount_text_register
+        </item>
     </style>
 
     <style name="ilife_ali_register_email_reset_pwd" parent="EmailResetPassword">
@@ -66,4 +71,8 @@
         <item name="ali_sdk_openaccount_attrs_send_sms_code_color">@color/send_sms_code</item>
         <item name="ali_sdk_openaccount_attrs_next_step_bg">@drawable/ali_next_step_bg</item>
     </style>
+    <style name="ilife_ali_reset_fill_pwd" parent="ResetPasswordFillPassword">
+        <item name="ali_sdk_openaccount_attrs_next_step_bg">@drawable/ali_next_step_bg</item>
+    </style>
+
 </resources>

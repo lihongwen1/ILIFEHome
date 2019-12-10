@@ -23,7 +23,6 @@
             >
 
             <LinearLayout
-                android:id="@+id/item_content"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:gravity="center"
@@ -35,13 +34,13 @@
                     android:layout_height="@dimen/dp_165" />
 
 
-                <com.ilife.home.robot.view.MediumTextView
+                <TextView
                     android:id="@+id/tv_name"
                     style="@style/Text_16sp_33"
                     android:layout_marginTop="@dimen/dp_16"
                     android:ellipsize="end"
                     android:maxLines="1" />
-                <com.ilife.home.robot.view.LightTextView
+                <TextView
                     android:id="@+id/tv_status2"
                     style="@style/Text_14sp_33"
                     android:drawableStart="@drawable/selector_on_off_line"

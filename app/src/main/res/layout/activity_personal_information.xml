@@ -20,8 +20,7 @@
             android:gravity="center_vertical"
             android:orientation="horizontal">
 
-            <com.ilife.home.robot.view.RegularTextView
-                android:id="@+id/user_icon"
+            <TextView
                 style="@style/Text_16sp_33"
                 android:text="头像" />
 
@@ -49,7 +48,7 @@
             android:gravity="center_vertical"
             android:orientation="horizontal">
 
-            <com.ilife.home.robot.view.RegularTextView
+            <TextView
                 style="@style/Text_16sp_33"
                 android:text="昵称" />
 
@@ -58,8 +57,7 @@
                 android:layout_height="match_parent"
                 android:layout_weight="1" />
 
-            <com.ilife.home.robot.view.RegularTextView
-                android:id="@+id/user_nickname"
+            <TextView
                 style="@style/Text_14sp_66"
                 android:text="小小小"
                 android:textStyle="bold" />
@@ -78,7 +76,7 @@
             android:gravity="center_vertical"
             android:orientation="horizontal">
 
-            <com.ilife.home.robot.view.RegularTextView
+            <TextView
                 style="@style/Text_16sp_33"
                 android:text="账号" />
 
@@ -87,8 +85,7 @@
                 android:layout_height="match_parent"
                 android:layout_weight="1" />
 
-            <com.ilife.home.robot.view.RegularTextView
-                android:id="@+id/user_account"
+            <TextView
                 style="@style/Text_14sp_66"
                 android:textColor="@color/color_c7c7c7"
                 android:text="18589856969@169.com"

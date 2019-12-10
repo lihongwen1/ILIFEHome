@@ -20,6 +20,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -68,16 +69,8 @@ public class AliInterfaceDelegate {
                     try {
                         jsonArray = jsonObject.getJSONArray("data");
                         List<DeviceInfoBean> deviceInfoBeanList = JSON.parseArray(jsonArray.toString(), DeviceInfoBean.class);
-                        if (deviceInfoBeanList == null || deviceInfoBeanList.size() == 0) {
-                            onAliResponse.onFailed(0, ioTResponse.getMessage());
-                            return;
-                        }
-                        Iterator<DeviceInfoBean> iterator = deviceInfoBeanList.iterator();
-                        while (iterator.hasNext()) {
-                            DeviceInfoBean infoBean = iterator.next();
-                            if (!infoBean.getProductKey().equals(EnvConfigure.PRODUCT_KEY_X800)) {
-                                iterator.remove();
-                            }
+                        if (deviceInfoBeanList == null ) {
+                            deviceInfoBeanList=new ArrayList<>();
                         }
                         onAliResponse.onSuccess(deviceInfoBeanList);
                     } catch (JSONException e) {
@@ -231,6 +224,7 @@ public class AliInterfaceDelegate {
             @Override
             public void onFailure(IoTRequest ioTRequest, Exception e) {
                 //Alert the user that the request failed because of the network error
+                Log.e("ILIFE_ALI_","设置属性错误:"+e.getLocalizedMessage());
                 onAliResponse.onFailed(ioTRequest.getPath(), 0, 0, e.getMessage());
             }
 
