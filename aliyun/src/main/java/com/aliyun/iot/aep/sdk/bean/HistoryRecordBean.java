@@ -29,6 +29,9 @@ public class HistoryRecordBean implements Serializable {
     private int PackId;
     private String CleanMapData;
     private int RoadResolution;
+    /**
+     * 该记录所有清扫数据集合/建议使用数组实现，可以避免数据包乱序导致地图异常
+     */
     private List<String> mapDataList;
 
     public int getStopCleanReason() {
@@ -113,14 +116,20 @@ public class HistoryRecordBean implements Serializable {
 
 
     public List<String> getMapDataList() {
-        Collections.reverse(mapDataList);
         return mapDataList;
     }
 
-    public void addCleanData(String cleanData){
-        if (mapDataList==null){
-            mapDataList=new ArrayList<>();
+    public boolean isCleanDataExit(String cleanMapData) {
+        if (mapDataList == null) {
+            return false;
         }
-        mapDataList.add(cleanData);
+        return mapDataList.contains(cleanMapData);
+    }
+
+    public void addCleanData(String cleanData) {
+        if (mapDataList == null) {
+            mapDataList = new ArrayList<>();
+        }
+        mapDataList.add(0, cleanData);
     }
 }

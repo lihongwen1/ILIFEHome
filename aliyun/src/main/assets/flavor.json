@@ -1,0 +1,34 @@
+[
+  {
+    "Area_Code": 1,
+    "Area_name": "中国",
+    "robot_type": [
+      {
+        "name": "ILIFE X800",
+        "productEey": "a1nIeZXrVFg"
+      },
+      {
+        "name": "ILIFE V3x",
+        "productEey": "a1r76ksgLTV"
+      },
+      {
+        "name": "ILIFE X800W",
+        "productEey": "a1cdxiwZfP9"
+      },
+      {
+        "name": "ILIFE X787",
+        "productEey": "a1wBeDmFnJu"
+      }
+    ]
+  },
+  {
+    "Area_Code": 2,
+    "Area_name": "海外",
+    "robot_type": [
+      {
+        "name": "ILIFE X800",
+        "productEey": "a2N5l6U3gnt"
+      }
+    ]
+  }
+]

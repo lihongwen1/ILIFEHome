@@ -2,9 +2,51 @@
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
     <item>
         <shape android:shape="oval">
+            <padding
+                android:bottom="1.5dp"
+                android:left="1.5dp"
+                android:right="1.5dp"
+                android:top="1.5dp" />
             <solid android:color="@color/bg_color_f5f7fa" /> <!--主体颜色-->
-            <!--<stroke android:width="1dp" android:color="#11beb8"/>&lt;!&ndash; 描边，边框宽度、颜色 &ndash;&gt;-->
-            <corners android:radius="@dimen/dp_25"/> <!--边角弧度-->
+            <stroke
+                android:width="1dp"
+                android:color="#F1F1F1" /><!-- 描边，边框宽度、颜色 -->
         </shape>
     </item>
+    <item>
+        <shape android:shape="oval">
+            <padding
+                android:bottom="1dp"
+                android:left="1dp"
+                android:right="1dp"
+                android:top="1dp" />
+            <solid android:color="@color/bg_color_f5f7fa" /> <!--主体颜色-->
+            <stroke
+                android:width="1dp"
+                android:color="#EFEFEF" /><!-- 描边，边框宽度、颜色 -->
+        </shape>
+    </item>
+    <item>
+        <shape android:shape="oval">
+            <padding
+                android:bottom="0.5dp"
+                android:left="0.5dp"
+                android:right="0.5dp"
+                android:top="0.5dp" />
+            <solid android:color="@color/bg_color_f5f7fa" /> <!--主体颜色-->
+            <stroke
+                android:width="1dp"
+                android:color="#ECECEC" /><!-- 描边，边框宽度、颜色 -->
+        </shape>
+    </item>
+
+    <item>
+        <shape android:shape="oval">
+            <solid android:color="@color/bg_color_f5f7fa" /> <!--主体颜色-->
+            <stroke
+                android:width="1dp"
+                android:color="#E4E6E8" /><!-- 描边，边框宽度、颜色 -->
+        </shape>
+    </item>
+
 </layer-list>

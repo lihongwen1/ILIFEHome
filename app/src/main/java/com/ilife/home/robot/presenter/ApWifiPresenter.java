@@ -1,7 +1,5 @@
 package com.ilife.home.robot.presenter;
 
-import android.os.Looper;
-
 import com.aliyun.iot.aep.sdk._interface.OnAliBindDeviceResponse;
 import com.aliyun.iot.aep.sdk.contant.IlifeAli;
 import com.ilife.home.robot.base.BasePresenter;
@@ -33,6 +31,11 @@ public class ApWifiPresenter extends BasePresenter<ApWifiContract.View> implemen
                 if (isViewAttached()) {
                     mView.sendProgress(progress);
                 }
+            }
+
+            @Override
+            public void manualConnectHomeWifi() {
+                mView.manualConnectHomeWifi();
             }
 
             @Override

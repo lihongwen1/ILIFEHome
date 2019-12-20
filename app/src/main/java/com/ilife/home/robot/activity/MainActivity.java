@@ -71,6 +71,7 @@ public class MainActivity extends BaseActivity<MainPresenter> implements View.On
     RelativeLayout layout_no_device;
     Rect rect;
     UniversalDialog unbindDialog;
+    private  int selectPosition;
     private WeakHandler handler = new WeakHandler(new Handler.Callback() {
         @Override
         public boolean handleMessage(Message msg) {
@@ -104,6 +105,7 @@ public class MainActivity extends BaseActivity<MainPresenter> implements View.On
 
     @Override
     public void initView() {
+        String url = "https://oauth.taobao.com/authorize?response_type=code&client_id=<项目的appKey>&redirect_uri=<控制台定义的回调地址>&view=wap";
         context = this;
         mAcUserDevices = IlifeAli.getInstance().getmAcUserDevices();
         rect = new Rect();
@@ -136,9 +138,10 @@ public class MainActivity extends BaseActivity<MainPresenter> implements View.On
             }
         });
         adapter.setOnItemChildClickListener((adapter, view, position) -> {
+            selectPosition=position;
             switch (view.getId()) {
                 case R.id.item_delete:
-                    if (mAcUserDevices.size() <= position) {
+                    if (mAcUserDevices.size() < selectPosition) {
                         return;
                     }
                     recyclerView.closeMenu();
@@ -147,13 +150,13 @@ public class MainActivity extends BaseActivity<MainPresenter> implements View.On
                         unbindDialog.setDialogType(UniversalDialog.TYPE_NORMAL).setTitle(Utils.getString(R.string.main_aty_unbind_device))
                                 .setHintTip(Utils.getString(R.string.main_aty_unbind_device_tip)).setOnRightButtonClck(() -> {
                             showLoadingDialog();
-                            IlifeAli.getInstance().unBindDevice(mAcUserDevices.get(position).getIotId(), new OnAliResponse<Boolean>() {
+                            IlifeAli.getInstance().unBindDevice(mAcUserDevices.get(selectPosition).getIotId(), new OnAliResponse<Boolean>() {
                                 @Override
                                 public void onSuccess(Boolean result) {
                                     //解绑成功
                                     MyLogger.d(TAG, "解绑成功");
                                     hideLoadingDialog();
-                                    mAcUserDevices.remove(position);
+                                    mAcUserDevices.remove(selectPosition);
                                     if (mAcUserDevices.size() == 0) {
                                         showButton();
                                     } else {

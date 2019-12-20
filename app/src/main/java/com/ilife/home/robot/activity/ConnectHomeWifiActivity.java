@@ -176,11 +176,11 @@ public class ConnectHomeWifiActivity extends BackBaseActivity {
 
     private void goSetGps() {
         UniversalDialog universalDialog = new UniversalDialog();
-        universalDialog.setDialogType(UniversalDialog.TYPE_NORMAL_MID_BUTTON).setHintTip(Utils.getString(R.string.open_gps_location_tip))
-                .setMidText(Utils.getString(R.string.ap_aty_setting)).setOnMidButtonClck(() -> {
-            Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-            startActivityForResult(intent, 1);
-        });
+        universalDialog.setDialogType(UniversalDialog.TYPE_NORMAL).setHintTip(Utils.getString(R.string.open_gps_location_tip))
+                .setLeftText(Utils.getString(R.string.ap_guide_gps_cancel)).setRightText(Utils.getString(R.string.ap_guide_gps_open)).setOnRightButtonClck(() -> {
+                    Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+                    startActivityForResult(intent, 1);
+                });
         universalDialog.show(getSupportFragmentManager(), "gps");
     }
 

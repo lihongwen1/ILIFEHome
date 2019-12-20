@@ -72,7 +72,7 @@ public class ConsumerDetailActivity extends BackBaseActivity {
                 consumerResetId = R.string.consume_aty_roll_time_reset;
                 break;
             case 3:
-                consumerId = R.string.consume_aty_filter_time;
+                consumerId = R.string.consume_detail_aty_filter_time;
                 consumerTipId = R.string.consumer_tip_fillter;
                 consumerImgId = R.drawable.n_icon_lvwang;
                 consumerResetId = R.string.consume_aty_filter_time_reset;

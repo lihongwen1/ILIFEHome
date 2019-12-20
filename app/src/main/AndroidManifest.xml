@@ -113,6 +113,10 @@
             android:launchMode="singleTop"
             android:screenOrientation="portrait" />
         <activity
+            android:name="com.ilife.home.robot.activity.TaobaoAuthActivity"
+            android:launchMode="singleTop"
+            android:screenOrientation="portrait" />
+        <activity
             android:name="com.ilife.home.robot.activity.ApGuideReadyRobotWifi"
             android:launchMode="singleTop"
             android:screenOrientation="portrait" />
@@ -143,10 +147,6 @@
             android:screenOrientation="portrait" />
         <activity
             android:name="com.ilife.home.robot.activity.ApWifiActivity"
-            android:launchMode="singleTop"
-            android:screenOrientation="portrait" />
-        <activity
-            android:name="com.ilife.home.robot.activity.ConnectDeviceApActivity"
             android:launchMode="singleTop"
             android:screenOrientation="portrait" />
         <activity

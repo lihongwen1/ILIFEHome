@@ -25,9 +25,10 @@ public class EnvConfigure {
     /**
      * 国内
      */
-    static final public String PRODUCT_KEY_X800= "a1nIeZXrVFg";//CHINA
+    static final public String PRODUCT_KEY_X800 = "a1nIeZXrVFg";//CHINA
     static final public String PRODUCT_KEY_X800_W = "a1cdxiwZfP9";//CHINA
     static final public String PRODUCT_KEY_X320 = "a1r76ksgLTV";//CHINA
+    static final public String PRODUCT_KEY_X787="a1wBeDmFnJu";//CHINA
 
 
     public static final String IOT_AUTH = "iot_china";//国内
@@ -72,9 +73,9 @@ public class EnvConfigure {
     public static final String PATH_QUERY_OTA_VER = "/thing/ota/info/queryByUser";
     public static final String PATH_OTA_UPGRADE = "/thing/ota/batchUpgradeByUser";
     public static final String PATH_OTA_QUERY_UPGRADE_PROGRESS = "/thing/ota/progress/getByUser";
-    public static final String PATH_REPORY_OTA_VER="/thing/ota/version/reportByUser";
-    public static final String PATH_BIND_SERVER_FILTER="/awss/enrollee/product/filter";
-    public static final String PATH_RESET_FACTORY="/living/device/reset";
+    public static final String PATH_REPORY_OTA_VER = "/thing/ota/version/reportByUser";
+    public static final String PATH_BIND_SERVER_FILTER = "/awss/enrollee/product/filter";
+    public static final String PATH_RESET_FACTORY = "/living/device/reset";
     /**
      * topic/method
      */

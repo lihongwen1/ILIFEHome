@@ -133,7 +133,7 @@ dependencies {
 
     /* 配网 SDK.begin */
     api 'com.aliyun.alink.linksdk:ilop-devicecenter-ext-boneplugin:1.5.1'
-    api 'com.aliyun.alink.linksdk:ilop-devicecenter:1.6.8.6'
+    api 'com.aliyun.alink.linksdk:ilop-devicecenter:1.7.1.1'
     /* 配网 SDK.end */
 
     /*蓝牙SDK.begin*/
@@ -154,7 +154,11 @@ dependencies {
 
     /* 移动应用推送.begin */
     api('com.aliyun.iot.aep.sdk:push:0.0.3')
-    /* 移动应用推送.end *
+    /* 移动应用推送.end */
+    api 'io.reactivex.rxjava2:rxjava:2.0.7'
+    api 'io.reactivex.rxjava2:rxandroid:2.0.1'
+
+
 
    /* EventBus*/
 //    api 'com.taobao.external:eventbus:1.0.2'

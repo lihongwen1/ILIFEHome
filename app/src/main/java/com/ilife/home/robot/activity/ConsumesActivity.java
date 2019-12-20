@@ -33,11 +33,20 @@ import butterknife.OnClick;
 
 public class ConsumesActivity extends BackBaseActivity {
     final String TAG = ConsumesActivity.class.getSimpleName();
-    LayoutInflater inflater;
-    ProgressBar pb_side, pb_roll, pb_filter;
-    TextView tv_percent_side, tv_percent_roll, tv_percent_filter;
-    byte[] bytes;
-    int index;
+
+    @BindView(R.id.pb_side)
+    ProgressBar pb_side;
+    @BindView(R.id.pb_roll)
+    ProgressBar pb_roll;
+    @BindView(R.id.pb_filter)
+    ProgressBar pb_filter;
+
+    @BindView(R.id.tv_percent_side)
+    TextView tv_percent_side;
+    @BindView(R.id.tv_percent_roll)
+    TextView tv_percent_roll;
+    @BindView(R.id.tv_percent_filter)
+    TextView tv_percent_filter;
     @BindView(R.id.tv_top_title)
     TextView tv_top_title;
     @BindView(R.id.tv_roll)
@@ -56,21 +65,11 @@ public class ConsumesActivity extends BackBaseActivity {
     }
 
     public void initView() {
-        context = this;
-        inflater = LayoutInflater.from(context);
-        pb_side = (ProgressBar) findViewById(R.id.pb_side);
-        pb_roll = (ProgressBar) findViewById(R.id.pb_roll);
-        pb_filter = (ProgressBar) findViewById(R.id.pb_filter);
-
-
-        tv_percent_side = (TextView) findViewById(R.id.tv_percent_side);
-        tv_percent_roll = (TextView) findViewById(R.id.tv_percent_roll);
-        tv_percent_filter = (TextView) findViewById(R.id.tv_percent_filter);
-
-    }
-
-    public void initData() {
         tv_top_title.setText(R.string.setting_aty_consume_detail);
+        String robotType=DeviceUtils.getRobotType(IlifeAli.getInstance().getWorkingDevice().getProductKey());
+        if (robotType.equals(Constants.V3x)) {// V3X V85是吸口型，没有滚刷。
+          findViewById(R.id.rl_roll).setVisibility(View.GONE);
+        }
     }
 
     @Override
@@ -117,7 +116,7 @@ public class ConsumesActivity extends BackBaseActivity {
             @Override
             public void onSuccess(String response) {
                 if (!TextUtils.isEmpty(response)) {
-                    MyLogger.d(TAG,"耗材数据： "+response);
+                    MyLogger.d(TAG, "耗材数据： " + response);
                     JSONObject json = JSONObject.parseObject(response);
                     int sideBrushLife = json.getJSONObject(EnvConfigure.KEY_PARTS_STATUS).getJSONObject(EnvConfigure.KEY_VALUE).getIntValue(EnvConfigure.KEY_SIDE_BRUSH_LIFE);
                     int rollBrushLife = json.getJSONObject(EnvConfigure.KEY_PARTS_STATUS).getJSONObject(EnvConfigure.KEY_VALUE).getIntValue(EnvConfigure.KEY_MAIN_BRUSH_LIFE);

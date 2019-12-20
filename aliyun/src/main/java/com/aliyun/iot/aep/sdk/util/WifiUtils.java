@@ -4,9 +4,12 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.location.LocationManager;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.net.wifi.ScanResult;
 import android.net.wifi.WifiConfiguration;
+import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.text.TextUtils;
 import android.util.Log;
@@ -113,7 +116,17 @@ public class WifiUtils {
         return isConnSuc;
     }
 
-    public static boolean connectToAp_(WifiManager wifiManager, String ssid, String pass, int type) {
+
+    /**
+     * 断开之前的wifi，连接到指定的wifi
+     * @param wifiManager
+     * @param ssid
+     * @param pass
+     * @param type
+     * @return
+     */
+    public static boolean forceConnectWifi(WifiManager wifiManager, String ssid, String pass, int type) {
+        wifiManager.disconnect();
         return createWifiConfig(wifiManager, ssid, pass, type);
     }
 
@@ -169,51 +182,31 @@ public class WifiUtils {
         return isSucc;
     }
 
-//    private static WifiConfiguration isExist(String ssid) {
-//        List<WifiConfiguration> configs = mWifiManager.getConfiguredNetworks();
-//
-//        for (WifiConfiguration config : configs) {
-//            if (config.SSID.equals("\""+ssid+"\"")) {
-//                return config;
-//            }
-//        }
-//        return null;
-//    }
-
-
-
     /**
-     * 判断GPS是否开启，GPS或者AGPS开启一个就认为是开启的
+     * 获取SSID
      *
-     * @param context
-     * @return true 表示开启
+     * @param activity 上下文
+     * @return WIFI 的SSID
      */
-    public static boolean isOPenGPS(final Context context) {
-        LocationManager locationManager
-                = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
-        // 通过GPS卫星定位，定位级别可以精确到街（通过24颗卫星定位，在室外和空旷的地方定位准确、速度快）
-        boolean gps = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
-        // 通过WLAN或移动网络(3G/2G)确定的位置（也称作AGPS，辅助GPS定位。主要用于在室内或遮盖物（建筑群或茂密的深林等）密集的地方定位）
-        boolean network = locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
-        return gps || network;
-
-    }
-
-    /**
-     * 强制帮用户打开GPS
-     *
-     * @param context
-     */
-    public static void openGPS(Context context) {
-        Intent GPSIntent = new Intent();
-        GPSIntent.setClassName("com.android.settings",
-                "com.android.settings.widget.SettingsAppWidgetProvider");
-        GPSIntent.addCategory("android.intent.category.ALTERNATIVE");
-        GPSIntent.setData(Uri.parse("custom:3"));
-        try {
-            PendingIntent.getBroadcast(context, 0, GPSIntent, 0).send();
-        } catch (PendingIntent.CanceledException e) {
-            e.printStackTrace();
+    public static String getSsid(Context activity) {
+        String ssid = "unknown id";
+        WifiManager wifiManager = (WifiManager) activity.getApplicationContext().getSystemService(Context.WIFI_SERVICE);
+        if (wifiManager != null) {
+            WifiInfo info = wifiManager.getConnectionInfo();
+            int networkId = info.getNetworkId();
+            List<WifiConfiguration> configuredNetworks = wifiManager.getConfiguredNetworks();
+            for (WifiConfiguration wifiConfiguration : configuredNetworks) {
+                if (wifiConfiguration.networkId == networkId) {
+                    ssid = wifiConfiguration.SSID;
+                    break;
+                }
+            }
+            if (ssid.contains("\"")) {
+                return ssid.replace("\"", "");
+            }
         }
+        return ssid;
     }
+
+
 }

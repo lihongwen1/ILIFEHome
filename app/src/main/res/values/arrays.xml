@@ -3,6 +3,7 @@
     <string-array name="array_device_type">
         <item>X800</item>
         <item>V3x</item>
+        <item>X787</item>
     </string-array>
     <string-array name="array_week">
         <item>@string/clock_aty_sun</item>
@@ -16,8 +17,8 @@
     <string-array name="array_question_type">
         <item>@string/help_question_device</item>
         <item>@string/help_question_binding</item>
-        <item>@string/help_question_advice</item>
+<!--        <item>@string/help_question_advice</item>-->
 <!--        <item>@string/help_question_app</item>-->
-<!--        <item>@string/help_question_other</item>-->
+        <item>@string/help_question_other</item>
     </string-array>
 </resources>

@@ -133,7 +133,7 @@ public interface MapX9Contract {
 
         boolean isX900Series();
 
-        boolean pointToAlong();
+        boolean pointToAlong(boolean reverse);
 
         boolean isLongPressControl();
 

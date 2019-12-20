@@ -846,7 +846,7 @@ public class IlifeAli {
 
     public void setSchedule(int position, final int open, final int hour, final int minute, final OnAliResponse<ScheduleBean> onResponse) {
         String schedule;
-        if (workingDevice.getProductKey().equals(EnvConfigure.PRODUCT_KEY_X320)) {
+        if (workingDevice.getProductKey().equals(EnvConfigure.PRODUCT_KEY_X320)||workingDevice.getProductKey().equals(EnvConfigure.PRODUCT_KEY_X787)) {
             schedule = "{\"Schedule\":{\"ScheduleHour\":0,\"ScheduleEnd\":300,\"ScheduleEnable\":0,\"ScheduleMode\":3,\"ScheduleWeek\":1,\"ScheduleArea\":1,\"ScheduleMinutes\":0}}";
         } else {
             schedule = "{\"Schedule\":{\"ScheduleHour\":0,\"ScheduleType\":0,\"ScheduleEnd\":300,\"ScheduleEnable\":0,\"ScheduleMode\":6,\"ScheduleWeek\":1,\"ScheduleArea\":\"AAAAAAAAAAAAAAAA\",\"ScheduleMinutes\":0}}";

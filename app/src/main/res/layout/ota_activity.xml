@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical">
@@ -15,7 +16,7 @@
         android:layout_weight="1"
         android:gravity="center"
         android:orientation="vertical"
-        android:visibility="visible">
+        android:visibility="gone">
 
         <ImageView
             android:layout_width="wrap_content"
@@ -26,19 +27,19 @@
             android:id="@+id/tv_cur_version"
             style="@style/Text_18sp_33"
             android:layout_gravity="center_vertical"
-            android:textStyle="bold"
-            android:layout_marginTop="@dimen/dp_24" />
+            android:layout_marginTop="@dimen/dp_24"
+            android:textStyle="bold" />
 
         <TextView
             android:id="@+id/tv_target_version"
             style="@style/Text_18sp_33"
-            android:textStyle="bold"
             android:layout_gravity="center_vertical"
-            android:layout_marginTop="@dimen/dp_18" />
+            android:layout_marginTop="@dimen/dp_18"
+            android:textStyle="bold" />
     </LinearLayout>
 
     <LinearLayout
-        android:id="@+id/ll_updating"
+        android:id="@+id/ll_loading"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
@@ -53,9 +54,9 @@
             android:contentDescription="@null" />
 
         <LinearLayout
-            android:layout_marginTop="@dimen/dp_32"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/dp_32"
             android:orientation="horizontal">
 
             <TextView
@@ -86,6 +87,25 @@
     </LinearLayout>
 
     <LinearLayout
+        android:id="@+id/ll_updating"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:visibility="gone">
+        <com.airbnb.lottie.LottieAnimationView
+            android:layout_width="@dimen/dp_200"
+            android:layout_height="@dimen/dp_200"
+            app:lottie_autoPlay="true"
+            app:lottie_fileName="anim/updating.json"
+            app:lottie_loop="true" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:visibility="gone"
+        android:id="@+id/ll_pre_ensure"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@color/white"
@@ -97,20 +117,21 @@
 
         <TextView
             style="@style/Text_16sp_33"
-            android:textStyle="bold"
-            android:text="@string/ota_preupdate_title" />
+            android:text="@string/ota_preupdate_title"
+            android:textStyle="bold" />
 
         <TextView
             style="@style/Text_14sp_33"
-            android:textColor="@color/color_666666"
             android:layout_marginTop="@dimen/dp_6"
-            android:text="@string/ota_preupdate_tip" />
+            android:text="@string/ota_preupdate_tip"
+            android:textColor="@color/color_666666" />
     </LinearLayout>
 
     <Button
         android:id="@+id/btn_update"
         style="@style/Button_Style_quick_login"
-        android:textStyle="bold"
+        android:enabled="false"
         android:layout_marginTop="@dimen/dp_30"
-        android:layout_marginBottom="64dp" />
+        android:layout_marginBottom="64dp"
+        android:textStyle="bold" />
 </LinearLayout>

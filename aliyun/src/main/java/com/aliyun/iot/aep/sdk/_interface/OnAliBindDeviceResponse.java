@@ -6,4 +6,6 @@ public interface OnAliBindDeviceResponse<T> {
     void onFailed(int code, String message);
 
     void onProgress(int progress);
+
+    void manualConnectHomeWifi();
 }

@@ -12,6 +12,7 @@ import android.os.Environment;
 import android.provider.MediaStore;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
@@ -80,10 +81,6 @@ public class HelpActivity extends BackBaseActivity implements View.OnClickListen
     Uri takePicUri;
     @BindView(R.id.tv_top_title)
     TextView tv_title;
-    @BindView(R.id.rv_feed_image)
-    RecyclerView rv_feed_image;
-    @BindView(R.id.image_add)
-    ImageView image_add;
 
     @BindView(R.id.tv_telNum)
     TextView tv_telNum;
@@ -109,16 +106,11 @@ public class HelpActivity extends BackBaseActivity implements View.OnClickListen
     TextView tv_type;
     @BindView(R.id.tv_question_type)
     TextView tv_question_type;
-    private List<Bitmap> images = new ArrayList<>();
-    private HelpFeedImgAdapter rvAdapter;
-    private int replacePosition = -1;//标记需要替换的feed image的位置
-    private int permissionFlag = 0;
     private TextSelectorDialog deviceTypeDialog, questionTypeDialog;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-//        addLayoutListener(findViewById(R.id.scrollView), findViewById(R.id.bt_confirm));
         initFile();
     }
 
@@ -144,26 +136,6 @@ public class HelpActivity extends BackBaseActivity implements View.OnClickListen
         view = findViewById(R.id.view);
         tv_title.setText(R.string.personal_aty_help);
         UserUtils.setInputFilter(et_content, 600);
-        rv_feed_image.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
-        rv_feed_image.setAdapter(rvAdapter = new HelpFeedImgAdapter(context, R.layout.item_feed_image, images));
-        rv_feed_image.addItemDecoration(new SpaceItemDecoration(Utils.dip2px(this, 6), true));
-        rvAdapter.setOnItemChildClickListener((adapter, view, position) -> {
-            switch (view.getId()) {
-                case R.id.iv_feed_img:
-                    replacePosition = position;
-                    showPhotoDialog();
-                    break;
-                case R.id.iv_delete_img:
-                    if (images.size() > position) {
-                        images.remove(position);
-                        image_add.setVisibility(images.size() == 2 ? View.GONE : View.VISIBLE);
-                        rvAdapter.notifyDataSetChanged();
-                    }
-                    break;
-            }
-        });
-
-
         if (Utils.isIlife()) {
             switch (BuildConfig.Area) {
                 case EnvConfigure.AREA_CHINA:
@@ -202,40 +174,28 @@ public class HelpActivity extends BackBaseActivity implements View.OnClickListen
             tv_email.setText("support@zacorobot.eu");
         }
         tv_type.setHint(getResources().getString(IlifeAli.getInstance().getmAcUserDevices().size() == 0 ? R.string.help_aty_chose_product_type : R.string.help_aty_chose_product));
+        et_content.setOnTouchListener(touchListener);
     }
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (resultCode == RESULT_OK) {
-            Uri uri;
-            if (requestCode == CAPTURE) {
-                uri = Uri.fromFile(captureFile);
-            } else {
-                uri = data.getData();
-            }
-            if (uri == null) {
-                return;
-            }
-            if (uri.toString().contains("video")) {
-                //please select image files ,but video.
-                return;
-            }
-            Bitmap bitmap = BitmapUtils.compressBitmap(activity, uri, 180, 180);
-            if (replacePosition != -1) {
-                images.remove(replacePosition);
-                images.add(replacePosition, bitmap);
-                replacePosition = -1;
-            } else {
-                images.add(bitmap);
-                image_add.setVisibility(images.size() == 2 ? View.GONE : View.VISIBLE);
-            }
-            rvAdapter.notifyDataSetChanged();
+
+    /**
+     * 设置触摸事件，由于EditView与TextView都处于ScollView中，
+     * 所以需要在OnTouch事件中通知父控件不拦截子控件事件
+     */
+    private View.OnTouchListener touchListener = (v, event) -> {
+        if(event.getAction() == MotionEvent.ACTION_DOWN
+                || event.getAction() == MotionEvent.ACTION_MOVE){
+            //按下或滑动时请求父节点不拦截子节点
+            v.getParent().requestDisallowInterceptTouchEvent(true);
         }
-    }
+        if(event.getAction() == MotionEvent.ACTION_UP){
+            //抬起时请求父节点拦截子节点
+            v.getParent().requestDisallowInterceptTouchEvent(false);
+        }
+        return false;
+    };
 
-
-    @OnClick({R.id.rl_type, R.id.image_add, R.id.bt_confirm, R.id.area_contact1, R.id.area_contact2, R.id.rl_question_type})
+    @OnClick({R.id.rl_type, R.id.bt_confirm, R.id.area_contact1, R.id.area_contact2, R.id.rl_question_type})
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.area_contact1:
@@ -295,38 +255,6 @@ public class HelpActivity extends BackBaseActivity implements View.OnClickListen
                 if (!questionTypeDialog.isAdded()) {
                     questionTypeDialog.show(getSupportFragmentManager(), "text_question");
                 }
-                break;
-            case R.id.image_add:
-                permissionFlag = 0;
-                new RxPermissions(this).requestEach(Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                        Manifest.permission.CAMERA).subscribe(permission -> {
-                    if (permission.granted) {
-//                        11 - 3 10 - 2 01 - 1 00 - 0
-                        if (permission.name.equals(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
-                            permissionFlag += 2;
-                        } else {
-                            permissionFlag++;
-                        }
-                    }
-                    if (permission.name.equals(Manifest.permission.CAMERA)) {
-                        switch (permissionFlag) {
-                            case 0:
-                                ToastUtils.showToast(context, getString(R.string.access_camera_storage));
-                                break;
-                            case 1:
-                                ToastUtils.showToast(context, getString(R.string.access_storage));
-                                break;
-                            case 2:
-                                ToastUtils.showToast(context, getString(R.string.access_camera));
-                                break;
-                            case 3:
-                                replacePosition = -1;
-                                showPhotoDialog();
-                                break;
-                        }
-                    }
-
-                });
                 break;
             case R.id.rl_photo:
                 AlertDialogUtils.hidden(alertDialog);
@@ -400,28 +328,6 @@ public class HelpActivity extends BackBaseActivity implements View.OnClickListen
     }
 
 
-    public void showDeviceTypePopup() {
-        KeyboardUtils.hideSoftInput(this);
-        if (typePop == null) {
-            CustomPopupWindow.Builder builder = new CustomPopupWindow.Builder(this);
-            typePop = builder.setBgDarkAlpha(0.6f).setView(R.layout.typelist).size(rl_type.getWidth(), 0).setOutsideTouchable(true).setFocusable(true).create();
-            typePop.initView(() -> {
-                ListView listView = typePop.getPopupWindow().getContentView().findViewById(R.id.listView);
-                listView.setAdapter(new ArrayAdapter<>(this, R.layout.simple_list_item, R.id.simple_list_item_textView, types));
-                listView.setOnItemClickListener((parent, view1, position, id) -> {
-                    tv_type.setText(types[position]);
-                    typePop.dissmiss();
-                });
-            });
-        }
-        if (!typePop.isShowing()) {
-            int xOff = (int) (rl_type.getLeft());
-            typePop.showAsDropDown(rl_type, xOff, Utils.dip2px(this, 4));
-        }
-
-    }
-
-
     public void showAreaPopup() {
         String[] area = new String[]{getString(R.string.area_russia), getString(R.string.area_spanish), getString(R.string.area_other)};
         KeyboardUtils.hideSoftInput(this);
@@ -463,19 +369,4 @@ public class HelpActivity extends BackBaseActivity implements View.OnClickListen
 
     }
 
-    public void showPhotoDialog() {
-        if (alertDialog == null) {
-            View contentView = inflater.inflate(R.layout.dialog_helt_photo, null);
-            contentView.findViewById(R.id.rl_photo).setOnClickListener(this);
-            contentView.findViewById(R.id.rl_album).setOnClickListener(this);
-            int width = (int) getResources().getDimension(R.dimen.dp_300);
-            int height = (int) getResources().getDimension(R.dimen.dp_80);
-            int yOffset = (int) getResources().getDimension(R.dimen.dp_30);
-            alertDialog = AlertDialogUtils.showDialogBottom(context, contentView, width, height, yOffset);
-        } else {
-            if (!alertDialog.isShowing()) {
-                alertDialog.show();
-            }
-        }
-    }
 }

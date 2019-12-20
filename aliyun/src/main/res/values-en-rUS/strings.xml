@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="action_settings">Settings</string>
+    <string name="server_client_id">Use your own key</string>
+    <string name="facebook_app_id">Use your own key</string>
+    <string name="fb_login_protocol_scheme">Use your own key</string>
+    <string name="reset_pwd_commit">Commit</string>
+    <string name="login_agree">Agree </string>
+    <string name="login_policy">Privacy policy and service agreement</string>
+    <!--    UI文本-->
+    <string name="account_choose_find_pwd_style">Select a retrieval method</string>
+    <string name="account_choose_find_pwd_style_email">Email</string>
+    <string name="account_choose_find_pwd_style_phone">Mobile number</string>
+    <string name="account_choose_register_style_email">Email</string>
+    <string name="account_choose_register_style_phone">Mobile number</string>
+    <string name="account_phone_register">Mobile number</string>
+    <string name="ali_sdk_openaccount_text_email_register">Email</string>
+    <string name="ali_sdk_openaccount_text_free_register">Sign-up</string>
+    <string name="ali_sdk_openaccount_text_reset_password_rule">For your safety, the new password cannot be the same with the old one. Password should be 6 to 20 characters with English characters, numbers and symbols</string>
+    <string name="ali_sdk_openaccount_text_send_sms_code">send sms code</string>
+    <string name="ali_sdk_openaccount_text_sendmail">Get verification code</string>
+    <string name="ali_sdk_openaccount_text_username">Username</string>
+
+</resources>

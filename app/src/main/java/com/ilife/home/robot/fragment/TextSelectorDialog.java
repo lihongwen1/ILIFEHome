@@ -8,6 +8,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.LinearLayout;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -29,6 +30,7 @@ public class TextSelectorDialog extends DialogFragment {
     private Context context;
     private RecyclerView recyclerView;
     private TextSelectorAdapter adapter;
+    private LinearLayout ll_cancel;
     private List<String> data;
 
     public TextSelectorDialog(TextSelectorDialog.Builder builder) {
@@ -82,10 +84,12 @@ public class TextSelectorDialog extends DialogFragment {
         this.onTextSelect = builder.onTextSelect;
         adapter.setOnItemClickListener((adapter, view1, position) -> {
             if (onTextSelect != null) {
-                onTextSelect.onSelect(position,data.get(position));
+                onTextSelect.onSelect(position, data.get(position));
             }
             dismissAllowingStateLoss();
         });
+        ll_cancel = view.findViewById(R.id.ll_cancel);
+        ll_cancel.setOnClickListener(v -> dismissAllowingStateLoss());
     }
 
 
@@ -119,7 +123,7 @@ public class TextSelectorDialog extends DialogFragment {
     }
 
     public interface OnTextSelect {
-        void onSelect(int position,String text);
+        void onSelect(int position, String text);
 
     }
 }

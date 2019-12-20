@@ -130,6 +130,7 @@
                 android:visibility="gone" />
 
             <!--            重点布局-->
+
             <include
                 android:id="@+id/layout_point"
                 layout="@layout/layout_point"

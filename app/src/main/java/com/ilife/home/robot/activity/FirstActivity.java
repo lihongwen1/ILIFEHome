@@ -93,7 +93,7 @@ public class FirstActivity extends BaseActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        if (!SpUtils.getBoolean(this, "key_agree_protocol")) {
+        if (Utils.isChinaEnvironment()&&!SpUtils.getBoolean(this, "key_agree_protocol")) {
             showProtocolDialog();
         } else {
             checkPermission();

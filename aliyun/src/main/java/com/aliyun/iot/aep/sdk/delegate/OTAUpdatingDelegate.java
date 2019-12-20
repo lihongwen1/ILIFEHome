@@ -15,6 +15,7 @@ public class OTAUpdatingDelegate {
     private String curFirmwareVer, newestFirmwareVer;
     private String wholeNewestVer;//云端回复的安装包的最新版本，用于向云端查询安装包下载进度
     private boolean isUpdating = false;
+    private boolean isCancel = false;
 
     public OTAUpdatingDelegate(OnAliOtaResponse onAliOtaResponse) {
         this.onAliOtaResponse = onAliOtaResponse;
@@ -36,7 +37,8 @@ public class OTAUpdatingDelegate {
 
             @Override
             public void onFailed(int code, String message) {
-
+                Log.d("OTAUpdatingDelegate", "获阿里云OTA信息------" + message);
+                queryOtaUpdating(false);
             }
         });
     }
@@ -52,21 +54,27 @@ public class OTAUpdatingDelegate {
             public void onSuccess(OTAUpgradeBean result) {
                 switch (result.getUpgradeStatus()) {
                     case 0://待用户确认
-                        onAliOtaResponse.hasNewInstallPkg(curFirmwareVer, newestFirmwareVer);
+                        if (!isCancel) {
+                            onAliOtaResponse.hasNewInstallPkg(curFirmwareVer, newestFirmwareVer);
+                        }
                         break;
                     case 1://下载安装包中
-                        if (isPolling) {
-                            onAliOtaResponse.loadingProgress(result.getStep());
-                        } else {
-                            onAliOtaResponse.loadingProgress(curFirmwareVer, newestFirmwareVer, result.getStep());
+                        if (!isCancel) {
+                            if (isPolling) {
+                                onAliOtaResponse.loadingProgress(result.getStep());
+                            } else {
+                                onAliOtaResponse.loadingProgress(curFirmwareVer, newestFirmwareVer, result.getStep());
+                            }
                         }
                         break;
                     case 2://下载安装包异常
                     case 3://下载安装包失败
-                        if (isPolling) {
-                            onAliOtaResponse.loadingFail(curFirmwareVer, newestFirmwareVer);
-                        }else {//首次调用时允许用户再次单机下载
-                            onAliOtaResponse.hasNewInstallPkg(curFirmwareVer, newestFirmwareVer);
+                        if (!isCancel) {
+                            if (isPolling) {
+                                onAliOtaResponse.loadingFail(curFirmwareVer, newestFirmwareVer);
+                            } else {//首次调用时允许用户再次单机下载
+                                onAliOtaResponse.hasNewInstallPkg(curFirmwareVer, newestFirmwareVer);
+                            }
                         }
                         break;
                     case 4://下载安装包成功,进一步查询主机更新版本
@@ -89,7 +97,9 @@ public class OTAUpdatingDelegate {
                 /*
                  * 失败认为新安装包未开始下载
                  */
-                onAliOtaResponse.hasNewInstallPkg(curFirmwareVer, newestFirmwareVer);
+                if (!isCancel) {
+                    onAliOtaResponse.hasNewInstallPkg(curFirmwareVer, newestFirmwareVer);
+                }
             }
         });
     }
@@ -103,32 +113,42 @@ public class OTAUpdatingDelegate {
                 newestFirmwareVer = Integer.toHexString(bean.getTargetVer());
                 switch (bean.getUpdateState()) {
                     case 0:
-                        onAliOtaResponse.isnNewestVersion(newestFirmwareVer);
+                        if (!isCancel) {
+                            onAliOtaResponse.isnNewestVersion(newestFirmwareVer);
+                        }
                         break;
                     case 1:
-                        if (!isUpdating) {//避免开始升级后，开始几次查询OTA回复的错误state
-                            onAliOtaResponse.hasOtaUpdating(curFirmwareVer, newestFirmwareVer);
-                        }else {
-                            onAliOtaResponse.otaUpdatingProgress(bean.getUpdateProgess());
+                        if (!isCancel) {
+                            if (!isUpdating) {//避免开始升级后，开始几次查询OTA回复的错误state
+                                onAliOtaResponse.hasOtaUpdating(curFirmwareVer, newestFirmwareVer);
+                            } else {
+                                onAliOtaResponse.otaUpdatingProgress(bean.getUpdateProgess());
+                            }
                         }
                         break;
                     case 2:
                         //TODO 该进度需要计算，主机未上传
-                        if (isPolling) {
-                            onAliOtaResponse.otaUpdatingProgress(bean.getUpdateProgess());
-                        } else {
-                            onAliOtaResponse.otaUpdatingProgress(curFirmwareVer, newestFirmwareVer, bean.getUpdateProgess());
+                        if (!isCancel) {
+                            if (isPolling) {
+                                onAliOtaResponse.otaUpdatingProgress(bean.getUpdateProgess());
+                            } else {
+                                onAliOtaResponse.otaUpdatingProgress(curFirmwareVer, newestFirmwareVer, bean.getUpdateProgess());
+                            }
                         }
                         break;
                     case 3:
-                        onAliOtaResponse.otaUpdatingFail(curFirmwareVer, newestFirmwareVer);
+                        if (!isCancel) {
+                            onAliOtaResponse.otaUpdatingFail(curFirmwareVer, newestFirmwareVer);
+                        }
                         break;
                     case 4:
                         /**
                          * 更新成功，上班版本号
                          */
                         IlifeAli.getInstance().reportInstallPkgVer(wholeNewestVer);
-                        onAliOtaResponse.otaUpdatingSuccess(newestFirmwareVer);
+                        if (!isCancel) {
+                            onAliOtaResponse.otaUpdatingSuccess(newestFirmwareVer);
+                        }
                         break;
 
                 }
@@ -147,7 +167,9 @@ public class OTAUpdatingDelegate {
             @Override
             public void onSuccess(Boolean result) {
                 Log.d("OTAUpdatingDelegate", "开始下载OTA安装包。。。");
-                onAliOtaResponse.haveEnsuredLoadingPkg();
+                if (!isCancel) {
+                    onAliOtaResponse.haveEnsuredLoadingPkg();
+                }
             }
 
             @Override
@@ -163,7 +185,9 @@ public class OTAUpdatingDelegate {
             public void onSuccess(String path, int tag, int functionCode, int responseCode) {
                 Log.d("OTAUpdatingDelegate", "进入OTA升级模式.....");
                 isUpdating = true;
-                onAliOtaResponse.haveEnteredOtaMode();
+                if (!isCancel) {
+                    onAliOtaResponse.haveEnteredOtaMode();
+                }
             }
 
             @Override
@@ -172,5 +196,10 @@ public class OTAUpdatingDelegate {
                 Log.d("OTAUpdatingDelegate", "进入OTA升级模式失败" + message);
             }
         });
+    }
+
+
+    public void setCancel(boolean cancel) {
+        isCancel = cancel;
     }
 }

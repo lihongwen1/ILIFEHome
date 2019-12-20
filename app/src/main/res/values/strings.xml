@@ -2,36 +2,29 @@
     <string name="login_aty_input_email_phone">请输入手机号/邮箱</string>
     <string name="regist_wrong_account">手机号/邮箱格式不正确</string>
     <string name="regist_wrong_email">邮箱格式不正确</string>
-    <string name="login_aty_account_no">该账号未注册</string>
-    <string name="login_aty_pw_error">密码不正确</string>
     <string name="error_toast_timeout">连接超时</string>
-    <string name="register_aty_email_registered">该账号已经存在</string>
-    <string name="register2_aty_code_wrong">验证码不正确</string>
-    <string name="register2_aty_code_nouse">验证码已失效</string>
-    <string name="register2_aty_illegal_email">账号不合法</string>
-    <string name="register2_aty_account_abnormal">账号状态异常</string>
     <string name="main_aty_my_robot">我的机器人</string>
     <string name="main_aty_add_robot">添加机器人</string>
     <string name="main_aty_press_exit">再按一次退出</string>
     <string name="select_x_aty_add">添加机器人</string>
     <string name="guide_ap_prepare">配网准备</string>
     <string name="guide_aty_next">下一步</string>
+    <string name="add_aty_no_wifi">wifi未连接</string>
+    <string name="ap_guide_gps_cancel">暂时不开启</string>
+    <string name="ap_guide_gps_open">去开启</string>
     <string name="ap_aty_input_pass">密码</string>
     <string name="ap_aty_input_wifi_ssid">家庭网络</string>
     <string name="add_aty_start_connect">开始连接</string>
     <string name="add_aty_wrong_wifi_pass">密码含有非法字符</string>
     <string name="ap_guide_aty_tip1_x800">打开机器侧边电源开关。（注：请勿在机器充电时进行配网）</string>
-    <string name="ap_guide_sty_typ2_x800">长按机器的启动键，直到听到”WiFi连接中”且绿色WiFi指示灯闪烁后松开。</string>
+    <string name="ap_guide_sty_typ2_x800">长按机器的启动键，直到听到\"WiFi连接中\"且绿色WiFi指示灯闪烁后松开。</string>
+    <string name="ap_guide_sty_typ2_x320">长按机器的配网键，3s后听到\"滴\"的一声，继续长按听到两声\"滴滴\"后松开，WiFi图标闪烁。</string>
     <string name="ap_guide_tip4">未听到，请重复上述操作</string>
     <string name="ap_guide_already_open_device">已打开</string>
     <string name="ap_guide_already_open_wifi">已听到\"WiFi连接中\"</string>
-    <string name="ap_guide_have_heard_didi">已听到\"嘀嘀\"声</string>
+    <string name="ap_guide_already_heared_didi">已听到\"滴滴\"声</string>
     <string name="ap_aty_setting">设置</string>
     <string name="wifi_guide_aty_tip2">提示：机器人暂时无法使用5G WiFi</string>
-    <string name="add_aty_no_wifi">wifi未连接</string>
-    <string name="ap_aty_robot_wifi">机器WiFi：</string>
-    <string name="third_ap_tip2">*小贴士:</string>
-    <string name="third_ap_aty_tip1">请选择机器生成的\"Robot-XXXX\"无线网络，默认密码123456789，连接后返回该页面，点击开始连接。</string>
     <string name="third_ap_aty_port_">请先连接以\"adh-XXXX"开头的WiFi</string>
     <string name="bind_suc_aty_name">请为您的机器人命名</string>
     <string name="bind_suc_sty_robot_done">完成</string>
@@ -87,8 +80,6 @@
     <string name="help_question_other">其它问题</string>
     <string name="help_confirm_question">提交</string>
     <string name="help_aty_content">请描述遇到的问题</string>
-    <string name="personal_aty_count">可输入字数140</string>
-    <string name="help_aty_text_count">可输入字数%1$s</string>
     <string name="help_aty_add_pic">请添加图片文件</string>
     <string name="help_aty_add_pic1">(JPG/PNG/WBMP)</string>
     <string name="help_aty_photo">拍照</string>
@@ -116,13 +107,9 @@
     <string name="map_aty_appoint">预约</string>
     <string name="map_aty_recharge">回充</string>
     <string name="map_aty_recharging">正在回充</string>
-    <string name="map_aty_use_control">已启用遥控功能</string>
     <string name="map_aty_use_left">向左</string>
     <string name="map_aty_use_right">向右</string>
     <string name="map_aty_use_forward">向前</string>
-    <string name="map_aty_use_recharging_x9">扫地机器人正在回充</string>
-    <string name="map_aty_key_pointing_x9">已启用重点清扫</string>
-    <string name="map_aty_use_along">已启用沿边清扫</string>
     <string name="map_aty_can_not_execute">不可操作</string>
     <string name="adapter_error_no_error">没有异常</string>
     <string name="adapter_error_bxg">保险杠异常</string>
@@ -184,8 +171,8 @@
     <string name="consume_aty_roll_time">滚刷</string>
     <string name="consume_aty_roll_time_reset">重置滚刷</string>
     <string name="consume_aty_filter_time">滤网</string>
+    <string name="consume_detail_aty_filter_time">滤网</string>
     <string name="consume_aty_filter_time_reset">重置滤网</string>
-
     <string name="consume_aty_resetSide">重置边刷寿命</string>
     <string name="consume_aty_resetSide_over">请确认是否已更换新边刷</string>
     <string name="consume_aty_resetFilter">重置滤网寿命</string>
@@ -204,7 +191,6 @@
     <string name="map_aty_will_stop">此操作会暂停当前清扫工作</string>
     <string name="map_aty_edit_mode">编辑模式</string>
     <string name="map_aty_max_count">最多可设置10条电子墙!</string>
-    <string name="setting_aty_ota_update">固件升级</string>
     <string name="no_device_tip_hi">Hi，别来无恙</string>
     <string name="no_device_tip_cleaning">开始您的清洁之旅吧~</string>
     <string name="map_aty_temp_keypoint">临时重点</string>
@@ -222,7 +208,7 @@
     <string name="retry">重试</string>
     <string name="ap_wifi_timeout">配网超时</string>
     <string name="ota_preupdate_title">升级前请确保</string>
-    <string name="ota_preupdate_tip">1.扫地机有足够的电量\n2.网络连接正常\n3.扫地机处于充电模式\n4.升级完成时主机会自动启动，听到语音提示:\"请按键开始清扫\"后，将主机从充电座上拿下来\n5.关闭主机电源开关，等待10秒后再重新打开电源开关</string>
+    <string name="ota_preupdate_tip">1.扫地机有足够的电量\n2.网络连接正常\n3.扫地机处于充电座充电模式</string>
     <string name="updating">升级中，请勿操作扫地机</string>
     <string name="choose_your_action">选择您的操作</string>
     <string name="please_set_task">请为您的机器人设置当前任务</string>
@@ -251,6 +237,7 @@
     <string name="adapter_error_zbl_a9">左边轮异常</string>
     <string name="adapter_error_gs_a9">滚刷异常</string>
     <string name="adapter_error_td_a9">探地组件异常</string>
+    <string name="adapter_error_robot_sk">主机受困</string>
     <string name="consume_aty_resetRoll">重置滚刷寿命</string>
     <string name="consume_aty_resetRoll_over">请确认是否已更换新滚刷</string>
     <string name="ap_guide_aty_tip2_a9">长按机器的启动键，3秒后听到\"嘀\"的一声，继续长按听到\"WiFi连接中\"后松开，WiFi指示灯闪烁。 </string>
@@ -266,14 +253,10 @@
     <string name="guide_aty_loading_next">已听到</string>
     <string name="personal_information">个人信息</string>
     <string name="set_user_icon">设置头像</string>
-    <string name="consumer_tip_side">边刷用于聚拢地面上灰尘，以覆盖更大清扫区域。长时间使用后会出现形变情况，将导致清扫效果下降。 建议每周卸下边刷清理被缠绕异物，3-6个月更换新边刷。
-\n注：重装时，请注意区分左右边刷安装位置。
+    <string name="consumer_tip_side">边刷用于聚拢地面上灰尘，以覆盖更大清扫区域。长时间使用后会出现形变情况，将导致清扫效果下降。 建议每周卸下边刷清理被缠绕异物，3-6个月更换新边刷。\n注：重装时，请注意区分左右边刷安装位置。
 </string>
-    <string name="consumer_tip_roll">滚刷用于卷起垃圾至尘盒中。长时间使用后，可能会被毛发等异物缠绕，将导致滚刷卡死等异常现象。 建议每周卸下滚刷清理被缠绕异物，5-12个月更换新滚刷。
-\n注：重装时，请注意滚刷以及滚刷盖板安装位置</string>
-    <string name="consumer_tip_fillter">高效过滤网用于过滤气流中小颗粒灰尘，防止风扇组件被堵塞。随着清洁时间的累计，滤网会逐渐被堵塞，导致过滤效果减弱。建议每3-4次清扫后，清洁1次滤网。1-2个月更换新的滤网，以达到最佳清扫效果及延长机器寿命。
-\n注：滤网禁止水洗。需轻拍或用清洁刷子清理滤网。
-</string>
+    <string name="consumer_tip_roll">滚刷用于卷起垃圾至尘盒中。长时间使用后，可能会被毛发等异物缠绕，将导致滚刷卡死等异常现象。 建议每周卸下滚刷清理被缠绕异物，5-12个月更换新滚刷。\n注：重装时，请注意滚刷以及滚刷盖板安装位置</string>
+    <string name="consumer_tip_fillter">高效过滤网用于过滤气流中小颗粒灰尘，防止风扇组件被堵塞。随着清洁时间的累计，滤网会逐渐被堵塞，导致过滤效果减弱。建议每3-4次清扫后，清洁1次滤网。1-2个月更换新的滤网，以达到最佳清扫效果及延长机器寿命。\n注：滤网禁止水洗。需轻拍或用清洁刷子清理滤网。</string>
     <string name="consumer_tip">温馨提示：当耗材寿命少于50%时，请视实际情况及时更换，以达到最佳的清扫效果。</string>
     <string name="connect_robot_wifi_tip">*小贴士：请点击”设置”，跳转至手机“设置”界 面，点击WIFI设置后，选择机器生成的无线网络”adh-XXXX”，然后返回该页面，点击”开始连接”。 （如长时间未找到“adh-XXXX”网络，请关闭机器 电源开关后，重新激活热点。）</string>
     <string name="robot_wifi_sample">例如：adh-XXXX</string>
@@ -284,4 +267,17 @@
     <string name="clock_dialog_finish">完成预约</string>
     <string name="slogan">让保洁更简单 让生活更美好</string>
     <string name="toast_setting_reset_consumer">重置成功</string>
+    <string name="ota_cur_ver">当前版本:%1$s</string>
+    <string name="ota_lates_ver">最新版本:%1$s</string>
+    <string name="ota_upgrade_fail_tip">升级失败，请重启主机重新升级</string>
+    <string name="ota_immediate_upgrade">固件下载完成,立即升级</string>
+    <string name="ota_already_latest_ver">已是最新版本</string>
+    <string name="ota_updating">固件升级中...</string>
+    <string name="ota_ensure_charging_mode">请确保机器扫地机处于充电座充电模式。</string>
+    <string name="ota_loading_pkg">固件下载中...</string>
+    <string name="ota_loading_pkg_success">下载成功</string>
+    <string name="ota_down_load_pkg">下载固件</string>
+    <string name="ota_wait_loading_tip">固件已开始下载，请30分钟后进入此页面进行升级操作</string>
+    <string name="ota_update_title">固件升级</string>
+    <string name="consume_detail_remain_life">剩余寿命</string>
 </resources>

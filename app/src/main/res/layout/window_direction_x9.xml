@@ -11,8 +11,9 @@
 
     <RelativeLayout
         android:background="@drawable/bg_direction_control"
-        android:layout_width="@dimen/dp_220"
-        android:layout_height="@dimen/dp_220"
+        android:layout_width="wrap_content"
+        android:padding="@dimen/dp_2"
+        android:layout_height="wrap_content"
         android:layout_centerInParent="true"
         android:rotation="315">
 
@@ -20,7 +21,7 @@
             android:id="@+id/image_forward"
             android:layout_width="@dimen/dp_110"
             android:layout_height="@dimen/dp_110"
-            android:layout_toRightOf="@+id/image_left"
+            android:layout_toEndOf="@+id/image_left"
             android:background="@drawable/map_aty_forward_bg"
             android:scaleType="fitXY" />
 

@@ -80,6 +80,10 @@ public class SelectActivity_x extends BackBaseActivity {
                 case Constants.V3x:
                     robots.add(new CleanningRobot(R.drawable.n_v3x, robotName,EnvConfigure.PRODUCT_KEY_X320));
                     break;
+                case Constants.X787:
+                    robots.add(new CleanningRobot(R.drawable.n_x787, robotName,EnvConfigure.PRODUCT_KEY_X787));
+                    break;
+
             }
         }
         adapter = new XAdapter(R.layout.x_series_item, robots);

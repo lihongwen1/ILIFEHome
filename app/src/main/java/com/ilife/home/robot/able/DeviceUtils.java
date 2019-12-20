@@ -25,16 +25,16 @@ public class DeviceUtils {
 
 
     public static String getProductKeyByRobotType(String robotType) {
-        String procutKey="";
+        String procutKey = "";
         switch (robotType) {
             case Constants.X800:
-                procutKey=EnvConfigure.PRODUCT_KEY_X800;
+                procutKey = EnvConfigure.PRODUCT_KEY_X800;
                 break;
             case Constants.X800W:
-                procutKey=EnvConfigure.PRODUCT_KEY_X800_W;
+                procutKey = EnvConfigure.PRODUCT_KEY_X800_W;
                 break;
             case Constants.V3x:
-                procutKey=EnvConfigure.PRODUCT_KEY_X320;
+                procutKey = EnvConfigure.PRODUCT_KEY_X320;
                 break;
         }
         return procutKey;
@@ -50,14 +50,16 @@ public class DeviceUtils {
                 robotType = Constants.X800W;
                 break;
             case EnvConfigure.PRODUCT_KEY_X320:
-                robotType=Constants.V3x;
+                robotType = Constants.V3x;
                 break;
+            case EnvConfigure.PRODUCT_KEY_X787:
+                robotType = Constants.X787;
+                break;
+
         }
         MyLogger.i("ROBOT_TYPE", "-------" + robotType + "------------");
         return robotType;
     }
-
-
 
 
     /**
@@ -76,7 +78,10 @@ public class DeviceUtils {
                 src = R.drawable.n_x800_w;
                 break;
             case Constants.V3x:
-                src=R.drawable.n_v3x;
+                src = R.drawable.n_v3x;
+                break;
+            case Constants.X787:
+                src = R.drawable.n_x787;
                 break;
             default:
                 src = R.drawable.n_x800;
@@ -176,10 +181,10 @@ public class DeviceUtils {
                 strError = context.getString(R.string.adapter_error_sxt);
                 break;
             case 23:
-                strError = context.getString(R.string.adapter_error_gl);
+                strError = context.getString(R.string.adapter_error_robot_sk);
                 break;
             case 24:
-                strError = "";
+                strError = context.getString(R.string.adapter_error_gl);
                 break;
             case 0x25:
                 strError = context.getString(R.string.adapter_error_qt);

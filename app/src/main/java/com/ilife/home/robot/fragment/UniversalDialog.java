@@ -68,10 +68,10 @@ public class UniversalDialog extends DialogFragment {
         tv_left = v.findViewById(R.id.tv_dialog_left);
         tv_mid = v.findViewById(R.id.tv_dialog_mid);
         tv_right = v.findViewById(R.id.tv_dialog_right);
-        if (title != null && !title.isEmpty()) {
+        if (title != null) {
             tv_dialog_title.setText(title);
         }
-        if (hintTip != null && !hintTip.isEmpty()) {
+        if (hintTip != null) {
             tv_hint_tip.setText(hintTip);
         }
         if (sbString!=null){

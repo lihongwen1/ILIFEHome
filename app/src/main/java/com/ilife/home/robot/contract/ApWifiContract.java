@@ -22,6 +22,7 @@ public interface ApWifiContract {
         void bindFail(String message);
         void bindDevice();
         void sendProgress(int progress);
+        void manualConnectHomeWifi();
     }
 
     interface Presenter {

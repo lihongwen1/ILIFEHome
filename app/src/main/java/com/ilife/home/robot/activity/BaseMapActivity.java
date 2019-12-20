@@ -223,7 +223,9 @@ public abstract class BaseMapActivity extends BackBaseActivity<MapX9Presenter> i
      */
     @Override
     public void updateStatue(String value) {
-        if (USE_MODE == USE_MODE_REMOTE_CONTROL || mPresenter.getCurStatus() == MsgCodeUtils.STATUE_RECHARGE) {
+        if (USE_MODE == USE_MODE_REMOTE_CONTROL || mPresenter.getCurStatus() == MsgCodeUtils.STATUE_RECHARGE
+                || mPresenter.getCurStatus() == MsgCodeUtils.STATUE_POINT || mPresenter.getCurStatus() == MsgCodeUtils.STATUE_TEMPORARY_POINT
+                || mPresenter.getCurStatus() == MsgCodeUtils.STATUE_ALONG) {
             tv_status.setTextColor(getResources().getColor(R.color.color_33));
         } else {
             tv_status.setTextColor(getResources().getColor(R.color.white));
@@ -402,7 +404,11 @@ public abstract class BaseMapActivity extends BackBaseActivity<MapX9Presenter> i
             case R.id.image_center:
                 image_center.setSelected(image_center.isSelected());
             case R.id.tv_start_x9: //done
-                if (mPresenter.getCurStatus() == MsgCodeUtils.STATUE_RECHARGE) {//回冲直接暂停
+                if (mPresenter.getCurStatus() == MsgCodeUtils.STATUE_POINT || mPresenter.getCurStatus() == MsgCodeUtils.STATUE_ALONG) {//延边重点，直接进入待机模式
+                    mPresenter.setPropertiesWithParams(AliSkills.get().enterWaitMode(IlifeAli.getInstance().getWorkingDevice().getIotId()));
+                } else if (mPresenter.getCurStatus() == MsgCodeUtils.STATUE_TEMPORARY_POINT) {//临时重点进入规划
+                    mPresenter.setPropertiesWithParams(AliSkills.get().enterPlanningMode(IlifeAli.getInstance().getWorkingDevice().getIotId()));
+                } else if (mPresenter.getCurStatus() == MsgCodeUtils.STATUE_RECHARGE) {//回冲直接暂停
                     mPresenter.setPropertiesWithParams(AliSkills.get().enterPauseMode(IlifeAli.getInstance().getWorkingDevice().getIotId()));
                 } else if (mPresenter.isWork(mPresenter.getCurStatus())) {
                     if (mPresenter.isSupportPause()) {//支持暂停弹框
@@ -412,7 +418,7 @@ public abstract class BaseMapActivity extends BackBaseActivity<MapX9Presenter> i
                                 .setOnLeftButtonClck(() -> mPresenter.setPropertiesWithParams(AliSkills.get().enterWaitMode(IlifeAli.getInstance().getWorkingDevice().getIotId()))).setOnRightButtonClck(() ->
                                 mPresenter.setPropertiesWithParams(AliSkills.get().enterPauseMode(IlifeAli.getInstance().getWorkingDevice().getIotId())))
                                 .show(getSupportFragmentManager(), "choose_action");
-                    }else {
+                    } else {
                         mPresenter.setPropertiesWithParams(AliSkills.get().enterWaitMode(IlifeAli.getInstance().getWorkingDevice().getIotId()));
                     }
                 } else if (mPresenter.getCurStatus() == MsgCodeUtils.STATUE_CHARGING_) {//适配器充电模式不允许启动机器
@@ -460,16 +466,15 @@ public abstract class BaseMapActivity extends BackBaseActivity<MapX9Presenter> i
             case R.id.tv_along_x9:  //done
                 if (mPresenter.isLowPowerWorker()) {
                     ToastUtils.showToast(getString(R.string.low_power));
-                } else {
-                    mPresenter.enterAlongMode();
                 }
+                mPresenter.enterAlongMode();
                 break;
             case R.id.tv_point_x9:  //done
                 if (mPresenter.isLowPowerWorker()) {
                     ToastUtils.showToast(getString(R.string.low_power));
-                } else {
-                    mPresenter.enterPointMode();
                 }
+                mPresenter.enterPointMode();
+
                 break;
             case R.id.tv_appointment_x9://预约
                 Intent intent = new Intent(this, ClockingActivity.class);

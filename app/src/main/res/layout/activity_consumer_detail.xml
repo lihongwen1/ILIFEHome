@@ -40,7 +40,7 @@
         <TextView
             style="@style/Text_14sp_66"
             android:layout_marginTop="@dimen/dp_4"
-            android:text="剩余寿命" />
+            android:text="@string/consume_detail_remain_life" />
 
         <LinearLayout
             android:orientation="horizontal"

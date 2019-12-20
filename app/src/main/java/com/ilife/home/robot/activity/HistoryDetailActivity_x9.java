@@ -112,11 +112,8 @@ public class HistoryDetailActivity_x9 extends BackBaseActivity {
             return;
         }
         isDrawMap = true;
-        if (subdomain.equals(Constants.subdomain_x900) || subdomain.equals(Constants.subdomain_x910)) {
-            drawHistoryMap();
-        } else {
-            drawHistoryMapX8();
-        }
+        //TODO 绘制X900历史地图drawHistoryMap();
+        drawHistoryMapX8();
     }
 
     private void drawHistoryMapX8() {

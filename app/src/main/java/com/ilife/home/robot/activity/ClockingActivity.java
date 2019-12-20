@@ -21,6 +21,8 @@ import com.aliyun.iot.aep.sdk.bean.ScheduleBean;
 import com.aliyun.iot.aep.sdk.contant.EnvConfigure;
 import com.aliyun.iot.aep.sdk.contant.IlifeAli;
 import com.badoo.mobile.util.WeakHandler;
+import com.ilife.home.robot.able.Constants;
+import com.ilife.home.robot.able.DeviceUtils;
 import com.ilife.home.robot.base.BackBaseActivity;
 import com.ilife.home.robot.fragment.UniversalDialog;
 import com.ilife.home.robot.utils.AlertDialogUtils;
@@ -45,7 +47,6 @@ import butterknife.BindView;
 public class ClockingActivity extends BackBaseActivity {
     final String TAG = ClockingActivity.class.getSimpleName();
     final String UNDER_LINE = "_";
-    final int TAG_REFRESH_OVER = 0x01;
     TextView tv_confirm;
     TextView tv_cancel;
     RecyclerView recyclerView;
@@ -62,20 +63,7 @@ public class ClockingActivity extends BackBaseActivity {
     TextView tv_title;
     private int selectPosition;
     private UniversalDialog workTimeDialog;
-
-    WeakHandler handler = new WeakHandler(new Handler.Callback() {
-        @Override
-        public boolean handleMessage(Message msg) {
-            switch (msg.what) {
-                case TAG_REFRESH_OVER:
-                    if (refreshLayout != null) {
-                        refreshLayout.finishRefresh();
-                    }
-                    break;
-            }
-            return false;
-        }
-    });
+    private String robotType;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -97,7 +85,7 @@ public class ClockingActivity extends BackBaseActivity {
         context = this;
         tv_title.setText(R.string.clock_aty_appoint);
         inflater = LayoutInflater.from(context);
-        refreshLayout = (SmartRefreshLayout) findViewById(R.id.refreshLayout);
+        refreshLayout = findViewById(R.id.refreshLayout);
         refreshLayout.setOnRefreshListener(refreshLayout -> getClockInfo());
         refreshLayout.setRefreshHeader(new ClassicsHeader(this));
         adapter = new ClockAdapter(R.layout.layout_clock_item, clockInfos);
@@ -122,6 +110,7 @@ public class ClockingActivity extends BackBaseActivity {
 
     @Override
     public void initData() {
+        robotType = DeviceUtils.getRobotType(IlifeAli.getInstance().getWorkingDevice().getProductKey());
         clockInfos = new ArrayList<>();
         weeks = getResources().getStringArray(R.array.array_week);
         for (int i = 0; i < 7; i++) {
@@ -153,7 +142,7 @@ public class ClockingActivity extends BackBaseActivity {
         tv_confirm.setOnClickListener(new MyListener(position));
         byte hour = clockInfos.get(position).getHour();
         byte minute = clockInfos.get(position).getMinute();
-        last = String.valueOf(hour) + UNDER_LINE + String.valueOf(minute);
+        last = hour + UNDER_LINE + minute;
         if (DateFormat.is24HourFormat(context)) {
             timePicker.setIs24HourView(true);
         } else {
@@ -181,8 +170,9 @@ public class ClockingActivity extends BackBaseActivity {
                     hour = timePicker.getCurrentHour();
                     minute = timePicker.getCurrentMinute();
                     selectPosition = position;
-                    String current = hour + UNDER_LINE + minute;
-                    if ((hour > 5 && hour < 20) || (hour == 5 && minute > 0)) {//可用时间段(预约夜间时间提醒)
+                    if (robotType.equals(Constants.V3x)) {//V3x没有黑暗环境限制
+                        setSchedule(selectPosition, 1);
+                    } else if ((hour > 5 && hour < 20) || (hour == 5 && minute > 0)) {//可用时间段(预约夜间时间提醒)
                         setSchedule(selectPosition, 1);
                     } else {//不可用时间
                         if (workTimeDialog == null) {
@@ -247,12 +237,17 @@ public class ClockingActivity extends BackBaseActivity {
                     clockInfo.setMinute((byte) minute);
                 }
                 adapter.notifyDataSetChanged();
+                if (refreshLayout != null) {
+                    refreshLayout.finishRefresh();
+                }
             }
 
             @Override
             public void onFailed(int code, String message) {
-                refreshLayout.finishRefresh();
-                ToastUtils.showToast(context, "网络异常");
+                if (refreshLayout != null) {
+                    refreshLayout.finishRefresh();
+                }
+                ToastUtils.showErrorToast(context, code);
             }
         });
     }

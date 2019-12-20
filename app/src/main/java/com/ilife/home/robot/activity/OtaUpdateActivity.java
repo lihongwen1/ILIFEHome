@@ -10,16 +10,16 @@ import android.widget.TextView;
 import androidx.annotation.Nullable;
 
 import com.aliyun.iot.aep.sdk._interface.OnAliOtaResponse;
-import com.aliyun.iot.aep.sdk._interface.OnAliSetPropertyResponse;
-import com.aliyun.iot.aep.sdk.contant.AliSkills;
 import com.aliyun.iot.aep.sdk.contant.IlifeAli;
 import com.aliyun.iot.aep.sdk.contant.MsgCodeUtils;
 import com.aliyun.iot.aep.sdk.delegate.OTAUpdatingDelegate;
 import com.ilife.home.robot.R;
 import com.ilife.home.robot.base.BackBaseActivity;
+import com.ilife.home.robot.fragment.UniversalDialog;
 import com.ilife.home.robot.utils.MyLogger;
 import com.ilife.home.robot.utils.SpUtils;
 import com.ilife.home.robot.utils.ToastUtils;
+import com.ilife.home.robot.utils.Utils;
 
 import java.util.concurrent.TimeUnit;
 
@@ -41,6 +41,9 @@ public class OtaUpdateActivity extends BackBaseActivity {
     Button btn_update;
     @BindView(R.id.ll_version)
     LinearLayout ll_version;
+    @BindView(R.id.ll_loading)
+    LinearLayout ll_loading;
+
     @BindView(R.id.ll_updating)
     LinearLayout ll_updating;
     @BindView(R.id.tv_top_title)
@@ -50,6 +53,8 @@ public class OtaUpdateActivity extends BackBaseActivity {
     @BindView(R.id.tv_upgrade_progress)
     TextView tv_upgrade_progress;
 
+    @BindView(R.id.ll_pre_ensure)
+    LinearLayout ll_pre_ensure;
     protected CompositeDisposable mDisposable;
 
     private OTAUpdatingDelegate mOtaDelegate;
@@ -67,7 +72,7 @@ public class OtaUpdateActivity extends BackBaseActivity {
 
     public void initView() {
         btn_update.setClickable(false);
-        title.setText(R.string.setting_aty_ota_update);
+        title.setText(R.string.ota_update_title);
     }
 
     public void initData() {
@@ -75,70 +80,80 @@ public class OtaUpdateActivity extends BackBaseActivity {
         mOtaDelegate = new OTAUpdatingDelegate(new OnAliOtaResponse() {
             @Override
             public void isnNewestVersion(String version) {
-                updateBtnStatus("已是最新版本", false, false);
+                updateBtnStatus(getResources().getString(R.string.ota_already_latest_ver), false, false);
                 updateOtaVer(version, version);
-                MyLogger.e(TAG,"isnNewestVersion");
+                ll_pre_ensure.setVisibility(View.GONE);
+                MyLogger.e(TAG, "isnNewestVersion");
             }
 
             @Override
             public void hasNewInstallPkg(String curV, String newVer) {
-                updateBtnStatus("下载安装包", true, true);
+                updateBtnStatus(getResources().getString(R.string.ota_down_load_pkg), true, true);
                 btn_update.setTag(0);
                 updateOtaVer(curV, newVer);
-                MyLogger.e(TAG,"hasNewInstallPkg");
+                ll_pre_ensure.setVisibility(View.VISIBLE);
+                MyLogger.e(TAG, "hasNewInstallPkg");
             }
 
             @Override
             public void haveEnsuredLoadingPkg() {
+                UniversalDialog tipDialog = new UniversalDialog();
+                tipDialog.setDialogType(UniversalDialog.TYPE_NORMAL_MID_BUTTON).setTitle(getResources().getString(R.string.ota_wait_loading_tip))
+                        .setHintTip("").setMidText(Utils.getString(R.string.dialog_del_confirm))
+                        .show(getSupportFragmentManager(), "offline");
                 pollingForDownloadingProgress();
-                updateBtnStatus("下载中", false, true);
-                updateUpdatingProgress(0);
-                MyLogger.e(TAG,"haveEnsuredLoadingPkg");
+                updateBtnStatus(getResources().getString(R.string.ota_loading_pkg), false, true);
+                updateLoadingProgress(0);
+                MyLogger.e(TAG, "haveEnsuredLoadingPkg");
+
             }
 
             @Override
             public void loadingProgress(String curV, String newVer, int progress) {
-                updateBtnStatus("下载中", false, true);
-                updateUpdatingProgress(progress);
+                updateBtnStatus(getResources().getString(R.string.ota_loading_pkg), false, true);
+                updateLoadingProgress(progress);
                 pollingForDownloadingProgress();
-                MyLogger.e(TAG,"loadingProgress");
+                ll_pre_ensure.setVisibility(View.VISIBLE);
+                MyLogger.e(TAG, "loadingProgress");
             }
 
             @Override
             public void loadingProgress(int progress) {
-                updateUpdatingProgress(progress);
-                MyLogger.e(TAG,"loadingProgress");
+                updateLoadingProgress(progress);
+                MyLogger.e(TAG, "loadingProgress");
             }
 
             @Override
             public void loadingSuccess() {
-                updateBtnStatus("下载成功", false, true);
-                MyLogger.d(TAG,"loadingProgress");
+                updateBtnStatus(getResources().getString(R.string.ota_loading_pkg_success), false, true);
+                MyLogger.d(TAG, "loadingProgress");
             }
 
             @Override
             public void loadingFail(String curV, String newVer) {
-                MyLogger.e(TAG,"loadingFail");
-                ToastUtils.showToast("请确保机器扫地机处于充电模式。");
-                updateBtnStatus("下载安装包失败", false, false);
+                MyLogger.e(TAG, "loadingFail");
+                ToastUtils.showToast(getResources().getString(R.string.ota_ensure_charging_mode));
+                updateBtnStatus(getResources().getString(R.string.ota_down_load_pkg), true, true);
+                btn_update.setTag(0);
                 updateOtaVer(curV, newVer);
             }
 
             @Override
             public void hasOtaUpdating(String curV, String newVer) {
-                updateBtnStatus("立刻升级", true, true);
+                updateBtnStatus(getResources().getString(R.string.ota_immediate_upgrade), true, true);
                 btn_update.setTag(1);
                 updateOtaVer(curV, newVer);
-                MyLogger.e(TAG,"hasOtaUpdating");
+                ll_pre_ensure.setVisibility(View.VISIBLE);
+                MyLogger.e(TAG, "hasOtaUpdating");
             }
 
             @Override
             public void haveEnteredOtaMode() {
                 SpUtils.saveLong(OtaUpdateActivity.this, "upgrade_timeline", System.currentTimeMillis());
-                updateUpdatingProgress(0);
-                updateBtnStatus("升级中", false, true);
+                updateUpgrading();
+                updateBtnStatus(getResources().getString(R.string.ota_updating), false, true);
                 pollingForUpdateProgress();
-                MyLogger.e(TAG,"haveEnteredOtaMode");
+                MyLogger.e(TAG, "haveEnteredOtaMode");
             }
 
             @Override
@@ -149,10 +164,11 @@ public class OtaUpdateActivity extends BackBaseActivity {
                     second = 120;
                 }
                 int realProgress = (int) (second * 90 / 120f);
-                updateUpdatingProgress(realProgress);
-                updateBtnStatus("升级中", false, true);
+                updateUpgrading();
+                updateBtnStatus(getResources().getString(R.string.ota_updating), false, true);
+                ll_pre_ensure.setVisibility(View.VISIBLE);
                 pollingForUpdateProgress();
-                MyLogger.e(TAG,"otaUpdatingProgress");
+                MyLogger.e(TAG, "otaUpdatingProgress");
             }
 
             @Override
@@ -163,42 +179,55 @@ public class OtaUpdateActivity extends BackBaseActivity {
                     second = 120;
                 }
                 int realProgress = (int) (second * 90 / 120f);
-                updateUpdatingProgress(realProgress);
-                updateBtnStatus("升级中", false, true);
-                MyLogger.e(TAG,"otaUpdatingProgress");
+                updateUpgrading();
+                updateBtnStatus(getResources().getString(R.string.ota_updating), false, true);
+                MyLogger.e(TAG, "otaUpdatingProgress");
             }
 
             @Override
             public void otaUpdatingSuccess(String newVer) {
-                updateBtnStatus("已是最新版本", false, false);
-                ToastUtils.showToast("升级成功,请重启！！！");
+                updateBtnStatus(getResources().getString(R.string.ota_already_latest_ver), false, false);
+                ll_pre_ensure.setVisibility(View.GONE);
                 updateOtaVer(newVer, newVer);
-                MyLogger.e(TAG,"otaUpdatingSuccess");
+                if (mDisposable != null) {
+                    mDisposable.dispose();
+                }
+                MyLogger.e(TAG, "otaUpdatingSuccess");
             }
 
             @Override
             public void otaUpdatingFail(String curVer, String newestVer) {
-                updateBtnStatus("升级失败", false, false);
-                ToastUtils.showToast("升级失败，请退出后重新升级！！！");
+                updateBtnStatus(getResources().getString(R.string.ota_immediate_upgrade), true, true);
+                btn_update.setTag(1);
                 updateOtaVer(curVer, newestVer);
-                MyLogger.e(TAG,"otaUpdatingSuccess");
+                ll_pre_ensure.setVisibility(View.VISIBLE);
+                ToastUtils.showToast(getResources().getString(R.string.ota_upgrade_fail_tip));
+                MyLogger.e(TAG, "otaUpdatingSuccess");
             }
         });
         mOtaDelegate.checkOTA();
     }
 
     private void updateOtaVer(String curV, String latestV) {
-        tv_current.setText("当前版本: " + curV);
-        tv_target.setText("最新版本: " + latestV);
+        tv_current.setText(getResources().getString(R.string.ota_cur_ver, curV));
+        tv_target.setText(getResources().getString(R.string.ota_lates_ver, latestV));
         ll_version.setVisibility(View.VISIBLE);
+        ll_loading.setVisibility(View.GONE);
         ll_updating.setVisibility(View.GONE);
     }
 
-    private void updateUpdatingProgress(int progress) {
+    private void updateLoadingProgress(int progress) {
         tv_upgrade_progress.setText(String.valueOf(progress));
         pb_upgrade.setProgress(progress);
-        ll_updating.setVisibility(View.VISIBLE);
+        ll_loading.setVisibility(View.VISIBLE);
         ll_version.setVisibility(View.GONE);
+        ll_updating.setVisibility(View.GONE);
+    }
+
+    private void updateUpgrading() {
+        ll_loading.setVisibility(View.GONE);
+        ll_version.setVisibility(View.GONE);
+        ll_updating.setVisibility(View.VISIBLE);
     }
 
     private void updateBtnStatus(String text, boolean isClickAble, boolean isEnable) {
@@ -212,9 +241,16 @@ public class OtaUpdateActivity extends BackBaseActivity {
 
     @OnClick(R.id.btn_update)
     public void onClick(View view) {
-        switch ((int)view.getTag()) {
+        switch ((int) view.getTag()) {
             case 0://服务器回复有可下载的OTA包，待用户确认
-                mOtaDelegate.ensureLoadingInstallPkg();
+                if (IlifeAli.getInstance().getWorkingDevice().getWork_status() == MsgCodeUtils.STATUE_CHARGING) {
+                    mOtaDelegate.ensureLoadingInstallPkg();
+                } else {
+                    UniversalDialog uupgradeCheckDialog = new UniversalDialog();
+                    uupgradeCheckDialog.setDialogType(UniversalDialog.TYPE_NORMAL_MID_BUTTON).setTitle(getResources().getString(R.string.ota_ensure_charging_mode))
+                            .setHintTip("").setMidText(Utils.getString(R.string.dialog_del_confirm))
+                            .show(getSupportFragmentManager(), "offline");
+                }
                 break;
             case 1://主机回复有更新
                 mOtaDelegate.ensureInstallOTA();
@@ -234,7 +270,7 @@ public class OtaUpdateActivity extends BackBaseActivity {
      * 轮序获取OTA进度
      */
     private void pollingForUpdateProgress() {
-        Disposable disposable = Observable.interval(3, TimeUnit.SECONDS).observeOn(Schedulers.single()).observeOn(AndroidSchedulers.mainThread())
+        Disposable disposable = Observable.interval(5, TimeUnit.SECONDS).observeOn(Schedulers.single()).observeOn(AndroidSchedulers.mainThread())
                 .subscribe(aLong -> mOtaDelegate.queryOtaUpdating(true));
         mDisposable.add(disposable);
     }
@@ -244,6 +280,9 @@ public class OtaUpdateActivity extends BackBaseActivity {
     protected void onDestroy() {
         if (mDisposable != null && !mDisposable.isDisposed()) {
             mDisposable.dispose();
+        }
+        if (mOtaDelegate != null) {
+            mOtaDelegate.setCancel(true);
         }
         super.onDestroy();
     }

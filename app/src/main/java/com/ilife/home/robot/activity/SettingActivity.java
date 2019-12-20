@@ -54,6 +54,7 @@ public class SettingActivity extends BackBaseActivity implements OnAliSetPropert
     public static final String KEY_MODE = "KEY_MODE";
     int waterLevel, mode, index;
     boolean isMaxMode, voiceOpen;
+    private String productKey;
     Intent intent;
     String devName, name;
     @BindView(R.id.image_soft)
@@ -92,8 +93,6 @@ public class SettingActivity extends BackBaseActivity implements OnAliSetPropert
     TextView tv_mode;
     @BindView(R.id.tv_top_title)
     TextView tv_top_title;
-    @BindView(R.id.tv_ota_ver)
-    TextView tv_ota_ver;
     @BindView(R.id.image_down_1)
     ImageView image_down_1;
     @BindView(R.id.image_down_2)
@@ -171,8 +170,6 @@ public class SettingActivity extends BackBaseActivity implements OnAliSetPropert
         context = this;
         inflater = LayoutInflater.from(context);
         tv_top_title.setText(R.string.ap_aty_setting);
-        tv_ota_ver.setText("当前版本：0.0.1.10");
-
     }
 
     @Override
@@ -188,35 +185,37 @@ public class SettingActivity extends BackBaseActivity implements OnAliSetPropert
     }
 
     public void initData() {
+        productKey = IlifeAli.getInstance().getWorkingDevice().getProductKey();
         mDisposable = new CompositeDisposable();
         DeviceInfoBean infoBean = IlifeAli.getInstance().getWorkingDevice();
         animation = AnimationUtils.loadAnimation(context, R.anim.anims);
         animation.setInterpolator(new LinearInterpolator());
-        mode = infoBean.getStatus();
+        mode = SpUtils.getInt(context, productKey + KEY_MODE);
         waterLevel = infoBean.getDeviceInfo().getWaterLevel();
         isMaxMode = infoBean.getDeviceInfo().isMaxMode();
         voiceOpen = infoBean.getDeviceInfo().isVoiceOpen();
         setMode(mode);
         setStatus(waterLevel, isMaxMode, voiceOpen);
-        String robotType = DeviceUtils.getRobotType(IlifeAli.getInstance().getWorkingDevice().getProductKey());
-        int product;
+        String robotType = DeviceUtils.getRobotType(productKey);
+        int product = DeviceUtils.getRobotPic(robotType);
         switch (robotType) {
             case Constants.X800:
-                product = R.drawable.n_x800;
                 rl_mode.setVisibility(View.GONE);
                 rl_update.setVisibility(View.VISIBLE);
                 break;
             case Constants.X800W:
-                product = R.drawable.n_x800_w;
                 rl_mode.setVisibility(View.GONE);
                 rl_update.setVisibility(View.VISIBLE);
                 robotType = Constants.X800;//X800白色款，需显示为X800
                 break;
             case Constants.V3x:
-                product = R.drawable.n_v3x;
                 rl_record.setVisibility(View.GONE);
                 rl_voice.setVisibility(View.GONE);
                 rl_mode.setVisibility(View.GONE);
+                rl_update.setVisibility(View.GONE);
+                break;
+            case Constants.X787:
+                rl_voice.setVisibility(View.GONE);
                 break;
             default:
                 product = R.drawable.n_x800;
@@ -319,16 +318,16 @@ public class SettingActivity extends BackBaseActivity implements OnAliSetPropert
                 iv_find_device.setSelected(true);
                 iv_find_device.startAnimation(animation);
                 break;
-            case R.id.rl_plan://X800 not have this function
-                //TODO 待实现
+            case R.id.rl_plan:
                 if (!image_plan.isSelected()) {
+                    SpUtils.saveInt(context, productKey + KEY_MODE, MsgCodeUtils.STATUE_PLANNING);
                     mode = MsgCodeUtils.STATUE_PLANNING;
                     setMode(mode);
                 }
                 break;
-            case R.id.rl_random://X800 mo have this function
-                //TODO 待实现
+            case R.id.rl_random:
                 if (!image_random.isSelected()) {
+                    SpUtils.saveInt(context, productKey + KEY_MODE, MsgCodeUtils.STATUE_RANDOM);
                     mode = MsgCodeUtils.STATUE_RANDOM;
                     setMode(mode);
                 }
@@ -345,12 +344,10 @@ public class SettingActivity extends BackBaseActivity implements OnAliSetPropert
                 //TODO 待实现
                 break;
             case R.id.rl_suction:
-                int status = IlifeAli.getInstance().getWorkingDevice().getWork_status();
-                if (status == MsgCodeUtils.STATUE_RECHARGE || status == MsgCodeUtils.STATUE_POINT || status == MsgCodeUtils.STATUE_TEMPORARY_POINT) {
-                    ToastUtils.showToast(Utils.getString(R.string.settiing_change_suction_tip));
-                } else {
+                if (canOperateSuction()) {
                     IlifeAli.getInstance().setMaxMode(isMaxMode ? 1 : 0, this);
-
+                } else {
+                    ToastUtils.showToast(Utils.getString(R.string.settiing_change_suction_tip));
                 }
                 break;
             case R.id.rl_soft:
@@ -445,6 +442,15 @@ public class SettingActivity extends BackBaseActivity implements OnAliSetPropert
             ToastUtils.showToast(context, getString(R.string.bind_aty_reName_fail));
         } else {
             ToastUtils.showToast(context, "网络错误");
+        }
+    }
+
+    private boolean canOperateSuction() {
+        int curWorkMode = IlifeAli.getInstance().getWorkingDevice().getWork_status();
+        if ((curWorkMode == MsgCodeUtils.STATUE_POINT || curWorkMode == MsgCodeUtils.STATUE_RECHARGE) && (productKey.equals(EnvConfigure.PRODUCT_KEY_X787) || productKey.equals(EnvConfigure.PRODUCT_KEY_X320))) {
+            return false;
+        } else {
+            return true;
         }
     }
 

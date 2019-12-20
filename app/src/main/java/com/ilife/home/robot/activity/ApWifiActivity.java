@@ -12,6 +12,7 @@ import com.badoo.mobile.util.WeakHandler;
 import com.ilife.home.robot.R;
 import com.ilife.home.robot.base.BackBaseActivity;
 import com.ilife.home.robot.contract.ApWifiContract;
+import com.ilife.home.robot.fragment.UniversalDialog;
 import com.ilife.home.robot.presenter.ApWifiPresenter;
 import com.ilife.home.robot.utils.MyLogger;
 import com.ilife.home.robot.utils.SpUtils;
@@ -93,6 +94,18 @@ public class ApWifiActivity extends BackBaseActivity<ApWifiPresenter> implements
     @Override
     public String getPassWord() {
         return homePassword;
+    }
+
+    @Override
+    public void manualConnectHomeWifi() {
+
+        UniversalDialog universalDialog=new UniversalDialog();
+        universalDialog.setTitle("连接家庭WiFi").setHintTip("请连接家庭wifi").setRightText("去设置")
+                .setOnRightButtonClck(() -> {
+                    Intent i = new Intent();
+                    i.setAction("android.net.wifi.PICK_WIFI_NETWORK");
+                    startActivity(i);
+                });
     }
 
     @Override

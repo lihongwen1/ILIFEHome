@@ -670,13 +670,17 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
     }
 
     @Override
-    public boolean pointToAlong() {
-        return robotType.equals(Constants.X800);
+    public boolean pointToAlong(boolean reverse) {
+        if (reverse) {//延边切重点
+            return robotType.equals(Constants.X800) || robotType.equals(Constants.V3x);
+        } else {//重点切延边
+            return robotType.equals(Constants.V3x);
+        }
     }
 
     @Override
     public void enterAlongMode() {
-        if (curStatus == MsgCodeUtils.STATUE_WAIT || curStatus == MsgCodeUtils.STATUE_ALONG || curStatus == MsgCodeUtils.STATUE_REMOTE_CONTROL ||
+        if ((curStatus == MsgCodeUtils.STATUE_POINT && pointToAlong(false)) || curStatus == MsgCodeUtils.STATUE_WAIT || curStatus == MsgCodeUtils.STATUE_ALONG ||
                 curStatus == MsgCodeUtils.STATUE_PAUSE) {
             if (curStatus == MsgCodeUtils.STATUE_ALONG) {
                 setPropertiesWithParams(AliSkills.get().enterWaitMode(IlifeAli.getInstance().getWorkingDevice().getIotId()));
@@ -692,7 +696,7 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
 
     @Override
     public void enterPointMode() {
-        if ((curStatus == MsgCodeUtils.STATUE_ALONG && pointToAlong()) || curStatus == MsgCodeUtils.STATUE_WAIT || curStatus == MsgCodeUtils.STATUE_POINT || curStatus == MsgCodeUtils.STATUE_TEMPORARY_POINT ||
+        if ((curStatus == MsgCodeUtils.STATUE_ALONG && pointToAlong(true)) || curStatus == MsgCodeUtils.STATUE_WAIT || curStatus == MsgCodeUtils.STATUE_POINT || curStatus == MsgCodeUtils.STATUE_TEMPORARY_POINT ||
                 curStatus == MsgCodeUtils.STATUE_PAUSE || curStatus == MsgCodeUtils.STATUE_PLANNING) {
             if (curStatus == MsgCodeUtils.STATUE_POINT) {//重点-进入待机
                 setPropertiesWithParams(AliSkills.get().enterWaitMode(IlifeAli.getInstance().getWorkingDevice().getIotId()));

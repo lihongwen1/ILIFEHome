@@ -58,12 +58,15 @@ public class ApGuideOpenPowerActivity extends BackBaseActivity {
             case EnvConfigure.PRODUCT_KEY_X800_W:
                 pic_product = R.drawable.pic_open_power_w;
                 break;
-                case EnvConfigure.PRODUCT_KEY_X320:
+            case EnvConfigure.PRODUCT_KEY_X320:
                 pic_product = R.drawable.pic_open_power_v3x;
+                break;
+            case EnvConfigure.PRODUCT_KEY_X787:
+                pic_product=R.drawable.pic_open_power_787;
                 break;
 
         }
-        if (pic_product!=-1){
+        if (pic_product != -1) {
             iv_open_power.setBackground(getResources().getDrawable(pic_product));
         }
     }
