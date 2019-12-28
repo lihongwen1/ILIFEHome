@@ -38,13 +38,15 @@ public class ApGuideReadyRobotWifi extends BackBaseActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (!IlifeAli.getInstance().getBindingProductKey().equals(EnvConfigure.PRODUCT_KEY_X320)) {
+        if (IlifeAli.getInstance().getBindingProductKey().equals(EnvConfigure.PRODUCT_KEY_X800_W) ||
+                IlifeAli.getInstance().getBindingProductKey().equals(EnvConfigure.PRODUCT_KEY_X800)) {
             if (loadingDialogFragment == null) {
                 loadingDialogFragment = new LoadingDialogFragment();
             }
             loadingDialogFragment.showNow(getSupportFragmentManager(), "loading");
         }
     }
+
 
     @Override
     public void initView() {

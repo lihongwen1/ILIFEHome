@@ -26,6 +26,9 @@ public class MapActivity_X8_ extends BaseMapActivity {
         if (mPresenter.getRobotType().equals(Constants.A8s)) {
             ll_map_container.setBackground(getResources().getDrawable(R.drawable.shape_gradient_map_bg_mokka));
         }
+        if (mPresenter.getRobotType().equals(Constants.V3x)) {//V3X的充电底座单独不一样
+            iv_recharge_stand.setImageResource(R.drawable.recharge_stand_v3x);
+        }
         int robotPic = DeviceUtils.getRobotPic(mPresenter.getRobotType());
         iv_recharge_model.setImageResource(robotPic);
         iv_point_robot.setImageResource(robotPic);

@@ -26,7 +26,8 @@
             android:gravity="center"
             android:padding="15dp"
             android:text="@string/cancel_"
-            android:textColor="@color/color_080808"
+            android:textColor="@color/color_ff4d00"
+            android:textStyle="bold"
             android:textSize="16dp" />
     </LinearLayout>
 

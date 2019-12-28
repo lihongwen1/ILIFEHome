@@ -18,11 +18,11 @@
     <string name="add_aty_wrong_wifi_pass">密码含有非法字符</string>
     <string name="ap_guide_aty_tip1_x800">打开机器侧边电源开关。（注：请勿在机器充电时进行配网）</string>
     <string name="ap_guide_sty_typ2_x800">长按机器的启动键，直到听到\"WiFi连接中\"且绿色WiFi指示灯闪烁后松开。</string>
-    <string name="ap_guide_sty_typ2_x320">长按机器的配网键，3s后听到\"滴\"的一声，继续长按听到两声\"滴滴\"后松开，WiFi图标闪烁。</string>
+    <string name="ap_guide_sty_typ2_x320">长按机器的配网键，3s后听到\"嘀\"的一声，继续长按听到两声\"嘀嘀\"后松开，WiFi图标闪烁。</string>
     <string name="ap_guide_tip4">未听到，请重复上述操作</string>
     <string name="ap_guide_already_open_device">已打开</string>
     <string name="ap_guide_already_open_wifi">已听到\"WiFi连接中\"</string>
-    <string name="ap_guide_already_heared_didi">已听到\"滴滴\"声</string>
+    <string name="ap_guide_already_heared_didi">已听到\"嘀嘀\"声</string>
     <string name="ap_aty_setting">设置</string>
     <string name="wifi_guide_aty_tip2">提示：机器人暂时无法使用5G WiFi</string>
     <string name="third_ap_aty_port_">请先连接以\"adh-XXXX"开头的WiFi</string>
@@ -280,4 +280,5 @@
     <string name="ota_wait_loading_tip">固件已开始下载，请30分钟后进入此页面进行升级操作</string>
     <string name="ota_update_title">固件升级</string>
     <string name="consume_detail_remain_life">剩余寿命</string>
+    <string name="history_detail_title">清扫详情</string>
 </resources>

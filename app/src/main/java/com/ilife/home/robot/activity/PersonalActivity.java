@@ -31,6 +31,7 @@ import com.google.zxing.common.BitMatrix;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.ilife.home.robot.app.MyApplication;
 import com.ilife.home.robot.base.BackBaseActivity;
+import com.ilife.home.robot.fragment.TextSelectorDialog;
 import com.ilife.home.robot.fragment.UniversalDialog;
 import com.ilife.home.robot.utils.AlertDialogUtils;
 import com.ilife.home.robot.utils.MyLogger;
@@ -58,7 +59,6 @@ import butterknife.OnClick;
 public class PersonalActivity extends BackBaseActivity implements View.OnClickListener {
     final String TAG = PersonalActivity.class.getSimpleName();
     int dialog_width, dialog_height, dialog_height_;
-    boolean isShow;
     File tempFile;
     String userName;
     String content;
@@ -70,13 +70,11 @@ public class PersonalActivity extends BackBaseActivity implements View.OnClickLi
     ImageView image_forward;
     @BindView(R.id.tv_user_email)
     TextView tv_user_email;
-    @BindView(R.id.ll_device)
-    LinearLayout ll_device;
     IntentIntegrator integrator;
     AlertDialog alertDialog;
     ArrayList<DeviceInfoBean> mDeviceList;
     ArrayList<String> formats;
-
+    private TextSelectorDialog mShareDialog;
     private RenameActivity renameFragment;
 
     @Override
@@ -159,24 +157,19 @@ public class PersonalActivity extends BackBaseActivity implements View.OnClickLi
                 break;
             case R.id.tv_user_agreement:
                 i = new Intent(context, ProtocolActivity.class);
-                i.putExtra(ProtocolActivity.KEY_TYPE,1);
+                i.putExtra(ProtocolActivity.KEY_TYPE, 1);
                 startActivity(i);
                 break;
             case R.id.tv_protocol_privacy:
                 i = new Intent(context, ProtocolActivity.class);
-                i.putExtra(ProtocolActivity.KEY_TYPE,2);
+                i.putExtra(ProtocolActivity.KEY_TYPE, 2);
                 startActivity(i);
                 break;
             case R.id.rl_share:
                 if (IlifeAli.getInstance().isLogin()) {
                     getOwnerList();
                     if (mDeviceList.size() > 0) {
-                        if (!isShow) {
-                            showDeviceList();
-                        }
-                        ll_device.setVisibility(!isShow ? View.VISIBLE : View.GONE);
-                        image_forward.setRotation(!isShow ? -90 : 0);
-                        isShow = !isShow;
+                        showDeviceList();
                     } else {
                         ToastUtils.showToast(context, getString(R.string.personal_aty_no_shareable));
                     }
@@ -247,55 +240,36 @@ public class PersonalActivity extends BackBaseActivity implements View.OnClickLi
     }
 
     public void showDeviceList() {
-        ll_device.removeAllViews();
-        for (int i = 0; i < mDeviceList.size(); i++) {
-            if (i != 0) {
-                addShortLine();
+        if (mShareDialog == null) {
+            TextSelectorDialog.Builder builder = new TextSelectorDialog.Builder();
+            String[] devNames = new String[mDeviceList.size()];
+            for (int i = 0; i < mDeviceList.size(); i++) {
+                String devName = mDeviceList.get(i).getDeviceName();
+                String nickName = mDeviceList.get(i).getNickName();
+                devNames[i] = TextUtils.isEmpty(nickName) ? devName : nickName;
             }
-            DeviceInfoBean deviceInfoBean = mDeviceList.get(i);
-            if (deviceInfoBean.getOwned() != 1) {
-                continue;
-            }
-            TextView textView = new TextView(context);
-            textView.setGravity(Gravity.CENTER_VERTICAL);
-            textView.setTextSize(14);
-            textView.setTextColor(getResources().getColor(R.color.color_ac));
-            textView.setBackgroundColor(getResources().getColor(R.color.color_f6));
-            int height = (int) getResources().getDimension(R.dimen.dp_60);
-            int paddingStart = (int) getResources().getDimension(R.dimen.dp_80);
-            ViewGroup.LayoutParams lp_text = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, height);
-            textView.setPadding(paddingStart, 0, 0, 0);
-            textView.setLayoutParams(lp_text);
-            String devName = deviceInfoBean.getDeviceName();
-            String nickName = deviceInfoBean.getNickName();
-            textView.setText(TextUtils.isEmpty(nickName) ? devName : nickName);
-            textView.setTag(deviceInfoBean.getIotId());
-            textView.setOnClickListener(v -> IlifeAli.getInstance().showShareQrCode((String) v.getTag(), new OnAliResponse<String>() {
+            builder.setArray(devNames).setOnTextSelect(new TextSelectorDialog.OnTextSelect() {
                 @Override
-                public void onSuccess(String result) {
-                    JSONObject jsonObject = JSONObject.parseObject(result);
-                    showQrDialog(jsonObject.getString(EnvConfigure.KEY_QR_KEY));
-                }
+                public void onSelect(int position, String text) {
+                    IlifeAli.getInstance().showShareQrCode(mDeviceList.get(position).getIotId(), new OnAliResponse<String>() {
+                        @Override
+                        public void onSuccess(String result) {
+                            JSONObject jsonObject = JSONObject.parseObject(result);
+                            showQrDialog(jsonObject.getString(EnvConfigure.KEY_QR_KEY));
+                        }
 
-                @Override
-                public void onFailed(int code, String message) {
-                    ToastUtils.showToast(message);
+                        @Override
+                        public void onFailed(int code, String message) {
+                            ToastUtils.showToast(message);
+                        }
+                    });
                 }
-            }));
-            ll_device.addView(textView);
+            });
+            mShareDialog = builder.build();
         }
-    }
-
-
-    public void addShortLine() {
-        View line = new View(context);
-        int margin = (int) getResources().getDimension(R.dimen.dp_30);
-        line.setBackgroundColor(getResources().getColor(R.color.color_e2));
-        LinearLayout.LayoutParams lp_line = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
-                DisplayUtil.dip2px(context, 1));
-        lp_line.setMargins(margin, 0, margin, 0);
-        line.setLayoutParams(lp_line);
-        ll_device.addView(line);
+       if (mShareDialog!=null&&!mShareDialog.isAdded()){
+           mShareDialog.show(getSupportFragmentManager(),"share");
+       }
     }
 
 

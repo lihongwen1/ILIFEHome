@@ -20,7 +20,7 @@ public class HistoryAdapter extends BaseQuickAdapter<HistoryRecordBean, BaseView
     @Override
     protected void convert(@NonNull BaseViewHolder holder, int position) {
         HistoryRecordBean historyRecord = data.get(position);
-        holder.setText(R.id.tv_duration, historyRecord.getCleanTotalTime() / 60 + "min");
+        holder.setText(R.id.tv_duration, historyRecord.getCleanTotalTime()  + "min");
         holder.setText(R.id.tv_area, historyRecord.getCleanTotalArea() + "㎡");
         long time_ = historyRecord.getStartTime();
         holder.setText(R.id.tv_date, generateTime(time_, Utils.getString(R.string.history_adapter_month_day)));

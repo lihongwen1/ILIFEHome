@@ -31,7 +31,7 @@ public class EnvConfigure {
     static final public String PRODUCT_KEY_X787="a1wBeDmFnJu";//CHINA
 
 
-    public static final String IOT_AUTH = "iot_china";//国内
+    public static final String IOT_AUTH = "iot_china";//国外
     public static final String AUTH_CODE = "114d";//国内
 
     /**

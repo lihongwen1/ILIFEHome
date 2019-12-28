@@ -170,7 +170,7 @@ public class ClockingActivity extends BackBaseActivity {
                     hour = timePicker.getCurrentHour();
                     minute = timePicker.getCurrentMinute();
                     selectPosition = position;
-                    if (robotType.equals(Constants.V3x)) {//V3x没有黑暗环境限制
+                    if (robotType.equals(Constants.V3x)||robotType.equals(Constants.X787)) {//V3x，X787没有黑暗环境限制
                         setSchedule(selectPosition, 1);
                     } else if ((hour > 5 && hour < 20) || (hour == 5 && minute > 0)) {//可用时间段(预约夜间时间提醒)
                         setSchedule(selectPosition, 1);

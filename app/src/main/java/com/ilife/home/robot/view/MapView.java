@@ -10,6 +10,7 @@ import android.graphics.Path;
 import android.graphics.PointF;
 import android.graphics.PorterDuff;
 import android.graphics.RectF;
+import android.opengl.GLSurfaceView;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
@@ -31,7 +32,8 @@ import java.util.Iterator;
 import java.util.List;
 
 /**
- * 900系列采用直接繪製s
+ * 900系列采用直接绘图方式
+ * 生产者-消费者模式绘制bitmap,刷新UI，已绘制的点集放弃，只绘制新增的点集合（同步集合）。数据清空时，同步清空bitmap OPen-GL实现绘制图片
  */
 public class MapView extends View {
     private int width, height;
@@ -1006,7 +1008,7 @@ public class MapView extends View {
                         endY = matrixCoordinateY(y) + (baseScare - space) / 2f;
                         break;
                     case 2:
-                    case 3:
+                    case 3://充电座
                         obstaclePath.addRect(matrixCoordinateX(x), matrixCoordinateY(y), matrixCoordinateX(x) + baseScare - space, matrixCoordinateY(y) + baseScare - space, Path.Direction.CCW);
                         break;
                 }

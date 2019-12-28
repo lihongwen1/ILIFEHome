@@ -16,6 +16,7 @@ import com.aliyun.iot.aep.sdk.apiclient.request.IoTRequest;
 import com.aliyun.iot.aep.sdk.apiclient.request.IoTRequestBuilder;
 import com.aliyun.iot.aep.sdk.bean.HistoryRecordBean;
 import com.aliyun.iot.aep.sdk.contant.EnvConfigure;
+import com.aliyun.iot.aep.sdk.contant.IlifeAli;
 import com.google.gson.Gson;
 
 import java.text.SimpleDateFormat;
@@ -24,6 +25,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 public class GetHistoryRecordDelegate {
@@ -70,13 +72,13 @@ public class GetHistoryRecordDelegate {
             public void onResponse(IoTRequest ioTRequest, IoTResponse ioTResponse) {
                 if (ioTResponse.getCode() == 200) {
                     String result = ioTResponse.getData().toString();
-                    ArrayList<ArrayList<String>> dataList = new ArrayList<>();
                     JSONObject jsonObject = JSON.parseObject(result);
                     JSONArray jsonArray = jsonObject.getJSONArray(EnvConfigure.KEY_ITEMS);
                     Gson gson = new Gson();
                     HistoryRecordBean bean;
                     HistoryRecordBean exitBean;
                     int startTime = 0;
+                    long timestamp = 0;
                     if (jsonArray == null) {
                         onAliResponse.onFailed(0, "没有数据");
                         return;
@@ -85,6 +87,7 @@ public class GetHistoryRecordDelegate {
                     if (dataSize > 0) {
                         for (int i = 0; i < jsonArray.size(); i++) {
                             String data = jsonArray.getJSONObject(i).getString(EnvConfigure.KEY_DATA);
+                            timestamp = jsonArray.getJSONObject(i).getLong("timestamp");
                             if (data.isEmpty()) {
                                 continue;
                             }
@@ -94,25 +97,28 @@ public class GetHistoryRecordDelegate {
                                 continue;
                             }
                             exitBean = mapBeans.get(startTime);
+                            Log.e("HISTORY_MAP", "新历史记录---" + generateTime(bean.getStartTime(), "MM月dd日HH:mm:ss") + "---------" + bean.getPackId() + "------------" + bean.getPackNum());
                             if (exitBean == null) {
-                                Log.e("HISTORY_MAP", "新历史记录---" + generateTime(bean.getStartTime(), "MM月dd日HH:mm:ss") + "---------" + bean.getPackId() + "------------" + bean.getPackNum());
-                                bean.addCleanData(bean.getCleanMapData());
+                                if (IlifeAli.getInstance().getWorkingDevice().getProductKey().equals(EnvConfigure.PRODUCT_KEY_X787)) {
+                                    //X787清扫面积需要除去100.
+                                    bean.setCleanTotalArea(bean.getCleanTotalArea() / 100);
+                                }
+                                bean.addCleanData(bean.getPackNum(), bean.getPackId(), bean.getCleanMapData());
                                 mapBeans.put(startTime, bean);
-                            } else if (!exitBean.isCleanDataExit(bean.getCleanMapData())) {
-                                mapBeans.get(startTime).addCleanData(bean.getCleanMapData());
-                                Log.e("HISTORY_MAP", "已存在历史记录---" + generateTime(bean.getStartTime(), "MM月dd日HH:mm:ss") + "---------" + bean.getPackId() + "------------" + bean.getPackNum());
                             } else {
-                                Log.d("HISTORY_MAP", "存在pkgId相同的数据包。。。");
+                                mapBeans.get(startTime).addCleanData(bean.getPackNum(), bean.getPackId(), bean.getCleanMapData());
                             }
                         }
                     }
-                    if (dataSize > 200 && startTime > start) {
-                        end = startTime;
+                    if (dataSize>=200 && timestamp > start) {
+                        end = timestamp;
                         Log.e("HISTORY_MAP", "开始下一次获取下一包历史记录");
                         getHistoryRecords();
                     } else {
+                        //the history records have gained,need sorting the cleaning data for every item by package id now
                         List<HistoryRecordBean> beans = new ArrayList<>();
                         for (int i = 0; i < mapBeans.size(); i++) {
+
                             beans.add(mapBeans.valueAt(i));
                         }
                         onAliResponse.onSuccess(beans);
@@ -122,9 +128,8 @@ public class GetHistoryRecordDelegate {
         }));
     }
 
-    public String generateTime(long time, String strFormat) {
-        SimpleDateFormat format = new SimpleDateFormat(strFormat);
-        String str = format.format(new Date((time) * 1000));
-        return str;
+    private String generateTime(long time, String strFormat) {
+        SimpleDateFormat format = new SimpleDateFormat(strFormat, Locale.CHINA);
+        return format.format(new Date((time) * 1000));
     }
 }

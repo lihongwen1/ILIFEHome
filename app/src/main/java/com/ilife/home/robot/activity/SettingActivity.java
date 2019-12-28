@@ -137,6 +137,7 @@ public class SettingActivity extends BackBaseActivity implements OnAliSetPropert
     Animation animation;
     private CompositeDisposable mDisposable;
     private RenameActivity renameFragment;
+    private UniversalDialog resetDialog;
     WeakHandler handler = new WeakHandler(new Handler.Callback() {
         @Override
         public boolean handleMessage(Message msg) {
@@ -272,12 +273,12 @@ public class SettingActivity extends BackBaseActivity implements OnAliSetPropert
         image_strong.setSelected(false);
     }
 
-    @OnClick({R.id.tv_name, R.id.rl_water, R.id.rl_clock, R.id.rl_record, R.id.rl_consume, R.id.rl_mode, R.id.rl_find,
+    @OnClick({R.id.rl_robot_head, R.id.rl_water, R.id.rl_clock, R.id.rl_record, R.id.rl_consume, R.id.rl_mode, R.id.rl_find,
             R.id.rl_plan, R.id.rl_random, R.id.rl_facReset, R.id.rl_voice, R.id.rl_update, R.id.rl_suction, R.id.rl_soft
             , R.id.rl_standard, R.id.rl_strong})
     public void onClick(View v) {
         switch (v.getId()) {
-            case R.id.tv_name:
+            case R.id.rl_robot_head:
                 Intent intent = new Intent(SettingActivity.this, RenameActivity.class);
                 intent.putExtra(RenameActivity.KEY_RENAME_TYPE, 1);
                 startActivity(intent);
@@ -371,12 +372,17 @@ public class SettingActivity extends BackBaseActivity implements OnAliSetPropert
 
 
     private void showResetDialog() {
-        UniversalDialog universalDialog = new UniversalDialog();
-        universalDialog.setDialogType(UniversalDialog.TYPE_NORMAL).setTitle(Utils.getString(R.string.setting_aty_confirm_reset))
-                .setHintTip(Utils.getString(R.string.setting_aty_reset_hint)).setOnRightButtonClck(() -> {
-            showLoadingDialog();
-            IlifeAli.getInstance().resetDeviceToFactory(this);
-        }).show(getSupportFragmentManager(), "reset");
+        if (resetDialog == null) {
+            resetDialog = new UniversalDialog();
+            resetDialog.setDialogType(UniversalDialog.TYPE_NORMAL).setTitle(Utils.getString(R.string.setting_aty_confirm_reset))
+                    .setHintTip(Utils.getString(R.string.setting_aty_reset_hint)).setOnRightButtonClck(() -> {
+                showLoadingDialog();
+                IlifeAli.getInstance().resetDeviceToFactory(this);
+            });
+        }
+        if (!resetDialog.isAdded()) {
+            resetDialog.show(getSupportFragmentManager(), "reset");
+        }
     }
 
 
@@ -440,8 +446,13 @@ public class SettingActivity extends BackBaseActivity implements OnAliSetPropert
             findDone();
         } else if (path.equals(EnvConfigure.PATH_SET_DEV_NICK_NAME)) {
             ToastUtils.showToast(context, getString(R.string.bind_aty_reName_fail));
+        } else if (path.equals(EnvConfigure.PATH_SET_PROPERTIES) && tag == EnvConfigure.VALUE_FAC_RESET) {
+            if (resetDialog != null) {
+                resetDialog.dismiss();
+            }
+            ToastUtils.showErrorToast(this, code);
         } else {
-            ToastUtils.showToast(context, "网络错误");
+            ToastUtils.showErrorToast(this, code);
         }
     }
 

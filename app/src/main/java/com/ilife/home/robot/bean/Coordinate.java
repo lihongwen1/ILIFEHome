@@ -1,5 +1,7 @@
 package com.ilife.home.robot.bean;
 
+import androidx.annotation.NonNull;
+
 import java.util.Objects;
 
 public class Coordinate {
@@ -49,5 +51,11 @@ public class Coordinate {
     @Override
     public int hashCode() {
         return Objects.hash(getX(), getY());
+    }
+
+    @NonNull
+    @Override
+    public String toString() {
+        return "x:"+x+"---y---"+y+"---type---"+type;
     }
 }

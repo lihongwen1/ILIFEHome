@@ -280,4 +280,5 @@
     <string name="ota_wait_loading_tip">The firmware has begun to download, please enter this page to upgrade after 30 minutes</string>
     <string name="ota_update_title">Firmware update</string>
     <string name="consume_detail_remain_life">Remaining</string>
+    <string name="history_detail_title">Cleaning details</string>
 </resources>

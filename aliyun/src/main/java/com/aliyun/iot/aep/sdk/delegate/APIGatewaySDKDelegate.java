@@ -2,6 +2,7 @@ package com.aliyun.iot.aep.sdk.delegate;
 
 import android.app.Application;
 import android.text.TextUtils;
+import android.util.Log;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.wireless.security.jaq.JAQException;
@@ -99,6 +100,7 @@ public final class APIGatewaySDKDelegate extends SimpleSDKDelegateImp {
 
         // 添加环境变量
         String appKey = APIGatewayHttpAdapterImpl.getAppKey(app,  EnvConfigure.AUTH_CODE);
+        Log.d("APIGatewaySDKDelegate","项目的appkey:     "+appKey);
         args.put(EnvConfigure.KEY_APPKEY, appKey);
         args.put(ENV_KEY_API_CLIENT_DEFAULT_HOST, host);
         args.put(ENV_KEY_API_CLIENT_API_ENV, env);

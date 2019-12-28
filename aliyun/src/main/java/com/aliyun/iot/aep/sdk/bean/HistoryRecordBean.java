@@ -1,9 +1,6 @@
 package com.aliyun.iot.aep.sdk.bean;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 
 public class HistoryRecordBean implements Serializable {
     /**
@@ -32,7 +29,7 @@ public class HistoryRecordBean implements Serializable {
     /**
      * 该记录所有清扫数据集合/建议使用数组实现，可以避免数据包乱序导致地图异常
      */
-    private List<String> mapDataList;
+    private String[] mapDataArray;
 
     public int getStopCleanReason() {
         return StopCleanReason;
@@ -43,7 +40,7 @@ public class HistoryRecordBean implements Serializable {
     }
 
     public int getCleanTotalTime() {
-        return CleanTotalTime;
+        return CleanTotalTime/60;
     }
 
     public void setCleanTotalTime(int CleanTotalTime) {
@@ -115,21 +112,25 @@ public class HistoryRecordBean implements Serializable {
     }
 
 
-    public List<String> getMapDataList() {
-        return mapDataList;
+    public String[] getMapDataArray() {
+        return mapDataArray;
     }
 
-    public boolean isCleanDataExit(String cleanMapData) {
-        if (mapDataList == null) {
-            return false;
-        }
-        return mapDataList.contains(cleanMapData);
-    }
 
-    public void addCleanData(String cleanData) {
-        if (mapDataList == null) {
-            mapDataList = new ArrayList<>();
+    /**
+     * pkgId代表了item position
+     *
+     * @param pkgId
+     * @param cleanData
+     * @param packNum   包总数
+     */
+    private int usefulLength;
+    public void addCleanData(int packNum, int pkgId, String cleanData) {
+        if (mapDataArray == null) {
+            mapDataArray = new String[packNum+1];
         }
-        mapDataList.add(0, cleanData);
+        if (mapDataArray[pkgId] == null) {
+            mapDataArray[pkgId] = cleanData;
+        }
     }
 }

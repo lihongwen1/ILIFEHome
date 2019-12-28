@@ -672,16 +672,16 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
     @Override
     public boolean pointToAlong(boolean reverse) {
         if (reverse) {//延边切重点
-            return robotType.equals(Constants.X800) || robotType.equals(Constants.V3x);
+            return robotType.equals(Constants.X800) || robotType.equals(Constants.V3x)|| robotType.equals(Constants.X787);
         } else {//重点切延边
-            return robotType.equals(Constants.V3x);
+            return robotType.equals(Constants.V3x)||robotType.equals(Constants.X787);
         }
     }
 
     @Override
     public void enterAlongMode() {
         if ((curStatus == MsgCodeUtils.STATUE_POINT && pointToAlong(false)) || curStatus == MsgCodeUtils.STATUE_WAIT || curStatus == MsgCodeUtils.STATUE_ALONG ||
-                curStatus == MsgCodeUtils.STATUE_PAUSE) {
+                curStatus == MsgCodeUtils.STATUE_PAUSE || curStatus == MsgCodeUtils.STATUE_RANDOM) {
             if (curStatus == MsgCodeUtils.STATUE_ALONG) {
                 setPropertiesWithParams(AliSkills.get().enterWaitMode(IlifeAli.getInstance().getWorkingDevice().getIotId()));
             } else {
@@ -697,7 +697,7 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
     @Override
     public void enterPointMode() {
         if ((curStatus == MsgCodeUtils.STATUE_ALONG && pointToAlong(true)) || curStatus == MsgCodeUtils.STATUE_WAIT || curStatus == MsgCodeUtils.STATUE_POINT || curStatus == MsgCodeUtils.STATUE_TEMPORARY_POINT ||
-                curStatus == MsgCodeUtils.STATUE_PAUSE || curStatus == MsgCodeUtils.STATUE_PLANNING) {
+                curStatus == MsgCodeUtils.STATUE_PAUSE || curStatus == MsgCodeUtils.STATUE_PLANNING || curStatus == MsgCodeUtils.STATUE_RANDOM) {
             if (curStatus == MsgCodeUtils.STATUE_POINT) {//重点-进入待机
                 setPropertiesWithParams(AliSkills.get().enterWaitMode(IlifeAli.getInstance().getWorkingDevice().getIotId()));
             } else if (curStatus == MsgCodeUtils.STATUE_TEMPORARY_POINT) {//临时重点-进入规划
