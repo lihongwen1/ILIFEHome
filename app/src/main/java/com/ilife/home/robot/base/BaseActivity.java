@@ -112,6 +112,7 @@ public abstract class BaseActivity<T extends BasePresenter> extends AppCompatAct
     @Override
     protected void onResume() {
         super.onResume();
+        IlifeAli.getInstance().checkAndReconnection();
         MyLogger.i("LIFE_CYCLE", "onResume");
     }
 

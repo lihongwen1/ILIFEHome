@@ -171,6 +171,7 @@ public abstract class BaseMapActivity extends BackBaseActivity<MapX9Presenter> i
             mPresenter.prepareToReloadData();//重新获取历史map
         }
         mPresenter.getDevStatus();
+        mPresenter.adjustTime();
         setDevName();
         updateMaxButton(mPresenter.isMaxMode());
         setDevName();

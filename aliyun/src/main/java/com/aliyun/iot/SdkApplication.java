@@ -17,6 +17,7 @@ import com.aliyun.iot.aep.oa.OALanguageHelper;
 import com.aliyun.iot.aep.routerexternal.RouterExternal;
 import com.aliyun.iot.aep.sdk.apiclient.IoTAPIClientImpl;
 import com.aliyun.iot.aep.sdk.contant.EnvConfigure;
+import com.aliyun.iot.aep.sdk.contant.IlifeAli;
 import com.aliyun.iot.aep.sdk.delegate.APIGatewaySDKDelegate;
 import com.aliyun.iot.aep.sdk.delegate.OpenAccountSDKDelegate;
 import com.aliyun.iot.aep.sdk.delegate.DownstreamConnectorSDKDelegate;
@@ -47,6 +48,8 @@ public abstract class SdkApplication extends AApplication {
 //        PushManager.getInstance().initMiPush(this, "申请的小米appid", "申请的小米appkey");
 
         // 其他 SDK, 仅在 主进程上初始化
+        IlifeAli.getInstance().init(this);
+
         String packageName = this.getPackageName();
         if (!packageName.equals(ThreadTools.getProcessName(this, android.os.Process.myPid()))) {
             return;
@@ -91,7 +94,6 @@ public abstract class SdkApplication extends AApplication {
         // the key set from sp that need to be put into AConfigure.envArgs
         HashSet spKeySet = new HashSet();
         EnvConfigure.init(this, spKeySet);
-
         new ApplicationHelper().onCreate(this);
 
         /* 加载Native页面 */

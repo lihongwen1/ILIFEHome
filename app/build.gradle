@@ -57,7 +57,7 @@ android {
             dimension "default"
             applicationId "com.ilife.home.robot"
             versionCode =4
-            versionName = 'V1.4.1'
+            versionName = 'V1.4.3'
             resValue "string", "app_name", "ILIFEHome"
             buildConfigField("String", "environment", "\"product\"")
             buildConfigField("String", "BRAND", "\"ILIFE\"")

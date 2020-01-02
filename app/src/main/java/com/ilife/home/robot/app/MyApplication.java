@@ -2,16 +2,11 @@ package com.ilife.home.robot.app;
 
 import android.app.Activity;
 import android.content.Context;
-import android.graphics.Typeface;
 
 import com.alibaba.sdk.android.openaccount.ConfigManager;
 import com.aliyun.iot.SdkApplication;
-import com.aliyun.iot.aep.sdk.bean.DeviceInfoBean;
-import com.aliyun.iot.aep.sdk.contant.IlifeAli;
 import com.ilife.home.robot.BuildConfig;
-import com.ilife.home.robot.utils.LanguageUtils;
 import com.ilife.home.robot.utils.MyLogger;
-import com.ilife.home.robot.utils.Utils;
 import com.ilife.home.robot.utils.toast.Toasty;
 import com.orhanobut.logger.AndroidLogAdapter;
 import com.orhanobut.logger.FormatStrategy;
@@ -40,7 +35,6 @@ public class MyApplication extends SdkApplication {
         activities = new ArrayList<>();
         instance = (MyApplication) getApplicationContext();
         ConfigManager.getInstance().setBundleName("com.ilife.home.robot");
-        IlifeAli.getInstance().init(instance);
         configToast();
         closeAndroidPDialog();
         /**

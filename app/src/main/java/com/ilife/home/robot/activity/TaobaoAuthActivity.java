@@ -14,16 +14,20 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.alibaba.fastjson.JSONObject;
+import com.aliyun.iot.aep.sdk._interface.OnAliResponseSingle;
 import com.aliyun.iot.aep.sdk.apiclient.IoTAPIClientFactory;
 import com.aliyun.iot.aep.sdk.apiclient.callback.IoTCallback;
 import com.aliyun.iot.aep.sdk.apiclient.callback.IoTResponse;
+import com.aliyun.iot.aep.sdk.apiclient.callback.IoTUIThreadCallback;
 import com.aliyun.iot.aep.sdk.apiclient.emuns.Scheme;
 import com.aliyun.iot.aep.sdk.apiclient.request.IoTRequest;
 import com.aliyun.iot.aep.sdk.apiclient.request.IoTRequestBuilder;
 import com.aliyun.iot.aep.sdk.contant.EnvConfigure;
+import com.aliyun.iot.aep.sdk.contant.IlifeAli;
 import com.ilife.home.robot.R;
 import com.ilife.home.robot.base.BackBaseActivity;
 import com.ilife.home.robot.utils.MyLogger;
+import com.ilife.home.robot.utils.ToastUtils;
 
 import java.util.Map;
 
@@ -51,7 +55,7 @@ public class TaobaoAuthActivity extends BackBaseActivity {
 
     @SuppressLint("SetJavaScriptEnabled")
     public void initView() {
-        tv_title.setText(R.string.personal_aty_protocol);
+        tv_title.setText("应用授权");
         frameLayout = findViewById(R.id.web_frame);
         image_back = findViewById(R.id.image_back);
         image_back.setOnClickListener(v -> removeActivity());
@@ -126,30 +130,16 @@ public class TaobaoAuthActivity extends BackBaseActivity {
 
     public void bindAccount(String authCode) {
         MyLogger.d("TaobaoAuthActivity","绑定淘宝账号----auth_code:"+authCode);
-        JSONObject params = new JSONObject();
         if (null != authCode) {
-            params.put("authCode", authCode);
+            IlifeAli.getInstance().taobaoAuthorization(authCode, aBoolean -> {
+                if (aBoolean){
+                    ToastUtils.showToast("授权淘宝账号成功");
+                }else {
+                    ToastUtils.showToast("授权淘宝账号失败");
+                }
+            });
         }
-        Map<String, Object> requestMap = params.getInnerMap();
 
-        IoTRequest ioTRequest = new IoTRequestBuilder()
-                .setAuthType(EnvConfigure.IOT_AUTH)
-                .setApiVersion("1.0.5")
-                .setPath("/account/taobao/bind")
-                .setParams(requestMap)
-                .setScheme(Scheme.HTTPS)
-                .build();
-        new IoTAPIClientFactory().getClient().send(ioTRequest, new IoTCallback() {
-            @Override
-            public void onFailure(IoTRequest ioTRequest, Exception e) {
-                MyLogger.e("TaobaoAuthActivity","绑定淘宝账号失败--------------"+e.getMessage());
-            }
-
-            @Override
-            public void onResponse(IoTRequest ioTRequest, IoTResponse ioTResponse) {
-               MyLogger.d("TaobaoAuthActivity","绑定淘宝账号成功-----------");
-            }
-        });
     }
 
 

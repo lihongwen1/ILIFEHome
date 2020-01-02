@@ -147,6 +147,40 @@
             <View
                 style="@style/View_Line_Style"
                 android:layout_marginStart="@dimen/dp_70" />
+
+
+
+            <RelativeLayout
+                android:layout_marginStart="@dimen/dp_24"
+                android:id="@+id/rl_app_authorization"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/dp_60"
+                android:background="@color/white">
+
+                <ImageView
+                    android:id="@+id/image_app_authorization"
+                    style="@style/Image_Style_24"
+                    android:background="@drawable/personal_icon_tmjl" />
+
+                <TextView
+                    style="@style/Text_16sp_33"
+                    android:layout_centerVertical="true"
+                    android:layout_marginStart="@dimen/dp_20"
+                    android:layout_toEndOf="@+id/image_app_authorization"
+                    android:text="@string/personal_tiamao"
+                    android:textColor="@color/color_33" />
+
+                <ImageView
+                    android:layout_marginEnd="@dimen/dp_24"
+                    style="@style/Image_Style_Forward" />
+            </RelativeLayout>
+
+            <View
+                style="@style/View_Line_Style"
+                android:layout_marginStart="@dimen/dp_70" />
+
+
+
             <TextView
                 android:layout_marginStart="@dimen/dp_24"
                 android:layout_marginEnd="@dimen/dp_24"

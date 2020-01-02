@@ -75,7 +75,6 @@ public class ApplicationHelper {
     private void _initOtherSdk(AApplication application) {
         SDKManager.prepareForInitSdk(application);
         SDKManager.init_outOfUiThread(application);
-        SDKManager.init_underUiThread(application);
     }
 
 

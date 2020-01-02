@@ -105,7 +105,6 @@ public class MainActivity extends BaseActivity<MainPresenter> implements View.On
 
     @Override
     public void initView() {
-        String url = "https://oauth.taobao.com/authorize?response_type=code&client_id=<项目的appKey>&redirect_uri=<控制台定义的回调地址>&view=wap";
         context = this;
         mAcUserDevices = IlifeAli.getInstance().getmAcUserDevices();
         rect = new Rect();
@@ -245,4 +244,9 @@ public class MainActivity extends BaseActivity<MainPresenter> implements View.On
     }
 
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        IlifeAli.getInstance().destroy();
+    }
 }

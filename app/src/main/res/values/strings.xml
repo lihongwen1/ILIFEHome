@@ -281,4 +281,5 @@
     <string name="ota_update_title">固件升级</string>
     <string name="consume_detail_remain_life">剩余寿命</string>
     <string name="history_detail_title">清扫详情</string>
+    <string name="personal_tiamao">天猫精灵</string>
 </resources>

@@ -6,6 +6,7 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.os.Environment;
+import android.provider.Settings;
 import android.text.TextUtils;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -129,7 +130,7 @@ public class PersonalActivity extends BackBaseActivity implements View.OnClickLi
         }
     }
 
-    @OnClick({R.id.rl_user_information, R.id.rl_help, R.id.rl_scan, R.id.bt_logout, R.id.tv_user_agreement, R.id.tv_protocol_privacy, R.id.rl_share})
+    @OnClick({R.id.rl_user_information, R.id.rl_help,R.id.rl_app_authorization, R.id.rl_scan, R.id.bt_logout, R.id.tv_user_agreement, R.id.tv_protocol_privacy, R.id.rl_share})
     public void onClick(View v) {
         Intent i;
         switch (v.getId()) {
@@ -137,6 +138,10 @@ public class PersonalActivity extends BackBaseActivity implements View.OnClickLi
                 Intent intent = new Intent(PersonalActivity.this, RenameActivity.class);
                 intent.putExtra(RenameActivity.KEY_RENAME_TYPE, 2);
                 startActivity(intent);
+                break;
+            case R.id.rl_app_authorization:
+                i = new Intent(context, TaobaoAuthActivity.class);
+                startActivity(i);
                 break;
             case R.id.rl_help:
                 i = new Intent(context, HelpActivity.class);

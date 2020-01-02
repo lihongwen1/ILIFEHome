@@ -1,10 +1,7 @@
 package com.aliyun.iot.aep.sdk.contant;
 
 import android.os.Build;
-import android.os.Message;
 import android.util.Log;
-
-import androidx.annotation.RequiresApi;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
@@ -19,7 +16,6 @@ import com.aliyun.alink.linksdk.channel.mobile.api.IMobileConnectListener;
 import com.aliyun.alink.linksdk.channel.mobile.api.IMobileDownstreamListener;
 import com.aliyun.alink.linksdk.channel.mobile.api.IMobileSubscrbieListener;
 import com.aliyun.alink.linksdk.channel.mobile.api.MobileChannel;
-import com.aliyun.alink.linksdk.channel.mobile.api.MobileConnectState;
 import com.aliyun.iot.aep.sdk._interface.OnAliBindDeviceResponse;
 import com.aliyun.iot.aep.sdk._interface.OnAliResponse;
 import com.aliyun.iot.aep.sdk._interface.OnAliResponseSingle;
@@ -30,7 +26,6 @@ import com.aliyun.iot.aep.sdk.apiclient.IoTAPIClientFactory;
 import com.aliyun.iot.aep.sdk.apiclient.callback.IoTCallback;
 import com.aliyun.iot.aep.sdk.apiclient.callback.IoTResponse;
 import com.aliyun.iot.aep.sdk.apiclient.callback.IoTUIThreadCallback;
-import com.aliyun.iot.aep.sdk.apiclient.emuns.Env;
 import com.aliyun.iot.aep.sdk.apiclient.emuns.Scheme;
 import com.aliyun.iot.aep.sdk.apiclient.request.IoTRequest;
 import com.aliyun.iot.aep.sdk.apiclient.request.IoTRequestBuilder;
@@ -42,12 +37,12 @@ import com.aliyun.iot.aep.sdk.bean.PropertyBean;
 import com.aliyun.iot.aep.sdk.bean.RealTimeMapBean;
 import com.aliyun.iot.aep.sdk.bean.ScheduleBean;
 import com.aliyun.iot.aep.sdk.credential.IotCredentialManager.IoTCredentialManageImpl;
-import com.aliyun.iot.aep.sdk.credential.listener.IoTTokenInvalidListener;
 import com.aliyun.iot.aep.sdk.delegate.AliInterfaceDelegate;
 import com.aliyun.iot.aep.sdk.delegate.BindDeviceDelagate;
 import com.aliyun.iot.aep.sdk.delegate.GetHistoryMapDelegate;
 import com.aliyun.iot.aep.sdk.delegate.GetHistoryRecordDelegate;
 import com.aliyun.iot.aep.sdk.framework.AApplication;
+import com.aliyun.iot.aep.sdk.framework.sdk.SDKManager;
 import com.aliyun.iot.aep.sdk.login.ILoginCallback;
 import com.aliyun.iot.aep.sdk.login.ILogoutCallback;
 import com.aliyun.iot.aep.sdk.login.LoginBusiness;
@@ -73,7 +68,6 @@ public class IlifeAli {
     private List<DeviceInfoBean> mAcUserDevices;
     private static final String TAG = "ILIFE_ALI_";
     private static IlifeAli instance;
-    private OnAliResponseSingle<Boolean> tTokenInvalidListener;//登录失效监听
     /**
      * 可能为空，需要序列化到本地，并且在为空的时候重新反序列化回来
      */
@@ -83,7 +77,9 @@ public class IlifeAli {
     private String iotId;
     private IMobileDownstreamListener downListener;
     private IMobileSubscrbieListener topicListener;//订阅topic
+    private IMobileConnectListener mConnectListener;
     private String bindingProductKey;//绑定中设备的product key;
+    private int CONNECTION_STATUS = -1;
 
     public static synchronized IlifeAli getInstance() {
         if (instance == null) {
@@ -127,11 +123,16 @@ public class IlifeAli {
      */
     public void reset() {
         workingDevice = null;
-        MobileChannel.getInstance().unSubscrbie(EnvConfigure.TOPIC, topicListener);
-        MobileChannel.getInstance().unRegisterDownstreamListener(downListener);
-        topicListener = null;
-        downListener = null;
+        if (topicListener != null) {
+            MobileChannel.getInstance().unSubscrbie(EnvConfigure.TOPIC, topicListener);
+            topicListener = null;
+        }
+        if (downListener != null) {
+            MobileChannel.getInstance().unRegisterDownstreamListener(downListener);
+            downListener = null;
+        }
     }
+
 
     public void setWorkingDevice(DeviceInfoBean workingDevice) {
         this.workingDevice = workingDevice;
@@ -150,13 +151,19 @@ public class IlifeAli {
         this.iotId = iotId;
     }
 
+
     /**
      * 设置账号登录异常监听器
      *
      * @param tTokenInvalidListener
      */
     public void settTokenInvalidListener(OnAliResponseSingle<Boolean> tTokenInvalidListener) {
-        this.tTokenInvalidListener = tTokenInvalidListener;
+        IoTCredentialManageImpl.getInstance(aApplication).setIotTokenInvalidListener(() -> {
+            //会话失效
+            if (tTokenInvalidListener != null) {
+                tTokenInvalidListener.onResponse(true);
+            }
+        });
     }
 
 
@@ -168,14 +175,27 @@ public class IlifeAli {
     public void init(AApplication context) {
         this.aApplication = context;
         ioTAPIClient = new IoTAPIClientFactory().getClient();
-        IoTCredentialManageImpl.getInstance(context).setIotTokenInvalidListener(() -> {
-            //会话失效
-            if (tTokenInvalidListener != null) {
-                tTokenInvalidListener.onResponse(true);
-            }
-        });
-        //TODO 登录失败处理
+        registerConnectionChangeListener();
     }
+
+    /**
+     * 应用销毁时调用
+     */
+    public void destroy() {
+        reset();
+        unRegisterConnectionLister();
+    }
+
+
+    /**
+     * 解注册长连接状态改变监听，注册是在APP初始化时
+     */
+    public void unRegisterConnectionLister() {
+        if (mConnectListener != null) {
+            MobileChannel.getInstance().unRegisterConnectListener(mConnectListener);
+        }
+    }
+
 
     public void logOut(final OnAliResponse<String> onAliResponse) {
         LoginBusiness.logout(new ILogoutCallback() {
@@ -190,6 +210,7 @@ public class IlifeAli {
             }
         });
     }
+
 
     /**
      * 判断账号是否登录
@@ -321,7 +342,7 @@ public class IlifeAli {
 
 
     /**
-     * 订阅TOPIC
+     * 订阅TOPIC,订阅topic，若失败会检查长连接，长连接成功后，会再次绑定
      */
     public void registerSubscribeTopic() {
         if (topicListener == null) {
@@ -333,6 +354,7 @@ public class IlifeAli {
 
                 @Override
                 public void onFailed(String s, AError aError) {
+                    checkAndReconnection();
                     Log.d(TAG, "registerSubscribeTopic failed: " + s + "----" + aError.getDomain());
                 }
 
@@ -394,11 +416,23 @@ public class IlifeAli {
         }
         registerSubscribeTopic();
         MobileChannel.getInstance().registerDownstreamListener(true, downListener);
+    }
 
+
+    public void unRegisterConnectionChangeListener() {
+        if (mConnectListener != null) {
+            MobileChannel.getInstance().unRegisterConnectListener(mConnectListener);
+        }
+    }
+
+
+    /**
+     * 注册长连接状态变化监听
+     */
+    public void registerConnectionChangeListener() {
         /** 注册通道的状态变化,记得调用 unRegisterConnectListener */
-        MobileChannel.getInstance().registerConnectListener(true, new IMobileConnectListener() {
-            @Override
-            public void onConnectStateChange(MobileConnectState state) {
+        if (mConnectListener == null) {
+            mConnectListener = state -> {
                 int stateCode = -1;
                 String value = "";
                 //参考 MobileConnectState.CONNECTED
@@ -407,6 +441,9 @@ public class IlifeAli {
                         //已连接
                         value = "连接改变：已连接";
                         stateCode = 1;
+                        if (topicListener != null) {//若topicListener为null，则页面为画图页面，需要重新订阅topic
+                            registerSubscribeTopic();
+                        }
                         break;
                     case DISCONNECTED:
                         value = "连接改变，已断开";
@@ -419,15 +456,41 @@ public class IlifeAli {
                         stateCode = 3;
                         break;
                     case CONNECTFAIL:
-                        value = "连接改变，连接失败";
+                        SDKManager.Result result = new SDKManager.Result();
+                        result.bInitialized = false;
+                        result.resultCode = -1;
+                        result.sdkName = "DownstreamConnector";
+                        result.sdkVer = "0.0.1";
+                        result.process = "com.ilife.home.robot";
+                        SDKManager.InitResultHolder.updateResult("com.aliyun.iot.aep.sdk.delegate.DownstreamConnectorSDKDelegate", result);
+
+                        value = "连接改变，连接失败，重新标记为未初始化";
                         //连接失败
                         stateCode = 4;
                         break;
                 }
+                CONNECTION_STATUS = stateCode;
                 Log.d(TAG, value);
-            }
-        });
+            };
+        }
+        MobileChannel.getInstance().registerConnectListener(true, mConnectListener);
+    }
 
+    /**
+     * 长连接如果失败，会导致APP无法接收到服务器下发。
+     * 检查长连接状态，如果未连接，则尝试重连
+     */
+    public void checkAndReconnection() {
+        if (CONNECTION_STATUS == -1) {
+            return;
+        }
+        if (CONNECTION_STATUS == 2 || CONNECTION_STATUS == 4) {
+            Log.e(TAG, "云服务器长连接已断开，正尝试重新连接。。。。。。。。");
+            SDKManager.prepareForInitSdk(aApplication);
+            SDKManager.init_outOfUiThread(aApplication);
+        } else {
+            Log.d(TAG, "设备连接状态正常。。。。。。。。。。。。");
+        }
     }
 
     public void setProperties(HashMap<String, Object> params, OnAliSetPropertyResponse onAliResponse) {
@@ -846,7 +909,7 @@ public class IlifeAli {
 
     public void setSchedule(int position, final int open, final int hour, final int minute, final OnAliResponse<ScheduleBean> onResponse) {
         String schedule;
-        if (workingDevice.getProductKey().equals(EnvConfigure.PRODUCT_KEY_X320)||workingDevice.getProductKey().equals(EnvConfigure.PRODUCT_KEY_X787)) {
+        if (workingDevice.getProductKey().equals(EnvConfigure.PRODUCT_KEY_X320) || workingDevice.getProductKey().equals(EnvConfigure.PRODUCT_KEY_X787)) {
             schedule = "{\"Schedule\":{\"ScheduleHour\":0,\"ScheduleEnd\":300,\"ScheduleEnable\":0,\"ScheduleMode\":3,\"ScheduleWeek\":1,\"ScheduleArea\":1,\"ScheduleMinutes\":0}}";
         } else {
             schedule = "{\"Schedule\":{\"ScheduleHour\":0,\"ScheduleType\":0,\"ScheduleEnd\":300,\"ScheduleEnable\":0,\"ScheduleMode\":6,\"ScheduleWeek\":1,\"ScheduleArea\":\"AAAAAAAAAAAAAAAA\",\"ScheduleMinutes\":0}}";
@@ -1168,6 +1231,32 @@ public class IlifeAli {
     }
 
 
+    public void taobaoAuthorization(String authCode, OnAliResponseSingle<Boolean> onaliResponse) {
+        JSONObject params = new JSONObject();
+        Map<String, Object> requestMap = params.getInnerMap();
+        params.put("authCode", authCode);
+        IoTRequest ioTRequest = new IoTRequestBuilder()
+                .setAuthType(EnvConfigure.IOT_AUTH)
+                .setApiVersion("1.0.5")
+                .setPath("/account/taobao/bind")
+                .setParams(requestMap)
+                .setScheme(Scheme.HTTPS)
+                .build();
+        new IoTAPIClientFactory().getClient().send(ioTRequest, new IoTUIThreadCallback(new IoTCallback() {
+            @Override
+            public void onFailure(IoTRequest ioTRequest, Exception e) {
+                Log.e("TaobaoAuthActivity", "授权淘宝账号失败--------------" + e.getMessage());
+                onaliResponse.onResponse(false);
+            }
+
+            @Override
+            public void onResponse(IoTRequest ioTRequest, IoTResponse ioTResponse) {
+                Log.d("TaobaoAuthActivity", "授权淘宝账号成功-----------");
+                onaliResponse.onResponse(true);
+            }
+        }));
+    }
+
     public String getBindingProductKey() {
         return bindingProductKey;
     }
@@ -1175,4 +1264,5 @@ public class IlifeAli {
     public void setBindingProductKey(String bindingProductKey) {
         this.bindingProductKey = bindingProductKey;
     }
+
 }
