@@ -1256,6 +1256,34 @@ public class IlifeAli {
             }
         }));
     }
+    public void checkTaobaoAuthorization(OnAliResponseSingle<Boolean> onaliResponse) {
+        JSONObject params = new JSONObject();
+        Map<String, Object> requestMap = params.getInnerMap();
+        params.put("accountType", "TAOBAO");
+        IoTRequest ioTRequest = new IoTRequestBuilder()
+                .setAuthType(EnvConfigure.IOT_AUTH)
+                .setApiVersion("1.0.5")
+                .setPath("/account/taobao/bind")
+                .setParams(requestMap)
+                .setScheme(Scheme.HTTPS)
+                .build();
+        new IoTAPIClientFactory().getClient().send(ioTRequest, new IoTUIThreadCallback(new IoTCallback() {
+            @Override
+            public void onFailure(IoTRequest ioTRequest, Exception e) {
+                Log.e("TaobaoAuthActivity", "授权淘宝账号失败--------------" + e.getMessage());
+                onaliResponse.onResponse(false);
+            }
+
+            @Override
+            public void onResponse(IoTRequest ioTRequest, IoTResponse ioTResponse) {
+                Log.d("TaobaoAuthActivity", "授权淘宝账号成功-----------");
+                onaliResponse.onResponse(true);
+            }
+        }));
+    }
+
+
+
 
     public String getBindingProductKey() {
         return bindingProductKey;

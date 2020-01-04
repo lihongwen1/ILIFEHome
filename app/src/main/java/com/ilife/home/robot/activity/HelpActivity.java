@@ -301,9 +301,8 @@ public class HelpActivity extends BackBaseActivity implements View.OnClickListen
                 //TODO 反馈iot id修改
                 boolean isHaveRobot = IlifeAli.getInstance().getmAcUserDevices().size() > 0;
                 String iotId = isHaveRobot ? IlifeAli.getInstance().getmAcUserDevices().get((Integer) tv_type.getTag()).getIotId() : "";
-                String robotName = isHaveRobot ? robotType : "";
                 String productKey =isHaveRobot? IlifeAli.getInstance().getmAcUserDevices().get((Integer) tv_type.getTag()).getProductKey():DeviceUtils.getProductKeyByRobotType(robotType);
-                IlifeAli.getInstance().commitFeedback(email, contents, type, robotName, AppUtils.getVersion(this), iotId,
+                IlifeAli.getInstance().commitFeedback(email, contents, type, robotType, AppUtils.getVersion(this), iotId,
                         productKey, aBoolean -> {
                             hideLoadingDialog();
                             if (aBoolean) {

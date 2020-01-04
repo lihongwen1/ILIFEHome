@@ -91,10 +91,8 @@ public class TaobaoAuthActivity extends BackBaseActivity {
                 return false;
             }
         });
-
         webView.loadUrl(aUrl);
         frameLayout.addView(webView);
-
     }
 
 
