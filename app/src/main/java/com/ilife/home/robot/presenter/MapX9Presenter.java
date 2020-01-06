@@ -214,6 +214,7 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
      * @param mapData
      */
     private void parseRealTimeMapX8(String mapData) {
+        MyLogger.e(TAG, "清扫数据:" + mapData);
         byte[] pointCoor = new byte[2];
         if (!TextUtils.isEmpty(mapData)) {
             byte[] bytes = Base64.decode(mapData, Base64.DEFAULT);
@@ -340,8 +341,10 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
                         }
                         queryVirtualWall();
                     } else {//x800系列
-                        if (!isGetHistory && havMapData) {
-                            getHistoryDataX8();
+                        if (curStatus == MsgCodeUtils.STATUE_PLANNING || curStatus == MsgCodeUtils.STATUE_PAUSE) {
+                            if (!isGetHistory && havMapData) {
+                                getHistoryDataX8();
+                            }
                         }
                     }
                 }
@@ -672,9 +675,9 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
     @Override
     public boolean pointToAlong(boolean reverse) {
         if (reverse) {//延边切重点
-            return robotType.equals(Constants.X800) || robotType.equals(Constants.V3x)|| robotType.equals(Constants.X787);
+            return robotType.equals(Constants.X800) || robotType.equals(Constants.X800W) || robotType.equals(Constants.V3x) || robotType.equals(Constants.X787);
         } else {//重点切延边
-            return robotType.equals(Constants.V3x)||robotType.equals(Constants.X787);
+            return robotType.equals(Constants.V3x) || robotType.equals(Constants.X787);
         }
     }
 

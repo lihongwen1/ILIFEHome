@@ -8,7 +8,7 @@ package com.ilife.home.robot.able;
 public class Constants {
     //国内
     public static final String X900 = "X900";
-    public static final String X800 = "X800";
+    public static final String X800 = "X800 • 黑";
     public static final String X800W = "X800 • 白";
     public static final String X787 = "X787";
     public static final String X785 = "X785";

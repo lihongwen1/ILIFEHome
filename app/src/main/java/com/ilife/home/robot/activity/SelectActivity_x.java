@@ -40,7 +40,8 @@ public class SelectActivity_x extends BackBaseActivity {
     @BindView(R.id.tv_top_title)
     TextView tvTitle;
     private List<CleanningRobot> robots = new ArrayList<>();
-    private static final String KEY_BINDING_PK="product_key";
+    private static final String KEY_BINDING_PK = "product_key";
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -74,14 +75,16 @@ public class SelectActivity_x extends BackBaseActivity {
             robotName = BuildConfig.BRAND + " " + deviceType;
             switch (deviceType) {
                 case Constants.X800:
-                    robots.add(new CleanningRobot(R.drawable.n_x800, robotName+" • 黑", EnvConfigure.PRODUCT_KEY_X800));
-                    robots.add(new CleanningRobot(R.drawable.n_x800_w, robotName+" • 白",EnvConfigure.PRODUCT_KEY_X800_W));
+                    robots.add(new CleanningRobot(R.drawable.n_x800, robotName, EnvConfigure.PRODUCT_KEY_X800));
+                    break;
+                case Constants.X800W:
+                    robots.add(new CleanningRobot(R.drawable.n_x800_w, robotName, EnvConfigure.PRODUCT_KEY_X800_W));
                     break;
                 case Constants.V3x:
-                    robots.add(new CleanningRobot(R.drawable.n_v3x, robotName,EnvConfigure.PRODUCT_KEY_X320));
+                    robots.add(new CleanningRobot(R.drawable.n_v3x, robotName, EnvConfigure.PRODUCT_KEY_X320));
                     break;
                 case Constants.X787:
-                    robots.add(new CleanningRobot(R.drawable.n_x787, robotName,EnvConfigure.PRODUCT_KEY_X787));
+                    robots.add(new CleanningRobot(R.drawable.n_x787, robotName, EnvConfigure.PRODUCT_KEY_X787));
                     break;
 
             }

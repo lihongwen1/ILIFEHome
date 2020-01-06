@@ -63,8 +63,8 @@ public class BindSucActivity extends BaseActivity {
     public void initData() {
         iv_bind_device.setImageResource(DeviceUtils.getRobotPic(DeviceUtils.getRobotType(IlifeAli.getInstance().getBindingProductKey())));
         String devName;
-        if (IlifeAli.getInstance().getBindingProductKey().equals(EnvConfigure.PRODUCT_KEY_X800_W)) {//白色仍旧名为X800
-            devName = BuildConfig.BRAND + " " + Constants.X800;
+        if (IlifeAli.getInstance().getBindingProductKey().equals(EnvConfigure.PRODUCT_KEY_X800_W) || IlifeAli.getInstance().getBindingProductKey().equals(EnvConfigure.PRODUCT_KEY_X800)) {//白色仍旧名为X800
+            devName = BuildConfig.BRAND + " X800";
         } else {
             devName = BuildConfig.BRAND + " " + DeviceUtils.getRobotType(IlifeAli.getInstance().getBindingProductKey());//ILIFE X800
         }

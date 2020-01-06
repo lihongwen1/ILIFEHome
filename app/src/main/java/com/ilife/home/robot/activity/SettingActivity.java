@@ -203,11 +203,12 @@ public class SettingActivity extends BackBaseActivity implements OnAliSetPropert
             case Constants.X800:
                 rl_mode.setVisibility(View.GONE);
                 rl_update.setVisibility(View.VISIBLE);
+                robotType = "X800";
                 break;
             case Constants.X800W:
                 rl_mode.setVisibility(View.GONE);
                 rl_update.setVisibility(View.VISIBLE);
-                robotType = Constants.X800;//X800白色款，需显示为X800
+                robotType = "X800";
                 break;
             case Constants.V3x:
                 rl_record.setVisibility(View.GONE);

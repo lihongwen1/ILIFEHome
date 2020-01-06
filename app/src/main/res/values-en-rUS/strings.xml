@@ -282,4 +282,5 @@
     <string name="consume_detail_remain_life">Remaining</string>
     <string name="history_detail_title">Cleaning details</string>
     <string name="personal_tiamao">天猫精灵</string>
+    <string name="adapter_error_gx">The cleaning brightness is insufficient,please open the light</string>
 </resources>

@@ -36,6 +36,9 @@ public class DeviceUtils {
             case Constants.V3x:
                 procutKey = EnvConfigure.PRODUCT_KEY_X320;
                 break;
+            case Constants.X787:
+                procutKey = EnvConfigure.PRODUCT_KEY_X787;
+                break;
         }
         return procutKey;
     }
