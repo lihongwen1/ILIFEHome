@@ -7,84 +7,92 @@
 
     <include layout="@layout/template_top_title" />
 
-    <ImageView
-        android:id="@+id/iv_consumer"
-        android:layout_width="@dimen/dp_200"
-        android:layout_height="@dimen/dp_200"
-        android:layout_marginTop="@dimen/dp_20"
-        />
-
-    <TextView
-        android:id="@+id/tv_consumer"
-        style="@style/Text_16sp_33"
-        android:layout_marginTop="@dimen/dp_16"
-        android:text="边刷" />
-
-    <ProgressBar
-        android:id="@+id/pb_consumer"
-        style="?android:attr/progressBarStyleHorizontal"
-        android:layout_width="@dimen/dp_240"
-        android:layout_height="@dimen/dp_4"
-        android:layout_marginTop="@dimen/dp_16"
-        android:max="100"
-        android:progress="80"
-        android:progressDrawable="@drawable/progress_bg_grenn" />
-
-    <LinearLayout
-        android:layout_marginTop="@dimen/dp_16"
-        android:layout_width="wrap_content"
+    <ScrollView
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="center"
-        android:orientation="vertical">
+        android:scrollbars="none">
 
-        <TextView
-            style="@style/Text_14sp_66"
-            android:layout_marginTop="@dimen/dp_4"
-            android:text="@string/consume_detail_remain_life" />
 
         <LinearLayout
-            android:orientation="horizontal"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content">
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center_horizontal"
+            android:orientation="vertical">
+
+            <ImageView
+                android:id="@+id/iv_consumer"
+                android:layout_width="@dimen/dp_200"
+                android:layout_height="@dimen/dp_200"
+                android:layout_marginTop="@dimen/dp_20" />
 
             <TextView
-                android:id="@+id/consumer_percent"
+                android:id="@+id/tv_consumer"
+                style="@style/Text_16sp_33"
+                android:layout_marginTop="@dimen/dp_16"
+                android:text="边刷" />
+
+            <ProgressBar
+                android:id="@+id/pb_consumer"
+                style="?android:attr/progressBarStyleHorizontal"
+                android:layout_width="@dimen/dp_240"
+                android:layout_height="@dimen/dp_4"
+                android:layout_marginTop="@dimen/dp_16"
+                android:max="100"
+                android:progress="80"
+                android:progressDrawable="@drawable/progress_bg_grenn" />
+
+            <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="96"
-                android:textColor="@color/color_ff4d00"
-                android:textSize="@dimen/sp_32" />
+                android:layout_marginTop="@dimen/dp_16"
+                android:gravity="center"
+                android:orientation="vertical">
+
+                <TextView
+                    style="@style/Text_14sp_66"
+                    android:layout_marginTop="@dimen/dp_4"
+                    android:text="@string/consume_detail_remain_life" />
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/consumer_percent"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="96"
+                        android:textColor="@color/color_ff4d00"
+                        android:textSize="@dimen/sp_32" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="%"
+                        android:textColor="@color/color_ff4d00"
+                        android:textSize="@dimen/dp_14" />
+                </LinearLayout>
+            </LinearLayout>
 
             <TextView
-                android:layout_width="wrap_content"
+                android:id="@+id/tv_consumer_detail_tip"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="%"
-                android:textColor="@color/color_ff4d00"
-                android:textSize="@dimen/dp_14" />
+                android:layout_marginStart="@dimen/dp_24"
+                android:layout_marginTop="@dimen/dp_24"
+                android:layout_marginEnd="@dimen/dp_24"
+                android:text="@string/consumer_tip_side"
+                android:textColor="#ff333333"
+                android:textSize="14sp" />
+            
+            <Button
+                android:id="@+id/btn_reset_consumer"
+                style="@style/Button_Style_quick_login"
+                android:layout_marginTop="@dimen/dp_30"
+                android:layout_marginBottom="@dimen/dp_24"
+                android:clickable="true"
+                android:text="重置边刷" />
         </LinearLayout>
-    </LinearLayout>
-
-    <TextView
-        android:id="@+id/tv_consumer_detail_tip"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/dp_24"
-        android:layout_marginTop="@dimen/dp_24"
-        android:layout_marginEnd="@dimen/dp_24"
-        android:text="@string/consumer_tip_side"
-        android:textColor="#ff333333"
-        android:textSize="14sp" />
-
-    <Space
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1" />
-
-    <Button
-        android:id="@+id/btn_reset_consumer"
-        style="@style/Button_Style_quick_login"
-        android:layout_marginTop="@dimen/dp_30"
-        android:layout_marginBottom="@dimen/dp_24"
-        android:clickable="true"
-        android:text="重置边刷" />
+    </ScrollView>
 </LinearLayout>

@@ -105,7 +105,7 @@ public class HistoryActivity_x9 extends BackBaseActivity implements View.OnClick
 
             @Override
             public void onFailed(int code, String message) {
-                if (recordList.size() == 0) {
+                if (code!= -1) {//-1 is a custom error,no need to handle it
                     ToastUtils.showErrorToast(context, code);
                 }
                 showList(recordList);

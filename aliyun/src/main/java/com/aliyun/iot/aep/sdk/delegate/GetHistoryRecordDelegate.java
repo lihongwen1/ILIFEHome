@@ -80,7 +80,7 @@ public class GetHistoryRecordDelegate {
                     int startTime = 0;
                     long timestamp = 0;
                     if (jsonArray == null) {
-                        onAliResponse.onFailed(0, "没有数据");
+                        onAliResponse.onFailed(-1, "没有数据");
                         return;
                     }
                     int dataSize = jsonArray.size();

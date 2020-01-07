@@ -152,6 +152,7 @@ public class HistoryDetailActivity_x9 extends BackBaseActivity {
         mapView.updateSlam(xMin, xMax, yMin, yMax);
         mapView.setNeedEndPoint(false);
         mapView.drawMapX8(pointList);
+        mapView.setRotation(90);//实时地图和历史地图相差90度
         MyLogger.e(TAG, "字节数：   " + byteList.size() + "-----总点数：  ");
     }
 
