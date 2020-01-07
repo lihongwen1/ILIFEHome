@@ -74,7 +74,7 @@ public final class DownstreamConnectorSDKDelegate extends SimpleSDKDelegateImp {
         config.isCheckChannelRootCrt = isCheckRootCrt;
         config.serverUrlForAutoSelectChannel = serverUrlForAutoSelectChannel;
         MobileChannel.setOpenLog(true);
-        // 注意:长连接的初始化只能在主进程中执行，否则会导致互踢问题
+        // 注意:长连接的初始化只能在主进程中执行，否则会导致互踢问题,//通过模拟网络变化触发重新建立长连接
         MobileChannel.getInstance().startConnect(app, config, new IMobileConnectListener() {
             @Override
             public void onConnectStateChange(MobileConnectState state) {
