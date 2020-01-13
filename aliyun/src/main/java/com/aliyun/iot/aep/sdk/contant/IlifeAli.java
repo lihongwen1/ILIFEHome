@@ -273,10 +273,13 @@ public class IlifeAli {
      * @param homePassword
      * @param onBindDeviceComplete
      */
-    public void bindDevice(String homeSsid, String homePassword, OnAliBindDeviceResponse<String> onBindDeviceComplete) {
+    public BindDeviceDelagate bindDevice(String homeSsid, String homePassword, OnAliBindDeviceResponse<String> onBindDeviceComplete) {
         BindDeviceDelagate bindDeviceDelagate = new BindDeviceDelagate(aApplication, homeSsid, homePassword, bindingProductKey, onBindDeviceComplete);
         bindDeviceDelagate.connectDevice();
+        return bindDeviceDelagate;
     }
+
+
 
     public void reNameDevice(String name, final OnAliResponseSingle<Boolean> onAliResponseSingle) {
         if (iotId == null || iotId.isEmpty()) {
@@ -1286,7 +1289,7 @@ public class IlifeAli {
 
 
     public String getBindingProductKey() {
-        return bindingProductKey;
+        return bindingProductKey==null?"":bindingProductKey;
     }
 
     public void setBindingProductKey(String bindingProductKey) {

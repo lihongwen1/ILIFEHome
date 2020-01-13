@@ -132,4 +132,12 @@ public class GetHistoryRecordDelegate {
         SimpleDateFormat format = new SimpleDateFormat(strFormat, Locale.CHINA);
         return format.format(new Date((time) * 1000));
     }
+
+
+
+
+
+
+
+
 }

@@ -28,6 +28,7 @@ import com.ilife.home.robot.R;
 import com.ilife.home.robot.base.BackBaseActivity;
 import com.ilife.home.robot.utils.MyLogger;
 import com.ilife.home.robot.utils.ToastUtils;
+import com.ilife.home.robot.utils.Utils;
 
 import java.util.Map;
 
@@ -55,7 +56,7 @@ public class TaobaoAuthActivity extends BackBaseActivity {
 
     @SuppressLint("SetJavaScriptEnabled")
     public void initView() {
-        tv_title.setText("应用授权");
+        tv_title.setText(Utils.getString(R.string.personal_tiamao));
         frameLayout = findViewById(R.id.web_frame);
         image_back = findViewById(R.id.image_back);
         image_back.setOnClickListener(v -> removeActivity());
@@ -75,7 +76,7 @@ public class TaobaoAuthActivity extends BackBaseActivity {
             //设置结束加载函数
             @Override
             public void onPageFinished(WebView view, String url) {
-                tv_title.setText(view.getTitle());
+//                tv_title.setText(view.getTitle());
             }
             @Override
             public boolean shouldOverrideUrlLoading(WebView view, String url) {
@@ -131,9 +132,9 @@ public class TaobaoAuthActivity extends BackBaseActivity {
         if (null != authCode) {
             IlifeAli.getInstance().taobaoAuthorization(authCode, aBoolean -> {
                 if (aBoolean){
-                    ToastUtils.showToast("授权淘宝账号成功");
+                    ToastUtils.showToast(getString(R.string.taobao_authorization_succeeded));
                 }else {
-                    ToastUtils.showToast("授权淘宝账号失败");
+                    ToastUtils.showToast(getString(R.string.taobao_authorization_failed));
                 }
             });
         }

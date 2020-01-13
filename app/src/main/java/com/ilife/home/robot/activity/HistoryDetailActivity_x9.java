@@ -132,7 +132,7 @@ public class HistoryDetailActivity_x9 extends BackBaseActivity {
                     type = getBits(b, 6 - j * 2);
                     MyLogger.d(TAG, "坐标---" + "x:" + x + "---y---" + y + "---type---" + type);
                     if (type != 0) {
-                        coordinate = new Coordinate(x, y, type);
+                        coordinate = new Coordinate(-y, x, type);
                         pointList.add(coordinate);
                     }
                     if (x < lineCount - 1) {
@@ -144,15 +144,14 @@ public class HistoryDetailActivity_x9 extends BackBaseActivity {
 
                 }
             }
-            xMin = 0;
-            xMax = lineCount;
+            xMin = -y;
+            xMax = 0;
             yMin = 0;
-            yMax = y;
+            yMax = lineCount;
         }
         mapView.updateSlam(xMin, xMax, yMin, yMax);
         mapView.setNeedEndPoint(false);
         mapView.drawMapX8(pointList);
-        mapView.setRotation(90);//实时地图和历史地图相差90度
         MyLogger.e(TAG, "字节数：   " + byteList.size() + "-----总点数：  ");
     }
 

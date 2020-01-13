@@ -61,10 +61,7 @@ public class BindDeviceDelagate {
     private Timer timer;
     private int autoUpprogress;
     private int realProgress;
-    private int timerTimes;
     private String productKey;
-    private List<DeviceInfo> localFindDevice;
-    private int BINDIND_STEP = 0;//0-未开始 1-finding 2-binding 3-fail 4-success
     private CompositeDisposable mDisposable;
     private int reBindTimes = 0;
 
@@ -73,7 +70,6 @@ public class BindDeviceDelagate {
         this.homeSsid = homeSsid;
         this.homePassword = homePassword;
         this.onBindDeviceComplete = onBindDeviceComplete;
-        this.localFindDevice = new ArrayList<>();
         this.mDisposable = new CompositeDisposable();
         if (productKey == null) {
             productKey = "";
@@ -89,6 +85,7 @@ public class BindDeviceDelagate {
         onBindDeviceComplete = null;
         context = null;
         // 停止配网
+        LocalDeviceMgr.getInstance().stopDiscovery();
         AddDeviceBiz.getInstance().stopAddDevice();
     }
 
@@ -99,7 +96,6 @@ public class BindDeviceDelagate {
             timer.schedule(new TimerTask() {
                 @Override
                 public void run() {
-                    timerTimes++;
                     if (onBindDeviceComplete != null) {
                         autoUpprogress += 3;
                         if (autoUpprogress > 90) {
@@ -119,10 +115,10 @@ public class BindDeviceDelagate {
 
 
     private void discoveryDevice() {
-        Log.d("AddDeviceBiz", "开始发现设备");
+        Log.d("BindDeviceDelagate", "开始发现设备");
         EnumSet<DiscoveryType> discoveryTypeEnumSet = EnumSet.of(DiscoveryType.SOFT_AP_DEVICE);
         LocalDeviceMgr.getInstance().startDiscovery(context, discoveryTypeEnumSet, null, (discoveryType, list) -> {
-            Log.d("AddDeviceBiz", "--发现设备--" + "发现类型---" + discoveryType.getDescription() + "-----设备： " + JSON.toJSONString(list));
+            Log.d("BindDeviceDelagate", "--发现设备--" + "发现类型---" + discoveryType.getDescription() + "-----设备： " + JSON.toJSONString(list));
             if (list != null && list.size() > 0) {
                 boolean isFindDevice = false;
                 String targetId = null;
@@ -134,7 +130,7 @@ public class BindDeviceDelagate {
                         break;
                     }
                 }
-                if (isFindDevice && targetId != null) {
+                if (isFindDevice && targetId != null && !iscancel) {
                     startAddDevice(targetId);
                 }
             }
@@ -143,7 +139,7 @@ public class BindDeviceDelagate {
 
 
     private void startAddDevice(String id) {
-        Log.d("AddDeviceBiz", "开始添加设备，设备ID为：" + id);
+        Log.d("BindDeviceDelagate", "开始添加设备，设备ID为：" + id);
         DeviceInfo deviceInfo = new DeviceInfo();
         deviceInfo.productKey = productKey;
         deviceInfo.id = id;
@@ -155,7 +151,11 @@ public class BindDeviceDelagate {
             @Override
             public void onPreCheck(boolean b, DCErrorCode dcErrorCode) {
                 // 参数检测回调
-                Log.d("AddDeviceBiz", "添加设备参数回调" + dcErrorCode.msg);
+                if (dcErrorCode != null) {
+                    Log.d("BindDeviceDelagate", "添加设备参数回调" + dcErrorCode.msg);
+                } else {
+                    Log.d("BindDeviceDelagate", "添加设备参数回调 dcErrorCode为null");
+                }
             }
 
             @Override
@@ -166,7 +166,7 @@ public class BindDeviceDelagate {
                 // prepareType = 2提示用户手动开启指定热点 aha 12345678
                 // 执行完上述操作之后，调用toggleProvision接口继续执行配网流程
                 if (prepareType == 1) {
-                    Log.d("AddDeviceBiz", "添加设备设置家庭WiFi信息：" + homeSsid + "-----" + homePassword);
+                    Log.d("BindDeviceDelagate", "添加设备设置家庭WiFi信息：" + homeSsid + "-----" + homePassword);
                     realProgress = 20;
                     onBindDeviceComplete.onProgress(20);
                     AddDeviceBiz.getInstance().toggleProvision(homeSsid, homePassword, TIMEOUT);
@@ -175,12 +175,12 @@ public class BindDeviceDelagate {
 
             @Override
             public void onProvisioning() {
-                Log.d("AddDeviceBiz", "配网中。。。。。。。。。。。开始连接家庭网络");
+                Log.d("BindDeviceDelagate", "配网中。。。。。。。。。。。开始连接家庭网络");
                 Disposable disposable = Completable.timer(4, TimeUnit.SECONDS)
                         .subscribe(() -> {
                             WifiManager wifiManager = (WifiManager) context.getApplicationContext().getSystemService(WIFI_SERVICE);
                             boolean isSuccess = WifiUtils.forceConnectWifi(wifiManager, homeSsid, homePassword, WifiUtils.getCipherType(homeSsid, wifiManager));
-                            Log.d("AddDeviceBiz", "切换家庭wifi，成功:  " + isSuccess);
+                            Log.d("BindDeviceDelagate", "切换家庭wifi，成功:  " + isSuccess);
                         });
                 mDisposable.add(disposable);
                 // 配网中
@@ -189,7 +189,7 @@ public class BindDeviceDelagate {
 
             @Override
             public void onProvisionStatus(ProvisionStatus provisionStatus) {
-                Log.d("AddDeviceBiz", "配网状态改变，改变描述信息为： " + provisionStatus.message());
+                Log.d("BindDeviceDelagate", "配网状态改变，改变描述信息为： " + provisionStatus.message());
 
                 // 二维码配网会走到这里  provisionStatus=ProvisionStatus.QR_PROVISION_READY表示二维码ready了
                 // ProvisionStatus.QR_PROVISION_READY.message() 获取二维码内容
@@ -200,16 +200,16 @@ public class BindDeviceDelagate {
             @Override
             public void onProvisionedResult(boolean b, DeviceInfo deviceInfo, DCErrorCode errorCode) {
                 //TODO for promoting the success rate of binding device,you should set a TIME-OUT time for waiting call "onProvisionedResult"
-                Log.d("AddDeviceBiz", "配网结果返回。。。。。。。。。。。" + deviceInfo.productKey + "----------" + deviceInfo.deviceName);
+                Log.d("BindDeviceDelagate", "配网结果返回。。。。。。。。。。。" + deviceInfo.productKey + "----------" + deviceInfo.deviceName);
                 // 配网结果 如果配网成功之后包含token，请使用配网成功带的token做绑定
                 if (b) {
                     final String mProductKey = deviceInfo.productKey;
                     final String mDeviceName = deviceInfo.deviceName;
                     if (deviceInfo.token != null) {
-                        Log.d("AddDeviceBiz", "使用device info自带的token绑定");
+                        Log.d("BindDeviceDelagate", "使用device info自带的token绑定");
                         bindDevice(mProductKey, mDeviceName, deviceInfo.token);
                     } else {
-                        Log.d("AddDeviceBiz", "使用获取设备token进行绑定");
+                        Log.d("BindDeviceDelagate", "使用获取设备token进行绑定");
                         LocalDeviceMgr.getInstance().getDeviceToken(context, deviceInfo.productKey, deviceInfo.deviceName, 60 * 1000, 5 * 1000, new IOnDeviceTokenGetListener() {
                             @Override
                             public void onSuccess(String token) {
@@ -224,7 +224,7 @@ public class BindDeviceDelagate {
                     }
                 } else {
                     //bind fail
-                    Log.d("AddDeviceBiz", "配网失败。。。。。。。。。" + errorCode.toString());
+                    Log.d("BindDeviceDelagate", "配网失败。。。。。。。。。" + errorCode.toString());
                     bindFail(0, "matching wifi fail");
                 }
             }
@@ -239,7 +239,7 @@ public class BindDeviceDelagate {
         }
         realProgress = 80;
         onBindDeviceComplete.onProgress(80);
-        Log.d("AddDeviceBiz", "开始绑定设备。。。。。");
+        Log.d("BindDeviceDelagate", "开始绑定设备。。。。。");
         Map<String, Object> paramMap = new HashMap<>();
         paramMap.put("productKey", productKey);
         paramMap.put("deviceName", deviceName);
@@ -262,19 +262,19 @@ public class BindDeviceDelagate {
                          */
                         WifiManager wifiManager = (WifiManager) context.getApplicationContext().getSystemService(WIFI_SERVICE);
                         boolean isSuccess = WifiUtils.forceConnectWifi(wifiManager, homeSsid, homePassword, WifiUtils.getCipherType(homeSsid, wifiManager));
-                        Log.d("AddDeviceBiz", "reBind and re connect WIFI,is toggle wifi succeed:  " + isSuccess);
+                        Log.d("BindDeviceDelagate", "reBind and re connect WIFI,is toggle wifi succeed:  " + isSuccess);
                         emitter.onError(e);
                     }
 
                     @Override
                     public void onResponse(IoTRequest ioTRequest, IoTResponse ioTResponse) {
-                        Log.d("AddDeviceBiz", "绑定设备成功。。。。" + ioTResponse.getCode() + "----" + ioTResponse.getMessage() + ioTResponse.getData().toString());
+                        Log.d("BindDeviceDelagate", "绑定设备成功。。。。" + ioTResponse.getCode() + "----" + ioTResponse.getMessage() + ioTResponse.getData().toString());
                         if (ioTResponse.getCode() == 200 && ioTResponse.getData() instanceof String) {
                             //bind success
                             String iotId = (String) ioTResponse.getData();
                             emitter.onSuccess(iotId);
                         } else {
-                            Log.d("AddDeviceBiz", "绑定设备失败。。。。。");
+                            Log.d("BindDeviceDelagate", "绑定设备失败。。。。。");
                             //bind fail
                             emitter.onError(new Exception(ioTResponse.getMessage() + ioTResponse.getLocalizedMsg()));
                         }
@@ -282,7 +282,7 @@ public class BindDeviceDelagate {
                 })).retryWhen(flowable -> flowable.flatMap((Function<Throwable, Publisher<?>>) throwable -> (Publisher<Boolean>) s -> {
             Disposable disposable = Observable.timer(3, TimeUnit.SECONDS).subscribe(aLong -> {
                 if (reBindTimes < 3) {
-                    Log.d("AddDeviceBiz", "延迟3S尝试重新绑定。。。");
+                    Log.d("BindDeviceDelagate", "延迟3S尝试重新绑定。。。");
                     reBindTimes++;
                     s.onNext(true);
                 } else {
@@ -305,7 +305,7 @@ public class BindDeviceDelagate {
             @Override
             public void onError(Throwable e) {
                 //bind fail
-                Log.d("AddDeviceBiz", "绑定设备失败" + e.getMessage());
+                Log.d("BindDeviceDelagate", "绑定设备失败" + e.getMessage());
                 bindFail(0, e.getMessage());
             }
         });

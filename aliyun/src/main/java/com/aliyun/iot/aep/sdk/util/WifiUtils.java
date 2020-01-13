@@ -126,7 +126,7 @@ public class WifiUtils {
      * @return
      */
     public static boolean forceConnectWifi(WifiManager wifiManager, String ssid, String pass, int type) {
-        wifiManager.disconnect();
+//        wifiManager.disconnect();
         return createWifiConfig(wifiManager, ssid, pass, type);
     }
 

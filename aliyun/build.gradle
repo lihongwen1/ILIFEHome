@@ -133,7 +133,7 @@ dependencies {
 
     /* 配网 SDK.begin */
     api 'com.aliyun.alink.linksdk:ilop-devicecenter-ext-boneplugin:1.5.1'
-    api 'com.aliyun.alink.linksdk:ilop-devicecenter:1.7.1.1'
+    api 'com.aliyun.alink.linksdk:ilop-devicecenter:1.7.2'
     /* 配网 SDK.end */
 
     /*蓝牙SDK.begin*/

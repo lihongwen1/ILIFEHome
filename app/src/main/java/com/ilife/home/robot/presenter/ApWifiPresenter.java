@@ -2,6 +2,7 @@ package com.ilife.home.robot.presenter;
 
 import com.aliyun.iot.aep.sdk._interface.OnAliBindDeviceResponse;
 import com.aliyun.iot.aep.sdk.contant.IlifeAli;
+import com.aliyun.iot.aep.sdk.delegate.BindDeviceDelagate;
 import com.ilife.home.robot.base.BasePresenter;
 import com.ilife.home.robot.contract.ApWifiContract;
 
@@ -16,10 +17,11 @@ import io.reactivex.schedulers.Schedulers;
  */
 public class ApWifiPresenter extends BasePresenter<ApWifiContract.View> implements ApWifiContract.Presenter {
 
+    private BindDeviceDelagate bindDeviceDelagate;
 
     @Override
     public void connectToDevice() {
-        Completable.create(e -> IlifeAli.getInstance().bindDevice(mView.getHomeSsid(), mView.getPassWord(), new OnAliBindDeviceResponse<String>() {
+        Completable.create(e -> bindDeviceDelagate = IlifeAli.getInstance().bindDevice(mView.getHomeSsid(), mView.getPassWord(), new OnAliBindDeviceResponse<String>() {
             @Override
             public void onSuccess(String iotId) {
                 IlifeAli.getInstance().setIotId(iotId);
@@ -50,7 +52,9 @@ public class ApWifiPresenter extends BasePresenter<ApWifiContract.View> implemen
 
             @Override
             public void onComplete() {
-                mView.bindSuccess();
+                if (isViewAttached()) {
+                    mView.bindSuccess();
+                }
             }
 
             @Override
@@ -60,6 +64,13 @@ public class ApWifiPresenter extends BasePresenter<ApWifiContract.View> implemen
                 }
             }
         });
+    }
 
+    @Override
+    public void detachView() {
+        super.detachView();
+        if (bindDeviceDelagate!=null){
+            bindDeviceDelagate.cancel();
+        }
     }
 }
