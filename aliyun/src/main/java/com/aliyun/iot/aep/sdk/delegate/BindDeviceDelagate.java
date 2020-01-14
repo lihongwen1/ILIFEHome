@@ -27,6 +27,7 @@ import com.aliyun.iot.aep.sdk.util.WifiUtils;
 
 import org.reactivestreams.Publisher;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.HashMap;
@@ -43,7 +44,9 @@ import io.reactivex.SingleObserver;
 import io.reactivex.SingleOnSubscribe;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
+import io.reactivex.functions.Action;
 import io.reactivex.functions.Function;
+import io.reactivex.schedulers.Schedulers;
 
 import static android.content.Context.WIFI_SERVICE;
 
@@ -55,7 +58,7 @@ import static android.content.Context.WIFI_SERVICE;
 public class BindDeviceDelagate {
     private Context context;
     private String homeSsid, homePassword;
-    private int TIMEOUT = 60;
+    private int TIMEOUT = 90;
     private OnAliBindDeviceResponse<String> onBindDeviceComplete;
     private boolean iscancel = false;
     private Timer timer;
@@ -64,6 +67,7 @@ public class BindDeviceDelagate {
     private String productKey;
     private CompositeDisposable mDisposable;
     private int reBindTimes = 0;
+    private String apSsid;
 
     public BindDeviceDelagate(Context context, String homeSsid, String homePassword, String productKey, OnAliBindDeviceResponse<String> onBindDeviceComplete) {
         this.context = context;
@@ -131,6 +135,7 @@ public class BindDeviceDelagate {
                     }
                 }
                 if (isFindDevice && targetId != null && !iscancel) {
+                    apSsid = generateAp(targetId);
                     startAddDevice(targetId);
                 }
             }
@@ -175,12 +180,14 @@ public class BindDeviceDelagate {
 
             @Override
             public void onProvisioning() {
-                Log.d("BindDeviceDelagate", "配网中。。。。。。。。。。。开始连接家庭网络");
+                Log.d("BindDeviceDelagate", "配网中。。。。。。。。。。。");
                 Disposable disposable = Completable.timer(4, TimeUnit.SECONDS)
                         .subscribe(() -> {
                             WifiManager wifiManager = (WifiManager) context.getApplicationContext().getSystemService(WIFI_SERVICE);
-                            boolean isSuccess = WifiUtils.forceConnectWifi(wifiManager, homeSsid, homePassword, WifiUtils.getCipherType(homeSsid, wifiManager));
-                            Log.d("BindDeviceDelagate", "切换家庭wifi，成功:  " + isSuccess);
+                            if (!WifiUtils.getSsid(context).equals(apSsid)) {
+                                boolean isSuccess = WifiUtils.forceConnectWifi(wifiManager, apSsid, "", 1);
+                                Log.d("BindDeviceDelagate", "切换主机wifi，成功:  " + isSuccess);
+                            }
                         });
                 mDisposable.add(disposable);
                 // 配网中
@@ -200,7 +207,7 @@ public class BindDeviceDelagate {
             @Override
             public void onProvisionedResult(boolean b, DeviceInfo deviceInfo, DCErrorCode errorCode) {
                 //TODO for promoting the success rate of binding device,you should set a TIME-OUT time for waiting call "onProvisionedResult"
-                Log.d("BindDeviceDelagate", "配网结果返回。。。。。。。。。。。" + deviceInfo.productKey + "----------" + deviceInfo.deviceName);
+                Log.d("BindDeviceDelagate", "配网结果返回。。。。。。。。。。。");
                 // 配网结果 如果配网成功之后包含token，请使用配网成功带的token做绑定
                 if (b) {
                     final String mProductKey = deviceInfo.productKey;
@@ -230,6 +237,17 @@ public class BindDeviceDelagate {
             }
         });
 
+    }
+
+    public String generateAp(String bssid) {
+        StringBuilder sb = new StringBuilder();
+        BigInteger id = new BigInteger(bssid.replace(":", ""), 16);
+//        long mac = id.longValue() - 1; //sdk1.6.5.2
+        long mac = id.longValue();       //sdk1.5.1
+        String id_ = Long.toHexString(mac).toUpperCase();
+        sb.delete(0, sb.length());
+        sb.append("adh_").append(productKey).append("_").append(id_.substring(id_.length() - 6, id_.length()));
+        return sb.toString();
     }
 
 
