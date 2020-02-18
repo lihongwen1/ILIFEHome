@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/bg_color_f5f7fa"
+    android:orientation="vertical">
+
+    <include layout="@layout/template_top_title" />
+
+    <View style="@style/View_Line_Style" />
+
+    <LinearLayout
+        android:id="@+id/ll_btaobao"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="@dimen/dp_100"
+        android:gravity="center_horizontal"
+        android:orientation="vertical">
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/icon_taobao" />
+
+        <TextView
+            style="@style/Text_16sp_33"
+            android:layout_marginTop="@dimen/dp_16"
+            android:text="已授权账号"
+            />
+
+        <Space
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
+
+        <TextView
+            android:id="@+id/tv_bind_unbind"
+            style="@style/Text_16sp_33"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/dp_48"
+            android:layout_marginBottom="@dimen/dp_36"
+            android:background="@drawable/shape_bg_white"
+            android:gravity="center"
+            android:layout_marginStart="@dimen/dp_30"
+            android:layout_marginEnd="@dimen/dp_30"
+            android:text="取消授权"
+            android:textStyle="bold"
+            />
+    </LinearLayout>
+
+
+    <FrameLayout
+        android:id="@+id/web_frame"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:focusable="true"
+        android:focusableInTouchMode="true" />
+</LinearLayout>

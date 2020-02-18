@@ -22,7 +22,7 @@ public interface OnDevicePoropertyResponse {
     /**
      * 实时地图数据
      */
-    void onRealMap(RealTimeMapBean bean);
+    void onRealMap(String mapBeanData);
 
     void onBatterState(int batteryLevel);
 

@@ -3,7 +3,11 @@ package com.ilife.home.robot.presenter;
 import android.text.TextUtils;
 import android.util.Base64;
 
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.Observer;
+
 import com.aliyun.iot.aep.sdk._interface.OnAliResponse;
+import com.aliyun.iot.aep.sdk._interface.OnAliResponseSingle;
 import com.aliyun.iot.aep.sdk._interface.OnAliSetPropertyResponse;
 import com.aliyun.iot.aep.sdk._interface.OnDevicePoropertyResponse;
 import com.aliyun.iot.aep.sdk.bean.PropertyBean;
@@ -17,12 +21,13 @@ import com.ilife.home.robot.R;
 import com.ilife.home.robot.able.Constants;
 import com.ilife.home.robot.able.DeviceUtils;
 import com.ilife.home.robot.activity.BaseMapActivity;
-import com.ilife.home.robot.activity.MainActivity;
 import com.ilife.home.robot.activity.SettingActivity;
 import com.ilife.home.robot.app.MyApplication;
 import com.ilife.home.robot.base.BasePresenter;
+import com.ilife.home.robot.bean.CleaningDataX8;
 import com.ilife.home.robot.bean.Coordinate;
 import com.ilife.home.robot.contract.MapX9Contract;
+import com.ilife.home.robot.model.MapX9Model;
 import com.ilife.home.robot.utils.DataUtils;
 import com.ilife.home.robot.utils.MyLogger;
 import com.ilife.home.robot.utils.SpUtils;
@@ -35,17 +40,17 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 import io.reactivex.Observable;
 import io.reactivex.Single;
 import io.reactivex.SingleObserver;
 import io.reactivex.SingleOnSubscribe;
-import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Function;
-import io.reactivex.schedulers.Schedulers;
 
 // TODO APP后台CPU消耗问题
 //TODO 处理x800系列绘制地图不全部绘制，只绘制新增的点
@@ -57,7 +62,7 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
     private ArrayList<Integer> realTimePoints, historyRoadList;
     private List<int[]> wallPointList = new ArrayList<>();
     private List<int[]> existPointList = new ArrayList<>();
-
+    private ExecutorService singleThread;
 
     private byte[] slamBytes, virtualContentBytes;
     /**
@@ -71,16 +76,19 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
     private CompositeDisposable mComDisposable;
     private int retryTimes = 1;//the retry times of gaining the device status
     private long mapStartTime;
+    private MapX9Model mapX9Model;
 
     @Override
     public void attachView(MapX9Contract.View view) {
         super.attachView(view);
+        mapX9Model = new MapX9Model();
         mComDisposable = new CompositeDisposable();
         realTimePoints = new ArrayList<>();
         historyRoadList = new ArrayList<>();
         pointList = new ArrayList<>();
         robotType = DeviceUtils.getRobotType(IlifeAli.getInstance().getWorkingDevice().getProductKey());
         adjustTime();
+        singleThread = Executors.newSingleThreadExecutor();
         if (robotType.equals(Constants.V3x) || robotType.equals(Constants.V5x) || robotType.equals(Constants.V85) || robotType.equals(Constants.A7)) {
             haveMap = false;
         }
@@ -151,44 +159,27 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
      * Repetition only happens after each success.
      */
     private void getHistoryDataX8() {
-        Disposable d = Single.create((SingleOnSubscribe<Boolean>) emitter -> {
-            if (!isViewAttached()) {//page has been destroyed
-                emitter.onError(new Exception("you need to retry after a while as the view is not attach"));
-            } else {
-                IlifeAli.getInstance().getCleaningHistory(mapStartTime, System.currentTimeMillis(), new OnAliResponse<List<RealTimeMapBean>>() {
-                    @Override
-                    public void onSuccess(List<RealTimeMapBean> result) {
-                        MyLogger.d(TAG, "getHistoryDataX8-------------------------------success");
-                        for (RealTimeMapBean bean : result) {
-                            parseRealTimeMapX8(bean.getMapData());
-                            if (workTime == 0) {
-                                workTime = bean.getCleanTime();
-                            }
-                            if (cleanArea == 0) {
-                                cleanArea = bean.getCleanArea();
-                            }
-                        }
-                        updateSlamX8(pointList, 0);
-                        isGetHistory = true;
-                        mView.updateCleanTime(getTimeValue());
-                        mView.updateCleanArea(getAreaValue());
-                        if (haveMap && isViewAttached() && isDrawMap()) {
-                            mView.drawMapX8(pointList);
-                        }
-                        emitter.onSuccess(true);
-                    }
-
-                    @Override
-                    public void onFailed(int code, String message) {
-                        emitter.onError(new Exception(message));
-                    }
-                });
+        mapX9Model.queryHistoryData(mapStartTime, cleaningDataX8 -> {
+            MyLogger.d(TAG, "getHistoryDataX8-------------------------------success");
+            isGetHistory = true;
+            int tempArea = cleaningDataX8.getCleanArea();
+            int tempTime = cleaningDataX8.getWorkTime();
+            if (tempArea > cleanArea) {
+                cleanArea = tempArea;
             }
-        }).retry(2).subscribe(aBoolean -> isGetHistory = true, throwable -> {
-            isGetHistory = false;
-            MyLogger.e(TAG, "Failed to get history map data,and you need to retry sometime");
+            if (tempTime > workTime) {
+                workTime = tempTime;
+            }
+            if (curStatus != MsgCodeUtils.STATUE_PLANNING) {//避免跑机的时候显示不符合实际的清扫时间和清扫区域
+                mView.updateCleanTime(getTimeValue());
+                mView.updateCleanArea(getAreaValue());
+            }
+            pointList.addAll(cleaningDataX8.getCoordinates());
+            updateSlamX8(pointList, 0);
+            if (haveMap && isViewAttached() && isDrawMap()) {
+                mView.drawMapX8(pointList);
+            }
         });
-        mComDisposable.add(d);
     }
 
     /**
@@ -214,7 +205,6 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
      * @param mapData
      */
     private void parseRealTimeMapX8(String mapData) {
-        MyLogger.e(TAG, "清扫数据:" + mapData);
         byte[] pointCoor = new byte[2];
         if (!TextUtils.isEmpty(mapData)) {
             byte[] bytes = Base64.decode(mapData, Base64.DEFAULT);
@@ -310,7 +300,7 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
                     return;
                 }
                 isGainDevStatus = true;
-
+                registerPropReceiver();
                 /**
                  * To avoid the failure of the first registration property listener, re-register it after the status is checked
                  */
@@ -322,7 +312,6 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
                         setStatus(curStatus, batteryNo);
                     }
                 });
-                registerPropReceiver();
                 if (propertyBean != null) {
                     mapStartTime = propertyBean.getRealTimeMapTimeLine();
                     errorCode = 0;
@@ -552,25 +541,29 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
             @Override
             public void onBatterState(int batteryLevel) {
                 batteryNo = batteryLevel;
+                IlifeAli.getInstance().getWorkingDevice().setBattery(batteryNo);
                 setStatus(curStatus, batteryNo);
             }
 
             @Override
-            public void onRealMap(RealTimeMapBean mapBean) {
-                if (mapBean == null) {
+            public void onRealMap(String mapBeanData) {
+                if (mapBeanData == null) {
                     return;
                 }
-                MyLogger.d(TAG, "onRealMap----:  " + mapBean.toString());
-                int offset = pointList.size();
-                parseRealTimeMapX8(mapBean.getMapData());
-                updateSlamX8(pointList, offset);
-                cleanArea = mapBean.getCleanArea();
-                workTime = mapBean.getCleanTime();
-                mView.updateCleanTime(getTimeValue());
-                mView.updateCleanArea(getAreaValue());
-                if (haveMap && pointList != null && isDrawMap()) {
-                    mView.drawMapX8(pointList);
-                }
+//                Gson gson = new Gson();
+//                RealTimeMapBean mapBean = gson.fromJson(mapBeanData, RealTimeMapBean.class);
+//                MyLogger.d(TAG, "onRealMap----:  " + mapBean.toString());
+//                int offset = pointList.size();
+//                parseRealTimeMapX8(mapBean.getMapData());
+//                updateSlamX8(pointList, offset);
+//                cleanArea = mapBean.getCleanArea();
+//                workTime = mapBean.getCleanTime();
+//                mView.updateCleanTime(getTimeValue());
+//                mView.updateCleanArea(getAreaValue());
+//                if (haveMap && pointList != null && isDrawMap()) {
+//                    mView.drawMapX8(pointList);
+//                }
+                singleThread.execute(new ParseDataRunnable(mapBeanData));
             }
 
             @Override
@@ -582,6 +575,37 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
             }
         });
     }
+
+
+    /**
+     * 解析X800系列地图数据子线程
+     */
+    public class ParseDataRunnable implements Runnable {
+        String mapBeanData;
+
+        public ParseDataRunnable(String mapBeanData) {
+            this.mapBeanData = mapBeanData;
+        }
+
+
+        @Override
+        public void run() {
+            Gson gson = new Gson();
+            RealTimeMapBean mapBean = gson.fromJson(mapBeanData, RealTimeMapBean.class);
+            MyLogger.d(TAG, "onRealMap----:  " + mapBean.toString());
+            int offset = pointList.size();
+            parseRealTimeMapX8(mapBean.getMapData());
+            updateSlamX8(pointList, offset);
+            cleanArea = mapBean.getCleanArea();
+            workTime = mapBean.getCleanTime();
+            mView.updateCleanTime(getTimeValue());
+            mView.updateCleanArea(getAreaValue());
+            if (haveMap && pointList != null && isDrawMap()) {
+                mView.drawMapX8(pointList);
+            }
+        }
+    }
+
 
     @Override
     public void setPropertiesWithParams(HashMap<String, Object> params) {

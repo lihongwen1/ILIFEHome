@@ -218,6 +218,7 @@ public class SettingActivity extends BackBaseActivity implements OnAliSetPropert
                 break;
             case Constants.X787:
                 rl_voice.setVisibility(View.GONE);
+                rl_update.setVisibility(View.GONE);
                 break;
             default:
                 product = R.drawable.n_x800;
@@ -248,14 +249,14 @@ public class SettingActivity extends BackBaseActivity implements OnAliSetPropert
                 tv_water.setText(getString(R.string.setting_aty_standard));
                 break;
             case 0:
-                tv_soft.setSelected(true);
-                image_soft.setSelected(true);
-                tv_water.setText(getString(R.string.setting_aty_soft));
-                break;
-            case 1:
                 tv_standard.setSelected(true);
                 image_standard.setSelected(true);
                 tv_water.setText(getString(R.string.setting_aty_standard));
+                break;
+            case 1:
+                tv_soft.setSelected(true);
+                image_soft.setSelected(true);
+                tv_water.setText(getString(R.string.setting_aty_soft));
                 break;
             case 2:
                 tv_strong.setSelected(true);
@@ -352,10 +353,10 @@ public class SettingActivity extends BackBaseActivity implements OnAliSetPropert
                     ToastUtils.showToast(Utils.getString(R.string.settiing_change_suction_tip));
                 }
                 break;
-            case R.id.rl_soft:
+            case R.id.rl_standard:
                 IlifeAli.getInstance().waterControl(0, this);
                 break;
-            case R.id.rl_standard:
+            case R.id.rl_soft:
                 IlifeAli.getInstance().waterControl(1, this);
                 break;
             case R.id.rl_strong:
@@ -422,7 +423,7 @@ public class SettingActivity extends BackBaseActivity implements OnAliSetPropert
                     case EnvConfigure.VALUE_FAC_RESET:
                         if (responseCode == 200) {
                             MyLogger.d(TAG, "恢复出厂设置成功");
-                            Disposable dis = Observable.timer(6, TimeUnit.SECONDS).observeOn(AndroidSchedulers.mainThread()).subscribe(aLong -> {
+                            Disposable dis = Observable.timer(3, TimeUnit.SECONDS).observeOn(AndroidSchedulers.mainThread()).subscribe(aLong -> {
                                 MyLogger.d(TAG, "进入主页面------------");
                                 goToMain();
                             });
@@ -443,6 +444,7 @@ public class SettingActivity extends BackBaseActivity implements OnAliSetPropert
 
     @Override
     public void onFailed(String path, int tag, int code, String message) {
+        hideLoadingDialog();
         if (path.equals(EnvConfigure.PATH_SET_PROPERTIES) && tag == EnvConfigure.VALUE_FIND_ROBOT) {
             findDone();
         } else if (path.equals(EnvConfigure.PATH_SET_DEV_NICK_NAME)) {
@@ -459,7 +461,7 @@ public class SettingActivity extends BackBaseActivity implements OnAliSetPropert
 
     private boolean canOperateSuction() {
         int curWorkMode = IlifeAli.getInstance().getWorkingDevice().getWork_status();
-        if ((curWorkMode == MsgCodeUtils.STATUE_POINT || curWorkMode == MsgCodeUtils.STATUE_RECHARGE) && (productKey.equals(EnvConfigure.PRODUCT_KEY_X787) || productKey.equals(EnvConfigure.PRODUCT_KEY_X320))) {
+        if ((curWorkMode == MsgCodeUtils.STATUE_POINT || curWorkMode == MsgCodeUtils.STATUE_RECHARGE)) {
             return false;
         } else {
             return true;

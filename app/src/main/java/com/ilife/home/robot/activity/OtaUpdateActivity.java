@@ -6,10 +6,14 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 
+import com.airbnb.lottie.L;
 import com.aliyun.iot.aep.sdk._interface.OnAliOtaResponse;
+import com.aliyun.iot.aep.sdk._interface.OnAliResponse;
+import com.aliyun.iot.aep.sdk.bean.PropertyBean;
 import com.aliyun.iot.aep.sdk.contant.IlifeAli;
 import com.aliyun.iot.aep.sdk.contant.MsgCodeUtils;
 import com.aliyun.iot.aep.sdk.delegate.OTAUpdatingDelegate;
@@ -21,14 +25,21 @@ import com.ilife.home.robot.utils.SpUtils;
 import com.ilife.home.robot.utils.ToastUtils;
 import com.ilife.home.robot.utils.Utils;
 
+import org.reactivestreams.Publisher;
+
 import java.util.concurrent.TimeUnit;
 
 import butterknife.BindView;
 import butterknife.OnClick;
+import io.reactivex.Completable;
 import io.reactivex.Observable;
+import io.reactivex.Single;
+import io.reactivex.SingleObserver;
+import io.reactivex.SingleOnSubscribe;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
+import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
 
 public class OtaUpdateActivity extends BackBaseActivity {
@@ -76,6 +87,7 @@ public class OtaUpdateActivity extends BackBaseActivity {
     }
 
     public void initData() {
+        IlifeAli.getInstance().setTimeZone();
         mDisposable = new CompositeDisposable();
         mOtaDelegate = new OTAUpdatingDelegate(new OnAliOtaResponse() {
             @Override
@@ -252,8 +264,8 @@ public class OtaUpdateActivity extends BackBaseActivity {
                             .show(getSupportFragmentManager(), "offline");
                 }
                 break;
-            case 1://主机回复有更新
-                mOtaDelegate.ensureInstallOTA();
+            case 1://主机回复有更新 待机，休眠。充电。电量>=30
+                checkWorkStatus();
                 break;
         }
     }
@@ -273,6 +285,81 @@ public class OtaUpdateActivity extends BackBaseActivity {
         Disposable disposable = Observable.interval(5, TimeUnit.SECONDS).observeOn(Schedulers.single()).observeOn(AndroidSchedulers.mainThread())
                 .subscribe(aLong -> mOtaDelegate.queryOtaUpdating(true));
         mDisposable.add(disposable);
+    }
+
+    private int retryTimes;//reset the number of retries for getting devices status
+    private CompositeDisposable mComDisposable;
+
+    private void checkWorkStatus() {
+        if (mComDisposable == null) {
+            mComDisposable = new CompositeDisposable();
+        }
+        retryTimes = 1;
+        Single.create((SingleOnSubscribe<PropertyBean>) emitter -> {
+            MyLogger.d(TAG, "gain the device status");
+            IlifeAli.getInstance().getProperties(new OnAliResponse<PropertyBean>() {
+                @Override
+                public void onSuccess(PropertyBean result) {
+                    if (retryTimes < 3 && result != null && result.getWorkMode() == MsgCodeUtils.STATUE_SLEEPING) {
+                        IlifeAli.getInstance().setTimeZone();//唤醒主机
+                        emitter.onError(new Exception("in sleep status"));
+                    } else {
+                        emitter.onSuccess(result);
+                    }
+                }
+
+                @Override
+                public void onFailed(int code, String message) {
+                    emitter.onError(new Exception(message));
+                }
+            });
+        }).retryWhen(tf -> tf.flatMap((Function<Throwable, Publisher<?>>) throwable -> (Publisher<Boolean>) s -> {
+            MyLogger.d(TAG, "GAIN DEVICE STATUS ERROR-----:" + throwable.getMessage());
+            if (retryTimes > 2) {
+                s.onError(throwable);
+            } else {
+                Disposable disposable = Observable.timer(1, TimeUnit.SECONDS).subscribe(aLong -> {
+                    retryTimes++;
+                    s.onNext(true);
+                });
+                mComDisposable.add(disposable);
+            }
+        })).subscribe(new SingleObserver<PropertyBean>() {
+            @Override
+            public void onSubscribe(Disposable d) {
+                showLoadingDialog();
+            }
+
+            @Override
+            public void onSuccess(PropertyBean propertyBean) {
+                hideLoadingDialog();
+                if (propertyBean != null) {
+                    int curWorkStatus = propertyBean.getWorkMode();
+                    int battery = propertyBean.getBattery();
+                    if (curWorkStatus == MsgCodeUtils.STATUE_SLEEPING) {//唤醒
+                        ToastUtils.showToast("请手动唤醒机器后再更新");
+                    } else if (curWorkStatus == MsgCodeUtils.STATUE_CHARGING || curWorkStatus == MsgCodeUtils.STATUE_CHARGING_) {
+                        mOtaDelegate.ensureInstallOTA();
+                    } else if (curWorkStatus == MsgCodeUtils.STATUE_WAIT){
+                        if (battery >= 30) {
+                            mOtaDelegate.ensureInstallOTA();
+                        } else {
+                            ToastUtils.showToast("电量过低，请将扫地机置于充电座上充电");
+                        }
+                    } else{
+                        ToastUtils.showToast("请将扫地机置于充电座后再重试");
+                    }
+                }
+            }
+
+            @Override
+            public void onError(Throwable e) {
+                hideLoadingDialog();
+                //提示手动唤醒
+                ToastUtils.showErrorToast(context, 0);
+                MyLogger.d(TAG, "To gain the device status fail ,and the reason is: " + e.getMessage());
+            }
+        });
     }
 
 

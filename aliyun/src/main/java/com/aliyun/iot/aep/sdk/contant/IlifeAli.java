@@ -2,6 +2,7 @@ package com.aliyun.iot.aep.sdk.contant;
 
 import android.os.Build;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
@@ -85,6 +86,7 @@ public class IlifeAli {
         if (instance == null) {
             synchronized (IlifeAli.class) {
                 if (instance == null) {
+                    Log.e(TAG, "构建单例对象--------");
                     instance = new IlifeAli();
                 }
             }
@@ -140,6 +142,9 @@ public class IlifeAli {
     }
 
     public DeviceInfoBean getWorkingDevice() {
+        if (workingDevice == null) {
+            return new DeviceInfoBean();
+        }
         return workingDevice;
     }
 
@@ -280,7 +285,6 @@ public class IlifeAli {
     }
 
 
-
     public void reNameDevice(String name, final OnAliResponseSingle<Boolean> onAliResponseSingle) {
         if (iotId == null || iotId.isEmpty()) {
             onAliResponseSingle.onResponse(false);
@@ -381,31 +385,30 @@ public class IlifeAli {
                     if (!iot.equals(iotId)) {//
                         return;
                     }
-                    if (method.equals(EnvConfigure.METHOD_THING_PROP)) {//property,status
-                        JSONObject items = object.getJSONObject(EnvConfigure.KEY_ITEMS);
-                        if (items != null) {
-                            if (items.containsKey(EnvConfigure.KEY_POWER_SWITCH)) {
-                                ToastUtils.toast(aApplication, items.getJSONObject(EnvConfigure.KEY_POWER_SWITCH).getString(EnvConfigure.KEY_VALUE));
-                            } else if (items.containsKey(EnvConfigure.KEY_WORK_MODE)) {//工作状态
-                                onDevicePoropertyResponse.onStatusChange(items.getJSONObject(EnvConfigure.KEY_WORK_MODE).getIntValue(EnvConfigure.KEY_VALUE));
-                            } else if (items.containsKey(EnvConfigure.KEY_REALTIMEMAP)) {//实时地图数据
-                                Gson gson = new Gson();
-                                RealTimeMapBean realTimeMapBean = gson.fromJson(items.getJSONObject(EnvConfigure.KEY_REALTIMEMAP).getString(EnvConfigure.KEY_VALUE), RealTimeMapBean.class);
-                                onDevicePoropertyResponse.onRealMap(realTimeMapBean);
-                            } else if (items.containsKey(EnvConfigure.KEY_REAL_TIME_MAP_START)) {
-                                long marStartTime = items.getJSONObject(EnvConfigure.KEY_REAL_TIME_MAP_START).getLongValue(EnvConfigure.KEY_TIME);
-                                onDevicePoropertyResponse.onRealTimeMapStart(marStartTime);
-                            } else if (items.containsKey(EnvConfigure.KEY_BATTERY_STATE)) {
-                                int battery = items.getJSONObject(EnvConfigure.KEY_BATTERY_STATE).getIntValue(EnvConfigure.KEY_VALUE);
-                                onDevicePoropertyResponse.onBatterState(battery);
+                    switch (method) {
+                        case EnvConfigure.METHOD_THING_PROP:
+                            JSONObject items = object.getJSONObject(EnvConfigure.KEY_ITEMS);
+                            if (items != null) {
+                                if (items.containsKey(EnvConfigure.KEY_POWER_SWITCH)) {
+                                    ToastUtils.toast(aApplication, items.getJSONObject(EnvConfigure.KEY_POWER_SWITCH).getString(EnvConfigure.KEY_VALUE));
+                                } else if (items.containsKey(EnvConfigure.KEY_WORK_MODE)) {//工作状态
+                                    onDevicePoropertyResponse.onStatusChange(items.getJSONObject(EnvConfigure.KEY_WORK_MODE).getIntValue(EnvConfigure.KEY_VALUE));
+                                } else if (items.containsKey(EnvConfigure.KEY_REALTIMEMAP)) {//实时地图数据
+                                    Log.e(TAG, "时间数据：" + items.getJSONObject(EnvConfigure.KEY_REALTIMEMAP).getLong(EnvConfigure.KEY_TIME));
+                                    onDevicePoropertyResponse.onRealMap(items.getJSONObject(EnvConfigure.KEY_REALTIMEMAP).getString(EnvConfigure.KEY_VALUE));
+                                } else if (items.containsKey(EnvConfigure.KEY_REAL_TIME_MAP_START)) {
+                                    long marStartTime = items.getJSONObject(EnvConfigure.KEY_REAL_TIME_MAP_START).getLongValue(EnvConfigure.KEY_TIME);
+                                    onDevicePoropertyResponse.onRealTimeMapStart(marStartTime);
+                                } else if (items.containsKey(EnvConfigure.KEY_BATTERY_STATE)) {
+                                    int battery = items.getJSONObject(EnvConfigure.KEY_BATTERY_STATE).getIntValue(EnvConfigure.KEY_VALUE);
+                                    onDevicePoropertyResponse.onBatterState(battery);
+                                }
                             }
-                        }
-                    } else if (method.equals(EnvConfigure.METHOD_THING_EVENT)) {
-                        int errorCode = object.getJSONObject(EnvConfigure.KEY_VALUE).getIntValue(EnvConfigure.KEY_ERRORCODE);
-//                    if (errorCode==0){
-//                        return;
-//                    }
-                        onDevicePoropertyResponse.onError(errorCode);
+                            break;
+                        case EnvConfigure.METHOD_THING_EVENT:
+                            int errorCode = object.getJSONObject(EnvConfigure.KEY_VALUE).getIntValue(EnvConfigure.KEY_ERRORCODE);
+                            onDevicePoropertyResponse.onError(errorCode);
+                            break;
                     }
                 }
 
@@ -413,7 +416,7 @@ public class IlifeAli {
                 public boolean shouldHandle(String method) {
                     // method 即为Topic,e.g. /thing/properties,/thing/events,/thing/status，如果该Topic需要处理，返回true后onCommand才会回调。
                     Log.d(TAG, "method:      " + method);
-                    return true;
+                    return method.equals(EnvConfigure.METHOD_THING_PROP) || method.equals(EnvConfigure.METHOD_THING_EVENT);
                 }
             };
         }
@@ -474,6 +477,7 @@ public class IlifeAli {
                 }
                 CONNECTION_STATUS = stateCode;
                 Log.d(TAG, value);
+//                Toast.makeText(aApplication,value,Toast.LENGTH_LONG).show();
             };
         }
         MobileChannel.getInstance().registerConnectListener(true, mConnectListener);
@@ -1234,7 +1238,7 @@ public class IlifeAli {
     }
 
 
-    public void taobaoAuthorization(String authCode, OnAliResponseSingle<Boolean> onaliResponse) {
+    public void taobaoAuthorization(String authCode, OnAliResponse<String> onAliResponse) {
         JSONObject params = new JSONObject();
         Map<String, Object> requestMap = params.getInnerMap();
         params.put("authCode", authCode);
@@ -1249,16 +1253,27 @@ public class IlifeAli {
             @Override
             public void onFailure(IoTRequest ioTRequest, Exception e) {
                 Log.e("TaobaoAuthActivity", "授权淘宝账号失败--------------" + e.getMessage());
-                onaliResponse.onResponse(false);
+                onAliResponse.onFailed(0, "授权失败");
             }
 
             @Override
             public void onResponse(IoTRequest ioTRequest, IoTResponse ioTResponse) {
                 Log.d("TaobaoAuthActivity", "授权淘宝账号成功-----------");
-                onaliResponse.onResponse(true);
+                switch (ioTResponse.getCode()) {
+                    case 200:
+                        onAliResponse.onSuccess("授权成功");
+                        break;
+                    case 400:
+                        onAliResponse.onFailed(400, "账号已被绑定");
+                        break;
+
+
+                }
+
             }
         }));
     }
+
     public void checkTaobaoAuthorization(OnAliResponseSingle<Boolean> onaliResponse) {
         JSONObject params = new JSONObject();
         Map<String, Object> requestMap = params.getInnerMap();
@@ -1285,11 +1300,81 @@ public class IlifeAli {
         }));
     }
 
+    /**
+     * 解除淘宝账号授权
+     *
+     * @param onAliResponse
+     */
+    public void unAuthorizationTaobao(OnAliResponseSingle<Boolean> onAliResponse) {
+        JSONObject params = new JSONObject();
+        Map<String, Object> requestMap = params.getInnerMap();
+        params.put("accountType", "TAOBAO");
+        IoTRequest ioTRequest = new IoTRequestBuilder()
+                .setAuthType(EnvConfigure.IOT_AUTH)
+                .setApiVersion("1.0.5")
+                .setPath("/account/thirdparty/unbind")
+                .setParams(requestMap)
+                .setScheme(Scheme.HTTPS)
+                .build();
 
+        new IoTAPIClientFactory().getClient().send(ioTRequest, new IoTUIThreadCallback(new IoTCallback() {
+            @Override
+            public void onFailure(IoTRequest ioTRequest, Exception e) {
+                Log.e("TaobaoAuthActivity", "取消授权淘宝账号失败--------------" + e.getMessage());
+                onAliResponse.onResponse(false);
+            }
 
+            @Override
+            public void onResponse(IoTRequest ioTRequest, IoTResponse ioTResponse) {
+                Log.d("TaobaoAuthActivity", "取消授权淘宝账号成功-----------");
+                onAliResponse.onResponse(true);
+            }
+        }));
+    }
+
+    /**
+     * 获取淘宝账号授权专题
+     *
+     * @param onAliResponse
+     */
+    public void getAuthorizationTaobao(OnAliResponseSingle<Boolean> onAliResponse) {
+        JSONObject params = new JSONObject();
+        Map<String, Object> requestMap = params.getInnerMap();
+        params.put("accountType", "TAOBAO");
+        IoTRequest ioTRequest = new IoTRequestBuilder()
+                .setAuthType(EnvConfigure.IOT_AUTH)
+                .setApiVersion("1.0.5")
+                .setPath("/account/thirdparty/get")
+                .setParams(requestMap)
+                .setScheme(Scheme.HTTPS)
+                .build();
+
+        new IoTAPIClientFactory().getClient().send(ioTRequest, new IoTUIThreadCallback(new IoTCallback() {
+            @Override
+            public void onFailure(IoTRequest ioTRequest, Exception e) {
+                Log.e("TaobaoAuthActivity", "获取授权淘宝账号失败--------------" + e.getMessage());
+                onAliResponse.onResponse(false);
+            }
+
+            @Override
+            public void onResponse(IoTRequest ioTRequest, IoTResponse ioTResponse) {
+                Log.d("TaobaoAuthActivity", "获取授权淘宝账号成功-----------" + ioTResponse.getData());
+                if (ioTResponse.getCode() == 200 && ioTResponse.getData() != null) {
+                    JSONObject jsonObject = JSON.parseObject(ioTResponse.getData().toString());
+                    if (jsonObject!=null&&jsonObject.containsKey("accountId")) {
+                        onAliResponse.onResponse(true);
+                    } else {
+                        onAliResponse.onResponse(false);
+                    }
+                } else {
+                    onAliResponse.onResponse(false);
+                }
+            }
+        }));
+    }
 
     public String getBindingProductKey() {
-        return bindingProductKey==null?"":bindingProductKey;
+        return bindingProductKey == null ? "" : bindingProductKey;
     }
 
     public void setBindingProductKey(String bindingProductKey) {

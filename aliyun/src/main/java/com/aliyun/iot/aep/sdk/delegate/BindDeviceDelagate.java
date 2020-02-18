@@ -68,6 +68,7 @@ public class BindDeviceDelagate {
     private CompositeDisposable mDisposable;
     private int reBindTimes = 0;
     private String apSsid;
+    private int timerTimes = 0;
 
     public BindDeviceDelagate(Context context, String homeSsid, String homePassword, String productKey, OnAliBindDeviceResponse<String> onBindDeviceComplete) {
         this.context = context;
@@ -88,6 +89,12 @@ public class BindDeviceDelagate {
         iscancel = true;
         onBindDeviceComplete = null;
         context = null;
+        if (timer != null) {
+            timer.cancel();
+        }
+        if (mDisposable != null) {
+            mDisposable.dispose();
+        }
         // 停止配网
         LocalDeviceMgr.getInstance().stopDiscovery();
         AddDeviceBiz.getInstance().stopAddDevice();
@@ -109,8 +116,12 @@ public class BindDeviceDelagate {
                             realProgress = autoUpprogress;
                         }
                         onBindDeviceComplete.onProgress(realProgress);
+                        timerTimes++;
+                        if (timerTimes == 120) {
+                            bindFail(1999, "Time Out");
+                            BindDeviceDelagate.this.cancel();
+                        }
                     }
-
                 }
             }, 0, 1000);
         }
@@ -173,7 +184,6 @@ public class BindDeviceDelagate {
                 if (prepareType == 1) {
                     Log.d("BindDeviceDelagate", "添加设备设置家庭WiFi信息：" + homeSsid + "-----" + homePassword);
                     realProgress = 20;
-                    onBindDeviceComplete.onProgress(20);
                     AddDeviceBiz.getInstance().toggleProvision(homeSsid, homePassword, TIMEOUT);
                 }
             }
@@ -256,7 +266,6 @@ public class BindDeviceDelagate {
             return;
         }
         realProgress = 80;
-        onBindDeviceComplete.onProgress(80);
         Log.d("BindDeviceDelagate", "开始绑定设备。。。。。");
         Map<String, Object> paramMap = new HashMap<>();
         paramMap.put("productKey", productKey);
@@ -286,7 +295,7 @@ public class BindDeviceDelagate {
 
                     @Override
                     public void onResponse(IoTRequest ioTRequest, IoTResponse ioTResponse) {
-                        Log.d("BindDeviceDelagate", "绑定设备成功。。。。" + ioTResponse.getCode() + "----" + ioTResponse.getMessage() + ioTResponse.getData().toString());
+                        Log.d("BindDeviceDelagate", "绑定设备成功。。。。");
                         if (ioTResponse.getCode() == 200 && ioTResponse.getData() instanceof String) {
                             //bind success
                             String iotId = (String) ioTResponse.getData();

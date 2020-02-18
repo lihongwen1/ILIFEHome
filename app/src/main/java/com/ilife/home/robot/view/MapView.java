@@ -11,6 +11,7 @@ import android.graphics.PointF;
 import android.graphics.PorterDuff;
 import android.graphics.RectF;
 import android.opengl.GLSurfaceView;
+import android.os.Looper;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
@@ -282,6 +283,7 @@ public class MapView extends View {
     public void drawMapX8(List<Coordinate> dataList) {
         MyLogger.d(TAG, "----------drawMapX8---------数据长度：   " + dataList.size());
         drawBoxMapX8(dataList);
+        boxCanvas.drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR);
         boxPaint.setStrokeWidth(1);
         /**
          * 绘制障碍物
@@ -296,7 +298,7 @@ public class MapView extends View {
 
         if (needEndPoint && endX != 0 && endY != 0) {
             positionCirclePaint.setColor(getResources().getColor(R.color.color_map_start_point));
-            boxCanvas.drawCircle(endX, endY, Utils.dip2px(MyApplication.getInstance(), 12), positionCirclePaint);
+            boxCanvas.drawCircle(endX, endY, Utils.dip2px(MyApplication.getInstance(), 12 * baseScare / 30f), positionCirclePaint);
         }
         invalidateUI();
     }
@@ -338,7 +340,7 @@ public class MapView extends View {
     // TODO it should't be created ,when it's size is less than the old
     //the value of baseScare can affects the  sharpness of the map
     public void updateSlam(int xMin, int xMax, int yMin, int yMax) {
-        MyLogger.e(TAG, "xM:" + xMin + "  xMax:  " + xMax + " yMin: " + yMin + "  yMax:   " + yMax);
+//        MyLogger.e(TAG, "xM:" + xMin + "  xMax:  " + xMax + " yMin: " + yMin + "  yMax:   " + yMax);
         int xLength = xMax - xMin;
         int yLength = yMax - yMin;
         if (xLength <= 0 || yLength <= 0) {
@@ -988,7 +990,6 @@ public class MapView extends View {
         pointList.addAll(dataList);
         boxPath.reset();
         obstaclePath.reset();
-        boxCanvas.drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR);
         int x, y, type;
         float space = new BigDecimal(baseScare * 0.1f).setScale(0, BigDecimal.ROUND_HALF_DOWN).floatValue();
         Coordinate coordinate;
@@ -1018,7 +1019,12 @@ public class MapView extends View {
 
 
     private void invalidateUI() {
-        invalidate();
+        MyLogger.d(TAG, "invalidateUI");
+        if (Looper.getMainLooper() == Looper.myLooper()) {
+            invalidate();
+        } else {
+            postInvalidate();
+        }
     }
 
     @Override

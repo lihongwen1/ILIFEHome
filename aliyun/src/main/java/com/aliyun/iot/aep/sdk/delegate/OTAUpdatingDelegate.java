@@ -22,25 +22,26 @@ public class OTAUpdatingDelegate {
     }
 
     public void checkOTA() {
-        IlifeAli.getInstance().queryOTAInstallPkg(new OnAliResponse<OTAInfoBean>() {
-            @Override
-            public void onSuccess(OTAInfoBean result) {
-                curFirmwareVer = result.getCurrentVer() + "";
-                newestFirmwareVer = result.getTargetVer() + "";
-                wholeNewestVer = result.getWholeTargetVer();
-                if (result.getTargetVer() > result.getCurrentVer()) {//发现新的安装包，需进一步查询是否已经在下载安装包中
-                    queryLoadingProgress(false);
-                } else {//没有发现新的安装包
-                    queryOtaUpdating(false);
-                }
-            }
-
-            @Override
-            public void onFailed(int code, String message) {
-                Log.d("OTAUpdatingDelegate", "获阿里云OTA信息------" + message);
-                queryOtaUpdating(false);
-            }
-        });
+//        IlifeAli.getInstance().queryOTAInstallPkg(new OnAliResponse<OTAInfoBean>() {
+//            @Override
+//            public void onSuccess(OTAInfoBean result) {
+//                curFirmwareVer = result.getCurrentVer() + "";
+//                newestFirmwareVer = result.getTargetVer() + "";
+//                wholeNewestVer = result.getWholeTargetVer();
+//                if (result.getTargetVer() > result.getCurrentVer()) {//发现新的安装包，需进一步查询是否已经在下载安装包中
+//                    queryLoadingProgress(false);
+//                } else {//没有发现新的安装包
+//                    queryOtaUpdating(false);
+//                }
+//            }
+//
+//            @Override
+//            public void onFailed(int code, String message) {
+//                Log.d("OTAUpdatingDelegate", "获阿里云OTA信息------" + message);
+//                queryOtaUpdating(false);
+//            }
+//        });
+        queryOtaUpdating(false);
     }
 
     /**
@@ -143,7 +144,7 @@ public class OTAUpdatingDelegate {
                         break;
                     case 4:
                         /**
-                         * 更新成功，上班版本号
+                         * 更新成功，上报版本号
                          */
                         IlifeAli.getInstance().reportInstallPkgVer(wholeNewestVer);
                         if (!isCancel) {

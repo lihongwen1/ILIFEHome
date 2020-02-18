@@ -5,6 +5,8 @@ import android.graphics.Color;
 import android.graphics.drawable.AnimationDrawable;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.text.method.ScrollingMovementMethod;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -23,6 +25,7 @@ import android.widget.TextView;
 import com.aliyun.iot.aep.sdk.contant.AliSkills;
 import com.aliyun.iot.aep.sdk.contant.IlifeAli;
 import com.aliyun.iot.aep.sdk.contant.MsgCodeUtils;
+import com.badoo.mobile.util.WeakHandler;
 import com.ilife.home.robot.bean.Coordinate;
 import com.ilife.home.robot.fragment.UniversalDialog;
 import com.ilife.home.robot.able.DeviceUtils;
@@ -142,12 +145,28 @@ public abstract class BaseMapActivity extends BackBaseActivity<MapX9Presenter> i
     public static final int USE_MODE_NORMAL = 1;
     public static final int USE_MODE_REMOTE_CONTROL = 2;
     protected int USE_MODE = USE_MODE_NORMAL;
+    private WeakHandler weakHandler;
 
     @Override
     public void attachPresenter() {
         super.attachPresenter();
         mPresenter = new MapX9Presenter();
         mPresenter.attachView(this);
+        weakHandler = new WeakHandler(new Handler.Callback() {
+            @Override
+            public boolean handleMessage(Message msg) {
+                switch (msg.what) {
+                    case 1://更新清扫面积
+                        tv_area.setText((String) msg.obj);
+                        break;
+                    case 2://清扫时长
+                        tv_time.setText((String) msg.obj);
+                        break;
+                }
+
+                return false;
+            }
+        });
     }
 
     @Override
@@ -171,7 +190,6 @@ public abstract class BaseMapActivity extends BackBaseActivity<MapX9Presenter> i
             mPresenter.prepareToReloadData();//重新获取历史map
         }
         mPresenter.getDevStatus();
-        mPresenter.adjustTime();
         setDevName();
         updateMaxButton(mPresenter.isMaxMode());
         setDevName();
@@ -211,12 +229,18 @@ public abstract class BaseMapActivity extends BackBaseActivity<MapX9Presenter> i
 
     @Override
     public void updateCleanArea(String value) {
-        tv_area.setText(value);
+        Message message = new Message();
+        message.what = 1;
+        message.obj = value;
+        weakHandler.sendMessage(message);
     }
 
     @Override
     public void updateCleanTime(String value) {
-        tv_time.setText(value);
+        Message message = new Message();
+        message.what = 2;
+        message.obj = value;
+        weakHandler.sendMessage(message);
     }
 
     /**
@@ -710,7 +734,6 @@ public abstract class BaseMapActivity extends BackBaseActivity<MapX9Presenter> i
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        fl_bottom_x9.post(() -> mMapView.resetCenter(fl_bottom_x9.getHeight()));
     }
 
     @Override

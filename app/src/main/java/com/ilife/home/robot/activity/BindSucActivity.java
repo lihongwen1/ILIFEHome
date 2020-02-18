@@ -84,15 +84,15 @@ public class BindSucActivity extends BaseActivity {
             if (TextUtils.isEmpty(name)) {
                 ToastUtils.showToast(context, getString(R.string.setting_aty_hit));
             } else {
-                IlifeAli.getInstance().reNameDevice(name, issuccess -> {
-                    if (issuccess) {
+                IlifeAli.getInstance().reNameDevice(name, isSuccess -> {
+                    if (isSuccess) {
                         ToastUtils.showToast(context, context.getString(R.string.bind_aty_reName_suc));
-                    } else {
-                        ToastUtils.showToast(context, getString(R.string.bind_aty_reName_fail));
+                        Intent i = new Intent(context, MainActivity.class);
+                        startActivity(i);
+                        removeActivity();
+                    } else {//重命名失败,提示连接超时，需重新提交重命名；
+                        ToastUtils.showErrorToast(context, 0);
                     }
-                    Intent i = new Intent(context, MainActivity.class);
-                    startActivity(i);
-                    removeActivity();
                 });
 
             }

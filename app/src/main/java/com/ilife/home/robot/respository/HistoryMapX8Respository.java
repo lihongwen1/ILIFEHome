@@ -6,6 +6,7 @@ import android.util.Base64;
 import androidx.lifecycle.MutableLiveData;
 
 import com.aliyun.iot.aep.sdk._interface.OnAliResponse;
+import com.aliyun.iot.aep.sdk._interface.OnAliResponseSingle;
 import com.aliyun.iot.aep.sdk.bean.RealTimeMapBean;
 import com.aliyun.iot.aep.sdk.contant.IlifeAli;
 import com.ilife.home.robot.bean.CleaningDataX8;
@@ -35,8 +36,13 @@ public class HistoryMapX8Respository {
     private CountDownLatch countDownLatch;
 
 
-    public void getHistoryData(MutableLiveData<CleaningDataX8> coordinateLiveData,long mapStartTime) {
-        IlifeAli.getInstance().getCleaningHistory(mapStartTime, System.currentTimeMillis(), new OnAliResponse<List<RealTimeMapBean>>() {
+    /**
+     * 时间加一分钟，避免由于时间误差导致丢包
+     * @param onResponse
+     * @param mapStartTime
+     */
+    public void getHistoryData(OnAliResponseSingle<CleaningDataX8> onResponse, long mapStartTime) {
+        IlifeAli.getInstance().getCleaningHistory(mapStartTime, System.currentTimeMillis()+ 60 * 1000, new OnAliResponse<List<RealTimeMapBean>>() {
             @Override
             public void onSuccess(List<RealTimeMapBean> historyData) {
 
@@ -57,8 +63,8 @@ public class HistoryMapX8Respository {
                         countDownLatch.await();
                         MyLogger.e(TAG, "数据已经处理完成，线程继续执行-------------------");
 
-                        CleaningDataX8 wholeData=new CleaningDataX8();
-                        List<Coordinate> pointList=wholeData.getCoordinates();
+                        CleaningDataX8 wholeData = new CleaningDataX8();
+                        List<Coordinate> pointList = wholeData.getCoordinates();
                         for (CleaningDataX8 dataX8 : dataX8s) {
                             if (dataX8 == null) {
                                 continue;
@@ -66,7 +72,7 @@ public class HistoryMapX8Respository {
                             if (dataX8.isHaveClearFlag()) {
                                 pointList.clear();
                             }
-                           wholeData.setWorkTime(dataX8.getWorkTime());
+                            wholeData.setWorkTime(dataX8.getWorkTime());
                             wholeData.setCleanArea(dataX8.getCleanArea());
                             if (dataX8.getCoordinates() != null) {
                                 for (Coordinate coor : dataX8.getCoordinates()) {//去重
@@ -76,7 +82,7 @@ public class HistoryMapX8Respository {
                                 }
                             }
                         }
-                        coordinateLiveData.setValue(wholeData);
+                        onResponse.onResponse(wholeData);
                         cancelOrFinish();
                     } catch (InterruptedException e) {
                         MyLogger.e(TAG, "线程被中断-----------------");
@@ -84,11 +90,6 @@ public class HistoryMapX8Respository {
                 } else {
                     cancelOrFinish();
                 }
-
-
-
-
-
             }
 
             @Override
@@ -129,7 +130,7 @@ public class HistoryMapX8Respository {
                     if (isStop) {
                         break;//退出线程
                     }
-                    data=subData.get(i);
+                    data = subData.get(i);
                     dataX8.setCleanArea(data.getCleanArea());
                     dataX8.setWorkTime(data.getCleanTime());
                     parseRealTimeMapX8(subData.get(i).getMapData());
@@ -165,8 +166,8 @@ public class HistoryMapX8Respository {
                             MyLogger.e(TAG, "the map data has been cleaned and reset");
                             dataX8.setHaveClearFlag(true);
                         } else {
-                            x+=750;
-                            y+=750;
+                            x += 750;
+                            y += 750;
                             coordinate = new Coordinate(1500 - x, y, type);
                             if (isStop) {
                                 MyLogger.e(TAG, "the page has been destroyed，the data processing will make no sense/the data processing is no longer meaningful!");
@@ -180,5 +181,4 @@ public class HistoryMapX8Respository {
             }
         }
     }
-
 }

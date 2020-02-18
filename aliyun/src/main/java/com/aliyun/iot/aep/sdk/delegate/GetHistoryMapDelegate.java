@@ -46,6 +46,7 @@ public class GetHistoryMapDelegate {
         params.put(EnvConfigure.KEY_IOT_ID, iotId);
         params.put("identifier", EnvConfigure.KEY_REALTIMEMAP);
         params.put("start", start);
+        Log.d(TAG,"历史数据结束时间："+end);
         params.put("end", end);
         params.put("pageSize", 200);
         params.put("ordered", false);
@@ -56,7 +57,7 @@ public class GetHistoryMapDelegate {
                 .setApiVersion(EnvConfigure.API_VER)          // 参考业务API文档，设置apiVersion
                 .setParams(params)
                 .build();
-        ioTAPIClient.send(request, new IoTUIThreadCallback(new IoTCallback() {
+        ioTAPIClient.send(request,new IoTCallback() {
             @Override
             public void onFailure(IoTRequest ioTRequest, Exception e) {
                 Log.e(TAG, "getCleaningHistory onFailure e = " + e.toString());
@@ -94,6 +95,6 @@ public class GetHistoryMapDelegate {
 
                 }
             }
-        }));
+        });
     }
 }

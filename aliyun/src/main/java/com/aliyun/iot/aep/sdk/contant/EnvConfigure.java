@@ -79,8 +79,8 @@ public class EnvConfigure {
     /**
      * topic/method
      */
-    public static String METHOD_THING_PROP = "/thing/properties";
-    public static String METHOD_THING_EVENT = "/thing/events";
+    public static final String METHOD_THING_PROP = "/thing/properties";
+    public static final String METHOD_THING_EVENT = "/thing/events";
 
     /**
      * support country

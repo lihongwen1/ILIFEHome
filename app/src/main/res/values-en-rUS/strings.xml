@@ -63,7 +63,7 @@
     <string name="personal_aty_exit_content">Logoff and retain all history</string>
     <string name="personal_aty_no_shareable">You don\'t have any device to share</string>
     <string name="personal_aty_login_first">Please login</string>
-    <string name="personal_aty_bind_done">Robot bound completed</string>
+    <string name="personal_aty_bind_done">Binding completed</string>
     <string name="personal_aty_bind_fail">Binding failed</string>
     <string name="help_aty_commit_suc">Submitted</string>
     <string name="help_aty_commit">Unable to submit. Try again</string>
@@ -268,7 +268,7 @@
     <string name="ota_cur_ver">Current version:%1$s</string>
     <string name="ota_lates_ver">Latest version：%1$s</string>
     <string name="ota_upgrade_fail_tip">Upgrade failed, please restart the robot and upgrade again</string>
-    <string name="ota_immediate_upgrade">Firmware download completed, upgrade now</string>
+    <string name="ota_immediate_upgrade">Upgrade now</string>
     <string name="ota_already_latest_ver">Your OTA is up to date</string>
     <string name="ota_updating">Updating firmware ...</string>
     <string name="ota_ensure_charging_mode">Please make sure that the robot  is in charging mode on charging stand</string>

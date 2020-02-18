@@ -62,7 +62,7 @@
     <string name="personal_aty_exit_content">退出后不会删除任何历史记录</string>
     <string name="personal_aty_no_shareable">您没有可以分享的机器</string>
     <string name="personal_aty_login_first">请先登录</string>
-    <string name="personal_aty_bind_done">绑定机器人成功</string>
+    <string name="personal_aty_bind_done">绑定成功</string>
     <string name="personal_aty_bind_fail">绑定失败</string>
     <string name="help_aty_commit_suc">提交成功</string>
     <string name="help_aty_commit">提交失败,请重试</string>
@@ -270,7 +270,7 @@
     <string name="ota_cur_ver">当前版本:%1$s</string>
     <string name="ota_lates_ver">最新版本:%1$s</string>
     <string name="ota_upgrade_fail_tip">升级失败，请重启主机重新升级</string>
-    <string name="ota_immediate_upgrade">固件下载完成,立即升级</string>
+    <string name="ota_immediate_upgrade">立即升级</string>
     <string name="ota_already_latest_ver">已是最新版本</string>
     <string name="ota_updating">固件升级中...</string>
     <string name="ota_ensure_charging_mode">请确保机器扫地机处于充电座充电模式。</string>
