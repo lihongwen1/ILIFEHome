@@ -114,9 +114,9 @@ public class AliLoginActivity extends com.alibaba.sdk.android.openaccount.ui.ui.
     public void forgetPassword(View view) {
         String account = this.loginIdEdit.getEditText().getText().toString();
         Log.d(TAG, "alibaba login account:" + account);
-        if (account.contains("@")){
+        if (account.contains("@")) {
             forgetMailPassword(view);
-        }else {
+        } else {
             forgetPhonePassword(view);
         }
     }

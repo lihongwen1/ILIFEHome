@@ -14,13 +14,8 @@ import static android.content.Context.MODE_PRIVATE;
  * Created by wuwang on 2017/11/7.
  */
 public class EnvConfigure {
-    static final public String KEY_IS_DEBUG = "KEY_IS_DEBUG";
-    static final public String KEY_DEVICE_ID = "KEY_DEVICE_ID";
-    static final public String KEY_PRODUCT_ID = "KEY_PRODUCT_ID"; // 阿里云移动平台分配的产品ID
-    static final public String KEY_APPKEY = "KEY_APPKEY"; // 阿里云移动平台分配的AppKey
-    static final public String KEY_TRACE_ID = "KEY_TRACE_ID";
-    static final public String KEY_LANGUAGE = "language";
     public static final String API_VER = "1.0.2";
+    public static final String IOT_AUTH = "iotAuth";//国外
 
     /**
      * 国内
@@ -30,16 +25,10 @@ public class EnvConfigure {
     static final public String PRODUCT_KEY_X320 = "a1r76ksgLTV";//CHINA
     static final public String PRODUCT_KEY_X787="a1wBeDmFnJu";//CHINA
 
-
-    public static final String IOT_AUTH = "iot_china";//国外
-    public static final String AUTH_CODE = "114d";//国内
-
     /**
      * 海外
      */
 //    public static final String PRODUCT_KEY_X800 = "a2N5l6U3gnt";//OVERSEA
-//    public static final String IOT_AUTH = "iot_ali_oversea";//OVERSEA
-//    public static final String AUTH_CODE = "114d_oversea";//OVERSEA
 
 
     /**

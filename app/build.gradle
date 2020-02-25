@@ -22,7 +22,7 @@ android {
         ilife {
             v2SigningEnabled false
 //            storeFile file('E:\\as_workspace\\ilife\\keystore_ilife\\ilife.jks')
-          storeFile file('D:\\flylin_github_respostories\\qianming\\ilife\\ilife.jks')
+            storeFile file('D:\\flylin_github_respostories\\qianming\\ilife\\ilife.jks')
             storePassword '123456'
             keyAlias = 'ilife'
             keyPassword '123456'
@@ -37,27 +37,28 @@ android {
         }
     }
 
+    /*切换国内和海外需要修改签名*/
     buildTypes {
         release {
-            signingConfig signingConfigs.ilife_home
-//            signingConfig signingConfigs.ilife
+            signingConfig null//需要置空，否则打包会以内置的签名打包
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-        }//debug 默认不开混淆
+        }
+        //debug 默认不开混淆
         debug {
-            signingConfig signingConfigs.ilife_home
-//            signingConfig signingConfigs.ilife
+            signingConfig null
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
 
     productFlavors {
-        Ali_Cn {
+        china {
             dimension "default"
             applicationId "com.ilife.home.robot"
-            versionCode =4
-            versionName = 'V1.4.8'
+            versionCode = 5
+            versionName = 'V1.5.1'
+            signingConfig signingConfigs.ilife_home
             resValue "string", "app_name", "ILIFEHome"
             buildConfigField("String", "environment", "\"product\"")
             buildConfigField("String", "BRAND", "\"ILIFE\"")
@@ -66,11 +67,12 @@ android {
             buildConfigField("int", "Area", "1")
             buildConfigField "String", "BUILD_COUNTRY", "\"CHINA\""//国内
         }
-        Ali_OverSea {
+        oversea {
             dimension "default"
             applicationId "com.ilife.home.oversea.robot"
             versionCode = 4
             versionName = '1.1.0'
+            signingConfig signingConfigs.ilife
             resValue "string", "app_name", "ILIFEHomeO"
             buildConfigField("String", "environment", "\"product\"")
             buildConfigField("String", "BRAND", "\"ILIFE\"")
@@ -103,7 +105,7 @@ dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
     implementation 'androidx.appcompat:appcompat:1.1.0'
     implementation 'com.journeyapps:zxing-android-embedded:3.4.0'
-    implementation 'com.google.android.material:material:1.2.0-alpha03'
+    implementation 'com.google.android.material:material:1.2.0-alpha05'
     testImplementation 'junit:junit:4.13-beta-3'
     implementation 'androidx.percentlayout:percentlayout:1.0.0'
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
@@ -116,7 +118,7 @@ dependencies {
     implementation 'com.tbruyelle.rxpermissions2:rxpermissions:0.9.3@aar'
     implementation 'commons-codec:commons-codec:20041127.091804'
     implementation 'androidx.cardview:cardview:1.0.0'
-    implementation 'com.google.android.material:material:1.2.0-alpha03'
+    implementation 'com.google.android.material:material:1.2.0-alpha05'
     implementation 'com.badoo.mobile:android-weak-handler:1.1'
     implementation 'com.scwang.smartrefresh:SmartRefreshLayout:1.1.0-andx-7'
     implementation 'com.scwang.smartrefresh:SmartRefreshHeader:1.1.0-andx-7'
@@ -128,5 +130,5 @@ dependencies {
     implementation 'com.airbnb.android:lottie:3.0.3'
     implementation 'com.github.bumptech.glide:glide:4.9.0'
     implementation project(path: ':aliyun')
-    implementation 'androidx.lifecycle:lifecycle-extensions:2.1.0'
+    implementation 'androidx.lifecycle:lifecycle-extensions:2.2.0'
 }

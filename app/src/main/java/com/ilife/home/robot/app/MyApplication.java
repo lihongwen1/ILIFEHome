@@ -26,7 +26,6 @@ public class MyApplication extends SdkApplication {
     private final String TAG = MyApplication.class.getSimpleName();
     private static MyApplication instance;
 
-    public String appInitLanguage;
     private List<Activity> activities;
 
     @Override
@@ -48,11 +47,6 @@ public class MyApplication extends SdkApplication {
                 .tag("ILIFE_ALI")   // (Optional) Global tag for every log. Default PRETTY_LOGGER
                 .build();
         Logger.addLogAdapter(new AndroidLogAdapter(formatStrategy));
-    }
-
-    @Override
-    protected String getCountry() {
-        return BuildConfig.BUILD_COUNTRY;
     }
 
     private void configToast() {
@@ -153,5 +147,10 @@ public class MyApplication extends SdkApplication {
             iterator.remove();
             activity.finish();
         }
+    }
+
+    @Override
+    public String getCountry() {
+        return BuildConfig.BUILD_COUNTRY;
     }
 }

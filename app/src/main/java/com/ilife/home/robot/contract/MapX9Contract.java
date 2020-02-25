@@ -146,6 +146,8 @@ public interface MapX9Contract {
 
         boolean isSupportPause();
 
+        boolean planningToAlong();
+
     }
 
 }

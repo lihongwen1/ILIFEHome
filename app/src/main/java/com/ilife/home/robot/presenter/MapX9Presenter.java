@@ -550,19 +550,6 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
                 if (mapBeanData == null) {
                     return;
                 }
-//                Gson gson = new Gson();
-//                RealTimeMapBean mapBean = gson.fromJson(mapBeanData, RealTimeMapBean.class);
-//                MyLogger.d(TAG, "onRealMap----:  " + mapBean.toString());
-//                int offset = pointList.size();
-//                parseRealTimeMapX8(mapBean.getMapData());
-//                updateSlamX8(pointList, offset);
-//                cleanArea = mapBean.getCleanArea();
-//                workTime = mapBean.getCleanTime();
-//                mView.updateCleanTime(getTimeValue());
-//                mView.updateCleanArea(getAreaValue());
-//                if (haveMap && pointList != null && isDrawMap()) {
-//                    mView.drawMapX8(pointList);
-//                }
                 singleThread.execute(new ParseDataRunnable(mapBeanData));
             }
 
@@ -705,10 +692,20 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
         }
     }
 
+    /**
+     * X7系列支持规划时操作延边；
+     * X8系列不支持规划时操作延边
+     * @return
+     */
+    @Override
+    public boolean planningToAlong() {
+        return robotType.equals(Constants.X787) && curStatus == MsgCodeUtils.STATUE_PLANNING;
+    }
+
     @Override
     public void enterAlongMode() {
         if ((curStatus == MsgCodeUtils.STATUE_POINT && pointToAlong(false)) || curStatus == MsgCodeUtils.STATUE_WAIT || curStatus == MsgCodeUtils.STATUE_ALONG ||
-                curStatus == MsgCodeUtils.STATUE_PAUSE || curStatus == MsgCodeUtils.STATUE_RANDOM) {
+                curStatus == MsgCodeUtils.STATUE_PAUSE || curStatus == MsgCodeUtils.STATUE_RANDOM || planningToAlong()) {
             if (curStatus == MsgCodeUtils.STATUE_ALONG) {
                 setPropertiesWithParams(AliSkills.get().enterWaitMode(IlifeAli.getInstance().getWorkingDevice().getIotId()));
             } else {
@@ -740,11 +737,15 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
     }
 
 
+    /**
+     * X7系列不限制延边，重点状态时操作回冲
+     * X8系列延边，重点状态时，不可操作回冲
+     */
     @Override
     public void enterRechargeMode() {
         if (curStatus == MsgCodeUtils.STATUE_CHARGING || curStatus == MsgCodeUtils.STATUE_CHARGING_) {
             ToastUtils.showToast(MyApplication.getInstance(), Utils.getString(R.string.map_aty_charge));
-        } else if (curStatus == MsgCodeUtils.STATUE_POINT || curStatus == MsgCodeUtils.STATUE_ALONG) {
+        } else if (!robotType.equals(Constants.X787) && (curStatus == MsgCodeUtils.STATUE_POINT || curStatus == MsgCodeUtils.STATUE_ALONG)) {
             ToastUtils.showToast(MyApplication.getInstance(), Utils.getString(R.string.map_aty_can_not_execute));
         } else {
             if (curStatus == MsgCodeUtils.STATUE_RECHARGE) {

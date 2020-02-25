@@ -138,6 +138,8 @@ public class SettingActivity extends BackBaseActivity implements OnAliSetPropert
     private CompositeDisposable mDisposable;
     private RenameActivity renameFragment;
     private UniversalDialog resetDialog;
+    private String robotType;
+
     WeakHandler handler = new WeakHandler(new Handler.Callback() {
         @Override
         public boolean handleMessage(Message msg) {
@@ -196,8 +198,8 @@ public class SettingActivity extends BackBaseActivity implements OnAliSetPropert
         isMaxMode = infoBean.getDeviceInfo().isMaxMode();
         voiceOpen = infoBean.getDeviceInfo().isVoiceOpen();
         setMode(mode);
+        robotType = DeviceUtils.getRobotType(productKey);
         setStatus(waterLevel, isMaxMode, voiceOpen);
-        String robotType = DeviceUtils.getRobotType(productKey);
         int product = DeviceUtils.getRobotPic(robotType);
         switch (robotType) {
             case Constants.X800:
@@ -242,27 +244,43 @@ public class SettingActivity extends BackBaseActivity implements OnAliSetPropert
         image_max.setSelected(isMaxMode);
         image_voice.setSelected(voiceOpen);
         clearAll();
-        switch (water) {
-            case 100:
-                tv_standard.setSelected(true);
-                image_standard.setSelected(true);
-                tv_water.setText(getString(R.string.setting_aty_standard));
-                break;
-            case 0:
-                tv_standard.setSelected(true);
-                image_standard.setSelected(true);
-                tv_water.setText(getString(R.string.setting_aty_standard));
-                break;
-            case 1:
-                tv_soft.setSelected(true);
-                image_soft.setSelected(true);
-                tv_water.setText(getString(R.string.setting_aty_soft));
-                break;
-            case 2:
-                tv_strong.setSelected(true);
-                image_strong.setSelected(true);
-                tv_water.setText(getString(R.string.setting_aty_strong));
-                break;
+        if (Constants.X787.equals(robotType)) {//1轻柔 2标准 3强力
+            switch (water) {
+                case 1:
+                    tv_soft.setSelected(true);
+                    image_soft.setSelected(true);
+                    tv_water.setText(getString(R.string.setting_aty_soft));
+                    break;
+                case 2:
+                    tv_standard.setSelected(true);
+                    image_standard.setSelected(true);
+                    tv_water.setText(getString(R.string.setting_aty_standard));
+                    break;
+                case 3:
+                    tv_strong.setSelected(true);
+                    image_strong.setSelected(true);
+                    tv_water.setText(getString(R.string.setting_aty_strong));
+                    break;
+            }
+        } else {
+            switch (water) {
+                case 0:
+                    tv_standard.setSelected(true);
+                    image_standard.setSelected(true);
+                    tv_water.setText(getString(R.string.setting_aty_standard));
+                    break;
+                case 1:
+                    tv_soft.setSelected(true);
+                    image_soft.setSelected(true);
+                    tv_water.setText(getString(R.string.setting_aty_soft));
+                    break;
+                case 2:
+                    tv_strong.setSelected(true);
+                    image_strong.setSelected(true);
+                    tv_water.setText(getString(R.string.setting_aty_strong));
+                    break;
+            }
+
         }
     }
 
@@ -354,13 +372,25 @@ public class SettingActivity extends BackBaseActivity implements OnAliSetPropert
                 }
                 break;
             case R.id.rl_standard:
-                IlifeAli.getInstance().waterControl(0, this);
+                if (robotType.equals(Constants.X787)) {
+                    IlifeAli.getInstance().waterControl(2, this);
+                } else {
+                    IlifeAli.getInstance().waterControl(0, this);
+                }
                 break;
             case R.id.rl_soft:
-                IlifeAli.getInstance().waterControl(1, this);
+                if (robotType.equals(Constants.X787)) {
+                    IlifeAli.getInstance().waterControl(1, this);
+                } else {
+                    IlifeAli.getInstance().waterControl(1, this);
+                }
                 break;
             case R.id.rl_strong:
-                IlifeAli.getInstance().waterControl(2, this);
+                if (robotType.equals(Constants.X787)) {
+                    IlifeAli.getInstance().waterControl(3, this);
+                } else {
+                    IlifeAli.getInstance().waterControl(2, this);
+                }
                 break;
             case R.id.rl_update:
                 if (IlifeAli.getInstance().getWorkingDevice().getOwned() == 1) {

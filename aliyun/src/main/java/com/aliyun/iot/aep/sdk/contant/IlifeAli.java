@@ -1,6 +1,7 @@
 package com.aliyun.iot.aep.sdk.contant;
 
 import android.os.Build;
+import android.os.Process;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -17,6 +18,7 @@ import com.aliyun.alink.linksdk.channel.mobile.api.IMobileConnectListener;
 import com.aliyun.alink.linksdk.channel.mobile.api.IMobileDownstreamListener;
 import com.aliyun.alink.linksdk.channel.mobile.api.IMobileSubscrbieListener;
 import com.aliyun.alink.linksdk.channel.mobile.api.MobileChannel;
+import com.aliyun.iot.aep.sdk.IoTSmart;
 import com.aliyun.iot.aep.sdk._interface.OnAliBindDeviceResponse;
 import com.aliyun.iot.aep.sdk._interface.OnAliResponse;
 import com.aliyun.iot.aep.sdk._interface.OnAliResponseSingle;
@@ -44,10 +46,12 @@ import com.aliyun.iot.aep.sdk.delegate.GetHistoryMapDelegate;
 import com.aliyun.iot.aep.sdk.delegate.GetHistoryRecordDelegate;
 import com.aliyun.iot.aep.sdk.framework.AApplication;
 import com.aliyun.iot.aep.sdk.framework.sdk.SDKManager;
+import com.aliyun.iot.aep.sdk.helper.SDKInitHelper;
 import com.aliyun.iot.aep.sdk.login.ILoginCallback;
 import com.aliyun.iot.aep.sdk.login.ILogoutCallback;
 import com.aliyun.iot.aep.sdk.login.LoginBusiness;
 import com.aliyun.iot.aep.sdk.login.data.UserInfo;
+import com.aliyun.iot.aep.sdk.threadpool.ThreadPool;
 import com.google.gson.Gson;
 
 import java.util.ArrayList;
@@ -234,21 +238,18 @@ public class IlifeAli {
      * @param onAliResponse
      */
     public void login(final OnAliResponse<Boolean> onAliResponse) {
-        if (isLogin()) {
-            onAliResponse.onSuccess(true);
-        } else {
-            LoginBusiness.login(new ILoginCallback() {
-                @Override
-                public void onLoginSuccess() {
-                    onAliResponse.onSuccess(true);
-                }
+        LoginBusiness.login(new ILoginCallback() {
+            @Override
+            public void onLoginSuccess() {
+                onAliResponse.onSuccess(true);
+            }
 
-                @Override
-                public void onLoginFailed(int code, String error) {
-                    onAliResponse.onFailed(code, error);
-                }
-            });
-        }
+            @Override
+            public void onLoginFailed(int code, String error) {
+                onAliResponse.onFailed(code, error);
+            }
+        });
+
     }
 
     /**
@@ -266,6 +267,42 @@ public class IlifeAli {
             @Override
             public void onLoginFailed(int code, String error) {
                 onAliResponse.onFailed(code, error);
+            }
+        });
+    }
+
+    /**
+     *
+     * @param onAliResponse
+     */
+    public void selectACountry(OnAliResponse<String> onAliResponse) {
+        Log.d(TAG, "开始选择国家");
+        IoTSmart.getCountryList(new IoTSmart.ICountryListGetCallBack() {
+            @Override
+            public void onSucess(List<IoTSmart.Country> list) {
+                IoTSmart.Country selectCountry = null;
+                for (IoTSmart.Country country : list) {
+                    if (country.areaName.equals("德国")) {
+                        selectCountry = country;
+                        break;
+                    }
+                }
+                if (selectCountry != null) {
+                    final String selectCountryName = selectCountry.areaName;
+                    IoTSmart.setCountry(selectCountry, needRestartApp -> {
+                        if (needRestartApp) {
+                            onAliResponse.onFailed(-1, "set country success,and need restart app");
+                        } else {//重新初始化
+                            SDKInitHelper.init(AApplication.getInstance(),"");
+                            onAliResponse.onSuccess(selectCountryName);
+                        }
+                    });
+                }
+            }
+
+            @Override
+            public void onFail(String s, int i, String s1) {
+                Log.d(TAG, "get country list failed ,the reason is:" + s + "---" + s1);
             }
         });
     }
@@ -462,14 +499,7 @@ public class IlifeAli {
                         stateCode = 3;
                         break;
                     case CONNECTFAIL:
-                        SDKManager.Result result = new SDKManager.Result();
-                        result.bInitialized = false;
-                        result.resultCode = -1;
-                        result.sdkName = "DownstreamConnector";
-                        result.sdkVer = "0.0.1";
-                        result.process = "com.ilife.home.robot";
-                        SDKManager.InitResultHolder.updateResult("com.aliyun.iot.aep.sdk.delegate.DownstreamConnectorSDKDelegate", result);
-
+                        //TODO 长连接失败后，标记为未初始化，等待重新连接
                         value = "连接改变，连接失败，重新标记为未初始化";
                         //连接失败
                         stateCode = 4;
@@ -486,18 +516,18 @@ public class IlifeAli {
     /**
      * 长连接如果失败，会导致APP无法接收到服务器下发。
      * 检查长连接状态，如果未连接，则尝试重连
+     * aliyun level 8 方法已经不可用
      */
     public void checkAndReconnection() {
-        if (CONNECTION_STATUS == -1) {
-            return;
-        }
-        if (CONNECTION_STATUS == 2 || CONNECTION_STATUS == 4) {
-            Log.e(TAG, "云服务器长连接已断开，正尝试重新连接。。。。。。。。");
-            SDKManager.prepareForInitSdk(aApplication);
-            SDKManager.init_outOfUiThread(aApplication);
-        } else {
-            Log.d(TAG, "设备连接状态正常。。。。。。。。。。。。");
-        }
+//        if (CONNECTION_STATUS == -1) {
+//            return;
+//        }
+//        if (CONNECTION_STATUS == 2 || CONNECTION_STATUS == 4) {
+//            Log.e(TAG, "云服务器长连接已断开，正尝试重新连接。。。。。。。。");
+//            SDKManager.prepareForInitSdk(aApplication);
+//        } else {
+//            Log.d(TAG, "设备连接状态正常。。。。。。。。。。。。");
+//        }
     }
 
     public void setProperties(HashMap<String, Object> params, OnAliSetPropertyResponse onAliResponse) {
@@ -835,6 +865,9 @@ public class IlifeAli {
                 break;
             case 2:
                 jsonStr = "{\"WaterTankContrl\":2}";
+                break;
+            case 3:
+                jsonStr = "{\"WaterTankContrl\":3}";
                 break;
         }
         JSONObject json = JSONObject.parseObject(jsonStr);
@@ -1361,7 +1394,7 @@ public class IlifeAli {
                 Log.d("TaobaoAuthActivity", "获取授权淘宝账号成功-----------" + ioTResponse.getData());
                 if (ioTResponse.getCode() == 200 && ioTResponse.getData() != null) {
                     JSONObject jsonObject = JSON.parseObject(ioTResponse.getData().toString());
-                    if (jsonObject!=null&&jsonObject.containsKey("accountId")) {
+                    if (jsonObject != null && jsonObject.containsKey("accountId")) {
                         onAliResponse.onResponse(true);
                     } else {
                         onAliResponse.onResponse(false);

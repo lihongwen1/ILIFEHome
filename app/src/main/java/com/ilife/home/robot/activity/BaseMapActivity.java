@@ -162,6 +162,9 @@ public abstract class BaseMapActivity extends BackBaseActivity<MapX9Presenter> i
                     case 2://清扫时长
                         tv_time.setText((String) msg.obj);
                         break;
+                    case 3:
+                        mMapView.drawMapX8((List<Coordinate>) msg.obj);
+                        break;
                 }
 
                 return false;
@@ -728,7 +731,11 @@ public abstract class BaseMapActivity extends BackBaseActivity<MapX9Presenter> i
 
     @Override
     public void drawMapX8(ArrayList<Coordinate> dataList) {
-        mMapView.drawMapX8(dataList);
+        Message message = new Message();
+        message.what = 3;
+        message.obj = dataList;
+        weakHandler.removeMessages(3);//移除未执行完成的刷新操作
+        weakHandler.sendMessage(message);
     }
 
     @Override

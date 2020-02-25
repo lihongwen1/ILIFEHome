@@ -42,6 +42,7 @@ import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
 
+//TODO OTA更新翻译
 public class OtaUpdateActivity extends BackBaseActivity {
     private final String TAG = OtaUpdateActivity.class.getSimpleName();
     @BindView(R.id.tv_cur_version)

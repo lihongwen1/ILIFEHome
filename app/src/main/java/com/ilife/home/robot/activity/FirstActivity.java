@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.os.Process;
 import android.preference.PreferenceManager;
 import android.text.Spannable;
 import android.text.SpannableString;
@@ -19,23 +20,36 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
+import com.aliyun.iot.aep.sdk.IoTSmart;
 import com.aliyun.iot.aep.sdk._interface.OnAliResponse;
 import com.aliyun.iot.aep.sdk.contant.IlifeAli;
+import com.aliyun.iot.aep.sdk.framework.AApplication;
+import com.aliyun.iot.aep.sdk.framework.config.GlobalConfig;
+import com.aliyun.iot.aep.sdk.helper.SDKInitHelper;
+import com.aliyun.iot.aep.sdk.page.CountryListActivity;
+import com.aliyun.iot.aep.sdk.threadpool.ThreadPool;
+import com.aliyun.iot.link.ui.component.LinkToast;
 import com.badoo.mobile.util.WeakHandler;
 import com.ilife.home.robot.R;
 import com.ilife.home.robot.base.BaseActivity;
 import com.ilife.home.robot.fragment.UniversalDialog;
+import com.ilife.home.robot.utils.MyLogger;
 import com.ilife.home.robot.utils.SpUtils;
 import com.ilife.home.robot.utils.ToastUtils;
 import com.ilife.home.robot.utils.Utils;
 import com.tbruyelle.rxpermissions2.RxPermissions;
 
+import java.util.List;
+
 import butterknife.BindView;
+
+import static com.aliyun.iot.aep.sdk.IoTSmart.REGION_CHINA_ONLY;
 
 
 /**
  * Created by chenjiaping on 2017/7/20.
  */
+// TODO 隐私政策翻译
 
 public class FirstActivity extends BaseActivity {
     private final String TAG = FirstActivity.class.getSimpleName();
@@ -93,7 +107,7 @@ public class FirstActivity extends BaseActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        if (Utils.isChinaEnvironment()&&!SpUtils.getBoolean(this, "key_agree_protocol")) {
+        if (Utils.isChinaEnvironment() && !SpUtils.getBoolean(this, "key_agree_protocol")) {
             showProtocolDialog();
         } else {
             checkPermission();
@@ -113,9 +127,40 @@ public class FirstActivity extends BaseActivity {
     }
 
     public void gotoMain() {
+        if (IlifeAli.getInstance().isLogin()) {//this value will be true ,when the region type is REGION_CHINA_ONLY,and the user have login before.
+            Intent i;
+            i = new Intent(FirstActivity.this, MainActivity.class);
+            startActivity(i);
+            removeActivity();
+        } else {
+            if (GlobalConfig.getInstance().getInitConfig().getRegionType() == REGION_CHINA_ONLY) {//CHINA
+                startLogin();
+            } else {//OVER SEA
+                IlifeAli.getInstance().selectACountry(new OnAliResponse<String>() {
+                    @Override
+                    public void onSuccess(String selectCountry) {
+                        MyLogger.d(TAG, "the select country is : " + selectCountry);
+                        startLogin();
+                    }
+
+                    @Override
+                    public void onFailed(int code, String message) {//结束进程
+                        removeALLActivity();
+                        ThreadPool.MainThreadHandler.getInstance().post(() -> Process.killProcess(Process.myPid()), 2000);
+                    }
+                });
+            }
+
+
+        }
+
+
+    }
+
+    private void startLogin() {
         IlifeAli.getInstance().login(new OnAliResponse<Boolean>() {
             @Override
-            public void onSuccess(Boolean result) {
+            public void onSuccess(Boolean result) {//LOGIN Success
                 Intent i;
                 i = new Intent(FirstActivity.this, MainActivity.class);
                 startActivity(i);
@@ -124,12 +169,13 @@ public class FirstActivity extends BaseActivity {
 
 
             @Override
-            public void onFailed(int code, String message) {
+            public void onFailed(int code, String message) {//Login failed
+                MyLogger.d(TAG, "登录失败------------");
                 removeALLActivity();
             }
         });
-
     }
+
 
     private class MyClickText extends ClickableSpan {
         private int type;
@@ -149,8 +195,8 @@ public class FirstActivity extends BaseActivity {
 
         @Override
         public void onClick(View view) {
-            Intent intent=new Intent(FirstActivity.this, ProtocolActivity.class);
-            intent.putExtra(ProtocolActivity.KEY_TYPE,type);
+            Intent intent = new Intent(FirstActivity.this, ProtocolActivity.class);
+            intent.putExtra(ProtocolActivity.KEY_TYPE, type);
             startActivity(intent);
         }
     }
