@@ -102,7 +102,7 @@ public class HistoryDetailActivity_x9 extends BackBaseActivity {
         }
         List<Byte> byteList = new ArrayList<>();
         List<Coordinate> pointList = new ArrayList<>();
-        int lineCount = 0;
+        int lineCount = -1;
         String data;
         for (String s : mapArray) {
             data = s;
@@ -113,6 +113,10 @@ public class HistoryDetailActivity_x9 extends BackBaseActivity {
             byte[] bytes = Base64.decode(data, Base64.DEFAULT);
             if (bytes.length < 2) {
                 MyLogger.e(TAG, "数据异常。。。。。。。");
+                continue;
+            }
+            if (lineCount != -1 && lineCount != (bytes[1]&0xff)) {//单条记录多个包的length与第一包不一致的丢弃
+                MyLogger.e(TAG, "lineCount error。。。。。。。");
                 continue;
             }
             lineCount = bytes[1] & 0xff;
