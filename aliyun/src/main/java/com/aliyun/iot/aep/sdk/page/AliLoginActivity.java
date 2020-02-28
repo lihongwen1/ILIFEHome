@@ -48,8 +48,8 @@ public class AliLoginActivity extends com.alibaba.sdk.android.openaccount.ui.ui.
     protected void onCreate(Bundle savedInstanceState) {
         //显示登录页和手机忘记密码页的选择国家区号
         super.onCreate(savedInstanceState);
-        OpenAccountUIConfigs.AccountPasswordLoginFlow.supportForeignMobileNumbers = false;
-        OpenAccountUIConfigs.MobileResetPasswordLoginFlow.supportForeignMobileNumbers = false;
+//        OpenAccountUIConfigs.AccountPasswordLoginFlow.supportForeignMobileNumbers = true;
+//        OpenAccountUIConfigs.MobileResetPasswordLoginFlow.supportForeignMobileNumbers = true;
         TRANSPARENT();
         registerSelectorDialogFragment = new RegisterSelectorDialogFragment();
         registerSelectorDialogFragment.setOnClickListener(registerListenr);

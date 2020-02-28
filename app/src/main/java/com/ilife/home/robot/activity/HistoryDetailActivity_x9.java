@@ -13,6 +13,7 @@ import com.aliyun.iot.aep.sdk.contant.IlifeAli;
 import com.ilife.home.robot.R;
 import com.ilife.home.robot.able.Constants;
 import com.ilife.home.robot.able.DeviceUtils;
+import com.ilife.home.robot.app.MyApplication;
 import com.ilife.home.robot.base.BackBaseActivity;
 import com.ilife.home.robot.bean.Coordinate;
 import com.ilife.home.robot.utils.DataUtils;
@@ -61,7 +62,6 @@ public class HistoryDetailActivity_x9 extends BackBaseActivity {
     TextView tv_clean_time;
     @BindView(R.id.tv_lean_area)
     TextView tv_lean_area;
-    private String subdomain;
     private boolean isDrawMap;
 
     @Override
@@ -82,17 +82,18 @@ public class HistoryDetailActivity_x9 extends BackBaseActivity {
             return;
         }
         isDrawMap = true;
-        switch (DeviceUtils.getRobotType(IlifeAli.getInstance().getWorkingDevice().getProductKey())) {
-            case Constants.X800:
-            case Constants.X800W:
-                drawHistoryMapX8();
-                break;
-            case Constants.V3x:
+        int historyMapType = MyApplication.getInstance().readRobotConfig().getRobotBeanByPk(IlifeAli.getInstance().getWorkingDevice().getProductKey()).getHistoryMapType();
+        switch (historyMapType) {
+            case 0:
                 //V3X没有地图
                 break;
-            case Constants.X787:
+            case 1:
+                drawHistoryMapX8();
+                break;
+            case 2:
                 drawHistoryMapX7();
                 break;
+
         }
     }
 
@@ -115,7 +116,7 @@ public class HistoryDetailActivity_x9 extends BackBaseActivity {
                 MyLogger.e(TAG, "数据异常。。。。。。。");
                 continue;
             }
-            if (lineCount != -1 && lineCount != (bytes[1]&0xff)) {//单条记录多个包的length与第一包不一致的丢弃
+            if (lineCount != -1 && lineCount != (bytes[1] & 0xff)) {//单条记录多个包的length与第一包不一致的丢弃
                 MyLogger.e(TAG, "lineCount error。。。。。。。");
                 continue;
             }
@@ -258,9 +259,8 @@ public class HistoryDetailActivity_x9 extends BackBaseActivity {
 
     public void initData() {//取出传递过来的集合
         historyPointsList = new ArrayList<>();
-        subdomain = "";
-        String robotType = DeviceUtils.getRobotType(subdomain);
-        mapView.setRobotSeriesX9(robotType.equals(Constants.X900) || robotType.equals(Constants.X910));
+        //TODO 适配X900系列机器时需要设置改值为true,a way is setting it by the result whether robot type  start with "x9"
+        mapView.setRobotSeriesX9(false);
         mapView.setNeedRestore(false);
         Intent intent = getIntent();
         if (intent != null) {

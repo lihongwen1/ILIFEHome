@@ -4,9 +4,12 @@
         <item>X800 • 黑</item>
         <item>X800 • 白</item>
 <!--        <item>V3x</item>-->
-        <item>X787</item>https://console.cloud.tencent.com/ms/reinforce/tool
+        <item>X787</item>
+        <item>X451</item>
+    </string-array>
 
-
+    <string-array name="array_oversea_device_type">
+        <item>X800</item>
     </string-array>
     <string-array name="array_week">
         <item>@string/clock_aty_sun</item>
@@ -20,8 +23,8 @@
     <string-array name="array_question_type">
         <item>@string/help_question_device</item>
         <item>@string/help_question_binding</item>
-<!--        <item>@string/help_question_advice</item>-->
-<!--        <item>@string/help_question_app</item>-->
+        <!--        <item>@string/help_question_advice</item>-->
+        <!--        <item>@string/help_question_app</item>-->
         <item>@string/help_question_other</item>
     </string-array>
 </resources>

@@ -33,9 +33,6 @@ import java.util.List;
 public class HistoryActivity_x9 extends BackBaseActivity implements View.OnClickListener {
     final String TAG = HistoryActivity_x9.class.getSimpleName();
     int index;
-    long deviceId;
-    String subdomain;
-    String serviceName;
     List<HistoryRecordBean> recordList;
     private Long[] startTimes;
     private HistoryRecordBean[] records;
@@ -78,12 +75,6 @@ public class HistoryActivity_x9 extends BackBaseActivity implements View.OnClick
         recyclerView.setAdapter(adapter);
         recyclerView.addItemDecoration(new RecyclerViewDivider(this, LinearLayoutManager.VERTICAL, getResources().getDimensionPixelOffset(R.dimen.dp_8),
                 ContextCompat.getColor(this, R.color.bg_color_f5f7fa)));
-    }
-
-    public void initData() {
-        deviceId = SpUtils.getLong(context, MainActivity.KEY_DEVICEID);
-        subdomain = SpUtils.getSpString(context, MainActivity.KEY_SUBDOMAIN);
-        serviceName = DeviceUtils.getServiceName(subdomain);
     }
 
     @Override

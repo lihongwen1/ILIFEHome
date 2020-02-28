@@ -16,84 +16,6 @@ import com.ilife.home.robot.R;
  */
 
 public class DeviceUtils {
-
-
-    public static String getServiceName(String subdomain) {
-        String serviceName = "";
-        return serviceName;
-    }
-
-
-    public static String getProductKeyByRobotType(String robotType) {
-        String procutKey = "";
-        switch (robotType) {
-            case Constants.X800:
-                procutKey = EnvConfigure.PRODUCT_KEY_X800;
-                break;
-            case Constants.X800W:
-                procutKey = EnvConfigure.PRODUCT_KEY_X800_W;
-                break;
-            case Constants.V3x:
-                procutKey = EnvConfigure.PRODUCT_KEY_X320;
-                break;
-            case Constants.X787:
-                procutKey = EnvConfigure.PRODUCT_KEY_X787;
-                break;
-        }
-        return procutKey;
-    }
-
-    public static String getRobotType(String productKey) {
-        String robotType = "";
-        switch (productKey) {
-            case EnvConfigure.PRODUCT_KEY_X800:
-                robotType = Constants.X800;
-                break;
-            case EnvConfigure.PRODUCT_KEY_X800_W:
-                robotType = Constants.X800W;
-                break;
-            case EnvConfigure.PRODUCT_KEY_X320:
-                robotType = Constants.V3x;
-                break;
-            case EnvConfigure.PRODUCT_KEY_X787:
-                robotType = Constants.X787;
-                break;
-
-        }
-        MyLogger.i("ROBOT_TYPE", "-------" + robotType + "------------");
-        return robotType;
-    }
-
-
-    /**
-     * get the image resource id of recharging
-     *
-     * @param robotType
-     * @return
-     */
-    public static int getRobotPic(String robotType) {
-        int src;
-        switch (robotType) {
-            case Constants.X800:
-                src = R.drawable.n_x800;
-                break;
-            case Constants.X800W:
-                src = R.drawable.n_x800_w;
-                break;
-            case Constants.V3x:
-                src = R.drawable.n_v3x;
-                break;
-            case Constants.X787:
-                src = R.drawable.n_x787;
-                break;
-            default:
-                src = R.drawable.n_x800;
-
-        }
-        return src;
-    }
-
-
     public static String getErrorText(Context context, int code, String robotType) {
         String strError = "";
         switch (code) {
@@ -239,7 +161,12 @@ public class DeviceUtils {
     }
 
     public static String[] getSupportDevices() {
-        return MyApplication.getInstance().getResources().getStringArray(R.array.array_device_type);
+        if (MyApplication.getInstance().getCountry().equals("CHINA")) {//国内
+            return MyApplication.getInstance().getResources().getStringArray(R.array.array_device_type);
+        } else {
+            return MyApplication.getInstance().getResources().getStringArray(R.array.array_oversea_device_type);
+        }
+
     }
 
 

@@ -76,4 +76,17 @@ public class PropertyBean {
     public void setVoiceOpen(boolean voiceOpen) {
         this.voiceOpen = voiceOpen;
     }
+
+    @Override
+    public String toString() {
+        return "PropertyBean{" +
+                "maxMode=" + maxMode +
+                ", workMode=" + workMode +
+                ", battery=" + battery +
+                ", waterLevel=" + waterLevel +
+                ", realTimeMapTimeLine=" + realTimeMapTimeLine +
+                ", historyMapTimeLine=" + historyMapTimeLine +
+                ", voiceOpen=" + voiceOpen +
+                '}';
+    }
 }

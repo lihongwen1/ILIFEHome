@@ -8,9 +8,12 @@ import androidx.annotation.NonNull;
 import com.aliyun.iot.aep.sdk.bean.DeviceInfoBean;
 import com.ilife.home.robot.able.Constants;
 import com.ilife.home.robot.able.DeviceUtils;
+import com.ilife.home.robot.app.MyApplication;
 import com.ilife.home.robot.base.BaseQuickAdapter;
 import com.ilife.home.robot.base.BaseViewHolder;
 import com.ilife.home.robot.R;
+import com.ilife.home.robot.bean.RobotConfigBean;
+import com.ilife.home.robot.utils.UiUtil;
 
 import java.util.List;
 
@@ -46,8 +49,8 @@ public class RobotListAdapter extends BaseQuickAdapter<DeviceInfoBean, BaseViewH
         if (type == TYPE_ADD) {//添加机器人按钮
             holder.addOnClickListener(R.id.iv_add_device);
         } else {
-            String robotType = DeviceUtils.getRobotType(data.get(position).getProductKey());
-            holder.setImageResource(context, R.id.image_product,DeviceUtils.getRobotPic(robotType));
+            RobotConfigBean.RobotBean rBean= MyApplication.getInstance().readRobotConfig().getRobotBeanByPk(data.get(position).getProductKey());
+            holder.setImageResource(context, R.id.image_product, UiUtil.getDrawable(rBean.getFaceImg()));
             String nickName = data.get(position).getNickName();
             holder.setText(R.id.tv_name, TextUtils.isEmpty(nickName) ? data.get(position).getDeviceName() : nickName);
             int states = data.get(position).getStatus();

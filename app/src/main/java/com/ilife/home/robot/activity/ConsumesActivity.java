@@ -22,7 +22,9 @@ import com.aliyun.iot.aep.sdk.contant.IlifeAli;
 import com.ilife.home.robot.R;
 import com.ilife.home.robot.able.Constants;
 import com.ilife.home.robot.able.DeviceUtils;
+import com.ilife.home.robot.app.MyApplication;
 import com.ilife.home.robot.base.BackBaseActivity;
+import com.ilife.home.robot.bean.RobotConfigBean;
 import com.ilife.home.robot.fragment.UniversalDialog;
 import com.ilife.home.robot.model.ConsumerModel;
 import com.ilife.home.robot.utils.MyLogger;
@@ -73,8 +75,8 @@ public class ConsumesActivity extends BackBaseActivity {
 
     public void initView() {
         tv_top_title.setText(R.string.setting_aty_consume_detail);
-        String robotType = DeviceUtils.getRobotType(IlifeAli.getInstance().getWorkingDevice().getProductKey());
-        if (robotType.equals(Constants.V3x)) {// V3X V85是吸口型，没有滚刷。
+        RobotConfigBean.RobotBean rBean=MyApplication.getInstance().readRobotConfig().getRobotBeanByPk(IlifeAli.getInstance().getWorkingDevice().getProductKey());
+        if (rBean.isSuctionType()) {// V3X V85是吸口型，没有滚刷。
             findViewById(R.id.rl_roll).setVisibility(View.GONE);
         }
     }

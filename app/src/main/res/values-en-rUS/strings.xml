@@ -20,6 +20,7 @@
     <string name="ap_guide_aty_tip1_x800">Turn on the power switch on the side of the robot. (Note: Do not configure the network while the machine is charging)</string>
     <string name="ap_guide_sty_typ2_x800">Press and hold the start key of the robot until you hear \ "WiFi connection \" and see the green WiFi indicator flashing.</string>
     <string name="ap_guide_sty_typ2_x320">Press and hold AP network distribution key for 3 seconds and you will hear a buzz. Don\'t release until you hear two buzzes. Robot enters AP mode and WiFi light starts blinking. </string>
+    <string name="ap_guide_sty_typ2_X787">Press and hold AP network distribution key until you hear two buzzes.Robot enters AP mode and WiFi light starts blinking.</string>
     <string name="ap_guide_tip4">No voice announcement.Retry previous steps.</string>
     <string name="ap_guide_already_open_device">Robot already switched on</string>
     <string name="ap_guide_already_open_wifi">"Starting WiFi pairing mode"already announced</string>
@@ -172,6 +173,7 @@
     <string name="consume_aty_roll_time">Main brush</string>
     <string name="consume_aty_roll_time_reset">Reset main brush</string>
     <string name="consume_aty_filter_time">High performance filter</string>
+    <string name="consume_detail_aty_filter_time">High performance filter</string>
     <string name="consume_aty_filter_time_reset">Reset filter</string>
     <string name="consume_aty_resetSide">Reset side brush life</string>
     <string name="consume_aty_resetSide_over">Please confirm whether the new side brush has been replaced</string>
@@ -237,6 +239,7 @@
     <string name="adapter_error_zbl_a9">Left side wheel error</string>
     <string name="adapter_error_gs_a9">Main brush error</string>
     <string name="adapter_error_td_a9">Detectors error</string>
+    <string name="adapter_error_robot_sk">Robot is trapped</string>
     <string name="consume_aty_resetRoll">Reset main brush life</string>
     <string name="consume_aty_resetRoll_over">Please confirm whether the new main brush has been replaced</string>
     <string name="ap_guide_aty_tip2_a9">Press and hold for 3 seconds and you will hear a buzz. Don\'t release until voice announcement says \"Starting WiFi pairing mode\". WiFi light starts blinking once robot enters AP mode.  </string>

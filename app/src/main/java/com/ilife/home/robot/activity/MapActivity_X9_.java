@@ -9,6 +9,7 @@ import com.aliyun.iot.aep.sdk.contant.MsgCodeUtils;
 import com.ilife.home.robot.able.DeviceUtils;
 import com.ilife.home.robot.utils.ToastUtils;
 import com.ilife.home.robot.R;
+import com.ilife.home.robot.utils.UiUtil;
 
 /**
  * Created by chengjiaping on 2018/8/15.
@@ -23,7 +24,7 @@ public class MapActivity_X9_ extends BaseMapActivity {
     @Override
     public void initView() {
         super.initView();
-        iv_recharge_model.setImageResource(DeviceUtils.getRobotPic(mPresenter.getRobotType()));
+        iv_recharge_model.setImageResource( UiUtil.getDrawable(mPresenter.getRobotBean().getFaceImg()));
     }
 
     @Override

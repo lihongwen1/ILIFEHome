@@ -25,11 +25,14 @@ import com.ilife.home.robot.BuildConfig;
 import com.ilife.home.robot.R;
 import com.ilife.home.robot.able.Constants;
 import com.ilife.home.robot.able.DeviceUtils;
+import com.ilife.home.robot.app.MyApplication;
 import com.ilife.home.robot.base.BackBaseActivity;
+import com.ilife.home.robot.bean.RobotConfigBean;
 import com.ilife.home.robot.fragment.UniversalDialog;
 import com.ilife.home.robot.utils.MyLogger;
 import com.ilife.home.robot.utils.SpUtils;
 import com.ilife.home.robot.utils.ToastUtils;
+import com.ilife.home.robot.utils.UiUtil;
 import com.ilife.home.robot.utils.Utils;
 
 import java.util.concurrent.TimeUnit;
@@ -139,6 +142,7 @@ public class SettingActivity extends BackBaseActivity implements OnAliSetPropert
     private RenameActivity renameFragment;
     private UniversalDialog resetDialog;
     private String robotType;
+    private RobotConfigBean.RobotBean rBean;
 
     WeakHandler handler = new WeakHandler(new Handler.Callback() {
         @Override
@@ -189,6 +193,7 @@ public class SettingActivity extends BackBaseActivity implements OnAliSetPropert
 
     public void initData() {
         productKey = IlifeAli.getInstance().getWorkingDevice().getProductKey();
+        rBean=MyApplication.getInstance().readRobotConfig().getRobotBeanByPk(productKey);
         mDisposable = new CompositeDisposable();
         DeviceInfoBean infoBean = IlifeAli.getInstance().getWorkingDevice();
         animation = AnimationUtils.loadAnimation(context, R.anim.anims);
@@ -198,35 +203,17 @@ public class SettingActivity extends BackBaseActivity implements OnAliSetPropert
         isMaxMode = infoBean.getDeviceInfo().isMaxMode();
         voiceOpen = infoBean.getDeviceInfo().isVoiceOpen();
         setMode(mode);
-        robotType = DeviceUtils.getRobotType(productKey);
+        robotType = rBean.getRobotType();
         setStatus(waterLevel, isMaxMode, voiceOpen);
-        int product = DeviceUtils.getRobotPic(robotType);
-        switch (robotType) {
-            case Constants.X800:
-                rl_mode.setVisibility(View.GONE);
-                rl_update.setVisibility(View.VISIBLE);
-                robotType = "X800";
-                break;
-            case Constants.X800W:
-                rl_mode.setVisibility(View.GONE);
-                rl_update.setVisibility(View.VISIBLE);
-                robotType = "X800";
-                break;
-            case Constants.V3x:
-                rl_record.setVisibility(View.GONE);
-                rl_voice.setVisibility(View.GONE);
-                rl_mode.setVisibility(View.GONE);
-                rl_update.setVisibility(View.GONE);
-                break;
-            case Constants.X787:
-                rl_voice.setVisibility(View.GONE);
-                rl_update.setVisibility(View.GONE);
-                break;
-            default:
-                product = R.drawable.n_x800;
-                break;
-        }
-        tv_type.setText(BuildConfig.BRAND + " " + robotType);
+        int product = UiUtil.getDrawable(rBean.getFaceImg());
+        /**
+         * 所有功能均为VISIBLE，模式切换，固件升级默认GONE
+         */
+        rl_mode.setVisibility(rBean.isSettingMode()?View.VISIBLE:View.GONE);
+        rl_update.setVisibility(rBean.isSettingUpdate()?View.VISIBLE:View.GONE);
+        rl_record.setVisibility(rBean.isSettingRecord()?View.VISIBLE:View.GONE);
+        rl_voice.setVisibility(rBean.isSettingVoice()?View.VISIBLE:View.GONE);
+        tv_type.setText(BuildConfig.BRAND + " " + rBean.getSettingRobot());
         image_product.setImageResource(product);
     }
 
@@ -244,7 +231,7 @@ public class SettingActivity extends BackBaseActivity implements OnAliSetPropert
         image_max.setSelected(isMaxMode);
         image_voice.setSelected(voiceOpen);
         clearAll();
-        if (Constants.X787.equals(robotType)) {//1轻柔 2标准 3强力
+        if (rBean.getWaterLevelType()==2) {//1轻柔 2标准 3强力 目前只有X787是该顺序
             switch (water) {
                 case 1:
                     tv_soft.setSelected(true);
@@ -372,21 +359,21 @@ public class SettingActivity extends BackBaseActivity implements OnAliSetPropert
                 }
                 break;
             case R.id.rl_standard:
-                if (robotType.equals(Constants.X787)) {
+                if (rBean.getWaterLevelType()==2) {
                     IlifeAli.getInstance().waterControl(2, this);
                 } else {
                     IlifeAli.getInstance().waterControl(0, this);
                 }
                 break;
             case R.id.rl_soft:
-                if (robotType.equals(Constants.X787)) {
+                if (rBean.getWaterLevelType()==2) {
                     IlifeAli.getInstance().waterControl(1, this);
                 } else {
                     IlifeAli.getInstance().waterControl(1, this);
                 }
                 break;
             case R.id.rl_strong:
-                if (robotType.equals(Constants.X787)) {
+                if (rBean.getWaterLevelType()==2) {
                     IlifeAli.getInstance().waterControl(3, this);
                 } else {
                     IlifeAli.getInstance().waterControl(2, this);

@@ -9,9 +9,12 @@ import android.widget.TextView;
 import com.aliyun.iot.aep.sdk.contant.EnvConfigure;
 import com.aliyun.iot.aep.sdk.contant.IlifeAli;
 import com.ilife.home.robot.R;
+import com.ilife.home.robot.app.MyApplication;
 import com.ilife.home.robot.base.BackBaseActivity;
+import com.ilife.home.robot.bean.RobotConfigBean;
 import com.ilife.home.robot.fragment.LoadingDialogFragment;
 import com.aliyun.iot.aep.sdk.page.ToggleRadioButton;
+import com.ilife.home.robot.utils.UiUtil;
 import com.ilife.home.robot.utils.Utils;
 
 import butterknife.BindView;
@@ -38,8 +41,8 @@ public class ApGuideReadyRobotWifi extends BackBaseActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (IlifeAli.getInstance().getBindingProductKey().equals(EnvConfigure.PRODUCT_KEY_X800_W) ||
-                IlifeAli.getInstance().getBindingProductKey().equals(EnvConfigure.PRODUCT_KEY_X800)) {
+        boolean isNeedWaiForPower = MyApplication.getInstance().readRobotConfig().getRobotBeanByPk(IlifeAli.getInstance().getBindingProductKey()).isWaitForOpenPower();
+        if (isNeedWaiForPower) {
             if (loadingDialogFragment == null) {
                 loadingDialogFragment = new LoadingDialogFragment();
             }
@@ -63,33 +66,12 @@ public class ApGuideReadyRobotWifi extends BackBaseActivity {
             }
         });
         String productKey = IlifeAli.getInstance().getBindingProductKey();
-        int pic_product = -1;
-        String tip2 = "";
-        String next_tip = "";
-        switch (productKey) {
-            case EnvConfigure.PRODUCT_KEY_X800:
-                pic_product = R.drawable.pic_start;
-                tip2 = Utils.getString(R.string.ap_guide_sty_typ2_x800);
-                next_tip = Utils.getString(R.string.ap_guide_already_open_wifi);
-                break;
-            case EnvConfigure.PRODUCT_KEY_X800_W:
-                pic_product = R.drawable.pic_start_w;
-                tip2 = Utils.getString(R.string.ap_guide_sty_typ2_x800);
-                next_tip = Utils.getString(R.string.ap_guide_already_open_wifi);
-                break;
-            case EnvConfigure.PRODUCT_KEY_X320:
-                pic_product = R.drawable.pic_start_v3x;
-                tip2 = Utils.getString(R.string.ap_guide_sty_typ2_x320);
-                next_tip = Utils.getString(R.string.ap_guide_already_heared_didi);
-                break;
-            case EnvConfigure.PRODUCT_KEY_X787://TODO 更换正确
-                pic_product = R.drawable.pic_start_787;
-                tip2 = Utils.getString(R.string.ap_guide_sty_typ2_x320);
-                next_tip = Utils.getString(R.string.ap_guide_already_heared_didi);
-                break;
-
-        }
-        if (pic_product != -1) {
+        RobotConfigBean robotConfig = MyApplication.getInstance().readRobotConfig();
+        RobotConfigBean.RobotBean rBean = robotConfig.getRobotBeanByPk(productKey);
+        int pic_product = UiUtil.getDrawable(rBean.getReadyWifiImg());
+        int tip2 = UiUtil.getString(rBean.getPrepareWifiTip());
+        int next_tip = UiUtil.getString(rBean.getReadyForWifiTip());
+        if (pic_product != 0) {
             text_tip2.setText(tip2);
             rb_next_tip.setText(next_tip);
             iv_pic_start.setBackground(getResources().getDrawable(pic_product));

@@ -15,8 +15,11 @@ import com.ilife.home.robot.BuildConfig;
 import com.ilife.home.robot.R;
 import com.ilife.home.robot.able.Constants;
 import com.ilife.home.robot.able.DeviceUtils;
+import com.ilife.home.robot.app.MyApplication;
 import com.ilife.home.robot.base.BaseActivity;
+import com.ilife.home.robot.bean.RobotConfigBean;
 import com.ilife.home.robot.utils.ToastUtils;
+import com.ilife.home.robot.utils.UiUtil;
 import com.ilife.home.robot.utils.UserUtils;
 import com.ilife.home.robot.utils.Utils;
 
@@ -61,14 +64,9 @@ public class BindSucActivity extends BaseActivity {
     }
 
     public void initData() {
-        iv_bind_device.setImageResource(DeviceUtils.getRobotPic(DeviceUtils.getRobotType(IlifeAli.getInstance().getBindingProductKey())));
-        String devName;
-        if (IlifeAli.getInstance().getBindingProductKey().equals(EnvConfigure.PRODUCT_KEY_X800_W) || IlifeAli.getInstance().getBindingProductKey().equals(EnvConfigure.PRODUCT_KEY_X800)) {//白色仍旧名为X800
-            devName = BuildConfig.BRAND + " X800";
-        } else {
-            devName = BuildConfig.BRAND + " " + DeviceUtils.getRobotType(IlifeAli.getInstance().getBindingProductKey());//ILIFE X800
-        }
-        et_devName.setText(devName);
+        RobotConfigBean.RobotBean rBean=MyApplication.getInstance().readRobotConfig().getRobotBeanByPk(IlifeAli.getInstance().getBindingProductKey());
+        iv_bind_device.setImageResource(UiUtil.getDrawable(rBean.getFaceImg()));
+        et_devName.setText(BuildConfig.BRAND + " "+rBean.getSettingRobot());
         et_devName.setSelection(et_devName.getText().toString().trim().length());
         UserUtils.setInputFilter(et_devName, Utils.getInputMaxLength());
     }

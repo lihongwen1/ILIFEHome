@@ -23,7 +23,9 @@ import com.aliyun.iot.aep.sdk.contant.IlifeAli;
 import com.badoo.mobile.util.WeakHandler;
 import com.ilife.home.robot.able.Constants;
 import com.ilife.home.robot.able.DeviceUtils;
+import com.ilife.home.robot.app.MyApplication;
 import com.ilife.home.robot.base.BackBaseActivity;
+import com.ilife.home.robot.bean.RobotConfigBean;
 import com.ilife.home.robot.fragment.UniversalDialog;
 import com.ilife.home.robot.utils.AlertDialogUtils;
 import com.ilife.home.robot.utils.MyLogger;
@@ -63,7 +65,6 @@ public class ClockingActivity extends BackBaseActivity {
     TextView tv_title;
     private int selectPosition;
     private UniversalDialog workTimeDialog;
-    private String robotType;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -110,7 +111,6 @@ public class ClockingActivity extends BackBaseActivity {
 
     @Override
     public void initData() {
-        robotType = DeviceUtils.getRobotType(IlifeAli.getInstance().getWorkingDevice().getProductKey());
         clockInfos = new ArrayList<>();
         weeks = getResources().getStringArray(R.array.array_week);
         for (int i = 0; i < 7; i++) {
@@ -170,7 +170,8 @@ public class ClockingActivity extends BackBaseActivity {
                     hour = timePicker.getCurrentHour();
                     minute = timePicker.getCurrentMinute();
                     selectPosition = position;
-                    if (robotType.equals(Constants.V3x)||robotType.equals(Constants.X787)) {//V3x，X787没有黑暗环境限制
+                    RobotConfigBean.RobotBean rBean=MyApplication.getInstance().readRobotConfig().getRobotBeanByPk(IlifeAli.getInstance().getWorkingDevice().getProductKey());
+                    if (rBean.isScheduleInDark()) {//V3x，X787没有黑暗环境限制
                         setSchedule(selectPosition, 1);
                     } else if ((hour > 5 && hour < 20) || (hour == 5 && minute > 0)) {//可用时间段(预约夜间时间提醒)
                         setSchedule(selectPosition, 1);
@@ -190,7 +191,8 @@ public class ClockingActivity extends BackBaseActivity {
     }
 
     private void setSchedule(int position, int open) {
-        IlifeAli.getInstance().setSchedule(position, open, hour, minute, new OnAliResponse<ScheduleBean>() {
+        RobotConfigBean.RobotBean rBean=MyApplication.getInstance().readRobotConfig().getRobotBeanByPk(IlifeAli.getInstance().getWorkingDevice().getProductKey());
+        IlifeAli.getInstance().setSchedule(rBean.isNewScheduleVersion(),position, open, hour, minute, new OnAliResponse<ScheduleBean>() {
             @Override
             public void onSuccess(ScheduleBean scheduleBean) {
                 NewClockInfo clockInfo = clockInfos.get(position);

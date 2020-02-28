@@ -4,6 +4,7 @@ import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -30,6 +31,7 @@ import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.ilife.home.robot.BuildConfig;
 import com.ilife.home.robot.R;
 import com.ilife.home.robot.able.DeviceUtils;
+import com.ilife.home.robot.app.MyApplication;
 import com.ilife.home.robot.base.BackBaseActivity;
 import com.ilife.home.robot.fragment.TextSelectorDialog;
 import com.ilife.home.robot.utils.AlertDialogUtils;
@@ -65,7 +67,6 @@ public class HelpActivity extends BackBaseActivity implements View.OnClickListen
     CustomPopupWindow typePop;
     BottomSheetDialog areaDialog;
     AlertDialog alertDialog;
-    String[] types;
     Activity activity;
     View view;
     Uri takePicUri;
@@ -114,7 +115,6 @@ public class HelpActivity extends BackBaseActivity implements View.OnClickListen
         activity = this;
         inflater = LayoutInflater.from(context);
 
-        types = DeviceUtils.getSupportDevices();
         et_email = (EditText) findViewById(R.id.et_email);
         if (Utils.isSupportPhone()) {
             et_email.setHint(R.string.login_aty_input_email_phone);
@@ -172,17 +172,20 @@ public class HelpActivity extends BackBaseActivity implements View.OnClickListen
      * 设置触摸事件，由于EditView与TextView都处于ScollView中，
      * 所以需要在OnTouch事件中通知父控件不拦截子控件事件
      */
-    private View.OnTouchListener touchListener = (v, event) -> {
-        if(event.getAction() == MotionEvent.ACTION_DOWN
-                || event.getAction() == MotionEvent.ACTION_MOVE){
-            //按下或滑动时请求父节点不拦截子节点
-            v.getParent().requestDisallowInterceptTouchEvent(true);
+    private View.OnTouchListener touchListener = new View.OnTouchListener() {
+        @Override
+        public boolean onTouch(View v, MotionEvent event) {
+            if (event.getAction() == MotionEvent.ACTION_DOWN
+                    || event.getAction() == MotionEvent.ACTION_MOVE) {
+                //按下或滑动时请求父节点不拦截子节点
+                v.getParent().requestDisallowInterceptTouchEvent(true);
+            }
+            if (event.getAction() == MotionEvent.ACTION_UP) {
+                //抬起时请求父节点拦截子节点
+                v.getParent().requestDisallowInterceptTouchEvent(false);
+            }
+            return false;
         }
-        if(event.getAction() == MotionEvent.ACTION_UP){
-            //抬起时请求父节点拦截子节点
-            v.getParent().requestDisallowInterceptTouchEvent(false);
-        }
-        return false;
     };
 
     @OnClick({R.id.rl_type, R.id.bt_confirm, R.id.area_contact1, R.id.area_contact2, R.id.rl_question_type})
@@ -190,18 +193,27 @@ public class HelpActivity extends BackBaseActivity implements View.OnClickListen
         switch (v.getId()) {
             case R.id.area_contact1:
             case R.id.area_contact2:
-                new RxPermissions(this).requestEach(Manifest.permission.CALL_PHONE).subscribe(permission -> {
-                    if (permission.granted) {
-                        Intent intent = new Intent(Intent.ACTION_CALL);
-                        String phoneNumber = v.getId() == R.id.area_contact1 ? tv_telNum.getText().toString() : tv_telNum2.getText().toString();
-                        Uri data = Uri.parse("tel:" + phoneNumber);
-                        intent.setData(data);
-                        startActivity(intent);
+                Intent callIntent = new Intent(Intent.ACTION_CALL);
+                String phoneNumber = v.getId() == R.id.area_contact1 ? tv_telNum.getText().toString() : tv_telNum2.getText().toString();
+                Uri data = Uri.parse("tel:" + phoneNumber);
+                callIntent.setData(data);
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                    if (checkSelfPermission(Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED) {
+                        new RxPermissions(this).request(Manifest.permission.CALL_PHONE).subscribe(granted -> {
+                            if (granted) {
+                                startActivity(callIntent);
+                            } else {
+                                // 用户拒绝了该权限，并且选中『不再询问』
+                                ToastUtils.showToast(context, getString(R.string.access_photo));
+                            }
+                        }).dispose();
                     } else {
-                        // 用户拒绝了该权限，并且选中『不再询问』
-                        ToastUtils.showToast(context, getString(R.string.access_photo));
+                        startActivity(callIntent);
                     }
-                }).dispose();
+                } else {
+                    startActivity(callIntent);
+                }
+
                 break;
             case R.id.rl_type:
 
@@ -210,7 +222,7 @@ public class HelpActivity extends BackBaseActivity implements View.OnClickListen
                     List<DeviceInfoBean> devices = IlifeAli.getInstance().getmAcUserDevices();
                     String[] array;
                     if (devices.size() == 0) {
-                        array = getResources().getStringArray(R.array.array_device_type);
+                        array = DeviceUtils.getSupportDevices();
                     } else {
                         array = new String[devices.size()];
                         String niclName;
@@ -262,7 +274,7 @@ public class HelpActivity extends BackBaseActivity implements View.OnClickListen
             case R.id.rl_album:
                 AlertDialogUtils.hidden(alertDialog);
                 Intent intent = new Intent(Intent.ACTION_PICK, null);
-                intent.setDataAndType(android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI, "image/*");
+                intent.setDataAndType(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, "image/*");
                 startActivityForResult(intent, ALBUM);
                 break;
             case R.id.bt_confirm:
@@ -291,7 +303,8 @@ public class HelpActivity extends BackBaseActivity implements View.OnClickListen
                 //TODO 反馈iot id修改
                 boolean isHaveRobot = IlifeAli.getInstance().getmAcUserDevices().size() > 0;
                 String iotId = isHaveRobot ? IlifeAli.getInstance().getmAcUserDevices().get((Integer) tv_type.getTag()).getIotId() : "";
-                String productKey =isHaveRobot? IlifeAli.getInstance().getmAcUserDevices().get((Integer) tv_type.getTag()).getProductKey():DeviceUtils.getProductKeyByRobotType(robotType);
+                String productKey = isHaveRobot ? IlifeAli.getInstance().getmAcUserDevices().get((Integer) tv_type.getTag()).getProductKey() :
+                        MyApplication.getInstance().readRobotConfig().getRobotBeanByRt(robotType).getProductKey();
                 IlifeAli.getInstance().commitFeedback(email, contents, type, robotType, AppUtils.getVersion(this), iotId,
                         productKey, aBoolean -> {
                             hideLoadingDialog();

@@ -25,9 +25,9 @@ public class MainPresenter extends BasePresenter<MainContract.View> implements M
     public void attachView(MainContract.View view) {
         super.attachView(view);
         IlifeAli.getInstance().settTokenInvalidListener(aBoolean -> {
-            MyLogger.d("ILIFE_ALI_", "用户回话超时。。。");
+            MyLogger.d("ILIFE_ALI_", "用户会话超时。。。");
             //登录失效，弹框，重新登录
-            IlifeAli.getInstance().forceLogin(new OnAliResponse<Boolean>() {
+            IlifeAli.getInstance().login(new OnAliResponse<Boolean>() {
                 @Override
                 public void onSuccess(Boolean result) {
                     //重新登录成功

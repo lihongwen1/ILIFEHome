@@ -64,6 +64,7 @@ public class AliInterfaceDelegate {
                         onAliResponse.onFailed(0, ioTResponse.getMessage());
                         return;
                     }
+                    Log.d("ListDeviceByAccount","data: "+data);
                     JSONObject jsonObject = (JSONObject) data;
                     JSONArray jsonArray;
                     try {

@@ -19,6 +19,7 @@
     <string name="ap_guide_aty_tip1_x800">打开机器侧边电源开关。（注：请勿在机器充电时进行配网）</string>
     <string name="ap_guide_sty_typ2_x800">长按机器的启动键，直到听到\"WiFi连接中\"且绿色WiFi指示灯闪烁后松开。</string>
     <string name="ap_guide_sty_typ2_x320">长按机器的配网键，3s后听到\"嘀\"的一声，继续长按听到两声\"嘀嘀\"后松开，WiFi图标闪烁。</string>
+    <string name="ap_guide_sty_typ2_X787">长按机器的配网键，直到听到两声"嘀嘀"后松开，WiFi图标闪烁。</string>
     <string name="ap_guide_tip4">未听到，请重复上述操作</string>
     <string name="ap_guide_already_open_device">已打开</string>
     <string name="ap_guide_already_open_wifi">已听到\"WiFi连接中\"</string>

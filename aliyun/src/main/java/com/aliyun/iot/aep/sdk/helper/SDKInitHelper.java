@@ -3,6 +3,7 @@ package com.aliyun.iot.aep.sdk.helper;
 import android.text.TextUtils;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.sdk.android.openaccount.ui.OpenAccountUIConfigs;
 import com.aliyun.alink.linksdk.alcs.coap.AlcsCoAP;
 import com.aliyun.iot.aep.sdk.IoTSmart;
 import com.aliyun.iot.aep.sdk.debug.Env;
@@ -12,6 +13,7 @@ import com.aliyun.iot.aep.sdk.log.ALog;
 import com.aliyun.iot.aep.sdk.login.LoginBusiness;
 import com.aliyun.iot.aep.sdk.login.oa.OALoginAdapter;
 import com.aliyun.iot.aep.sdk.page.AliLoginActivity;
+import com.aliyun.iot.aep.sdk.page.OAMobileCountrySelectorActivity;
 
 import static com.aliyun.iot.aep.sdk.IoTSmart.REGION_ALL;
 import static com.aliyun.iot.aep.sdk.IoTSmart.REGION_CHINA_ONLY;
@@ -31,7 +33,7 @@ public class SDKInitHelper {
         preInit(app);
         onInit(app,buildCountry);
         //onInitDefault(app);
-        postInit(app);
+        postInit(app,buildCountry);
     }
 
     /**
@@ -107,25 +109,26 @@ public class SDKInitHelper {
      *
      * @param app application
      */
-    private static void postInit(@SuppressWarnings("unused") AApplication app) {
+    private static void postInit(@SuppressWarnings("unused") AApplication app,String buildCountry) {
 
         OALoginAdapter adapter = (OALoginAdapter) LoginBusiness.getLoginAdapter();
         if (adapter != null) {
             adapter.setDefaultLoginClass(AliLoginActivity.class);
         }
-//        OpenAccountUIConfigs.AccountPasswordLoginFlow.supportForeignMobileNumbers = true;
-//        OpenAccountUIConfigs.AccountPasswordLoginFlow.mobileCountrySelectorActvityClazz = OAMobileCountrySelectorActivity.class;
-//
-//        OpenAccountUIConfigs.ChangeMobileFlow.supportForeignMobileNumbers = true;
-//        OpenAccountUIConfigs.ChangeMobileFlow.mobileCountrySelectorActvityClazz = OAMobileCountrySelectorActivity.class;
-//
-//        OpenAccountUIConfigs.MobileRegisterFlow.supportForeignMobileNumbers = true;
-//        OpenAccountUIConfigs.MobileRegisterFlow.mobileCountrySelectorActvityClazz = OAMobileCountrySelectorActivity.class;
-//
-//        OpenAccountUIConfigs.MobileResetPasswordLoginFlow.supportForeignMobileNumbers = true;
-//        OpenAccountUIConfigs.MobileResetPasswordLoginFlow.mobileCountrySelectorActvityClazz = OAMobileCountrySelectorActivity.class;
-//
-//        OpenAccountUIConfigs.OneStepMobileRegisterFlow.supportForeignMobileNumbers = true;
-//        OpenAccountUIConfigs.OneStepMobileRegisterFlow.mobileCountrySelectorActvityClazz = OAMobileCountrySelectorActivity.class;
+        boolean isSupportForeignMobile=!buildCountry.equals("CHINA");
+        OpenAccountUIConfigs.AccountPasswordLoginFlow.supportForeignMobileNumbers = isSupportForeignMobile;
+        OpenAccountUIConfigs.AccountPasswordLoginFlow.mobileCountrySelectorActvityClazz = OAMobileCountrySelectorActivity.class;
+
+        OpenAccountUIConfigs.ChangeMobileFlow.supportForeignMobileNumbers = isSupportForeignMobile;
+        OpenAccountUIConfigs.ChangeMobileFlow.mobileCountrySelectorActvityClazz = OAMobileCountrySelectorActivity.class;
+
+        OpenAccountUIConfigs.MobileRegisterFlow.supportForeignMobileNumbers = isSupportForeignMobile;
+        OpenAccountUIConfigs.MobileRegisterFlow.mobileCountrySelectorActvityClazz = OAMobileCountrySelectorActivity.class;
+
+        OpenAccountUIConfigs.MobileResetPasswordLoginFlow.supportForeignMobileNumbers = isSupportForeignMobile;
+        OpenAccountUIConfigs.MobileResetPasswordLoginFlow.mobileCountrySelectorActvityClazz = OAMobileCountrySelectorActivity.class;
+
+        OpenAccountUIConfigs.OneStepMobileRegisterFlow.supportForeignMobileNumbers = isSupportForeignMobile;
+        OpenAccountUIConfigs.OneStepMobileRegisterFlow.mobileCountrySelectorActvityClazz = OAMobileCountrySelectorActivity.class;
     }
 }

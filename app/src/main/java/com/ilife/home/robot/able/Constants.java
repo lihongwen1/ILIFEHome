@@ -12,6 +12,7 @@ public class Constants {
     public static final String X800W = "X800 • 白";
     public static final String X787 = "X787";
     public static final String X785 = "X785";
+    public static final String X434 = "X451";
     public static final String V3x = "V3x";
     //ZACO
     public static final String A9s = "A9s";

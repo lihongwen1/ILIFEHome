@@ -2,6 +2,7 @@ package com.ilife.home.robot.contract;
 
 import com.ilife.home.robot.base.BaseView;
 import com.ilife.home.robot.bean.Coordinate;
+import com.ilife.home.robot.bean.RobotConfigBean;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -148,6 +149,7 @@ public interface MapX9Contract {
 
         boolean planningToAlong();
 
+        RobotConfigBean.RobotBean getRobotBean();
     }
 
 }

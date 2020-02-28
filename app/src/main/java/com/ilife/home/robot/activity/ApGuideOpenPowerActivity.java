@@ -8,8 +8,11 @@ import android.widget.TextView;
 import com.aliyun.iot.aep.sdk.contant.EnvConfigure;
 import com.aliyun.iot.aep.sdk.contant.IlifeAli;
 import com.ilife.home.robot.R;
+import com.ilife.home.robot.app.MyApplication;
 import com.ilife.home.robot.base.BackBaseActivity;
 import com.aliyun.iot.aep.sdk.page.ToggleRadioButton;
+import com.ilife.home.robot.bean.RobotConfigBean;
+import com.ilife.home.robot.utils.UiUtil;
 
 import butterknife.BindView;
 import butterknife.OnClick;
@@ -50,24 +53,10 @@ public class ApGuideOpenPowerActivity extends BackBaseActivity {
             }
         });
         String productKey = IlifeAli.getInstance().getBindingProductKey();
-        int pic_product = -1;
-        switch (productKey) {
-            case EnvConfigure.PRODUCT_KEY_X800:
-                pic_product = R.drawable.pic_open_power;
-                break;
-            case EnvConfigure.PRODUCT_KEY_X800_W:
-                pic_product = R.drawable.pic_open_power_w;
-                break;
-            case EnvConfigure.PRODUCT_KEY_X320:
-                pic_product = R.drawable.pic_open_power_v3x;
-                break;
-            case EnvConfigure.PRODUCT_KEY_X787:
-                pic_product=R.drawable.pic_open_power_787;
-                break;
-
-        }
-        if (pic_product != -1) {
-            iv_open_power.setBackground(getResources().getDrawable(pic_product));
+        RobotConfigBean robotConfig = MyApplication.getInstance().readRobotConfig();
+        int picOpenPower = UiUtil.getDrawable(robotConfig.getRobotBeanByPk(productKey).getOpenPowerImg());
+        if (picOpenPower!=0){
+               iv_open_power.setBackground(getResources().getDrawable(picOpenPower));
         }
     }
 

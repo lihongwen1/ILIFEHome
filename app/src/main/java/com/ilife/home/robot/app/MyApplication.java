@@ -5,8 +5,11 @@ import android.content.Context;
 
 import com.alibaba.sdk.android.openaccount.ConfigManager;
 import com.aliyun.iot.SdkApplication;
+import com.google.gson.Gson;
 import com.ilife.home.robot.BuildConfig;
+import com.ilife.home.robot.bean.RobotConfigBean;
 import com.ilife.home.robot.utils.MyLogger;
+import com.ilife.home.robot.utils.Utils;
 import com.ilife.home.robot.utils.toast.Toasty;
 import com.orhanobut.logger.AndroidLogAdapter;
 import com.orhanobut.logger.FormatStrategy;
@@ -27,6 +30,7 @@ public class MyApplication extends SdkApplication {
     private static MyApplication instance;
 
     private List<Activity> activities;
+    private RobotConfigBean robotConfig;
 
     @Override
     public void onCreate() {
@@ -70,6 +74,19 @@ public class MyApplication extends SdkApplication {
         return instance;
     }
 
+    public RobotConfigBean readRobotConfig() {
+        if (robotConfig == null) {
+            Gson gson = new Gson();
+            String configFile;
+            if (getCountry().equals("CHINA")){
+                configFile="china_robot.json";
+            }else {
+                configFile="over_sea_robot_json";
+            }
+            robotConfig = gson.fromJson(Utils.getJson(configFile, instance), RobotConfigBean.class);
+        }
+        return robotConfig;
+    }
 
     private void closeAndroidPDialog() {
 //        if (Build.VERSION.SDK_INT<Build.VERSION_CODES.P){

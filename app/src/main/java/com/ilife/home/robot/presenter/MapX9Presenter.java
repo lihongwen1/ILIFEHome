@@ -26,6 +26,7 @@ import com.ilife.home.robot.app.MyApplication;
 import com.ilife.home.robot.base.BasePresenter;
 import com.ilife.home.robot.bean.CleaningDataX8;
 import com.ilife.home.robot.bean.Coordinate;
+import com.ilife.home.robot.bean.RobotConfigBean;
 import com.ilife.home.robot.contract.MapX9Contract;
 import com.ilife.home.robot.model.MapX9Model;
 import com.ilife.home.robot.utils.DataUtils;
@@ -77,7 +78,7 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
     private int retryTimes = 1;//the retry times of gaining the device status
     private long mapStartTime;
     private MapX9Model mapX9Model;
-
+    private RobotConfigBean.RobotBean rBean;//robot config
     @Override
     public void attachView(MapX9Contract.View view) {
         super.attachView(view);
@@ -86,16 +87,13 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
         realTimePoints = new ArrayList<>();
         historyRoadList = new ArrayList<>();
         pointList = new ArrayList<>();
-        robotType = DeviceUtils.getRobotType(IlifeAli.getInstance().getWorkingDevice().getProductKey());
+        rBean=MyApplication.getInstance().readRobotConfig().getRobotBeanByPk(IlifeAli.getInstance().getWorkingDevice().getProductKey());
+        robotType = rBean.getRobotType();
         adjustTime();
         singleThread = Executors.newSingleThreadExecutor();
-        if (robotType.equals(Constants.V3x) || robotType.equals(Constants.V5x) || robotType.equals(Constants.V85) || robotType.equals(Constants.A7)) {
-            haveMap = false;
-        }
-        if (robotType.equals(Constants.A7) || robotType.equals(Constants.V5x) || robotType.equals(Constants.V3x)) {
-            havMapData = false;
-        }
-        if (robotType.equals(Constants.V5x) || robotType.equals(Constants.V3x)) {//V5x只有随机模式
+        haveMap=rBean.isIsHaveMap();
+        havMapData=rBean.isIsHaveMapData();
+        if (rBean.isIsOnlyRandomMode()) {//V3x只有随机模式
             SpUtils.saveInt(MyApplication.getInstance(), IlifeAli.getInstance().getWorkingDevice().getProductKey() + SettingActivity.KEY_MODE, MsgCodeUtils.STATUE_RANDOM);
         }
     }
@@ -105,15 +103,23 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
         return robotType;
     }
 
+    @Override
+    public RobotConfigBean.RobotBean getRobotBean() {
+        return rBean;
+    }
 
+    /**
+     * TODO 按照实际机型返回是否是X900系列
+     * @return
+     */
     @Override
     public boolean isX900Series() {
-        return robotType.equals(Constants.X900) || robotType.equals(Constants.X910);
+        return false;
     }
 
     @Override
     public boolean isLongPressControl() {
-        return getRobotType().equals(Constants.V85) || getRobotType().equals(Constants.X785) || getRobotType().equals(Constants.X787) || getRobotType().equals(Constants.A7);
+        return rBean.isIsLongPressControl();
     }
 
 
@@ -371,7 +377,7 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
 
     @Override
     public boolean isSupportPause() {
-        return robotType.equals(Constants.X800) || robotType.equals(Constants.X800W);
+        return rBean.isIsSupportPause();
     }
 
     private void refreshMap() {
@@ -686,9 +692,9 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
     @Override
     public boolean pointToAlong(boolean reverse) {
         if (reverse) {//延边切重点
-            return robotType.equals(Constants.X800) || robotType.equals(Constants.X800W) || robotType.equals(Constants.V3x) || robotType.equals(Constants.X787);
+            return rBean.isAlongToPoint();
         } else {//重点切延边
-            return robotType.equals(Constants.V3x) || robotType.equals(Constants.X787);
+            return rBean.isPointToAlong();
         }
     }
 
@@ -699,7 +705,7 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
      */
     @Override
     public boolean planningToAlong() {
-        return robotType.equals(Constants.X787) && curStatus == MsgCodeUtils.STATUE_PLANNING;
+        return rBean.isPlanningToAlong()&& curStatus == MsgCodeUtils.STATUE_PLANNING;
     }
 
     @Override
@@ -745,7 +751,7 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
     public void enterRechargeMode() {
         if (curStatus == MsgCodeUtils.STATUE_CHARGING || curStatus == MsgCodeUtils.STATUE_CHARGING_) {
             ToastUtils.showToast(MyApplication.getInstance(), Utils.getString(R.string.map_aty_charge));
-        } else if (!robotType.equals(Constants.X787) && (curStatus == MsgCodeUtils.STATUE_POINT || curStatus == MsgCodeUtils.STATUE_ALONG)) {
+        } else if (rBean.isPointAlongToRecharge()&& (curStatus == MsgCodeUtils.STATUE_POINT || curStatus == MsgCodeUtils.STATUE_ALONG)) {
             ToastUtils.showToast(MyApplication.getInstance(), Utils.getString(R.string.map_aty_can_not_execute));
         } else {
             if (curStatus == MsgCodeUtils.STATUE_RECHARGE) {

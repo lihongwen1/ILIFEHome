@@ -347,7 +347,7 @@
         android:layout_width="match_parent"
         android:layout_height="@dimen/dp_60"
         android:layout_marginStart="@dimen/dp_24"
-        android:visibility="visible">
+        android:visibility="gone">
 
         <TextView
             android:id="@+id/tv_ota_update"

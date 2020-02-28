@@ -46,6 +46,7 @@ import com.aliyun.iot.aep.sdk.delegate.GetHistoryMapDelegate;
 import com.aliyun.iot.aep.sdk.delegate.GetHistoryRecordDelegate;
 import com.aliyun.iot.aep.sdk.framework.AApplication;
 import com.aliyun.iot.aep.sdk.framework.sdk.SDKManager;
+import com.aliyun.iot.aep.sdk.framework.utils.SpUtil;
 import com.aliyun.iot.aep.sdk.helper.SDKInitHelper;
 import com.aliyun.iot.aep.sdk.login.ILoginCallback;
 import com.aliyun.iot.aep.sdk.login.ILogoutCallback;
@@ -143,14 +144,24 @@ public class IlifeAli {
     public void setWorkingDevice(DeviceInfoBean workingDevice) {
         this.workingDevice = workingDevice;
         this.iotId = workingDevice.getIotId();
+        Gson gson = new Gson();
+        Log.d(TAG,"机器状态数据："+gson.toJson(workingDevice));
+        SpUtil.putString(aApplication, "key_working_device", gson.toJson(workingDevice,DeviceInfoBean.class));
     }
 
     public DeviceInfoBean getWorkingDevice() {
         if (workingDevice == null) {
-            return new DeviceInfoBean();
+            Gson gson = new Gson();
+            workingDevice = gson.fromJson(SpUtil.getString(aApplication, "key_working_device"), DeviceInfoBean.class);
+            if (workingDevice == null) {
+                workingDevice = new DeviceInfoBean();
+            } else {
+                this.iotId = workingDevice.getIotId();
+            }
         }
         return workingDevice;
     }
+
 
     public String getIotId() {
         return iotId;
@@ -252,27 +263,8 @@ public class IlifeAli {
 
     }
 
-    /**
-     * 强制登录
-     *
-     * @param onAliResponse
-     */
-    public void forceLogin(final OnAliResponse<Boolean> onAliResponse) {
-        LoginBusiness.login(new ILoginCallback() {
-            @Override
-            public void onLoginSuccess() {
-                onAliResponse.onSuccess(true);
-            }
-
-            @Override
-            public void onLoginFailed(int code, String error) {
-                onAliResponse.onFailed(code, error);
-            }
-        });
-    }
 
     /**
-     *
      * @param onAliResponse
      */
     public void selectACountry(OnAliResponse<String> onAliResponse) {
@@ -282,7 +274,7 @@ public class IlifeAli {
             public void onSucess(List<IoTSmart.Country> list) {
                 IoTSmart.Country selectCountry = null;
                 for (IoTSmart.Country country : list) {
-                    if (country.areaName.equals("德国")) {
+                    if (country.areaName.equals("新加坡")) {
                         selectCountry = country;
                         break;
                     }
@@ -293,7 +285,7 @@ public class IlifeAli {
                         if (needRestartApp) {
                             onAliResponse.onFailed(-1, "set country success,and need restart app");
                         } else {//重新初始化
-                            SDKInitHelper.init(AApplication.getInstance(),"");
+                            SDKInitHelper.init(AApplication.getInstance(), "");
                             onAliResponse.onSuccess(selectCountryName);
                         }
                     });
@@ -947,12 +939,12 @@ public class IlifeAli {
     }
 
 
-    public void setSchedule(int position, final int open, final int hour, final int minute, final OnAliResponse<ScheduleBean> onResponse) {
+    public void setSchedule(boolean isNewScheduleVersion, int position, final int open, final int hour, final int minute, final OnAliResponse<ScheduleBean> onResponse) {
         String schedule;
-        if (workingDevice.getProductKey().equals(EnvConfigure.PRODUCT_KEY_X320) || workingDevice.getProductKey().equals(EnvConfigure.PRODUCT_KEY_X787)) {
-            schedule = "{\"Schedule\":{\"ScheduleHour\":0,\"ScheduleEnd\":300,\"ScheduleEnable\":0,\"ScheduleMode\":3,\"ScheduleWeek\":1,\"ScheduleArea\":1,\"ScheduleMinutes\":0}}";
-        } else {
+        if (isNewScheduleVersion) {
             schedule = "{\"Schedule\":{\"ScheduleHour\":0,\"ScheduleType\":0,\"ScheduleEnd\":300,\"ScheduleEnable\":0,\"ScheduleMode\":6,\"ScheduleWeek\":1,\"ScheduleArea\":\"AAAAAAAAAAAAAAAA\",\"ScheduleMinutes\":0}}";
+        } else {
+            schedule = "{\"Schedule\":{\"ScheduleHour\":0,\"ScheduleEnd\":300,\"ScheduleEnable\":0,\"ScheduleMode\":3,\"ScheduleWeek\":1,\"ScheduleArea\":1,\"ScheduleMinutes\":0}}";
         }
         position = position == 0 ? 7 : position;
         String str = EnvConfigure.KEY_SCHEDULE + position;
