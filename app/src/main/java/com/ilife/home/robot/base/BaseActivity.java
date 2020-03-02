@@ -54,7 +54,7 @@ public abstract class BaseActivity<T extends BasePresenter> extends AppCompatAct
             application = (MyApplication) getApplication();
         }
         addActivity();
-        MyLogger.i("LIFE_CYCLE", "onCreate");
+        MyLogger.i("LIFE_CYCLE", this.getClass().getName()+"onCreate");
     }
 
 
@@ -113,7 +113,7 @@ public abstract class BaseActivity<T extends BasePresenter> extends AppCompatAct
     protected void onResume() {
         super.onResume();
         IlifeAli.getInstance().checkAndReconnection();
-        MyLogger.i("LIFE_CYCLE", "onResume");
+        MyLogger.i("LIFE_CYCLE", this.getClass().getName()+"onResume");
     }
 
     @Override
@@ -124,7 +124,7 @@ public abstract class BaseActivity<T extends BasePresenter> extends AppCompatAct
         if (mPresenter != null) {
             mPresenter.detachView();
         }
-        MyLogger.i("LIFE_CYCLE", "onDestroy");
+        MyLogger.i("LIFE_CYCLE", this.getClass().getName()+"onDestroy");
         super.onDestroy();
     }
 

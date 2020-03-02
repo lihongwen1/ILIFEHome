@@ -5,6 +5,8 @@ import android.content.Context;
 
 import com.alibaba.sdk.android.openaccount.ConfigManager;
 import com.aliyun.iot.SdkApplication;
+import com.aliyun.iot.aep.sdk._interface.OnAliResponse;
+import com.aliyun.iot.aep.sdk.contant.IlifeAli;
 import com.google.gson.Gson;
 import com.ilife.home.robot.BuildConfig;
 import com.ilife.home.robot.bean.RobotConfigBean;
@@ -31,6 +33,7 @@ public class MyApplication extends SdkApplication {
 
     private List<Activity> activities;
     private RobotConfigBean robotConfig;
+    private boolean isBackLogin = false;
 
     @Override
     public void onCreate() {
@@ -51,6 +54,29 @@ public class MyApplication extends SdkApplication {
                 .tag("ILIFE_ALI")   // (Optional) Global tag for every log. Default PRETTY_LOGGER
                 .build();
         Logger.addLogAdapter(new AndroidLogAdapter(formatStrategy));
+        IlifeAli.getInstance().settTokenInvalidListener(aBoolean -> {
+            MyLogger.d("ILIFE_ALI_", "用户登录会话失效。。。。");
+            if (isBackLogin) {
+                return;
+            }
+            //登录失效，弹框，重新登录
+            isBackLogin = true;
+            IlifeAli.getInstance().login(new OnAliResponse<Boolean>() {
+                @Override
+                public void onSuccess(Boolean result) {
+                    //重新登录成功
+                    isBackLogin = false;
+                    MyLogger.d("ILIFE_ALI_", "重新登录成功。。。。");
+                }
+
+                @Override
+                public void onFailed(int code, String message) {
+                    //重新登录失败
+                    isBackLogin = false;
+                    MyLogger.d("ILIFE_ALI_", "重新登录失败。。。。");
+                }
+            });
+        });
     }
 
     private void configToast() {
@@ -78,10 +104,10 @@ public class MyApplication extends SdkApplication {
         if (robotConfig == null) {
             Gson gson = new Gson();
             String configFile;
-            if (getCountry().equals("CHINA")){
-                configFile="china_robot.json";
-            }else {
-                configFile="over_sea_robot_json";
+            if (getCountry().equals("CHINA")) {
+                configFile = "china_robot.json";
+            } else {
+                configFile = "over_sea_robot_json";
             }
             robotConfig = gson.fromJson(Utils.getJson(configFile, instance), RobotConfigBean.class);
         }

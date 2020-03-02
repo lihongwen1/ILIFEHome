@@ -295,8 +295,8 @@ public class BindDeviceDelagate {
 
                     @Override
                     public void onResponse(IoTRequest ioTRequest, IoTResponse ioTResponse) {
-                        Log.d("BindDeviceDelagate", "绑定设备成功。。。。");
                         if (ioTResponse.getCode() == 200 && ioTResponse.getData() instanceof String) {
+                            Log.d("BindDeviceDelagate", "绑定设备成功。。。。");
                             //bind success
                             String iotId = (String) ioTResponse.getData();
                             emitter.onSuccess(iotId);

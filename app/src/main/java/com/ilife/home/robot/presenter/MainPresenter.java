@@ -24,23 +24,6 @@ public class MainPresenter extends BasePresenter<MainContract.View> implements M
     @Override
     public void attachView(MainContract.View view) {
         super.attachView(view);
-        IlifeAli.getInstance().settTokenInvalidListener(aBoolean -> {
-            MyLogger.d("ILIFE_ALI_", "用户会话超时。。。");
-            //登录失效，弹框，重新登录
-            IlifeAli.getInstance().login(new OnAliResponse<Boolean>() {
-                @Override
-                public void onSuccess(Boolean result) {
-                    //重新登录成功
-                    MyLogger.d("ILIFE_ALI_", "重新登录成功。。。。");
-                }
-
-                @Override
-                public void onFailed(int code, String message) {
-                    //重新登录失败
-                    MyLogger.d("ILIFE_ALI_", "重新登录失败。。。。");
-                }
-            });
-        });
     }
 
     /**

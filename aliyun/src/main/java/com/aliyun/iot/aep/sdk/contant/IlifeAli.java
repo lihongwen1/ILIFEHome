@@ -39,6 +39,7 @@ import com.aliyun.iot.aep.sdk.bean.OTAUpgradeBean;
 import com.aliyun.iot.aep.sdk.bean.PropertyBean;
 import com.aliyun.iot.aep.sdk.bean.RealTimeMapBean;
 import com.aliyun.iot.aep.sdk.bean.ScheduleBean;
+import com.aliyun.iot.aep.sdk.credential.IotCredentialManager.IoTCredentialManage;
 import com.aliyun.iot.aep.sdk.credential.IotCredentialManager.IoTCredentialManageImpl;
 import com.aliyun.iot.aep.sdk.delegate.AliInterfaceDelegate;
 import com.aliyun.iot.aep.sdk.delegate.BindDeviceDelagate;

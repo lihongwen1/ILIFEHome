@@ -30,14 +30,13 @@ public abstract class SdkApplication extends AApplication {
     public void onCreate() {
         super.onCreate();
         // 其他 SDK, 仅在 主进程上初始化
-        IlifeAli.getInstance().init(this);
 
         String packageName = this.getPackageName();
         if (!packageName.equals(ThreadTools.getProcessName(this, android.os.Process.myPid()))) {
             return;
         }
-
-        SDKInitHelper.init(this,getCountry());
+        IlifeAli.getInstance().init(this);
+        SDKInitHelper.init(this, getCountry());
 
         /* 加载Native页面 */
         BundleManager.init(this, (application, configure) -> {
@@ -165,6 +164,7 @@ public abstract class SdkApplication extends AApplication {
         // APIClient更改语言后，push通道重新绑定即可更改push语言
 //        PushManager.getInstance().bindUser();
     }
+
     public abstract String getCountry();
 
 }
