@@ -26,6 +26,8 @@ public interface OnDevicePoropertyResponse {
 
     void onBatterState(int batteryLevel);
 
+    void onMaxChange(boolean isMax);
+
     /**
      *错误码 为0时不用处理
      */

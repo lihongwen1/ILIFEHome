@@ -15,6 +15,7 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.aliyun.iot.aep.sdk._interface.OnAliResponseSingle;
 import com.aliyun.iot.aep.sdk._interface.OnAliSetPropertyResponse;
 import com.aliyun.iot.aep.sdk.bean.DeviceInfoBean;
 import com.aliyun.iot.aep.sdk.contant.EnvConfigure;
@@ -193,7 +194,7 @@ public class SettingActivity extends BackBaseActivity implements OnAliSetPropert
 
     public void initData() {
         productKey = IlifeAli.getInstance().getWorkingDevice().getProductKey();
-        rBean=MyApplication.getInstance().readRobotConfig().getRobotBeanByPk(productKey);
+        rBean = MyApplication.getInstance().readRobotConfig().getRobotBeanByPk(productKey);
         mDisposable = new CompositeDisposable();
         DeviceInfoBean infoBean = IlifeAli.getInstance().getWorkingDevice();
         animation = AnimationUtils.loadAnimation(context, R.anim.anims);
@@ -209,12 +210,16 @@ public class SettingActivity extends BackBaseActivity implements OnAliSetPropert
         /**
          * 所有功能均为VISIBLE，模式切换，固件升级默认GONE
          */
-        rl_mode.setVisibility(rBean.isSettingMode()?View.VISIBLE:View.GONE);
-        rl_update.setVisibility(rBean.isSettingUpdate()?View.VISIBLE:View.GONE);
-        rl_record.setVisibility(rBean.isSettingRecord()?View.VISIBLE:View.GONE);
-        rl_voice.setVisibility(rBean.isSettingVoice()?View.VISIBLE:View.GONE);
+        rl_mode.setVisibility(rBean.isSettingMode() ? View.VISIBLE : View.GONE);
+        rl_update.setVisibility(rBean.isSettingUpdate() ? View.VISIBLE : View.GONE);
+        rl_record.setVisibility(rBean.isSettingRecord() ? View.VISIBLE : View.GONE);
+        rl_voice.setVisibility(rBean.isSettingVoice() ? View.VISIBLE : View.GONE);
         tv_type.setText(BuildConfig.BRAND + " " + rBean.getSettingRobot());
         image_product.setImageResource(product);
+        IlifeAli.getInstance().registerDownStream(null, max -> {
+            isMaxMode = max;
+            setStatus(waterLevel, isMaxMode, voiceOpen);
+        });
     }
 
     public void setMode(int mode) {
@@ -231,7 +236,7 @@ public class SettingActivity extends BackBaseActivity implements OnAliSetPropert
         image_max.setSelected(isMaxMode);
         image_voice.setSelected(voiceOpen);
         clearAll();
-        if (rBean.getWaterLevelType()==2) {//1轻柔 2标准 3强力 目前只有X787是该顺序
+        if (rBean.getWaterLevelType() == 2) {//1轻柔 2标准 3强力 目前只有X787是该顺序
             switch (water) {
                 case 1:
                     tv_soft.setSelected(true);
@@ -359,21 +364,21 @@ public class SettingActivity extends BackBaseActivity implements OnAliSetPropert
                 }
                 break;
             case R.id.rl_standard:
-                if (rBean.getWaterLevelType()==2) {
+                if (rBean.getWaterLevelType() == 2) {
                     IlifeAli.getInstance().waterControl(2, this);
                 } else {
                     IlifeAli.getInstance().waterControl(0, this);
                 }
                 break;
             case R.id.rl_soft:
-                if (rBean.getWaterLevelType()==2) {
+                if (rBean.getWaterLevelType() == 2) {
                     IlifeAli.getInstance().waterControl(1, this);
                 } else {
                     IlifeAli.getInstance().waterControl(1, this);
                 }
                 break;
             case R.id.rl_strong:
-                if (rBean.getWaterLevelType()==2) {
+                if (rBean.getWaterLevelType() == 2) {
                     IlifeAli.getInstance().waterControl(3, this);
                 } else {
                     IlifeAli.getInstance().waterControl(2, this);

@@ -138,6 +138,13 @@ public class IlifeAli {
             MobileChannel.getInstance().unRegisterDownstreamListener(downListener);
             downListener = null;
         }
+        if (onMaxChange != null) {
+            onMaxChange = null;
+        }
+        if (onDevicePoropertyResponse != null) {
+            onDevicePoropertyResponse = null;
+        }
+
     }
 
 
@@ -145,8 +152,8 @@ public class IlifeAli {
         this.workingDevice = workingDevice;
         this.iotId = workingDevice.getIotId();
         Gson gson = new Gson();
-        Log.d(TAG,"机器状态数据："+gson.toJson(workingDevice));
-        SpUtil.putString(aApplication, "key_working_device", gson.toJson(workingDevice,DeviceInfoBean.class));
+        Log.d(TAG, "机器状态数据：" + gson.toJson(workingDevice));
+        SpUtil.putString(aApplication, "key_working_device", gson.toJson(workingDevice, DeviceInfoBean.class));
     }
 
     public DeviceInfoBean getWorkingDevice() {
@@ -403,7 +410,16 @@ public class IlifeAli {
         MobileChannel.getInstance().subscrbie(EnvConfigure.TOPIC, topicListener);
     }
 
-    public void registerDownStream(final OnDevicePoropertyResponse onDevicePoropertyResponse) {
+    private OnDevicePoropertyResponse onDevicePoropertyResponse;
+    private OnAliResponseSingle<Boolean> onMaxChange;
+
+    public void registerDownStream(OnDevicePoropertyResponse propertyResponse, OnAliResponseSingle<Boolean> maxChange) {
+        if (propertyResponse != null) {
+            this.onDevicePoropertyResponse = propertyResponse;
+        }
+        if (maxChange != null) {
+            this.onMaxChange = maxChange;
+        }
         if (downListener == null) {
             downListener = new IMobileDownstreamListener() {
                 @Override
@@ -431,6 +447,14 @@ public class IlifeAli {
                                 } else if (items.containsKey(EnvConfigure.KEY_BATTERY_STATE)) {
                                     int battery = items.getJSONObject(EnvConfigure.KEY_BATTERY_STATE).getIntValue(EnvConfigure.KEY_VALUE);
                                     onDevicePoropertyResponse.onBatterState(battery);
+                                } else if (items.containsKey(EnvConfigure.KEY_MAX_MODE)) {
+                                    boolean isMax = items.getJSONObject(EnvConfigure.KEY_MAX_MODE).getIntValue(EnvConfigure.KEY_VALUE) == 1;
+                                    if (onMaxChange != null) {
+                                        onMaxChange.onResponse(isMax);
+                                    }
+                                    if (onDevicePoropertyResponse != null) {
+                                        onDevicePoropertyResponse.onMaxChange(isMax);
+                                    }
                                 }
                             }
                             break;

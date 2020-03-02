@@ -79,6 +79,7 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
     private long mapStartTime;
     private MapX9Model mapX9Model;
     private RobotConfigBean.RobotBean rBean;//robot config
+
     @Override
     public void attachView(MapX9Contract.View view) {
         super.attachView(view);
@@ -87,12 +88,12 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
         realTimePoints = new ArrayList<>();
         historyRoadList = new ArrayList<>();
         pointList = new ArrayList<>();
-        rBean=MyApplication.getInstance().readRobotConfig().getRobotBeanByPk(IlifeAli.getInstance().getWorkingDevice().getProductKey());
+        rBean = MyApplication.getInstance().readRobotConfig().getRobotBeanByPk(IlifeAli.getInstance().getWorkingDevice().getProductKey());
         robotType = rBean.getRobotType();
         adjustTime();
         singleThread = Executors.newSingleThreadExecutor();
-        haveMap=rBean.isIsHaveMap();
-        havMapData=rBean.isIsHaveMapData();
+        haveMap = rBean.isIsHaveMap();
+        havMapData = rBean.isIsHaveMapData();
         if (rBean.isIsOnlyRandomMode()) {//V3x只有随机模式
             SpUtils.saveInt(MyApplication.getInstance(), IlifeAli.getInstance().getWorkingDevice().getProductKey() + SettingActivity.KEY_MODE, MsgCodeUtils.STATUE_RANDOM);
         }
@@ -110,6 +111,7 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
 
     /**
      * TODO 按照实际机型返回是否是X900系列
+     *
      * @return
      */
     @Override
@@ -560,13 +562,18 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
             }
 
             @Override
+            public void onMaxChange(boolean isMax) {
+                IlifeAli.getInstance().getWorkingDevice().getDeviceInfo().setMaxMode(isMax);
+            }
+
+            @Override
             public void onError(int code) {
                 MyLogger.d(TAG, "ERRORCODE-----" + code);
                 errorCode = code;
                 mView.showErrorPopup(errorCode);
                 setStatus(curStatus, batteryNo);
             }
-        });
+        },null);
     }
 
 
@@ -701,11 +708,12 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
     /**
      * X7系列支持规划时操作延边；
      * X8系列不支持规划时操作延边
+     *
      * @return
      */
     @Override
     public boolean planningToAlong() {
-        return rBean.isPlanningToAlong()&& curStatus == MsgCodeUtils.STATUE_PLANNING;
+        return rBean.isPlanningToAlong() && curStatus == MsgCodeUtils.STATUE_PLANNING;
     }
 
     @Override
@@ -751,7 +759,7 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
     public void enterRechargeMode() {
         if (curStatus == MsgCodeUtils.STATUE_CHARGING || curStatus == MsgCodeUtils.STATUE_CHARGING_) {
             ToastUtils.showToast(MyApplication.getInstance(), Utils.getString(R.string.map_aty_charge));
-        } else if (rBean.isPointAlongToRecharge()&& (curStatus == MsgCodeUtils.STATUE_POINT || curStatus == MsgCodeUtils.STATUE_ALONG)) {
+        } else if (rBean.isPointAlongToRecharge() && (curStatus == MsgCodeUtils.STATUE_POINT || curStatus == MsgCodeUtils.STATUE_ALONG)) {
             ToastUtils.showToast(MyApplication.getInstance(), Utils.getString(R.string.map_aty_can_not_execute));
         } else {
             if (curStatus == MsgCodeUtils.STATUE_RECHARGE) {
