@@ -19,11 +19,34 @@ import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 
 public class MainPresenter extends BasePresenter<MainContract.View> implements MainContract.Presenter {
-
+    private boolean isBackLogin = false;
 
     @Override
     public void attachView(MainContract.View view) {
         super.attachView(view);
+        IlifeAli.getInstance().settTokenInvalidListener(aBoolean -> {
+            MyLogger.d("ILIFE_ALI_", "用户登录会话失效。。。。");
+            if (isBackLogin) {
+                return;
+            }
+            //登录失效，弹框，重新登录
+            isBackLogin = true;
+            IlifeAli.getInstance().login(new OnAliResponse<Boolean>() {
+                @Override
+                public void onSuccess(Boolean result) {
+                    //重新登录成功
+                    isBackLogin = false;
+                    MyLogger.d("ILIFE_ALI_", "重新登录成功。。。。");
+                }
+
+                @Override
+                public void onFailed(int code, String message) {
+                    //重新登录失败
+                    isBackLogin = false;
+                    MyLogger.d("ILIFE_ALI_", "重新登录失败。。。。");
+                }
+            });
+        });
     }
 
     /**

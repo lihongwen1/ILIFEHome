@@ -11,6 +11,9 @@
     <string-array name="array_oversea_device_type">
         <item>X800</item>
     </string-array>
+    <string-array name="array_zaco_device_type">
+        <item>X800</item>
+    </string-array>
     <string-array name="array_week">
         <item>@string/clock_aty_sun</item>
         <item>@string/clock_aty_mon</item>

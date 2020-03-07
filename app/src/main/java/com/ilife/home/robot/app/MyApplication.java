@@ -4,11 +4,14 @@ import android.app.Activity;
 import android.content.Context;
 
 import com.alibaba.sdk.android.openaccount.ConfigManager;
+import com.aliyun.alink.linksdk.tools.ThreadTools;
 import com.aliyun.iot.SdkApplication;
 import com.aliyun.iot.aep.sdk._interface.OnAliResponse;
 import com.aliyun.iot.aep.sdk.contant.IlifeAli;
 import com.google.gson.Gson;
+import com.ilife.home.livebus.LiveEventBus;
 import com.ilife.home.robot.BuildConfig;
+import com.ilife.home.robot.able.Constants;
 import com.ilife.home.robot.bean.RobotConfigBean;
 import com.ilife.home.robot.utils.MyLogger;
 import com.ilife.home.robot.utils.Utils;
@@ -33,11 +36,15 @@ public class MyApplication extends SdkApplication {
 
     private List<Activity> activities;
     private RobotConfigBean robotConfig;
-    private boolean isBackLogin = false;
 
     @Override
     public void onCreate() {
         super.onCreate();
+        String packageName = this.getPackageName();
+        if (!packageName.equals(ThreadTools.getProcessName(this, android.os.Process.myPid()))) {
+            //只在主进程做一些应用配置。
+            return;
+        }
         activities = new ArrayList<>();
         instance = (MyApplication) getApplicationContext();
         ConfigManager.getInstance().setBundleName("com.ilife.home.robot");
@@ -54,29 +61,10 @@ public class MyApplication extends SdkApplication {
                 .tag("ILIFE_ALI")   // (Optional) Global tag for every log. Default PRETTY_LOGGER
                 .build();
         Logger.addLogAdapter(new AndroidLogAdapter(formatStrategy));
-        IlifeAli.getInstance().settTokenInvalidListener(aBoolean -> {
-            MyLogger.d("ILIFE_ALI_", "用户登录会话失效。。。。");
-            if (isBackLogin) {
-                return;
-            }
-            //登录失效，弹框，重新登录
-            isBackLogin = true;
-            IlifeAli.getInstance().login(new OnAliResponse<Boolean>() {
-                @Override
-                public void onSuccess(Boolean result) {
-                    //重新登录成功
-                    isBackLogin = false;
-                    MyLogger.d("ILIFE_ALI_", "重新登录成功。。。。");
-                }
+    }
 
-                @Override
-                public void onFailed(int code, String message) {
-                    //重新登录失败
-                    isBackLogin = false;
-                    MyLogger.d("ILIFE_ALI_", "重新登录失败。。。。");
-                }
-            });
-        });
+    private void configLiveBus() {
+        LiveEventBus.config().supportBroadcast(this).lifecycleObserverAlwaysActive(true);
     }
 
     private void configToast() {
@@ -104,10 +92,20 @@ public class MyApplication extends SdkApplication {
         if (robotConfig == null) {
             Gson gson = new Gson();
             String configFile;
-            if (getCountry().equals("CHINA")) {
-                configFile = "china_robot.json";
-            } else {
-                configFile = "over_sea_robot_json";
+            switch (BuildConfig.BRAND) {
+                case Constants.BRAND_ILIFE:
+                    if (BuildConfig.BUILD_COUNTRY == "CHINA") {
+                        configFile = "china_robot.json";
+                    } else {
+                        configFile = "over_sea_robot.json";
+                    }
+                    break;
+                case Constants.BRAND_ZACO:
+                    configFile = "zaco_robot.json";
+                    break;
+                default:
+                    configFile = "over_sea_robot.json";
+                    break;
             }
             robotConfig = gson.fromJson(Utils.getJson(configFile, instance), RobotConfigBean.class);
         }

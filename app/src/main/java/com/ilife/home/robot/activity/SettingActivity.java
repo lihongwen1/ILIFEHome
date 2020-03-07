@@ -15,13 +15,17 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import androidx.lifecycle.Observer;
+
 import com.aliyun.iot.aep.sdk._interface.OnAliResponseSingle;
 import com.aliyun.iot.aep.sdk._interface.OnAliSetPropertyResponse;
 import com.aliyun.iot.aep.sdk.bean.DeviceInfoBean;
 import com.aliyun.iot.aep.sdk.contant.EnvConfigure;
 import com.aliyun.iot.aep.sdk.contant.IlifeAli;
+import com.aliyun.iot.aep.sdk.contant.LiveBusKey;
 import com.aliyun.iot.aep.sdk.contant.MsgCodeUtils;
 import com.badoo.mobile.util.WeakHandler;
+import com.ilife.home.livebus.LiveEventBus;
 import com.ilife.home.robot.BuildConfig;
 import com.ilife.home.robot.R;
 import com.ilife.home.robot.able.Constants;
@@ -178,6 +182,11 @@ public class SettingActivity extends BackBaseActivity implements OnAliSetPropert
         context = this;
         inflater = LayoutInflater.from(context);
         tv_top_title.setText(R.string.ap_aty_setting);
+        LiveEventBus.get(EnvConfigure.KEY_MAX_MODE, Boolean.class).observeSticky(this, max -> {
+            MyLogger.d("LiveBus","收到Live Bus 信息");
+            isMaxMode = max;
+            setStatus(waterLevel, isMaxMode, voiceOpen);
+        });
     }
 
     @Override
@@ -216,10 +225,6 @@ public class SettingActivity extends BackBaseActivity implements OnAliSetPropert
         rl_voice.setVisibility(rBean.isSettingVoice() ? View.VISIBLE : View.GONE);
         tv_type.setText(BuildConfig.BRAND + " " + rBean.getSettingRobot());
         image_product.setImageResource(product);
-        IlifeAli.getInstance().registerDownStream(null, max -> {
-            isMaxMode = max;
-            setStatus(waterLevel, isMaxMode, voiceOpen);
-        });
     }
 
     public void setMode(int mode) {

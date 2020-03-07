@@ -25,4 +25,5 @@ public class Constants {
     public static final String A7 = "A7";
 
     public static final String BRAND_ILIFE = "ILIFE";
+    public static final String BRAND_ZACO = "ZACO";
 }

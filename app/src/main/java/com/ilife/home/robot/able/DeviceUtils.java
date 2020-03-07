@@ -7,6 +7,7 @@ import android.os.Bundle;
 
 import com.aliyun.iot.aep.sdk.contant.EnvConfigure;
 import com.aliyun.iot.aep.sdk.contant.MsgCodeUtils;
+import com.ilife.home.robot.BuildConfig;
 import com.ilife.home.robot.app.MyApplication;
 import com.ilife.home.robot.utils.MyLogger;
 import com.ilife.home.robot.R;
@@ -161,12 +162,19 @@ public class DeviceUtils {
     }
 
     public static String[] getSupportDevices() {
-        if (MyApplication.getInstance().getCountry().equals("CHINA")) {//国内
-            return MyApplication.getInstance().getResources().getStringArray(R.array.array_device_type);
-        } else {
-            return MyApplication.getInstance().getResources().getStringArray(R.array.array_oversea_device_type);
+        String[] supportDevice;
+        switch (BuildConfig.BRAND) {
+            case Constants.BRAND_ILIFE:
+                supportDevice = MyApplication.getInstance().getResources().getStringArray(R.array.array_device_type);
+                break;
+            case Constants.BRAND_ZACO:
+                supportDevice = MyApplication.getInstance().getResources().getStringArray(R.array.array_zaco_device_type);
+                break;
+            default:
+                supportDevice = MyApplication.getInstance().getResources().getStringArray(R.array.array_oversea_device_type);
+                break;
         }
-
+        return supportDevice;
     }
 
 

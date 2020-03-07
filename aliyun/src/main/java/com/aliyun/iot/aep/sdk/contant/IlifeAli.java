@@ -55,6 +55,7 @@ import com.aliyun.iot.aep.sdk.login.LoginBusiness;
 import com.aliyun.iot.aep.sdk.login.data.UserInfo;
 import com.aliyun.iot.aep.sdk.threadpool.ThreadPool;
 import com.google.gson.Gson;
+import com.ilife.home.livebus.LiveEventBus;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -139,13 +140,6 @@ public class IlifeAli {
             MobileChannel.getInstance().unRegisterDownstreamListener(downListener);
             downListener = null;
         }
-        if (onMaxChange != null) {
-            onMaxChange = null;
-        }
-        if (onDevicePoropertyResponse != null) {
-            onDevicePoropertyResponse = null;
-        }
-
     }
 
 
@@ -411,16 +405,8 @@ public class IlifeAli {
         MobileChannel.getInstance().subscrbie(EnvConfigure.TOPIC, topicListener);
     }
 
-    private OnDevicePoropertyResponse onDevicePoropertyResponse;
-    private OnAliResponseSingle<Boolean> onMaxChange;
 
-    public void registerDownStream(OnDevicePoropertyResponse propertyResponse, OnAliResponseSingle<Boolean> maxChange) {
-        if (propertyResponse != null) {
-            this.onDevicePoropertyResponse = propertyResponse;
-        }
-        if (maxChange != null) {
-            this.onMaxChange = maxChange;
-        }
+    public void registerDownStream(OnDevicePoropertyResponse propertyResponse) {
         if (downListener == null) {
             downListener = new IMobileDownstreamListener() {
                 @Override
@@ -428,7 +414,7 @@ public class IlifeAli {
                     Log.d(TAG, "method:      " + method + "---      data:" + data);
                     JSONObject object = JSONObject.parseObject(data);
                     String iot = object.getString(EnvConfigure.KEY_IOT_ID);
-                    if (!iot.equals(iotId)) {//
+                    if (!iot.equals(iotId) || propertyResponse == null) {//
                         return;
                     }
                     switch (method) {
@@ -438,30 +424,27 @@ public class IlifeAli {
                                 if (items.containsKey(EnvConfigure.KEY_POWER_SWITCH)) {
                                     ToastUtils.toast(aApplication, items.getJSONObject(EnvConfigure.KEY_POWER_SWITCH).getString(EnvConfigure.KEY_VALUE));
                                 } else if (items.containsKey(EnvConfigure.KEY_WORK_MODE)) {//工作状态
-                                    onDevicePoropertyResponse.onStatusChange(items.getJSONObject(EnvConfigure.KEY_WORK_MODE).getIntValue(EnvConfigure.KEY_VALUE));
+                                    propertyResponse.onStatusChange(items.getJSONObject(EnvConfigure.KEY_WORK_MODE).getIntValue(EnvConfigure.KEY_VALUE));
                                 } else if (items.containsKey(EnvConfigure.KEY_REALTIMEMAP)) {//实时地图数据
                                     Log.e(TAG, "时间数据：" + items.getJSONObject(EnvConfigure.KEY_REALTIMEMAP).getLong(EnvConfigure.KEY_TIME));
-                                    onDevicePoropertyResponse.onRealMap(items.getJSONObject(EnvConfigure.KEY_REALTIMEMAP).getString(EnvConfigure.KEY_VALUE));
+                                    propertyResponse.onRealMap(items.getJSONObject(EnvConfigure.KEY_REALTIMEMAP).getString(EnvConfigure.KEY_VALUE));
                                 } else if (items.containsKey(EnvConfigure.KEY_REAL_TIME_MAP_START)) {
                                     long marStartTime = items.getJSONObject(EnvConfigure.KEY_REAL_TIME_MAP_START).getLongValue(EnvConfigure.KEY_TIME);
-                                    onDevicePoropertyResponse.onRealTimeMapStart(marStartTime);
+                                    propertyResponse.onRealTimeMapStart(marStartTime);
                                 } else if (items.containsKey(EnvConfigure.KEY_BATTERY_STATE)) {
                                     int battery = items.getJSONObject(EnvConfigure.KEY_BATTERY_STATE).getIntValue(EnvConfigure.KEY_VALUE);
-                                    onDevicePoropertyResponse.onBatterState(battery);
+                                    propertyResponse.onBatterState(battery);
                                 } else if (items.containsKey(EnvConfigure.KEY_MAX_MODE)) {
                                     boolean isMax = items.getJSONObject(EnvConfigure.KEY_MAX_MODE).getIntValue(EnvConfigure.KEY_VALUE) == 1;
-                                    if (onMaxChange != null) {
-                                        onMaxChange.onResponse(isMax);
-                                    }
-                                    if (onDevicePoropertyResponse != null) {
-                                        onDevicePoropertyResponse.onMaxChange(isMax);
-                                    }
+                                    Log.d("LiveBus", "发送Live Bus 信息");
+                                    LiveEventBus.get(EnvConfigure.KEY_MAX_MODE, Boolean.class).post(isMax);
+                                    propertyResponse.onMaxChange(isMax);
                                 }
                             }
                             break;
                         case EnvConfigure.METHOD_THING_EVENT:
                             int errorCode = object.getJSONObject(EnvConfigure.KEY_VALUE).getIntValue(EnvConfigure.KEY_ERRORCODE);
-                            onDevicePoropertyResponse.onError(errorCode);
+                            propertyResponse.onError(errorCode);
                             break;
                     }
                 }

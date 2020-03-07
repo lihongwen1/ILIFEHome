@@ -15,8 +15,10 @@ import com.aliyun.iot.aep.sdk.bean.RealTimeMapBean;
 import com.aliyun.iot.aep.sdk.contant.AliSkills;
 import com.aliyun.iot.aep.sdk.contant.EnvConfigure;
 import com.aliyun.iot.aep.sdk.contant.IlifeAli;
+import com.aliyun.iot.aep.sdk.contant.LiveBusKey;
 import com.aliyun.iot.aep.sdk.contant.MsgCodeUtils;
 import com.google.gson.Gson;
+import com.ilife.home.livebus.LiveEventBus;
 import com.ilife.home.robot.R;
 import com.ilife.home.robot.able.Constants;
 import com.ilife.home.robot.able.DeviceUtils;
@@ -573,7 +575,7 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
                 mView.showErrorPopup(errorCode);
                 setStatus(curStatus, batteryNo);
             }
-        },null);
+        });
     }
 
 

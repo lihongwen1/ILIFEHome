@@ -1,5 +1,8 @@
 package com.ilife.home.robot.contract;
 
+import android.content.Context;
+
+import com.ilife.home.robot.base.BaseActivity;
 import com.ilife.home.robot.base.BaseView;
 import com.ilife.home.robot.bean.Coordinate;
 import com.ilife.home.robot.bean.RobotConfigBean;
@@ -89,7 +92,6 @@ public interface MapX9Contract {
         void setStatus(int curStatus, int batteryNo);
 
         boolean isWork(int curStatus);
-
 
         void registerPropReceiver();
 
