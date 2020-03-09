@@ -20,10 +20,10 @@
             android:orientation="vertical">
 
             <RelativeLayout
-                android:layout_marginStart="@dimen/dp_24"
                 android:id="@+id/rl_user_information"
                 android:layout_width="match_parent"
-                android:layout_height="@dimen/dp_120">
+                android:layout_height="@dimen/dp_120"
+                android:layout_marginStart="@dimen/dp_24">
 
                 <ImageView
                     android:id="@+id/image_avatar"
@@ -55,16 +55,16 @@
 
                 </LinearLayout>
 
-                <ImageView style="@style/Image_Style_Forward"
-                    android:layout_marginEnd="@dimen/dp_24"
-                    />
+                <ImageView
+                    style="@style/Image_Style_Forward"
+                    android:layout_marginEnd="@dimen/dp_24" />
             </RelativeLayout>
 
             <RelativeLayout
-                android:layout_marginStart="@dimen/dp_24"
                 android:id="@+id/rl_help"
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/dp_60"
+                android:layout_marginStart="@dimen/dp_24"
                 android:background="@color/white">
 
                 <ImageView
@@ -80,9 +80,9 @@
                     android:text="@string/personal_aty_help"
                     android:textColor="@color/color_33" />
 
-                <ImageView style="@style/Image_Style_Forward"
-                    android:layout_marginEnd="@dimen/dp_24"
-                    />
+                <ImageView
+                    style="@style/Image_Style_Forward"
+                    android:layout_marginEnd="@dimen/dp_24" />
             </RelativeLayout>
 
             <View
@@ -90,10 +90,10 @@
                 android:layout_marginStart="@dimen/dp_70" />
 
             <RelativeLayout
-                android:layout_marginStart="@dimen/dp_24"
                 android:id="@+id/rl_scan"
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/dp_60"
+                android:layout_marginStart="@dimen/dp_24"
                 android:background="@color/white">
 
                 <ImageView
@@ -109,9 +109,9 @@
                     android:text="@string/personal_aty_scan"
                     android:textColor="@color/color_33" />
 
-                <ImageView style="@style/Image_Style_Forward"
-                    android:layout_marginEnd="@dimen/dp_24"
-                    />
+                <ImageView
+                    style="@style/Image_Style_Forward"
+                    android:layout_marginEnd="@dimen/dp_24" />
             </RelativeLayout>
 
             <View
@@ -119,10 +119,10 @@
                 android:layout_marginStart="@dimen/dp_70" />
 
             <RelativeLayout
-                android:layout_marginStart="@dimen/dp_24"
                 android:id="@+id/rl_share"
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/dp_60"
+                android:layout_marginStart="@dimen/dp_24"
                 android:background="@color/white">
 
                 <ImageView
@@ -140,8 +140,8 @@
 
                 <ImageView
                     android:id="@+id/image_forward"
-                    android:layout_marginEnd="@dimen/dp_24"
-                    style="@style/Image_Style_Forward" />
+                    style="@style/Image_Style_Forward"
+                    android:layout_marginEnd="@dimen/dp_24" />
             </RelativeLayout>
 
             <View
@@ -149,13 +149,13 @@
                 android:layout_marginStart="@dimen/dp_70" />
 
 
-
             <RelativeLayout
-                android:layout_marginStart="@dimen/dp_24"
                 android:id="@+id/rl_app_authorization"
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/dp_60"
-                android:background="@color/white">
+                android:layout_marginStart="@dimen/dp_24"
+                android:background="@color/white"
+                android:visibility="gone">
 
                 <ImageView
                     android:id="@+id/image_app_authorization"
@@ -171,8 +171,8 @@
                     android:textColor="@color/color_33" />
 
                 <ImageView
-                    android:layout_marginEnd="@dimen/dp_24"
-                    style="@style/Image_Style_Forward" />
+                    style="@style/Image_Style_Forward"
+                    android:layout_marginEnd="@dimen/dp_24" />
             </RelativeLayout>
 
             <View
@@ -180,15 +180,14 @@
                 android:layout_marginStart="@dimen/dp_70" />
 
 
-
             <TextView
-                android:layout_marginStart="@dimen/dp_24"
-                android:layout_marginEnd="@dimen/dp_24"
                 android:id="@+id/bt_logout"
                 style="@style/Text_16sp_33"
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/dp_48"
+                android:layout_marginStart="@dimen/dp_24"
                 android:layout_marginTop="@dimen/dp_36"
+                android:layout_marginEnd="@dimen/dp_24"
                 android:background="@drawable/bg_logout"
                 android:gravity="center"
                 android:text="@string/personal_acy_exit"
@@ -204,8 +203,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
-                android:gravity="center"
-                android:layout_marginTop="@dimen/dp_16">
+                android:layout_marginTop="@dimen/dp_16"
+                android:gravity="center">
 
                 <ImageView
                     android:id="@+id/image_version"
@@ -226,10 +225,10 @@
             </RelativeLayout>
 
             <LinearLayout
-                android:layout_marginTop="@dimen/dp_16"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
+                android:layout_marginTop="@dimen/dp_16"
                 android:layout_marginBottom="@dimen/dp_24"
                 android:gravity="center"
                 android:orientation="horizontal">
