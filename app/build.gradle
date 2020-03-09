@@ -35,17 +35,27 @@ android {
             keyAlias = 'ilifehome'
             keyPassword '123456'
         }
+
+        zaco {
+//            storeFile file('E:\\as_workspace\\ilife\\keystore-zaco\\ilifei.jks')
+            storeFile file('D:\\flylin_github_respostories\\qianming\\zaco\\ilifei.jks')
+            storePassword 'ilife123456'
+            keyAlias = 'ilife robot'
+            keyPassword 'ilife123'
+        }
     }
 
     /*切换国内和海外需要修改签名*/
     buildTypes {
         release {
+//            signingConfig signingConfigs.ilife_home
             signingConfig null//需要置空，否则打包会以内置的签名打包
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
         //debug 默认不开混淆
         debug {
+//            signingConfig signingConfigs.ilife_home
             signingConfig null
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
@@ -67,25 +77,11 @@ android {
             buildConfigField("int", "Area", "1")
             buildConfigField "String", "BUILD_COUNTRY", "\"CHINA\""//国内
         }
-        oversea {
-            dimension "default"
-            applicationId "com.ilife.home.oversea.robot"
-            versionCode = 4
-            versionName = '1.1.0'
-            signingConfig signingConfigs.ilife
-            resValue "string", "app_name", "ILIFEHomeO"
-            buildConfigField("String", "environment", "\"product\"")
-            buildConfigField("String", "BRAND", "\"ILIFE\"")
-            buildConfigField("String", "BUGKY_KEY", "\"2b09f20d-6fca-47de-9e45-3d14223e6731\"")
-            buildConfigField("String", "BUGLY_ID", "\"76637b4e00\"")
-            buildConfigField("int", "Area", "2")
-            buildConfigField "String", "BUILD_COUNTRY", "\"SINGAPORE\""//国外
-        }
         zaco {
             dimension "default"
             applicationId "com.zaco.home.robot"
-            versionCode = 1
-            versionName = '1.0.0.1'
+            versionCode = 2
+            versionName = '1.0.0.2'
             signingConfig signingConfigs.ilife_home
             resValue "string", "app_name", "ZACO"
             buildConfigField("String", "environment", "\"product\"")

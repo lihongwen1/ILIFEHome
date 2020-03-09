@@ -94,7 +94,7 @@ public class MyApplication extends SdkApplication {
             String configFile;
             switch (BuildConfig.BRAND) {
                 case Constants.BRAND_ILIFE:
-                    if (BuildConfig.BUILD_COUNTRY == "CHINA") {
+                    if (BuildConfig.BUILD_COUNTRY.equals("CHINA")) {
                         configFile = "china_robot.json";
                     } else {
                         configFile = "over_sea_robot.json";
