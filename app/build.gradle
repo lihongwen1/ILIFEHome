@@ -81,9 +81,9 @@ android {
             dimension "default"
             applicationId "com.zaco.home.robot"
             versionCode = 1
-            versionName = '1.0.0.0'
+            versionName = '1.0.0'
             signingConfig signingConfigs.ilife_home
-            resValue "string", "app_name", "ZACO"
+            resValue "string", "app_name", "ZACOHome"
             buildConfigField("String", "environment", "\"product\"")
             buildConfigField("String", "BRAND", "\"ZACO\"")
             buildConfigField("String", "BUGKY_KEY", "\"2b09f20d-6fca-47de-9e45-3d14223e6731\"")
