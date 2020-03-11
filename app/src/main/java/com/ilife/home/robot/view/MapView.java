@@ -517,8 +517,7 @@ public class MapView extends View {
     }
 
 
-    // TODO 重绘事件不要太频繁，真正有需求的时候才能调用
-    //TODO 优化：删除电子墙的时候支持拖动,添加电子墙的时候支持缩放，NONE时支持缩放和拖动
+    //TODO 真实的xy通过matrix来获取
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         int me = event.getAction() & MotionEvent.ACTION_MASK;

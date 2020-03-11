@@ -183,7 +183,7 @@
       "pointToAlong": true,
       "alongToPoint": true,
       "planningToAlong": true,
-      "pointAlongToRecharge": true,
+      "pointAlongToRecharge": false,
       "settingMode":true,
       "settingUpdate":false,
       "settingRecord":true,
