@@ -761,7 +761,7 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
     public void enterRechargeMode() {
         if (curStatus == MsgCodeUtils.STATUE_CHARGING || curStatus == MsgCodeUtils.STATUE_CHARGING_) {
             ToastUtils.showToast(MyApplication.getInstance(), Utils.getString(R.string.map_aty_charge));
-        } else if (rBean.isPointAlongToRecharge() && (curStatus == MsgCodeUtils.STATUE_POINT || curStatus == MsgCodeUtils.STATUE_ALONG)) {
+        } else if ((curStatus == MsgCodeUtils.STATUE_POINT || curStatus == MsgCodeUtils.STATUE_ALONG)&&!rBean.isPointAlongToRecharge()) {
             ToastUtils.showToast(MyApplication.getInstance(), Utils.getString(R.string.map_aty_can_not_execute));
         } else {
             if (curStatus == MsgCodeUtils.STATUE_RECHARGE) {
