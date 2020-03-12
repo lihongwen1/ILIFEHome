@@ -10,7 +10,6 @@ import android.graphics.Path;
 import android.graphics.PointF;
 import android.graphics.PorterDuff;
 import android.graphics.RectF;
-import android.opengl.GLSurfaceView;
 import android.os.Looper;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
@@ -24,12 +23,12 @@ import com.ilife.home.robot.model.bean.VirtualWallBean;
 import com.ilife.home.robot.utils.BitmapUtils;
 import com.ilife.home.robot.utils.DataUtils;
 import com.ilife.home.robot.utils.MyLogger;
-import com.ilife.home.robot.utils.ToastUtils;
 import com.ilife.home.robot.utils.Utils;
+import com.ilife.home.robot.view.helper.ForbiddenAreaHelper;
+import com.ilife.home.robot.view.helper.VirtualWallHelper;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -40,7 +39,7 @@ public class MapView extends View {
     private int width, height;
     private static String TAG = "MapView";
     private Paint slamPaint, roadPaint, virtualPaint, positionCirclePaint;
-    private Path roadPath, existVirtualPath, slamPath, obstaclePath, boxPath;
+    private Path roadPath, slamPath, obstaclePath, boxPath;
     private float beforeDistance;
     public static final int MODE_NONE = 1;
     public static final int MODE_DRAG = 2;
@@ -55,14 +54,11 @@ public class MapView extends View {
     private Matrix matrix;
     private float dragX, dragY;
     private int[] colors;
-    private List<VirtualWallBean> virtualWallBeans;
     private static final int MIN_WALL_LENGTH = 20;
     private Bitmap deleteBitmap;//删除电子墙的bitmap
     private static final int deleteIconW = 36;
-    private List<RectF> deleteIconRectFs = new ArrayList<>(10);
     private List<SlamLineBean> lastLineBeans = new ArrayList<>();
     private Paint boxPaint;
-    private RectF curVirtualWall = new RectF();
     private ArrayList<Coordinate> pointList = new ArrayList<>();
     private boolean isSetExtraDrag;
     private float startX = 0, startY = 0, endX = 0, endY = 0;
@@ -76,6 +72,31 @@ public class MapView extends View {
     private boolean isNeedRestore = true;
     private int paddingBottom;//改变地图居中中心点
     private boolean needEndPoint = true;
+
+    private MOT mMot = MOT.NOON;//默认操作地图
+    private VirtualWallHelper mVirtualWallHelper;
+    private ForbiddenAreaHelper mForbiddenAreaHelper;
+
+    /**
+     * map operation type
+     */
+    public enum MOT {
+        NOON(1),//操作地图：缩放，移动
+        DRAG(2),//移动
+        ZOOM(3),//缩放
+        VIRTUAL_WALL(4),//虚拟墙
+        GLOBAL_FORBIDDEN_AREA(5),//全局禁区
+        MOP_FORBIDDEN_AREA(5);//抹地禁区
+        final int nativeType;
+
+        MOT(int type) {
+            this.nativeType = type;
+        }
+    }
+
+    public void setmMot(MOT mMot) {
+        this.mMot = mMot;
+    }
 
     public MapView(Context context) {
         super(context);
@@ -114,6 +135,8 @@ public class MapView extends View {
     }
 
     private void init() {
+        mVirtualWallHelper = new VirtualWallHelper(this);
+        mForbiddenAreaHelper = new ForbiddenAreaHelper(this);
         colors = new int[]{getResources().getColor(R.color.obstacle_color), getResources().getColor(R.color.slam_color),
                 getResources().getColor(R.color.color_00ffffff)};
         MODE = MODE_NONE;
@@ -121,7 +144,6 @@ public class MapView extends View {
         sCenter = new PointF(0, 0);
         downPoint = new PointF(0, 0);
         roadPath = new Path();
-        existVirtualPath = new Path();
         slamPath = new Path();
         obstaclePath = new Path();
         deleteBitmap = BitmapUtils.decodeSampledBitmapFromResource(getResources(), R.drawable.n_icon_delete_virtual, deleteIconW, deleteIconW);
@@ -159,10 +181,6 @@ public class MapView extends View {
         boxPaint = new Paint(Paint.ANTI_ALIAS_FLAG | Paint.DITHER_FLAG);
         boxPaint.setStyle(Paint.Style.FILL);
         boxPaint.setFilterBitmap(true);
-        /**
-         * 电子墙路径集合
-         */
-        virtualWallBeans = new ArrayList<>();
         boxPath = new Path();
     }
 
@@ -186,7 +204,7 @@ public class MapView extends View {
     public void setMODE(int MODE) {
         this.MODE = MODE;
         if (MODE == MODE_ADD_VIRTUAL || MODE == MODE_DELETE_VIRTUAL) {
-            drawVirtualWall();
+            mVirtualWallHelper.drawVirtualWall();
         }
     }
 
@@ -308,8 +326,7 @@ public class MapView extends View {
      * 清除所有绘图痕迹
      */
     public void clean() {
-        deleteIconRectFs.clear();
-        existVirtualPath.reset();
+        mVirtualWallHelper.getVwPath().reset();
         roadPath.reset();
         slamPath.reset();
         boxPath.reset();
@@ -383,7 +400,7 @@ public class MapView extends View {
                 slamCanvas.setBitmap(slamBitmap);
                 unconditionalRecreate = false;
             }
-            drawVirtualWall();//刷新虚拟墙
+            mVirtualWallHelper.drawVirtualWall();//刷新虚拟墙
         } else {
             int needWidth = (int) ((xMax - xMin + 1) * baseScare) + extraWH;
             int needHeight = (int) ((yMax - yMin + 1) * baseScare) + extraWH;
@@ -419,11 +436,11 @@ public class MapView extends View {
      * @param originalCoordinate
      * @return
      */
-    private float matrixCoordinateX(float originalCoordinate) {
+    public float matrixCoordinateX(float originalCoordinate) {
         return (originalCoordinate - slamRect.left) * baseScare + extraWH / 2f;
     }
 
-    private float reMatrixCoordinateX(float originalCoordinate) {
+    public float reMatrixCoordinateX(float originalCoordinate) {
         return (originalCoordinate - extraWH / 2f) / baseScare + slamRect.left;
     }
 
@@ -433,11 +450,11 @@ public class MapView extends View {
      * @param originalCoordinate
      * @return
      */
-    private float matrixCoordinateY(float originalCoordinate) {
+    public float matrixCoordinateY(float originalCoordinate) {
         return (originalCoordinate - slamRect.top) * baseScare + extraWH / 2f;
     }
 
-    private float reMatrixCoordinateY(float originalCoordinate) {
+    public float reMatrixCoordinateY(float originalCoordinate) {
         return (originalCoordinate - extraWH / 2f) / baseScare + slamRect.top;
     }
 
@@ -467,15 +484,17 @@ public class MapView extends View {
                  * draw virtual wall
                  */
                 canvas.concat(matrix);
-                canvas.drawPath(existVirtualPath, virtualPaint);
+                canvas.drawPath(mVirtualWallHelper.getVwPath(), virtualPaint);
 
-                if (MODE == MODE_DELETE_VIRTUAL || MODE == MODE_DELETE_VIRTUAL * MODE_DRAG || MODE == MODE_DELETE_VIRTUAL * MODE_ZOOM) {
-                    for (RectF rf : deleteIconRectFs) {
-                        canvas.drawBitmap(deleteBitmap, rf.left, rf.top, virtualPaint);
-                    }
+                for (VirtualWallBean vw : mVirtualWallHelper.getVwBeans()) {
+                    canvas.drawBitmap(deleteBitmap, vw.getDeleteIcon().left, vw.getDeleteIcon().top, virtualPaint);
                 }
-                if (curVirtualWall.left != 0) {
-                    canvas.drawLine(curVirtualWall.left, curVirtualWall.top, curVirtualWall.right, curVirtualWall.bottom, virtualPaint);
+                /**
+                 * 正在操作虚拟墙的预览
+                 */
+                RectF curVw = mVirtualWallHelper.getCurVw();
+                if (curVw.left != 0) {
+                    canvas.drawLine(curVw.left, curVw.top, curVw.right, curVw.bottom, virtualPaint);
                 }
 
             }
@@ -524,171 +543,78 @@ public class MapView extends View {
         int me = event.getAction() & MotionEvent.ACTION_MASK;
         float x = event.getX() / getRealScare() + getOffsetX();
         float y = event.getY() / getRealScare() + getOffsetY();
-        switch (me) {
-            case MotionEvent.ACTION_CANCEL:
-            case MotionEvent.ACTION_DOWN:
-                if (isNeedRestore && restoreRunnable != null) {
-                    removeCallbacks(restoreRunnable);
-                }
-                downPoint.set(x, y);
-                switch (MODE) {
-                    case MODE_ADD_VIRTUAL:
-                        // 添加电子墙
-                        if (getUsefulWallNum() >= 10) {
-                            ToastUtils.showToast(Utils.getString(R.string.map_aty_max_count));
+        switch (mMot) {
+            case NOON://操作地图
+                switch (me) {
+                    case MotionEvent.ACTION_CANCEL:
+                    case MotionEvent.ACTION_DOWN:
+                        if (isNeedRestore && restoreRunnable != null) {
+                            removeCallbacks(restoreRunnable);
                         }
+                        downPoint.set(x, y);
+                        mMot = MOT.DRAG;
                         break;
-                    case MODE_DELETE_VIRTUAL:
-                        MODE = MODE_DELETE_VIRTUAL * MODE_DRAG;
-                        break;
-                    case MODE_NONE:
-                        MODE = MODE_DRAG;
-                        break;
-                }
-                break;
-            case MotionEvent.ACTION_MOVE:
-                switch (MODE) {
-                    case MODE_ZOOM * MODE_ADD_VIRTUAL:
-                    case MODE_ZOOM * MODE_DELETE_VIRTUAL:
-                    case MODE_ZOOM:
-                        if (event.getPointerCount() == 2) {
-                            calculateScale(event);
-                        }
-                        break;
-                    case MODE_DELETE_VIRTUAL:
-                        break;
-                    case MODE_ADD_VIRTUAL:
-                        if (getUsefulWallNum() < 10) {
-                            float distance = distance(downPoint.x, downPoint.y, x, y);
-                            if (distance > MIN_WALL_LENGTH) {
-                                curVirtualWall.set(downPoint.x, downPoint.y, x, y);
-                            }
-                        }
-                        break;
-                    case MODE_DELETE_VIRTUAL * MODE_DRAG:
-                        float distance = distance(downPoint.x, downPoint.y, x, y);
-                        if (distance > 5) {
-                            dragX += x - downPoint.x;
-                            dragY += y - downPoint.y;
-                        }
-                        MyLogger.d(TAG, "-----TOUCH---distance:" + distance);
-                        break;
-                    case MODE_DRAG:
-                        dragX += x - downPoint.x;
-                        dragY += y - downPoint.y;
-                        break;
-                }
-                invalidateUI();
-                break;
-            case MotionEvent.ACTION_UP:
-                boolean needResetChange = false;
-                float distance = distance(downPoint.x, downPoint.y, x, y);
-                if (distance < 5 && MODE == MODE_DRAG * MODE_DELETE_VIRTUAL) {//删除时，拖动距离小，认为是点击
-                    MODE = MODE_DELETE_VIRTUAL;
-                }
-                switch (MODE) {
-                    case MODE_ADD_VIRTUAL:
-                        curVirtualWall.setEmpty();
-                        if (getUsefulWallNum() < 10 && distance(downPoint.x, downPoint.y, x, y) > MIN_WALL_LENGTH) {
-                            existVirtualPath.moveTo(downPoint.x, downPoint.y);
-                            existVirtualPath.lineTo(x, y);//加入到已存在的电子墙集合中去
-                            VirtualWallBean virtualWallBean = new VirtualWallBean(virtualWallBeans.size() + 1,
-                                    new int[]{(int) reMatrixCoordinateX(downPoint.x), (int) reMatrixCoordinateY(downPoint.y), (int) reMatrixCoordinateX(x), (int) reMatrixCoordinateY(y)}
-                                    , 2);
-                            virtualWallBeans.add(virtualWallBean);
-                            drawVirtualWall();
-                        }
-                        break;
-                    case MODE_DELETE_VIRTUAL:
-                        Iterator<VirtualWallBean> iterator = virtualWallBeans.iterator();
-                        VirtualWallBean vr;
-                        while (iterator.hasNext()) {
-                            vr = iterator.next();
-                            if (vr.getDeleteIcon().contains(x, y)) {
-//                            ToastUtils.showToast("删除第" + vr.getNumber() + "条电子墙");
-                                if (vr.getState() == 2) {//新增的电子墙，还未保存到服务器，可以直接移除
-                                    if (deleteIconRectFs.size() > vr.getNumber() - 1) {
-                                        deleteIconRectFs.remove(vr.getNumber() - 1);
-                                    }
-                                    virtualWallBeans.remove(vr);
+                    case MotionEvent.ACTION_MOVE:
+                        switch (mMot) {
+                            case ZOOM:
+                                if (event.getPointerCount() == 2) {
+                                    calculateScale(event);
                                 }
-                                if (vr.getState() == 1) {//服务器上的电子墙，可能操作会被取消掉，只需要改变状态
-                                    vr.setState(3);
-                                }
-                                drawVirtualWall();
                                 break;
+                            case DRAG:
+                                dragX += x - downPoint.x;
+                                dragY += y - downPoint.y;
+                                break;
+                        }
+                        invalidateUI();
+                        break;
+                    case MotionEvent.ACTION_UP:
+                        boolean needResetChange = false;
+                        switch (mMot) {
+                            case ZOOM:
+                                originalScale = userScale;
+                                MODE = MODE_NONE;
+                                needResetChange = true;
+                                break;
+                            case DRAG:
+                                needResetChange = true;
+                                MODE = MODE_NONE;
+                                break;
+                        }
+
+                        if (needResetChange) {
+                            if (isNeedRestore && restoreRunnable == null) {
+                                restoreRunnable = () -> {
+                                    userScale = 1;
+                                    originalScale = 1;
+                                    dragX = 0;
+                                    dragY = 0;
+                                    invalidateUI();
+                                    MyLogger.d(TAG, "-------restore map to the original state----------");
+                                };
                             }
                         }
                         break;
-                    case MODE_ADD_VIRTUAL * MODE_ZOOM:
-                        originalScale = userScale;
-                        MODE = MODE_ADD_VIRTUAL;
-                        needResetChange = true;
+                    case MotionEvent.ACTION_POINTER_UP:
+                        if (mMot == MOT.ZOOM) {
+                            userScale = new BigDecimal(userScale).setScale(1, BigDecimal.ROUND_HALF_UP).floatValue();
+                        }
                         break;
-                    case MODE_DELETE_VIRTUAL * MODE_ZOOM:
-                        originalScale = userScale;
-                        MODE = MODE_DELETE_VIRTUAL;
-                        needResetChange = true;
-                        break;
-                    case MODE_ZOOM:
-                        originalScale = userScale;
-                        MODE = MODE_NONE;
-                        needResetChange = true;
-                        break;
-                    case MODE_DELETE_VIRTUAL * MODE_DRAG:
-                        MODE = MODE_DELETE_VIRTUAL;
-                        needResetChange = true;
-                        break;
-                    case MODE_DRAG:
-                        needResetChange = true;
-                        MODE = MODE_NONE;
-                        break;
-                }
-
-                if (needResetChange) {
-                    if (isNeedRestore && restoreRunnable == null) {
-                        restoreRunnable = () -> {
-                            userScale = 1;
-                            originalScale = 1;
-                            dragX = 0;
-                            dragY = 0;
-                            invalidateUI();
-                            MyLogger.d(TAG, "-------restore map to the original state----------");
-                        };
-                    }
-//                    postDelayed(restoreRunnable, 15 * 1000);
-                }
-                break;
-            case MotionEvent.ACTION_POINTER_UP:
-                switch (MODE) {
-                    case MODE_ADD_VIRTUAL:
-                        break;
-                    case MODE_DELETE_VIRTUAL:
-                        break;
-                    case MODE_DRAG:
-                        break;
-                    case MODE_ZOOM:
-                        userScale = new BigDecimal(userScale).setScale(1, BigDecimal.ROUND_HALF_UP).floatValue();
+                    case MotionEvent.ACTION_POINTER_DOWN://多指DOWN
+                        if (event.getPointerCount() == 2) {//双指
+                            mMot = MOT.ZOOM;
+                            beforeDistance = distance(event);
+                        }
                         break;
                 }
                 break;
-            case MotionEvent.ACTION_POINTER_DOWN://多指DOWN
-                if (event.getPointerCount() == 2) {//双指
-                    switch (MODE) {
-                        case MODE_DRAG:
-                            MODE = MODE_ZOOM;
-                            break;
-                        case MODE_DRAG * MODE_DELETE_VIRTUAL:
-                            MODE = MODE_DELETE_VIRTUAL * MODE_ZOOM;
-                            break;
-                        case MODE_ADD_VIRTUAL:
-                            MODE = MODE_ADD_VIRTUAL * MODE_ZOOM;
-                            break;
-                    }
-                    beforeDistance = distance(event);
-                }
+            case VIRTUAL_WALL://虚拟墙
+                mVirtualWallHelper.onTouch(event, x, y);
                 break;
-
+            case GLOBAL_FORBIDDEN_AREA://全局禁区
+            case MOP_FORBIDDEN_AREA://抹地禁区
+                mForbiddenAreaHelper.onTouch(event, x, y);
+                break;
         }
         return true;
     }
@@ -761,33 +687,12 @@ public class MapView extends View {
         return result;
     }
 
-    private int getUsefulWallNum() {
-        int num = 0;
-        for (VirtualWallBean vb : virtualWallBeans) {
-            if (vb.getState() == 1 || vb.getState() == 2) {
-                num++;
-            }
-        }
-        MyLogger.d(TAG, "useful wall number:" + num);
-        return num;
-    }
 
     /**
      * 撤销所有电子墙操作，恢复到与服务器数据一致的状态
      */
     public void undoAllOperation() {
-        if (virtualWallBeans != null && virtualWallBeans.size() > 0) {
-            Iterator<VirtualWallBean> iterator = virtualWallBeans.iterator();
-            while (iterator.hasNext()) {
-                VirtualWallBean virtualWallBean = iterator.next();
-                if (virtualWallBean.getState() == 2) {
-                    iterator.remove();
-                } else if (virtualWallBean.getState() == 3) {//被置为待删除的服务器电子墙恢复状态
-                    virtualWallBean.setState(1);
-                }
-            }
-        }
-        drawVirtualWall();
+        mVirtualWallHelper.undoAllOperation();
     }
 
     /**
@@ -796,13 +701,7 @@ public class MapView extends View {
      * @return
      */
     public List<int[]> getVirtualWallPointfs() {
-        List<int[]> virtualWallPointfs = new ArrayList<>();
-        for (VirtualWallBean vr : virtualWallBeans) {
-            if (vr.getState() != 3) {
-                virtualWallPointfs.add(vr.getPointfs());
-            }
-        }
-        return virtualWallPointfs;
+        return mVirtualWallHelper.getVwData();
     }
 
 
@@ -812,75 +711,7 @@ public class MapView extends View {
      * @param existPointList 服务器电子墙数据集合
      */
     public void drawVirtualWall(List<int[]> existPointList) {
-        if (existPointList == null) {
-            drawVirtualWall();//Represents when the map is updating
-        } else if (existPointList.size() == 0) {
-            virtualWallBeans.clear();
-            drawVirtualWall();
-        } else {
-            virtualWallBeans.clear();
-            VirtualWallBean bean;
-            for (int i = 0; i < existPointList.size(); i++) {
-                bean = new VirtualWallBean(i + 1, existPointList.get(i), 1);
-                virtualWallBeans.add(bean);
-            }
-            drawVirtualWall();
-        }
-    }
-
-    /**
-     * 绘制电子墙
-     */
-    public void drawVirtualWall() {
-        if (virtualWallBeans == null) {
-            return;
-        }
-        deleteIconRectFs.clear();
-        existVirtualPath.reset();
-        for (VirtualWallBean vir : virtualWallBeans) {
-            if (vir.getState() != 3) {
-                existVirtualPath.moveTo(matrixCoordinateX(vir.getPointfs()[0]), matrixCoordinateY(vir.getPointfs()[1]));
-                existVirtualPath.lineTo(matrixCoordinateX(vir.getPointfs()[2]), matrixCoordinateY(vir.getPointfs()[3]));
-            }
-        }
-        if (MODE == MODE_DELETE_VIRTUAL || MODE == MODE_DELETE_VIRTUAL * MODE_DRAG || MODE == MODE_DELETE_VIRTUAL * MODE_ZOOM) {//删除电子墙模式，需要画出减号删除键
-            RectF rectF;
-            for (VirtualWallBean vir : virtualWallBeans) {
-                if (vir.getState() != 3) {
-                    float cx = matrixCoordinateX((vir.getPointfs()[0] + vir.getPointfs()[2]) / 2f);
-                    float cy = matrixCoordinateY((vir.getPointfs()[1] + vir.getPointfs()[3]) / 2f);
-                    float distance = 60;//偏移坐标中心点的距离
-                    if ((matrixCoordinateX(vir.getPointfs()[2]) == matrixCoordinateX(vir.getPointfs()[0]))) {
-                        cx -= distance;
-                    } else {
-                        float k = (matrixCoordinateY(vir.getPointfs()[3]) - matrixCoordinateY(vir.getPointfs()[1])) / (matrixCoordinateX(vir.getPointfs()[2])
-                                - matrixCoordinateX(vir.getPointfs()[0]));
-                        //
-                        MyLogger.d(TAG, "tanx:" + k);
-
-                        float translationY = (float) (distance * (Math.sqrt(1 + k * k) / (1 + k * k)));
-                        float translationX = Math.abs(k) * translationY;
-
-                        if (k > 0) {
-                            cx += translationX;
-                            cy -= translationY;
-                        } else {
-                            cx -= translationX;
-                            cy -= translationY;
-                        }
-                    }
-                    float l = cx - deleteBitmap.getWidth() * getRealScare() / 2;
-                    float t = cy - deleteBitmap.getWidth() * getRealScare() / 2;
-                    float r = l + deleteBitmap.getWidth() * getRealScare();
-                    float b = t + deleteBitmap.getHeight() * getRealScare();
-                    rectF = new RectF(l, t, r, b);
-                    deleteIconRectFs.add(rectF);
-                    vir.setDeleteIcon(rectF);
-                }
-            }
-
-        }
-        invalidateUI();
+        mVirtualWallHelper.drawVirtualWall(existPointList);
     }
 
 
@@ -991,7 +822,8 @@ public class MapView extends View {
         boxPath.reset();
         obstaclePath.reset();
         int x, y, type;
-        float space = new BigDecimal(baseScare * 0.1f).setScale(0, BigDecimal.ROUND_HALF_DOWN).floatValue();
+//        float space = new BigDecimal(baseScare * 0.1f).setScale(0, BigDecimal.ROUND_HALF_DOWN).floatValue();
+        float space = 0;
         Coordinate coordinate;
         if (pointList.size() > 0) {
             for (int i = 0; i < pointList.size(); i++) {
@@ -1003,12 +835,12 @@ public class MapView extends View {
                     case 0:
                         //未清扫区域
                         break;
-                    case 1:
-                        boxPath.addRect(matrixCoordinateX(x), matrixCoordinateY(y), matrixCoordinateX(x) + baseScare - space, matrixCoordinateY(y) + baseScare - space, Path.Direction.CCW);
-                        endX = matrixCoordinateX(x) + (baseScare - space) / 2f;
-                        endY = matrixCoordinateY(y) + (baseScare - space) / 2f;
+                    case 1://已清扫
+//                        boxPath.addRect(matrixCoordinateX(x), matrixCoordinateY(y), matrixCoordinateX(x) + baseScare - space, matrixCoordinateY(y) + baseScare - space, Path.Direction.CCW);
+//                        endX = matrixCoordinateX(x) + (baseScare - space) / 2f;
+//                        endY = matrixCoordinateY(y) + (baseScare - space) / 2f;
                         break;
-                    case 2:
+                    case 2://障碍物
                     case 3://充电座
                         obstaclePath.addRect(matrixCoordinateX(x), matrixCoordinateY(y), matrixCoordinateX(x) + baseScare - space, matrixCoordinateY(y) + baseScare - space, Path.Direction.CCW);
                         break;
@@ -1018,7 +850,7 @@ public class MapView extends View {
     }
 
 
-    private void invalidateUI() {
+    public void invalidateUI() {
         MyLogger.d(TAG, "invalidateUI");
         if (Looper.getMainLooper() == Looper.myLooper()) {
             invalidate();

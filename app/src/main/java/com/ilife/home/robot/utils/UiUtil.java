@@ -10,4 +10,7 @@ public class UiUtil {
     public static int getString(String srcName) {
         return MyApplication.getInstance().getResources().getIdentifier(srcName, "string", MyApplication.getInstance().getPackageName());
     }
+    public static String getString(int srcId){
+      return   MyApplication.getInstance().getResources().getString(srcId);
+    }
 }

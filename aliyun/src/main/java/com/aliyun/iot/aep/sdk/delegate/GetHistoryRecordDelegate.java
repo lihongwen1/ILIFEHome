@@ -72,6 +72,7 @@ public class GetHistoryRecordDelegate {
             public void onResponse(IoTRequest ioTRequest, IoTResponse ioTResponse) {
                 if (ioTResponse.getCode() == 200) {
                     String result = ioTResponse.getData().toString();
+                    Log.d("getHistoryRecord","data:  "+result);
                     JSONObject jsonObject = JSON.parseObject(result);
                     JSONArray jsonArray = jsonObject.getJSONArray(EnvConfigure.KEY_ITEMS);
                     Gson gson = new Gson();

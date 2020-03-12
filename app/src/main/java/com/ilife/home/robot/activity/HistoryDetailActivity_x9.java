@@ -194,6 +194,7 @@ public class HistoryDetailActivity_x9 extends BackBaseActivity {
                             continue;
                         }
                         int bj = bytes[0] & 0xff;
+                        MyLogger.e(TAG, "数据类型。。。。。。："+bj);
                         if (bj != 1) {
                             MyLogger.e(TAG, "包含路径数据。。。。。。。。");
                             continue;
@@ -218,6 +219,7 @@ public class HistoryDetailActivity_x9 extends BackBaseActivity {
 
                     for (int j = 0; j < length; j++) {
                         if (type != 0) {
+                            MyLogger.d(TAG,"type: "+type);
                             coordinate = new Coordinate(x, y, type);
                             pointList.add(coordinate);
                         }
