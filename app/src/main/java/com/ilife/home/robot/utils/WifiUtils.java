@@ -8,6 +8,7 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.net.wifi.ScanResult;
+import android.net.wifi.SupplicantState;
 import android.net.wifi.WifiConfiguration;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
@@ -192,20 +193,13 @@ public class WifiUtils {
      */
     public static String getSsid(Context activity) {
         String ssid = "unknown id";
-        if (isWifiConnected(activity)) {
-            WifiManager wifiManager = (WifiManager) activity.getApplicationContext().getSystemService(Context.WIFI_SERVICE);
-            if (wifiManager != null) {
-                WifiInfo info = wifiManager.getConnectionInfo();
-                int networkId = info.getNetworkId();
-                List<WifiConfiguration> configuredNetworks = wifiManager.getConfiguredNetworks();
-                for (WifiConfiguration wifiConfiguration : configuredNetworks) {
-                    if (wifiConfiguration.networkId == networkId) {
-                        ssid = wifiConfiguration.SSID;
-                        break;
-                    }
-                }
+        WifiManager wifiManager = (WifiManager) activity.getApplicationContext().getSystemService(Context.WIFI_SERVICE);
+        if (wifiManager != null) {
+            WifiInfo wifiInfo = wifiManager.getConnectionInfo();
+            if (wifiInfo.getSupplicantState() == SupplicantState.COMPLETED) {
+                ssid = wifiInfo.getSSID();
                 if (ssid.contains("\"")) {
-                    return ssid.replace("\"", "");
+                    ssid = ssid.replace("\"", "");
                 }
             }
         }
