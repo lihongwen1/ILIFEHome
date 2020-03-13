@@ -1,6 +1,7 @@
 package com.ilife.home.robot.utils;
 
 
+import android.graphics.Point;
 import android.graphics.PointF;
 import android.view.MotionEvent;
 
@@ -88,17 +89,7 @@ public class DataUtils {
         return new PointF(x, y);
     }
 
-    public static float distance(MotionEvent event) {
-        float x = 0;
-        float y = 0;
-        try {
-            x = event.getX(0) - event.getX(1);
-            y = event.getY(0) - event.getY(1);
-        } catch (IllegalArgumentException e) {
-            e.printStackTrace();
-        }
-        return (float) Math.sqrt(x * x + y * y);//两点间距离公式
-    }
+
 
     public static int bytesToUInt(byte[] src, int offset) {
         int value;
@@ -106,4 +97,112 @@ public class DataUtils {
                 | (src[offset + 1] & 0xFF));
         return value;
     }
+
+    /**
+     * 虚拟墙，禁区 坐标数据处理
+     */
+
+
+    /**
+     * 两点之间的距离 （x1,y1）and （x2,y2）
+     * @param x1
+     * @param y1
+     * @param x2
+     * @param y2
+     * @return
+     */
+    private float distance(float x1, float y1, float x2, float y2) {
+        float x = x1 - x2;
+        float y = y1 - y2;
+        return (float) Math.sqrt(x * x + y * y);
+    }
+
+    /**
+     * 两点之间的距离
+     * @param pf1
+     * @param pf2
+     * @return
+     */
+    public static float distance2PointF(PointF pf1, PointF pf2) {
+        float disX = pf2.x - pf1.x;
+        float disY = pf2.y - pf1.y;
+        return (float) Math.sqrt(disX * disX + disY * disY);
+    }
+
+    /**
+     * 计算选择角度/选择方式是围绕中心旋转
+     * @param centerP 旋转中心坐标
+     * @param preMoveP 开始旋转按下坐标
+     * @param curMoveP 结束旋转按下坐标
+     * @return 旋转的角度
+     */
+    public static float getDegree(PointF centerP,PointF preMoveP,PointF curMoveP){
+        double a = DataUtils.distance2PointF(centerP, preMoveP);
+        double b = DataUtils.distance2PointF(preMoveP, curMoveP);
+        double c = DataUtils.distance2PointF(centerP, curMoveP);
+        double cosb = (a * a + c * c - b * b) / (2 * a * c);//夹角的余弦值
+        if (cosb >= 1) {
+            cosb = 1f;
+        }
+        double radian = Math.acos(cosb);//弧度（反余弦函数）
+        float degree = (float) Math.toDegrees(radian);//弧度转角度
+        //centerP-->preMoveP的向量
+        PointF centerTopreMoveP = new PointF((preMoveP.x - centerP.x), (preMoveP.y - centerP.y));
+        //centerP-->curMoveP的向量
+        PointF centerTocurMoveP = new PointF((curMoveP.x - centerP.x), (curMoveP.y - centerP.y));
+        //向量叉乘结果,负数为逆时针,正数为顺时针
+        float result = centerTopreMoveP.x * centerTocurMoveP.y - centerTopreMoveP.y * centerTocurMoveP.x;
+        if (result < 0) {
+            degree = -degree;
+        }
+        return degree;
+    }
+
+    /**
+     * 计算旋转之后的坐标
+     * @param center 矩形中点坐标
+     * @param source 源顶点坐标
+     * @param degree 旋转角度
+     * @return 源顶点旋转之后的坐标
+     */
+    public static Point obtainRoationPoint(Point center, Point source, float degree) {
+        PointF disPoint=new PointF();
+        disPoint.x = source.x - center.x;
+        disPoint.y = source.y - center.y;
+        double orgRadian = 0;//旋转前弧度
+        double orgDegree = 0;//旋转前角度
+        double aftRadian = 0; //旋转后弧度
+        double aftDegree = 0;//旋转后角度
+        //经过旋转之后点的坐标
+        Point resultPoint = new Point();
+        double distance = Math.sqrt(disPoint.x * disPoint.x + disPoint.y * disPoint.y);//顶点到中点的距离
+
+        if (disPoint.x == 0 && disPoint.y == 0) {
+            return center;
+        } else if (disPoint.x >= 0 && disPoint.y >= 0) {//第一象限
+            orgRadian = Math.asin(disPoint.y / distance);//反正弦函数
+        } else if (disPoint.x < 0 && disPoint.y >= 0) {//第二象限
+            orgRadian = Math.asin(Math.abs(disPoint.x) / distance);
+            orgRadian = orgRadian + Math.PI / 2;
+        } else if (disPoint.x < 0 && disPoint.y < 0) {//第三象限
+            orgRadian = Math.asin(Math.abs(disPoint.y) / distance);
+            orgRadian = orgRadian + Math.PI;
+        } else if (disPoint.x >= 0 && disPoint.y < 0) {//第四象限
+            orgRadian = Math.asin(disPoint.x / distance);
+            orgRadian = orgRadian + Math.PI * 3 / 2;
+        }
+        //弧度换算成角度
+        orgDegree = Math.toDegrees(orgRadian);
+        aftDegree = orgDegree + degree;
+        //角度转弧度
+        aftRadian = Math.toRadians(aftDegree);
+        resultPoint.x = (int) Math.round(distance * Math.cos(aftRadian));//四舍五入
+        resultPoint.y = (int) Math.round(distance * Math.sin(aftRadian));
+        resultPoint.x += center.x;
+        resultPoint.y += center.y;
+        return resultPoint;
+    }
+
+
+
 }
