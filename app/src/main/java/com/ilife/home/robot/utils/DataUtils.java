@@ -40,6 +40,19 @@ public class DataUtils {
         return value;
     }
 
+
+    //高位
+    public static int bytesToInt(byte h,byte l) {
+        int value;
+        value = (int) (((h& 0xFF) << 8)
+                | (l & 0xFF));
+
+        if ((h & 0x80) == 0x80) {
+            value = value - 65536;
+        }
+        return value;
+    }
+
     //高位
     public static int bytesToInt(byte[] src, int offset) {
         int value;

@@ -279,8 +279,8 @@ public abstract class BaseMapActivity extends BackBaseActivity<MapX9Presenter> i
     }
 
     @Override
-    public void drawVirtualWall(List<int[]> existPointList) {
-        mMapView.drawVirtualWall(existPointList);
+    public void drawVirtualWall(String vwStr) {
+        mMapView.drawVirtualWall(vwStr);
     }
 
 

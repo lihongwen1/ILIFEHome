@@ -54,7 +54,7 @@ public interface MapX9Contract {
 
         void showErrorPopup(int errorCode);
 
-        void drawVirtualWall(List<int[]> existPointList);
+        void drawVirtualWall(String vwStr);
 
         void updateAlong(boolean isAlong);
 
@@ -99,7 +99,7 @@ public interface MapX9Contract {
 
         void enterVirtualMode();
 
-        void sendVirtualWallData(final List<int[]> list);
+        void sendVirtualWallData(String vwStr);
 
         void sendToDeviceWithOptionVirtualWall();
 

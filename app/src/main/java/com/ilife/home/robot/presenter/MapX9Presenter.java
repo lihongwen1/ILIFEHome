@@ -206,6 +206,7 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
      * 查询电子墙
      */
     public void queryVirtualWall() {
+
     }
 
 
@@ -648,46 +649,10 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
 
 
     /**
-     * @param list SEND_VIR添加电子墙时为新增电子墙集合，EXIT_VIR 时，为null
+     * @param vwStr SEND_VIR添加电子墙时为新增电子墙集合，EXIT_VIR 时，为null
      */
-    public void sendVirtualWallData(final List<int[]> list) {
-        wallPointList.clear();
-        wallPointList.addAll(list);
-        new Thread(() -> {
-            virtualContentBytes = new byte[82];
-//                if (sendLists != null && sendLists.size() > 0) {
-            if (wallPointList != null && wallPointList.size() > 0) {
-//                    int size = sendLists.size();
-                int size = wallPointList.size();
-                byte open = (byte) 0x01;
-                byte counts = (byte) size;
-                virtualContentBytes[0] = open;
-                virtualContentBytes[1] = counts;
-                for (int t = 1; t < size + 1; t++) {
-//                        int[] floats = sendLists.get(t - 1);
-                    int[] floats = wallPointList.get(t - 1);
-                    int x1 = (int) floats[0] - 750;
-                    int y1 = (int) 1500 - floats[1] - 750;
-                    int x2 = (int) floats[2] - 750;
-                    int y2 = (int) 1500 - floats[3] - 750;
-                    byte[] startxBytes = DataUtils.intToBytes(x1);
-                    byte[] startyBytes = DataUtils.intToBytes(y1);
-                    byte[] endxBytes = DataUtils.intToBytes(x2);
-                    byte[] endyBytes = DataUtils.intToBytes(y2);
-                    virtualContentBytes[(t - 1) * 8 + 2] = startxBytes[0];
-                    virtualContentBytes[(t - 1) * 8 + 3] = startxBytes[1];
-                    virtualContentBytes[(t - 1) * 8 + 4] = startyBytes[0];
-                    virtualContentBytes[(t - 1) * 8 + 5] = startyBytes[1];
-                    virtualContentBytes[(t - 1) * 8 + 6] = endxBytes[0];
-                    virtualContentBytes[(t - 1) * 8 + 7] = endxBytes[1];
-                    virtualContentBytes[(t - 1) * 8 + 8] = endyBytes[0];
-                    virtualContentBytes[(t - 1) * 8 + 9] = endyBytes[1];
-                }
-            } else {
-                MyLogger.e(TAG, "sendLists is null");
-            }
-//            sendToDeviceWithOptionVirtualWall(AliSkills.get().setVirtualWall(virtualContentBytes), physicalId);
-        }).start();
+    public void sendVirtualWallData(String vwStr) {
+     //TODO send virtual wall data to ali server
     }
 
 

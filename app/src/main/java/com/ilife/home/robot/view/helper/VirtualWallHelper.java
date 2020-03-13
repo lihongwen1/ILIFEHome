@@ -3,11 +3,14 @@ package com.ilife.home.robot.view.helper;
 import android.graphics.Path;
 import android.graphics.PointF;
 import android.graphics.RectF;
+import android.os.Build;
+import android.text.TextUtils;
 import android.util.Base64;
 import android.view.MotionEvent;
 
 import com.ilife.home.robot.R;
 import com.ilife.home.robot.model.bean.VirtualWallBean;
+import com.ilife.home.robot.utils.DataUtils;
 import com.ilife.home.robot.utils.MyLogger;
 import com.ilife.home.robot.utils.ToastUtils;
 import com.ilife.home.robot.utils.UiUtil;
@@ -163,23 +166,25 @@ public class VirtualWallHelper {
      * 查询到服务其电子墙数据后调用绘制电子墙
      * virtual wall encode data,need parse to virtual wall bean
      *
-     * @param serverPoints 服务器电子墙数据集合
+     * @param vwStr 服务器电子墙数据集合
      */
-    public void drawVirtualWall(List<int[]> serverPoints) {
-        if (serverPoints == null) {
-            drawVirtualWall();//represents the time that the map is updating
-        } else if (serverPoints.size() == 0) {
+    public void drawVirtualWall(String vwStr) {
+        if (!TextUtils.isEmpty(vwStr)) {
+            byte[] bytes = Base64.decode(vwStr, Base64.DEFAULT);
+            int vwCounts = bytes.length / 12;//一条虚拟墙含12个字节，4个保留字节，加2个坐标（x,y）
             vwBeans.clear();
-            drawVirtualWall();
-        } else {
-            vwBeans.clear();
-            VirtualWallBean bean;
-            for (int i = 0; i < serverPoints.size(); i++) {
-                bean = new VirtualWallBean(i + 1, serverPoints.get(i), 1);
-                vwBeans.add(bean);
+            int sx, sy, ex, ey;
+            VirtualWallBean vwBean;
+            for (int i = 0; i < vwCounts; i++) {
+                sx = DataUtils.bytesToInt(bytes[12 * i + 4], bytes[12 * i + 5]) + 750;
+                sy = 750 - DataUtils.bytesToInt(bytes[12 * i + 6], bytes[12 * i + 7]);
+                ex = DataUtils.bytesToInt(bytes[12 * i + 8], bytes[12 * i + 9]) + 750;
+                ey = 750 - DataUtils.bytesToInt(bytes[12 * i + 10], bytes[12 * i + 11]);
+                vwBean = new VirtualWallBean(i, new int[]{sx, sy, ex, ey}, 1);
+                vwBeans.add(vwBean);
             }
-            drawVirtualWall();
         }
+        drawVirtualWall();
     }
 
     /**
@@ -258,16 +263,16 @@ public class VirtualWallHelper {
         List<Integer> datas = new ArrayList<>();
         for (VirtualWallBean vr : vwBeans) {
             if (vr.getState() != 3) {
-                for (int i:vr.getPointCoordinate()) {
+                for (int i : vr.getPointCoordinate()) {
                     datas.add(i);
                 }
             }
         }
-        byte[] bData=new byte[datas.size()];
-        for (int i = 0; i <datas.size() ; i++) {
-            bData[i]= datas.get(i).byteValue();
+        byte[] bData = new byte[datas.size()];
+        for (int i = 0; i < datas.size(); i++) {
+            bData[i] = datas.get(i).byteValue();
         }
-        String dataStr=Base64.encodeToString(bData,Base64.DEFAULT);
+        String dataStr = Base64.encodeToString(bData, Base64.DEFAULT);
         return dataStr;
     }
 

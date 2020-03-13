@@ -700,7 +700,7 @@ public class MapView extends View {
      *
      * @return
      */
-    public List<int[]> getVirtualWallPointfs() {
+    public String getVirtualWallPointfs() {
         return mVirtualWallHelper.getVwData();
     }
 
@@ -708,10 +708,10 @@ public class MapView extends View {
     /**
      * 查询到服务其电子墙数据后调用绘制电子墙
      *
-     * @param existPointList 服务器电子墙数据集合
+     * @param vwData 服务器电子墙数据集合
      */
-    public void drawVirtualWall(List<int[]> existPointList) {
-        mVirtualWallHelper.drawVirtualWall(existPointList);
+    public void drawVirtualWall(String vwData) {
+        mVirtualWallHelper.drawVirtualWall(vwData);
     }
 
 
