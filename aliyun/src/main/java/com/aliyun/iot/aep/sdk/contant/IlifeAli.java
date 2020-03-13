@@ -832,8 +832,8 @@ public class IlifeAli {
 
             @Override
             public void onResponse(IoTRequest ioTRequest, IoTResponse ioTResponse) {
-                onResponse.onSuccess(EnvConfigure.PATH_SET_PROPERTIES, EnvConfigure.VALUE_FAC_RESET, 1, ioTResponse.getCode());
-//                cloudResetFactory(onResponse);
+//                onResponse.onSuccess(EnvConfigure.PATH_SET_PROPERTIES, EnvConfigure.VALUE_FAC_RESET, 1, ioTResponse.getCode());
+                cloudResetFactory(onResponse);
             }
         }));
     }
