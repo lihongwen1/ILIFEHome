@@ -109,7 +109,7 @@ public class PersonalActivity extends BackBaseActivity implements View.OnClickLi
         dialog_height_ = (int) getResources().getDimension(R.dimen.dp_146);
         String version = getVersion();
         if (!TextUtils.isEmpty(version)) {
-            tv_version.setText(getString(R.string.personal_aty_version, version, BuildConfig.Area == EnvConfigure.AREA_CHINA ? "CN" : "OVERSEA"));
+            tv_version.setText(getString(R.string.personal_aty_version, version, BuildConfig.Area == EnvConfigure.AREA_CHINA ? "" : ""));
         }
         /**
          * user contact information,email or phone number
