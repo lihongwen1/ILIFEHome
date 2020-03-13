@@ -109,7 +109,7 @@ public class PersonalActivity extends BackBaseActivity implements View.OnClickLi
         dialog_height_ = (int) getResources().getDimension(R.dimen.dp_146);
         String version = getVersion();
         if (!TextUtils.isEmpty(version)) {
-            tv_version.setText(getString(R.string.personal_aty_version, version, BuildConfig.Area == EnvConfigure.AREA_CHINA ? "CN" : "OVERSEA"));
+            tv_version.setText(getString(R.string.personal_aty_version, version, BuildConfig.Area == EnvConfigure.AREA_CHINA ? "" : ""));
         }
         /**
          * user contact information,email or phone number
@@ -125,7 +125,7 @@ public class PersonalActivity extends BackBaseActivity implements View.OnClickLi
     protected void onResume() {
         super.onResume();
         String userName = IlifeAli.getInstance().getUserInfo().userNick;
-        if (!TextUtils.isEmpty(userName)) {
+        if (!TextUtils.isEmpty(userName)&&!userName.equals("null")) {
             tv_userName.setText(userName);
         }
     }

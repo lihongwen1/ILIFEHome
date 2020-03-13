@@ -22,8 +22,8 @@
     <color name="color_EDEDED">#EDEDED</color>
     <color name="color_999999">#999999</color>
     <color name="color_1FC88B">#1FC88B</color>
-    <color name="color_FF4D00">#FF4D00</color>
-    <color name="color_40FF4D00">#80FF4D00</color>
+    <color name="color_FF4D00">#F0841A</color>
+    <color name="color_40FF4D00">#40F0841A</color>
     <color name="color_080808">#080808</color>
     <color name="color_333333">#333333</color>
 </resources>
