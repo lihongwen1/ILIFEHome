@@ -187,7 +187,7 @@ public class ConnectHomeWifiActivity extends BackBaseActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        // 用户已经同意该权限
+//         用户已经同意该权限
         String ssid = WifiUtils.getSsid(context);
         if (!TextUtils.isEmpty(ssid) && !ssid.contains("unknown")) {
             tv_ssid.setText(ssid);

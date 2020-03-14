@@ -18,6 +18,7 @@ import com.aliyun.alink.linksdk.channel.mobile.api.IMobileConnectListener;
 import com.aliyun.alink.linksdk.channel.mobile.api.IMobileDownstreamListener;
 import com.aliyun.alink.linksdk.channel.mobile.api.IMobileSubscrbieListener;
 import com.aliyun.alink.linksdk.channel.mobile.api.MobileChannel;
+import com.aliyun.alink.linksdk.channel.mobile.api.MobileConnectState;
 import com.aliyun.iot.aep.sdk.IoTSmart;
 import com.aliyun.iot.aep.sdk._interface.OnAliBindDeviceResponse;
 import com.aliyun.iot.aep.sdk._interface.OnAliResponse;
@@ -485,7 +486,7 @@ public class IlifeAli {
                         value = "连接改变：已连接";
                         stateCode = 1;
                         if (topicListener != null) {//若topicListener为null，则页面为画图页面，需要重新订阅topic
-                            registerSubscribeTopic();
+                            IlifeAli.this.registerSubscribeTopic();
                         }
                         break;
                     case DISCONNECTED:
