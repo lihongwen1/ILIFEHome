@@ -125,12 +125,12 @@ public class PersonalActivity extends BackBaseActivity implements View.OnClickLi
     protected void onResume() {
         super.onResume();
         String userName = IlifeAli.getInstance().getUserInfo().userNick;
-        if (!TextUtils.isEmpty(userName)&&!userName.equals("null")) {
+        if (!TextUtils.isEmpty(userName) && !userName.equals("null")) {
             tv_userName.setText(userName);
         }
     }
 
-    @OnClick({R.id.rl_user_information, R.id.rl_help,R.id.rl_app_authorization, R.id.rl_scan, R.id.bt_logout, R.id.tv_user_agreement, R.id.tv_protocol_privacy, R.id.rl_share})
+    @OnClick({R.id.rl_user_information, R.id.rl_protocol, R.id.rl_help, R.id.rl_app_authorization, R.id.rl_scan, R.id.bt_logout, R.id.tv_user_agreement, R.id.tv_protocol_privacy, R.id.rl_share})
     public void onClick(View v) {
         Intent i;
         switch (v.getId()) {
@@ -163,6 +163,10 @@ public class PersonalActivity extends BackBaseActivity implements View.OnClickLi
             case R.id.tv_user_agreement:
                 i = new Intent(context, ProtocolActivity.class);
                 i.putExtra(ProtocolActivity.KEY_TYPE, 1);
+                startActivity(i);
+                break;
+            case R.id.rl_protocol:
+                i = new Intent(context, ZacoProtocolActivity.class);
                 startActivity(i);
                 break;
             case R.id.tv_protocol_privacy:
@@ -272,9 +276,9 @@ public class PersonalActivity extends BackBaseActivity implements View.OnClickLi
             });
             mShareDialog = builder.build();
         }
-       if (mShareDialog!=null&&!mShareDialog.isAdded()){
-           mShareDialog.show(getSupportFragmentManager(),"share");
-       }
+        if (mShareDialog != null && !mShareDialog.isAdded()) {
+            mShareDialog.show(getSupportFragmentManager(), "share");
+        }
     }
 
 

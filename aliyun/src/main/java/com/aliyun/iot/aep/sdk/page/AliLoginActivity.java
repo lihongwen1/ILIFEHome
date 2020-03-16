@@ -57,12 +57,21 @@ public class AliLoginActivity extends com.alibaba.sdk.android.openaccount.ui.ui.
         resetSelectorDialogFragment.setOnClickListener(resetListenr);
         this.resetPasswordTV = (TextView) this.findViewById(ResourceUtils.getRId(this, "reset_password"));
         if (this.resetPasswordTV != null) {
-            this.resetPasswordTV.setOnClickListener(v -> resetSelectorDialogFragment.showAllowingStateLoss(getSupportFragmentManager(), ""));
+            this.resetPasswordTV.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    //只有邮箱找回密码
+                    forgetMailPassword(v);
+                }
+            });
         }
         this.registerTV = (TextView) this.findViewById(ResourceUtils.getRId(this, "register"));
         if (this.registerTV != null) {
             this.registerTV.setOnClickListener(v -> {
-                registerSelectorDialogFragment.showAllowingStateLoss(getSupportFragmentManager(), "");
+                //只有邮箱注册
+                OpenAccountUIService openAccountUIService = OpenAccountSDK.getService(OpenAccountUIService.class);
+//                openAccountUIService.showEmailRegister(AliLoginActivity.this, getEmailRegisterCallback());
+                openAccountUIService.showEmailRegister(AliLoginActivity.this, AliRegisterEmaiActivity.class, getEmailRegisterCallback());
             });
         }
         if (getSupportActionBar() != null) {
@@ -71,7 +80,7 @@ public class AliLoginActivity extends com.alibaba.sdk.android.openaccount.ui.ui.
         }
         this.findViewById(R.id.tv_privacy_policy).setOnClickListener(v -> {
             Intent intent = new Intent();
-            intent.setComponent(new ComponentName("com.ilife.home.robot", "com.ilife.home.robot.activity.ProtocolActivity"));
+            intent.setComponent(new ComponentName("com.ilife.home.robot", "com.ilife.home.robot.activity.ZacoProtocolActivity"));
             startActivity(intent);
         });
     }

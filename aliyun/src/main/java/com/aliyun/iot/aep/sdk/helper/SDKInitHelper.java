@@ -115,7 +115,7 @@ public class SDKInitHelper {
         if (adapter != null) {
             adapter.setDefaultLoginClass(AliLoginActivity.class);
         }
-        boolean isSupportForeignMobile=!buildCountry.equals("CHINA");
+        boolean isSupportForeignMobile=buildCountry.equals("CHINA");
         OpenAccountUIConfigs.AccountPasswordLoginFlow.supportForeignMobileNumbers = isSupportForeignMobile;
         OpenAccountUIConfigs.AccountPasswordLoginFlow.mobileCountrySelectorActvityClazz = OAMobileCountrySelectorActivity.class;
 

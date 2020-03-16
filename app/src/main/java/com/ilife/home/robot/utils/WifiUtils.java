@@ -8,11 +8,13 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.net.wifi.ScanResult;
+import android.net.wifi.SupplicantState;
 import android.net.wifi.WifiConfiguration;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.text.TextUtils;
 
+import com.alibaba.sdk.android.push.common.util.NetworkUtils;
 import com.ilife.home.robot.app.MyApplication;
 
 import java.util.List;
@@ -184,31 +186,27 @@ public class WifiUtils {
 //        return null;
 //    }
 
-    /**
-     * 获取SSID
-     *
-     * @param activity 上下文
-     * @return WIFI 的SSID
-     */
-    public static String getSsid(Context activity) {
-        String ssid = "unknown id";
-        if (isWifiConnected(activity)) {
-            WifiManager wifiManager = (WifiManager) activity.getApplicationContext().getSystemService(Context.WIFI_SERVICE);
-            if (wifiManager != null) {
-                WifiInfo info = wifiManager.getConnectionInfo();
-                int networkId = info.getNetworkId();
-                List<WifiConfiguration> configuredNetworks = wifiManager.getConfiguredNetworks();
-                for (WifiConfiguration wifiConfiguration : configuredNetworks) {
-                    if (wifiConfiguration.networkId == networkId) {
-                        ssid = wifiConfiguration.SSID;
-                        break;
-                    }
-                }
-                if (ssid.contains("\"")) {
-                    return ssid.replace("\"", "");
+
+
+
+    public static String getSsid(Context context) {
+        String ssid = "";
+        WifiManager wifiManager = (WifiManager) context.getApplicationContext().getSystemService(Context.WIFI_SERVICE);
+        if (wifiManager != null) {
+            WifiInfo info = wifiManager.getConnectionInfo();
+            int networkId = info.getNetworkId();
+            List<WifiConfiguration> configuredNetworks = wifiManager.getConfiguredNetworks();
+            for (WifiConfiguration wifiConfiguration : configuredNetworks) {
+                if (wifiConfiguration.networkId == networkId) {
+                    ssid = wifiConfiguration.SSID;
+                    break;
                 }
             }
         }
+        if (ssid.contains("\"")) {
+            ssid = ssid.replace("\"", "");
+        }
+//        }
         return ssid;
     }
 
