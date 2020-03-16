@@ -277,7 +277,7 @@ public class IlifeAli {
             public void onSucess(List<IoTSmart.Country> list) {
                 IoTSmart.Country selectCountry = null;
                 for (IoTSmart.Country country : list) {
-                    if (country.areaName.equals("新加坡")) {
+                    if (country.isoCode.equals("SGP")) {
                         selectCountry = country;
                         break;
                     }
