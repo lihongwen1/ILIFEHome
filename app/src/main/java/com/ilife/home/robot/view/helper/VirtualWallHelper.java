@@ -30,7 +30,6 @@ public class VirtualWallHelper {
     private PointF downPoint;
     private RectF curVw;//当前正在操作的虚拟墙
     private Path vwPath;
-
     public enum VWOT {
         NOON(21),
         ADD(22),
@@ -106,7 +105,7 @@ public class VirtualWallHelper {
         switch (vwot) {
             case ADD:
                 if (getUsefulWallNum() < 10) {
-                    if (distance(downPoint.x, downPoint.y, mapX, mapY) > MIN_WALL_LENGTH) {
+                    if (DataUtils.distance(downPoint.x, downPoint.y, mapX, mapY) > MIN_WALL_LENGTH) {
                         curVw.set(downPoint.x, downPoint.y, mapX, mapY);
                     }
                 }
@@ -127,7 +126,7 @@ public class VirtualWallHelper {
             case ADD:
                 //clear the cur wall rect ,and make it to a virtual wall bean
                 curVw.setEmpty();
-                if (getUsefulWallNum() < 10 && distance(downPoint.x, downPoint.y, mapX, mapY) > MIN_WALL_LENGTH) {
+                if (getUsefulWallNum() < 10 && DataUtils.distance(downPoint.x, downPoint.y, mapX, mapY) > MIN_WALL_LENGTH) {
                     VirtualWallBean virtualWallBean = new VirtualWallBean(vwBeans.size() + 1,
                             new int[]{(int) mMapView.reMatrixCoordinateX(downPoint.x), (int) mMapView.reMatrixCoordinateY(downPoint.y), (int) mMapView.reMatrixCoordinateX(mapX), (int) mMapView.reMatrixCoordinateY(mapY)}
                             , 2);
@@ -290,12 +289,5 @@ public class VirtualWallHelper {
         }
         MyLogger.d(TAG, "useful wall number:" + num);
         return num;
-    }
-
-
-    private float distance(float x1, float y1, float x2, float y2) {
-        float x = x1 - x2;
-        float y = y1 - y2;
-        return (float) Math.sqrt(x * x + y * y);
     }
 }

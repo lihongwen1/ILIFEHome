@@ -111,7 +111,7 @@ public class DataUtils {
      * @param y2
      * @return
      */
-    private float distance(float x1, float y1, float x2, float y2) {
+    public static float distance(float x1, float y1, float x2, float y2) {
         float x = x1 - x2;
         float y = y1 - y2;
         return (float) Math.sqrt(x * x + y * y);
@@ -130,13 +130,13 @@ public class DataUtils {
     }
 
     /**
-     * 计算选择角度/选择方式是围绕中心旋转
+     * 计算旋转角度/选择方式是围绕中心旋转
      * @param centerP 旋转中心坐标
      * @param preMoveP 开始旋转按下坐标
      * @param curMoveP 结束旋转按下坐标
      * @return 旋转的角度
      */
-    public static float getDegree(PointF centerP,PointF preMoveP,PointF curMoveP){
+    public static float getAngle(PointF centerP, PointF preMoveP, PointF curMoveP){
         double a = DataUtils.distance2PointF(centerP, preMoveP);
         double b = DataUtils.distance2PointF(preMoveP, curMoveP);
         double c = DataUtils.distance2PointF(centerP, curMoveP);

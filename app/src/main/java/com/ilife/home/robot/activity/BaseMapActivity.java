@@ -2,12 +2,10 @@ package com.ilife.home.robot.activity;
 
 import android.content.Intent;
 import android.graphics.Color;
-import android.graphics.drawable.AnimationDrawable;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.text.method.ScrollingMovementMethod;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -380,7 +378,7 @@ public abstract class BaseMapActivity extends BackBaseActivity<MapX9Presenter> i
     @Override
     public void clearAll(int curStatus) {
         if (curStatus != MsgCodeUtils.STATUE_VIRTUAL_EDIT) {
-            mMapView.setMODE(MapView.MODE_NONE);
+            mMapView.setMAP_MODE(MapView.MODE_NONE);
             mMapView.undoAllOperation();
             hideVirtualEdit();
         }
@@ -523,23 +521,23 @@ public abstract class BaseMapActivity extends BackBaseActivity<MapX9Presenter> i
             case R.id.tv_add_virtual_x9://增加电子墙模式
                 if (mMapView.isInMode(MapView.MODE_ADD_VIRTUAL)) {
                     tv_add_virtual.setSelected(false);
-                    mMapView.setMODE(MapView.MODE_NONE);
+                    mMapView.setMAP_MODE(MapView.MODE_NONE);
                 } else {
 //                    showAddWallDialog();
                     tv_add_virtual.setSelected(true);
                     tv_delete_virtual.setSelected(false);
-                    mMapView.setMODE(MapView.MODE_ADD_VIRTUAL);
+                    mMapView.setMAP_MODE(MapView.MODE_ADD_VIRTUAL);
                 }
                 break;
             case R.id.tv_delete_virtual_x9://删除电子墙模式
                 if (mMapView.isInMode(MapView.MODE_DELETE_VIRTUAL)) {
                     tv_delete_virtual.setSelected(false);
-                    mMapView.setMODE(MapView.MODE_NONE);
+                    mMapView.setMAP_MODE(MapView.MODE_NONE);
                 } else {
 //                    showDeleteWallDialog();
                     tv_delete_virtual.setSelected(true);
                     tv_add_virtual.setSelected(false);
-                    mMapView.setMODE(MapView.MODE_DELETE_VIRTUAL);
+                    mMapView.setMAP_MODE(MapView.MODE_DELETE_VIRTUAL);
                 }
                 break;
             case R.id.tv_close_virtual_x9://弹出退出电子墙的的pop
@@ -694,7 +692,7 @@ public abstract class BaseMapActivity extends BackBaseActivity<MapX9Presenter> i
         }
         tv_add_virtual.setSelected(true);
         tv_delete_virtual.setSelected(false);
-        mMapView.setMODE(MapView.MODE_ADD_VIRTUAL);
+        mMapView.setMAP_MODE(MapView.MODE_ADD_VIRTUAL);
         fl_virtual_wall.setVisibility(View.VISIBLE);
         fl_control_x9.setVisibility(View.GONE);
         fl_bottom_x9.setVisibility(View.GONE);
