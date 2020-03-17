@@ -59,6 +59,8 @@ public class VirtualWallHelper {
         vwBeans = new ArrayList<>();
         this.mMapView = mapView;
         this.vwPath = new Path();
+        this.downPoint = new PointF();
+        this.curVw=new RectF();
     }
 
     /**
@@ -128,7 +130,7 @@ public class VirtualWallHelper {
                 curVw.setEmpty();
                 if (getUsefulWallNum() < 10 && DataUtils.distance(downPoint.x, downPoint.y, mapX, mapY) > MIN_WALL_LENGTH) {
                     VirtualWallBean virtualWallBean = new VirtualWallBean(vwBeans.size() + 1,
-                            new int[]{(int) mMapView.reMatrixCoordinateX(downPoint.x), (int) mMapView.reMatrixCoordinateY(downPoint.y), (int) mMapView.reMatrixCoordinateX(mapX), (int) mMapView.reMatrixCoordinateY(mapY)}
+                            new float[]{mMapView.reMatrixCoordinateX(downPoint.x),mMapView.reMatrixCoordinateY(downPoint.y),mMapView.reMatrixCoordinateX(mapX),mMapView.reMatrixCoordinateY(mapY)}
                             , 2);
                     vwBeans.add(virtualWallBean);
                     drawVirtualWall();
@@ -152,6 +154,7 @@ public class VirtualWallHelper {
                 }
                 break;
             case DRAG:
+
                 break;
             case ROTATE:
                 break;
@@ -179,7 +182,7 @@ public class VirtualWallHelper {
                 sy = 750 - DataUtils.bytesToInt(bytes[12 * i + 6], bytes[12 * i + 7]);
                 ex = DataUtils.bytesToInt(bytes[12 * i + 8], bytes[12 * i + 9]) + 750;
                 ey = 750 - DataUtils.bytesToInt(bytes[12 * i + 10], bytes[12 * i + 11]);
-                vwBean = new VirtualWallBean(i, new int[]{sx, sy, ex, ey}, 1);
+                vwBean = new VirtualWallBean(i, new float[]{sx, sy, ex, ey}, 1);
                 vwBeans.add(vwBean);
             }
         }
@@ -262,8 +265,8 @@ public class VirtualWallHelper {
         List<Integer> datas = new ArrayList<>();
         for (VirtualWallBean vr : vwBeans) {
             if (vr.getState() != 3) {
-                for (int i : vr.getPointCoordinate()) {
-                    datas.add(i);
+                for (float coor : vr.getPointCoordinate()) {
+                    datas.add((int) coor);
                 }
             }
         }

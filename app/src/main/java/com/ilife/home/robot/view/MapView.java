@@ -74,7 +74,7 @@ public class MapView extends View {
 
     private VirtualWallHelper mVirtualWallHelper;
     private ForbiddenAreaHelper mForbiddenAreaHelper;
-    private OT mOT = OT.MAP;//默认操作地图
+    private OT mOT = OT.GLOBAL_FORBIDDEN_AREA;//默认操作地图
     private int MAP_MODE;//标记操作地图的类型
     private final int ZOOM = 2;
     private final int DRAG = 3;
@@ -179,11 +179,11 @@ public class MapView extends View {
         virtualPaint.setColor(getResources().getColor(R.color.color_ff4d00));
         virtualPaint.setStrokeWidth(3f);
 
-        virtualPaint = new Paint(Paint.ANTI_ALIAS_FLAG | Paint.DITHER_FLAG);
-        virtualPaint.setStyle(Paint.Style.FILL);
-        virtualPaint.setFilterBitmap(true);
-        virtualPaint.setStrokeJoin(Paint.Join.ROUND);
-        virtualPaint.setStrokeWidth(1f);
+        forbiddenAreaPaint = new Paint(Paint.ANTI_ALIAS_FLAG | Paint.DITHER_FLAG);
+        forbiddenAreaPaint.setStyle(Paint.Style.FILL);
+        forbiddenAreaPaint.setFilterBitmap(true);
+        virtualPaint.setColor(getResources().getColor(R.color.successColor));
+        forbiddenAreaPaint.setStrokeWidth(1f);
 
         boxPaint = new Paint(Paint.ANTI_ALIAS_FLAG | Paint.DITHER_FLAG);
         boxPaint.setStyle(Paint.Style.FILL);
@@ -480,13 +480,7 @@ public class MapView extends View {
                 matrix.postTranslate(dragX + sCenter.x - boxBitmap.getWidth() / 2f, dragY + sCenter.y - boxBitmap.getHeight() / 2f);
                 matrix.postScale(getRealScare(), getRealScare(), sCenter.x, sCenter.y);
                 canvas.drawBitmap(boxBitmap, matrix, boxPaint);
-            }
-        } else {//x900 series
-            if (slamCanvas != null && slamBitmap != null) {
-                matrix.reset();
-                matrix.postTranslate(dragX + sCenter.x - slamBitmap.getWidth() / 2f, dragY + sCenter.y - slamBitmap.getHeight() / 2f);
-                matrix.postScale(getRealScare(), getRealScare(), sCenter.x, sCenter.y);
-                canvas.drawBitmap(slamBitmap, matrix, null);
+
                 /**
                  * draw virtual wall
                  */
@@ -507,17 +501,21 @@ public class MapView extends View {
                  * draw forbidden area
                  */
 
-                canvas.drawPath(mForbiddenAreaHelper.getmPath(),forbiddenAreaPaint);
-                for (VirtualWallBean fbd:mForbiddenAreaHelper.getFbdBeans()) {
-
+                forbiddenAreaPaint.setColor(Color.parseColor("#50388E3C"));
+                canvas.drawPath(mForbiddenAreaHelper.getmPath(), forbiddenAreaPaint);
+                for (VirtualWallBean fbd : mForbiddenAreaHelper.getFbdBeans()) {
+                    //TODO 绘制 delete rotate
                 }
                 RectF curFbd = mForbiddenAreaHelper.getCurRectF();
-                if (curFbd.left != 0) {
-                    //TODO set color for forbidden area paint
-                    canvas.drawRect(curFbd,forbiddenAreaPaint);
+                canvas.drawRect(curFbd, forbiddenAreaPaint);
 
-                }
-
+            }
+        } else {//x900 series
+            if (slamCanvas != null && slamBitmap != null) {
+                matrix.reset();
+                matrix.postTranslate(dragX + sCenter.x - slamBitmap.getWidth() / 2f, dragY + sCenter.y - slamBitmap.getHeight() / 2f);
+                matrix.postScale(getRealScare(), getRealScare(), sCenter.x, sCenter.y);
+                canvas.drawBitmap(slamBitmap, matrix, null);
             }
         }
 

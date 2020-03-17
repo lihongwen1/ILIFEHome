@@ -140,6 +140,7 @@ public class DataUtils {
         double a = DataUtils.distance2PointF(centerP, preMoveP);
         double b = DataUtils.distance2PointF(preMoveP, curMoveP);
         double c = DataUtils.distance2PointF(centerP, curMoveP);
+        //a==c？
         double cosb = (a * a + c * c - b * b) / (2 * a * c);//夹角的余弦值
         if (cosb >= 1) {
             cosb = 1f;
@@ -159,13 +160,15 @@ public class DataUtils {
     }
 
     /**
+     * 矩阵【x1,y1,x2,y2】
+     * 中心点坐标为【(x1+x2)/2,(y1+y2)/2】
      * 计算旋转之后的坐标
      * @param center 矩形中点坐标
      * @param source 源顶点坐标
      * @param degree 旋转角度
      * @return 源顶点旋转之后的坐标
      */
-    public static Point obtainRoationPoint(Point center, Point source, float degree) {
+    public static Point calculateRoationPoint(Point center, Point source, float degree) {
         PointF disPoint=new PointF();
         disPoint.x = source.x - center.x;
         disPoint.y = source.y - center.y;
@@ -175,7 +178,7 @@ public class DataUtils {
         double aftDegree = 0;//旋转后角度
         //经过旋转之后点的坐标
         Point resultPoint = new Point();
-        double distance = Math.sqrt(disPoint.x * disPoint.x + disPoint.y * disPoint.y);//顶点到中点的距离
+        double distance = Math.sqrt(disPoint.x * disPoint.x + disPoint.y * disPoint.y);//顶点到中心点的距离
 
         if (disPoint.x == 0 && disPoint.y == 0) {
             return center;

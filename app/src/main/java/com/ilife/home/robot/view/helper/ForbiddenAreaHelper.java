@@ -1,5 +1,6 @@
 package com.ilife.home.robot.view.helper;
 
+import android.graphics.Matrix;
 import android.graphics.Path;
 import android.graphics.PointF;
 import android.graphics.RectF;
@@ -29,6 +30,7 @@ public class ForbiddenAreaHelper {
     private final int LENGTH = 20;//一条禁区数据占用的字节数
     private static final int MIN_FBD_LENGTH = 20;
     private VirtualWallBean curFbdBean;//当前操作的禁区对象
+    private MapView.OT ot;//区分当前是操作的禁区类型：全局禁区，禁扫禁区
 
     public enum FAOT {
         NOON(31),
@@ -57,6 +59,7 @@ public class ForbiddenAreaHelper {
         this.mPath = new Path();
         this.downPoint = new PointF();
         this.curRectF = new RectF();
+        faot = FAOT.ADD;
     }
 
     public Path getmPath() {
@@ -65,13 +68,15 @@ public class ForbiddenAreaHelper {
 
     /**
      * 获取禁区数据
+     * //todo 对坐标数据做四舍五入操作
      */
     public String getFbdaData() {
         List<Integer> data = new ArrayList<>();
         for (VirtualWallBean fbd : fbdBeans) {
             if (fbd.getState() != 3) {
-                for (int i : fbd.getPointCoordinate()) {
-                    data.add(i);
+                fbd.updateCoordinate();
+                for (float coo : fbd.getPointCoordinate()) {
+                    data.add((int) coo);
                 }
             }
         }
@@ -79,11 +84,13 @@ public class ForbiddenAreaHelper {
         for (int i = 0; i < data.size(); i++) {
             bData[i] = data.get(i).byteValue();
         }
-        String dataStr = Base64.encodeToString(bData, Base64.DEFAULT);
-        return dataStr;
+        return Base64.encodeToString(bData, Base64.DEFAULT);
     }
 
 
+    /**
+     * @param fbdStr
+     */
     public void setForbiddenArea(String fbdStr) {
         if (!TextUtils.isEmpty(fbdStr)) {
             byte[] bytes = Base64.decode(fbdStr, Base64.DEFAULT);
@@ -100,7 +107,7 @@ public class ForbiddenAreaHelper {
                 bly = 750 - DataUtils.bytesToInt(bytes[LENGTH * i + 14], bytes[LENGTH * i + 15]);
                 brx = DataUtils.bytesToInt(bytes[LENGTH * i + 16], bytes[LENGTH * i + 17]) + 750;
                 bry = 750 - DataUtils.bytesToInt(bytes[LENGTH * i + 18], bytes[LENGTH * i + 19]);
-                vwBean = new VirtualWallBean(i, new int[]{tlx, tly, trx, try_, blx, bly, brx, bry}, 1);
+                vwBean = new VirtualWallBean(i, new float[]{tlx, tly, trx, try_, blx, bly, brx, bry}, 1);
                 fbdBeans.add(vwBean);
             }
         }
@@ -140,21 +147,24 @@ public class ForbiddenAreaHelper {
                 updatePath();
                 break;
             case DELETE:
-
+                //删除up处理
                 break;
             case DRAG:
                 float tx = mapX - downPoint.x;//x轴平移距离
                 float ty = mapY - downPoint.y;//y轴平移距离
                 if (curFbdBean != null) {//理论上不为空，为空时应该是在添加禁区
-                curFbdBean.updateTranslationX(tx);
-                curFbdBean.updateTranslationY(ty);
-                curFbdBean.updateAreaRect();
-                updatePath();
-            }
+                    Matrix matrix = curFbdBean.getMatrix();
+                    matrix.postTranslate(tx, ty);
+                    curFbdBean.updateAreaRect();
+                    updatePath();
+                }
                 break;
             case ROTATE:
-                float angle=DataUtils.getAngle(curFbdBean.getCenterPoint(),downPoint,new PointF(mapX,mapY));
-                curFbdBean.updateAngle(angle);
+                PointF centerP = curFbdBean.getCenterPoint();
+                float angle = DataUtils.getAngle(centerP, downPoint, new PointF(mapX, mapY));
+                curFbdBean.getMatrix().postRotate(angle, centerP.x, centerP.y);
+                curFbdBean.updateAreaRect();
+                updatePath();
                 break;
             default:
                 break;
@@ -167,10 +177,17 @@ public class ForbiddenAreaHelper {
             case ADD:
                 curRectF.setEmpty();
                 if (getUsefulWallNum() < 10 && DataUtils.distance(downPoint.x, downPoint.y, mapX, mapY) > MIN_FBD_LENGTH) {
-                    int[] coordinate = new int[]{(int) mMapView.reMatrixCoordinateX(downPoint.x), (int) mMapView.reMatrixCoordinateY(downPoint.y), (int) mMapView.reMatrixCoordinateX(mapX), (int) mMapView.reMatrixCoordinateY(mapY)};
-                    RectF area = new RectF(mMapView.reMatrixCoordinateX(downPoint.x), mMapView.reMatrixCoordinateY(downPoint.y), mMapView.reMatrixCoordinateX(mapX), mMapView.reMatrixCoordinateY(mapY));
-                    VirtualWallBean virtualWallBean = new VirtualWallBean(fbdBeans.size() + 1, coordinate, area, 2);
-                    fbdBeans.add(virtualWallBean);
+                    float left, top, right, bottom;
+                    /**
+                     * 转化为云端坐标系坐标
+                     */
+                    left = mMapView.reMatrixCoordinateX(downPoint.x < mapX ? downPoint.x : mapX);//x1
+                    top = mMapView.reMatrixCoordinateY(downPoint.y < mapY ? downPoint.y : mapY);//y1
+                    right = mMapView.reMatrixCoordinateX(downPoint.x > mapX ? downPoint.x : mapX);//x2
+                    bottom = mMapView.reMatrixCoordinateY(downPoint.y > mapY ? downPoint.y : mapY);//y2
+                    float[] coordinate = new float[]{left, top, right, top, right, bottom, left, bottom};
+                    VirtualWallBean fbd = new VirtualWallBean(fbdBeans.size() + 1, coordinate, 2);
+                    fbdBeans.add(fbd);
                     updatePath();
                 }
                 updatePath();
@@ -184,9 +201,21 @@ public class ForbiddenAreaHelper {
                 }
                 break;
             case DRAG:
-
+                float tx = mapX - downPoint.x;//x轴平移距离
+                float ty = mapY - downPoint.y;//y轴平移距离
+                if (curFbdBean != null) {//理论上不为空，为空时应该是在添加禁区
+                    Matrix matrix = curFbdBean.getMatrix();
+                    matrix.postTranslate(tx, ty);
+                    curFbdBean.updateAreaRect();
+                    updatePath();
+                }
                 break;
             case ROTATE:
+                PointF centerP = curFbdBean.getCenterPoint();
+                float angle = DataUtils.getAngle(centerP, downPoint, new PointF(mapX, mapY));
+                curFbdBean.getMatrix().postRotate(angle, centerP.x, centerP.y);
+                curFbdBean.updateAreaRect();
+                updatePath();
                 break;
             default:
                 break;
@@ -215,10 +244,16 @@ public class ForbiddenAreaHelper {
      */
     private void updatePath() {
         //TODO draw forbidden area
+        mPath.reset();
+        float[] coordinate;
         for (VirtualWallBean fbd : fbdBeans) {
-            mPath.addRect(fbd.getAreaRect(), Path.Direction.CW);
+            coordinate = fbd.getPointCoordinate();
+            mPath.addRect(mMapView.matrixCoordinateX(coordinate[0]), mMapView.matrixCoordinateY(coordinate[1])
+                    , mMapView.matrixCoordinateX(coordinate[4]), mMapView.matrixCoordinateY(coordinate[5]), Path.Direction.CW);
         }
-        mPath.addRect(curRectF, Path.Direction.CW);
+        if (curRectF.left != 0) {
+            mPath.addRect(curRectF, Path.Direction.CW);
+        }
         mMapView.invalidateUI();
     }
 }
