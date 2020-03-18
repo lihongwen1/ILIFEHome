@@ -10,6 +10,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.aliyun.iot.aep.sdk._interface.OnAliResponse;
 import com.aliyun.iot.aep.sdk.contant.IlifeAli;
+import com.aliyun.iot.aep.sdk.framework.AActivity;
 import com.ilife.home.robot.activity.MainActivity;
 import com.ilife.home.robot.activity.PersonalActivity;
 import com.ilife.home.robot.app.MyApplication;
@@ -26,7 +27,7 @@ import butterknife.Unbinder;
  * Created by chenjiaping on 2017/11/9.
  */
 
-public abstract class BaseActivity<T extends BasePresenter> extends AppCompatActivity implements BaseView {
+public abstract class BaseActivity<T extends BasePresenter> extends AActivity implements BaseView {
     protected T mPresenter;
     protected long exitTime;
     private Unbinder mUnBinder;
