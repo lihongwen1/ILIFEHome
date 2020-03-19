@@ -98,7 +98,7 @@ public class GetHistoryRecordDelegate {
                                 continue;
                             }
                             exitBean = mapBeans.get(startTime);
-                            Log.e("HISTORY_MAP", "新历史记录---" + generateTime(bean.getStartTime(), "MM月dd日HH:mm:ss") + "---------" + bean.getPackId() + "------------" + bean.getPackNum());
+                            Log.d("HISTORY_MAP", "新历史记录---" + generateTime(bean.getStartTime(), "MM月dd日HH:mm:ss") + "---------" + bean.getPackId() + "------------" + bean.getPackNum());
                             if (exitBean == null) {
                                 if (IlifeAli.getInstance().getWorkingDevice().getProductKey().equals(EnvConfigure.PRODUCT_KEY_X787)||
                                         IlifeAli.getInstance().getWorkingDevice().getProductKey().equals(EnvConfigure.PRODUCT_KEY_X434)) {

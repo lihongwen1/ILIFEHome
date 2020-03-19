@@ -23,15 +23,13 @@ public class ForbiddenAreaHelper {
     private static final String TAG = "ForbiddenAreaHelper";
     private List<VirtualWallBean> fbdBeans;
     private MapView mMapView;
-    private FAOT faot = FAOT.NOON;
+    private FAOT faot = FAOT.ADD;
     private Path mPath;
     private PointF downPoint;
     private RectF curRectF;
     private final int LENGTH = 20;//一条禁区数据占用的字节数
     private static final int MIN_FBD_LENGTH = 20;
     private VirtualWallBean curFbdBean;//当前操作的禁区对象
-    private MapView.OT ot;//区分当前是操作的禁区类型：全局禁区，禁扫禁区
-
     public enum FAOT {
         NOON(31),
         ADD(32),
@@ -59,7 +57,6 @@ public class ForbiddenAreaHelper {
         this.mPath = new Path();
         this.downPoint = new PointF();
         this.curRectF = new RectF();
-        faot = FAOT.ADD;
     }
 
     public Path getmPath() {

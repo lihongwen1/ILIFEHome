@@ -82,7 +82,7 @@ android {
             applicationId "com.zaco.home.robot"
             versionCode = 2
             versionName = '1.0.0.2'
-            signingConfig signingConfigs.ilife_home
+            signingConfig signingConfigs.ilife
             resValue "string", "app_name", "ZACO"
             buildConfigField("String", "environment", "\"product\"")
             buildConfigField("String", "BRAND", "\"ZACO\"")

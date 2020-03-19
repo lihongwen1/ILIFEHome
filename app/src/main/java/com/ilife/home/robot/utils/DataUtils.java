@@ -3,6 +3,7 @@ package com.ilife.home.robot.utils;
 
 import android.graphics.Point;
 import android.graphics.PointF;
+import android.graphics.RectF;
 import android.view.MotionEvent;
 
 import java.util.ArrayList;
@@ -205,7 +206,4 @@ public class DataUtils {
         resultPoint.y += center.y;
         return resultPoint;
     }
-
-
-
 }

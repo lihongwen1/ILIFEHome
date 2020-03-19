@@ -276,7 +276,7 @@ public class IlifeAli {
             public void onSucess(List<IoTSmart.Country> list) {
                 IoTSmart.Country selectCountry = null;
                 for (IoTSmart.Country country : list) {
-                    if (country.areaName.equals("新加坡")) {
+                    if (country.code.equals("65")) {
                         selectCountry = country;
                         break;
                     }
@@ -649,6 +649,7 @@ public class IlifeAli {
         ioTAPIClient.send(buildRequest(EnvConfigure.PATH_BIND_BY_SHARECODE, params), new IoTCallback() {
             @Override
             public void onFailure(IoTRequest ioTRequest, Exception e) {
+                Log.d(TAG,"绑定失败："+e.toString());
                 onAliResponse.onResponse(false);
             }
 

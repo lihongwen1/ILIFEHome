@@ -6,7 +6,7 @@
         <item>V3x</item>
         <item>X787</item>
         <item>X451</item>
-<!--        <item>X800分房</item>-->
+        <item>X800分房</item>
     </string-array>
 
     <string-array name="array_oversea_device_type">
@@ -14,6 +14,7 @@
     </string-array>
     <string-array name="array_zaco_device_type">
         <item>X800</item>
+        <item>X420</item>
     </string-array>
     <string-array name="array_week">
         <item>@string/clock_aty_sun</item>
