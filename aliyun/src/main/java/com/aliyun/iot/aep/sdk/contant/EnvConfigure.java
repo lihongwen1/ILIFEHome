@@ -137,6 +137,10 @@ public class EnvConfigure {
     public static String KEY_CLEAN_AREA = "CleanArea";
     public static String KEY_CLEAN_TIME = "CleanTime";
     public static final String KEY_BEEP_NO_DISTURB = "BeepNoDisturb";
+    public static final String KEY_SAVE_MAP="SaveMap";
+    public static final String KEY_SELECT_MAP_ID="SelectedMapId";
+    public static final String KEY_FORBIDDEN_AREA="ForbiddenAreaData";
+    public static final String VirtualWallData="VirtualWallData";
     public static final String KEY_SWITCH = "Switch";
     public static final String KEY_DATA = "data";
     public static final String KEY_START_TIME = "StartTime";

@@ -58,6 +58,7 @@ import com.google.gson.Gson;
 import com.ilife.home.livebus.LiveEventBus;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
@@ -567,7 +568,25 @@ public class IlifeAli {
                     } else {
                         Log.d(TAG, "数据无语音开关字段");
                     }
-                    onAliResponse.onSuccess(new PropertyBean(max, workMode, battery, waterLevel, startTimeLine, historyTimeLine, voiceOpen));
+                    PropertyBean bean = new PropertyBean(max, workMode, battery, waterLevel, startTimeLine, historyTimeLine, voiceOpen);
+                    /**
+                     * 特殊字段
+                     */
+                    if (jsonObject.containsKey(EnvConfigure.KEY_SAVE_MAP)) {
+                        long selectMapId = jsonObject.getJSONObject(EnvConfigure.KEY_SAVE_MAP).getJSONObject(EnvConfigure.KEY_VALUE).getLongValue(EnvConfigure.KEY_SELECT_MAP_ID);
+                        bean.setSelectedMapId(selectMapId);
+                    }
+                    if (jsonObject.containsKey(EnvConfigure.KEY_FORBIDDEN_AREA)) {
+                        String forbiddenArea = jsonObject.getJSONObject(EnvConfigure.KEY_FORBIDDEN_AREA).getString(EnvConfigure.KEY_VALUE);
+                        bean.setForbiddenArea(forbiddenArea);
+                        Log.d(TAG,"FORBIDDEN AREA DATA: "+forbiddenArea);
+                    }
+                    if (jsonObject.containsKey(EnvConfigure.VirtualWallData)) {
+                        String virtualWallData = jsonObject.getJSONObject(EnvConfigure.VirtualWallData).getString(EnvConfigure.KEY_VALUE);
+                        bean.setVirtualWall(virtualWallData);
+                        Log.d(TAG, "VirtualWallData: " + virtualWallData);
+                    }
+                    onAliResponse.onSuccess(bean);
                 } else {
                     onAliResponse.onFailed(0, ioTResponse.getLocalizedMsg());
                 }
@@ -649,7 +668,7 @@ public class IlifeAli {
         ioTAPIClient.send(buildRequest(EnvConfigure.PATH_BIND_BY_SHARECODE, params), new IoTCallback() {
             @Override
             public void onFailure(IoTRequest ioTRequest, Exception e) {
-                Log.d(TAG,"绑定失败："+e.toString());
+                Log.d(TAG, "绑定失败：" + e.toString());
                 onAliResponse.onResponse(false);
             }
 
@@ -792,6 +811,52 @@ public class IlifeAli {
                             if (errorCode != 0) {
                                 onAliResponse.onResponse(errorCode);
                             }
+                        }
+                    }
+                }
+            }
+        }));
+    }
+
+    public void getSelectMap(long selectMapId, final OnAliResponse<List<HistoryRecordBean>> onAliResponse) {
+        HashMap<String, Object> params = new HashMap<>();
+        params.clear();
+        params.put(EnvConfigure.KEY_IOT_ID, iotId);
+        params.put("identifier", EnvConfigure.KEY_HISTORY_START_TIME);
+        params.put("start", selectMapId * 1000);
+        params.put("end", System.currentTimeMillis());
+        params.put("pageSize", 200);
+        params.put("ordered", false);
+        ioTAPIClient.send(buildRequest(EnvConfigure.PATH_GET_PROPERTY_TIMELINE, params), new IoTUIThreadCallback(new IoTCallback() {
+            @Override
+            public void onFailure(IoTRequest ioTRequest, Exception e) {
+
+            }
+
+            @Override
+            public void onResponse(IoTRequest ioTRequest, IoTResponse ioTResponse) {
+                if (ioTResponse.getCode() == 200) {
+                    JSONObject data = JSONObject.parseObject(ioTResponse.getData().toString());
+                    if (data.containsKey(EnvConfigure.KEY_ITEMS)) {
+                        JSONArray items = data.getJSONArray(EnvConfigure.KEY_ITEMS);
+                        ArrayList<Long> starts = new ArrayList<>();
+                        Log.e("select", items.size() + "");
+                        for (int i = 0; i < items.size(); i++) {
+                            JSONObject item = items.getJSONObject(i);
+                            int startTime = item.getIntValue(EnvConfigure.KEY_DATA);
+                            Log.e("startTime", startTime + "" + "=======" + "1584322065, 1584322583");
+                            if (selectMapId == startTime) {
+                                starts.add(item.getLongValue("timestamp"));
+
+                            }
+
+                        }
+
+                        Collections.sort(starts);
+                        if (starts.size() > 1) {
+                            getHistoryRecords(starts.get(0), starts.get(starts.size() - 1), onAliResponse);
+                        } else {
+                            getHistoryRecords(starts.get(0), starts.get(0), onAliResponse);
                         }
                     }
                 }

@@ -75,6 +75,8 @@ public interface MapX9Contract {
         boolean isActivityInteraction();
 
         void setUnconditionalRecreate(boolean recreate);
+        void drawForbiddenArea(String data);
+        void setLeftTopCoordinate(int x,int y);
     }
 
     interface Presenter {

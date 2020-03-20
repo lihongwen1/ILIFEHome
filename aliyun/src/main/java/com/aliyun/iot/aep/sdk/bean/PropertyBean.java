@@ -8,7 +8,10 @@ public class PropertyBean {
     private long realTimeMapTimeLine;
     private long historyMapTimeLine;
     private boolean voiceOpen;//0-代表开 1-代表关
-
+    private long selectedMapId;
+    private String saveMapId;
+    private String forbiddenArea;
+    private String virtualWall;
     public PropertyBean(){};
 
     public PropertyBean(boolean maxMode, int workMode, int battery, int waterLevel, long realTimeMapTimeLine, long historyMapTimeLine, boolean voiceOpen) {
@@ -67,6 +70,38 @@ public class PropertyBean {
 
     public void setHistoryMapTimeLine(long historyMapTimeLine) {
         this.historyMapTimeLine = historyMapTimeLine;
+    }
+
+    public long getSelectedMapId() {
+        return selectedMapId;
+    }
+
+    public void setSelectedMapId(long selectedMapId) {
+        this.selectedMapId = selectedMapId;
+    }
+
+    public String getSaveMapId() {
+        return saveMapId;
+    }
+
+    public void setSaveMapId(String saveMapId) {
+        this.saveMapId = saveMapId;
+    }
+
+    public String getForbiddenArea() {
+        return forbiddenArea;
+    }
+
+    public void setForbiddenArea(String forbiddenArea) {
+        this.forbiddenArea = forbiddenArea;
+    }
+
+    public String getVirtualWall() {
+        return virtualWall;
+    }
+
+    public void setVirtualWall(String virtualWall) {
+        this.virtualWall = virtualWall;
     }
 
     public boolean isVoiceOpen() {

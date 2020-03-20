@@ -5,8 +5,6 @@ import android.os.Bundle;
 import android.view.View;
 
 import com.aliyun.iot.aep.sdk.contant.MsgCodeUtils;
-import com.ilife.home.robot.able.Constants;
-import com.ilife.home.robot.able.DeviceUtils;
 import com.ilife.home.robot.utils.ToastUtils;
 import com.ilife.home.robot.R;
 import com.ilife.home.robot.utils.UiUtil;
@@ -29,7 +27,7 @@ public class MapActivity_X8_ extends BaseMapActivity {
         iv_recharge_model.setImageResource(robotPic);
         iv_point_robot.setImageResource(robotPic);
         iv_along_robot.setImageResource(robotPic);
-        tv_bottom_recharge_x8.setVisibility(View.VISIBLE);
+        tv_bottom_recharge.setVisibility(View.VISIBLE);
         tv_wall.setVisibility(View.GONE);
         tv_appointment_x9.setVisibility(View.VISIBLE);
         tv_recharge_x9.setVisibility(View.GONE);
@@ -68,7 +66,7 @@ public class MapActivity_X8_ extends BaseMapActivity {
         }
         layout_remote_control.setVisibility(View.GONE);
         tv_bottom_recharge.setSelected(isRecharge);
-        tv_bottom_recharge_x8.setSelected(isRecharge);
+        tv_bottom_recharge.setSelected(isRecharge);
         layout_recharge.setVisibility(View.VISIBLE);
     }
 

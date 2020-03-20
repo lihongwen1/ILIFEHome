@@ -79,7 +79,7 @@ public class MapView extends View {
     private int MAP_MODE;//标记操作地图的类型
     private final int ZOOM = 2;
     private final int DRAG = 3;
-
+    private int leftX=0,leftY=0;
     /**
      * map operation type
      */
@@ -205,6 +205,10 @@ public class MapView extends View {
         originalScale = userScale;
     }
 
+    public void setLeftTopCoordinate(int x,int y){
+        this.leftX=x;
+        this.leftY=y;
+    }
 
     /**
      * 设置地图模式
@@ -214,7 +218,7 @@ public class MapView extends View {
     public void setMAP_MODE(int MAP_MODE) {
         this.MAP_MODE = MAP_MODE;
         if (MAP_MODE == MODE_ADD_VIRTUAL || MAP_MODE == MODE_DELETE_VIRTUAL) {
-            mVirtualWallHelper.drawVirtualWall();
+//            mVirtualWallHelper.drawVirtualWall();
         }
     }
 
@@ -365,6 +369,11 @@ public class MapView extends View {
         }
     }
 
+    public void drawForbiddenArea(String data) {
+        if (mGlobalFbdaHelper != null) {
+            mGlobalFbdaHelper.setForbiddenArea(data);
+        }
+    }
 
     /**
      * @param xMin
@@ -418,7 +427,6 @@ public class MapView extends View {
                 slamCanvas.setBitmap(slamBitmap);
                 unconditionalRecreate = false;
             }
-            mVirtualWallHelper.drawVirtualWall();//刷新虚拟墙
         } else {
             int needWidth = (int) ((xMax - xMin + 1) * baseScare) + extraWH;
             int needHeight = (int) ((yMax - yMin + 1) * baseScare) + extraWH;
@@ -433,7 +441,7 @@ public class MapView extends View {
                 unconditionalRecreate = false;
             }
         }
-
+        mVirtualWallHelper.drawVirtualWall();//刷新虚拟墙
     }
 
     private float caculateSystemScale(int xLength, int yLength, int scale) {
@@ -760,7 +768,8 @@ public class MapView extends View {
      * @param vwData 服务器电子墙数据集合
      */
     public void drawVirtualWall(String vwData) {
-        mVirtualWallHelper.drawVirtualWall(vwData);
+        mVirtualWallHelper.drawVirtualWall(vwData,leftX,leftY);
+        invalidateUI();
     }
 
 

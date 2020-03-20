@@ -4,9 +4,13 @@ package com.ilife.home.robot.utils;
 import android.graphics.Point;
 import android.graphics.PointF;
 import android.graphics.RectF;
+import android.util.Base64;
 import android.view.MotionEvent;
 
+import com.ilife.home.robot.bean.Coordinate;
+
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by chenjiaping on 2017/8/7.

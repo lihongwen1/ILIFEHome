@@ -184,7 +184,7 @@ public class VirtualWallHelper {
      *
      * @param vwStr 服务器电子墙数据集合
      */
-    public void drawVirtualWall(String vwStr) {
+    public void drawVirtualWall(String vwStr,int leftX,int leftY) {
         if (!TextUtils.isEmpty(vwStr)) {
             byte[] bytes = Base64.decode(vwStr, Base64.DEFAULT);
             int vwCounts = bytes.length / 12;//一条虚拟墙含12个字节，4个保留字节，加2个坐标（x,y）
@@ -192,10 +192,10 @@ public class VirtualWallHelper {
             int sx, sy, ex, ey;
             VirtualWallBean vwBean;
             for (int i = 0; i < vwCounts; i++) {
-                sx = DataUtils.bytesToInt(bytes[12 * i + 4], bytes[12 * i + 5]) + 750;
-                sy = 750 - DataUtils.bytesToInt(bytes[12 * i + 6], bytes[12 * i + 7]);
-                ex = DataUtils.bytesToInt(bytes[12 * i + 8], bytes[12 * i + 9]) + 750;
-                ey = 750 - DataUtils.bytesToInt(bytes[12 * i + 10], bytes[12 * i + 11]);
+                sx = DataUtils.bytesToInt(bytes[12 * i + 4], bytes[12 * i + 5])-leftX;
+                sy = leftY-DataUtils.bytesToInt(bytes[12 * i + 6], bytes[12 * i + 7]);
+                ex = DataUtils.bytesToInt(bytes[12 * i + 8], bytes[12 * i + 9])-leftX;
+                ey = leftY-DataUtils.bytesToInt(bytes[12 * i + 10], bytes[12 * i + 11]);
                 vwBean = new VirtualWallBean(i, new float[]{sx, sy, ex, ey}, 1);
                 vwBeans.add(vwBean);
             }
@@ -214,6 +214,7 @@ public class VirtualWallHelper {
         vwPath.reset();
         boundaryPath.reset();
         float[] coordinate;
+        MyLogger.d(TAG,"虚拟墙条数："+vwBeans.size());
         for (VirtualWallBean vir : vwBeans) {
             if (vir.getState() != 3) {
                 coordinate = new float[]{mMapView.matrixCoordinateX(vir.getPointCoordinate()[0]), mMapView.matrixCoordinateY(vir.getPointCoordinate()[1])

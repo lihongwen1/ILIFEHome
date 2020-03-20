@@ -20,10 +20,14 @@ import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 import android.widget.TextView;
 
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
 import com.aliyun.iot.aep.sdk.contant.AliSkills;
 import com.aliyun.iot.aep.sdk.contant.IlifeAli;
 import com.aliyun.iot.aep.sdk.contant.MsgCodeUtils;
 import com.badoo.mobile.util.WeakHandler;
+import com.ilife.home.robot.adapter.MapBottomSheetAdapter;
 import com.ilife.home.robot.bean.Coordinate;
 import com.ilife.home.robot.fragment.UniversalDialog;
 import com.ilife.home.robot.able.DeviceUtils;
@@ -40,6 +44,7 @@ import com.ilife.home.robot.R;
 import com.ilife.home.robot.view.MapView;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -54,13 +59,6 @@ public abstract class BaseMapActivity extends BackBaseActivity<MapX9Presenter> i
     private long appPauseTime;//应用后台休眠时间
     final String TAG = BaseMapActivity.class.getSimpleName();
     public static final String NOT_FIRST_VIRTUAL_WALL = "virtual_wall";
-    public static final int TAG_CONTROL = 0x01;
-    public static final int TAG_NORMAL = 0x02;
-    public static final int TAG_RECHAGRGE = 0x03;
-    public static final int TAG_KEYPOINT = 0x04;
-    public static final int TAG_ALONG = 0x05;
-    public static final int TAG_RANDOM = 0x09;
-    public static final int TAG_KEY_TEMPORARY_POINT = 0x10;
     private CustomPopupWindow exitVirtualWallPop;
     private UniversalDialog virtualWallTipDialog;
     @BindView(R.id.ll_map_container)
@@ -89,8 +87,6 @@ public abstract class BaseMapActivity extends BackBaseActivity<MapX9Presenter> i
     ImageView image_ele;//battery
     @BindView(R.id.tv_control_x9)
     TextView tv_control_x9;
-    @BindView(R.id.tv_bottom_recharge_x9)
-    TextView tv_bottom_recharge;
     @BindView(R.id.fl_top_menu)
     FrameLayout fl_setting;
     Animation animation, animation_alpha;
@@ -102,8 +98,6 @@ public abstract class BaseMapActivity extends BackBaseActivity<MapX9Presenter> i
     TextView tv_recharge_x9;
     @BindView(R.id.v_map)
     MapView mMapView;
-    @BindView(R.id.tv_virtual_wall_x9)
-    TextView tv_wall;
     @BindView(R.id.fl_bottom_x9)
     LinearLayout fl_bottom_x9;
     @BindView(R.id.fl_control_x9)
@@ -126,8 +120,8 @@ public abstract class BaseMapActivity extends BackBaseActivity<MapX9Presenter> i
     @BindView(R.id.image_right)
     ImageView image_right;
 
-    @BindView(R.id.tv_bottom_recharge_x8)
-    TextView tv_bottom_recharge_x8;
+    @BindView(R.id.tv_bottom_recharge)
+    TextView tv_bottom_recharge;
     @BindView(R.id.iv_recharge_model)
     ImageView iv_recharge_model;
     @BindView(R.id.iv_recharge_stand)
@@ -140,6 +134,8 @@ public abstract class BaseMapActivity extends BackBaseActivity<MapX9Presenter> i
     View layout_along;
     @BindView(R.id.iv_along_robot)
     ImageView iv_along_robot;
+    @BindView(R.id.rv_bottom_sheet)
+    RecyclerView rv_bottom_sheet;
     public static final int USE_MODE_NORMAL = 1;
     public static final int USE_MODE_REMOTE_CONTROL = 2;
     protected int USE_MODE = USE_MODE_NORMAL;
@@ -228,6 +224,19 @@ public abstract class BaseMapActivity extends BackBaseActivity<MapX9Presenter> i
 
     }
 
+    /**
+     * 初始化底部操作栏
+     */
+    private void initBottomSheet() {
+        String[] functions = new String[]{"虚拟墙/禁区", "选房清扫", "划区清扫", "选择地图", "定位机器"};
+        List<String> fun = new ArrayList<>();
+        for (String fuction : functions) {
+            fun.add(fuction);
+        }
+        rv_bottom_sheet.setLayoutManager(new GridLayoutManager(this,3));
+        rv_bottom_sheet.setAdapter(new MapBottomSheetAdapter(R.layout.item_map_function, fun));
+    }
+
     @Override
     public void updateCleanArea(String value) {
         Message message = new Message();
@@ -281,6 +290,10 @@ public abstract class BaseMapActivity extends BackBaseActivity<MapX9Presenter> i
         mMapView.drawVirtualWall(vwStr);
     }
 
+    @Override
+    public void drawForbiddenArea(String data) {
+        mMapView.drawForbiddenArea(data);
+    }
 
     /**
      * 显示组件异常
@@ -378,17 +391,20 @@ public abstract class BaseMapActivity extends BackBaseActivity<MapX9Presenter> i
     @Override
     public void clearAll(int curStatus) {
         if (curStatus != MsgCodeUtils.STATUE_VIRTUAL_EDIT) {
-            mMapView.setMAP_MODE(MapView.MODE_NONE);
-            mMapView.undoAllOperation();
+//            mMapView.setMAP_MODE(MapView.MODE_NONE);
+//            mMapView.undoAllOperation();
             hideVirtualEdit();
         }
         if (curStatus != MsgCodeUtils.STATUE_RECHARGE) {
             tv_bottom_recharge.setSelected(false);
-            tv_bottom_recharge_x8.setSelected(false);
             layout_recharge.setVisibility(View.GONE);
         }
     }
 
+    @Override
+    public void setLeftTopCoordinate(int x, int y) {
+        mMapView.setLeftTopCoordinate(x, y);
+    }
 
     @Override
     /**
@@ -421,8 +437,8 @@ public abstract class BaseMapActivity extends BackBaseActivity<MapX9Presenter> i
     }
 
     @OnClick({R.id.image_center, R.id.tv_start_x9, R.id.tv_control_x9, R.id.fl_top_menu, R.id.tv_recharge_x9, R.id.tv_along_x9,
-            R.id.tv_point_x9, R.id.tv_virtual_wall_x9, R.id.tv_close_virtual_x9, R.id.ib_virtual_wall_tip
-            , R.id.tv_add_virtual_x9, R.id.tv_delete_virtual_x9, R.id.iv_control_close_x9, R.id.tv_bottom_recharge_x9, R.id.tv_bottom_recharge_x8
+            R.id.tv_point_x9, R.id.tv_close_virtual_x9, R.id.ib_virtual_wall_tip
+            , R.id.tv_add_virtual_x9, R.id.tv_delete_virtual_x9, R.id.iv_control_close_x9, R.id.tv_bottom_recharge
             , R.id.tv_appointment_x9
     })
     public void onViewClick(View v) {
@@ -456,8 +472,7 @@ public abstract class BaseMapActivity extends BackBaseActivity<MapX9Presenter> i
                     mPresenter.setPropertiesWithParams(mPresenter.isRandomMode() ? AliSkills.get().enterRandomMode(IlifeAli.getInstance().getWorkingDevice().getIotId()) : AliSkills.get().enterPlanningMode(IlifeAli.getInstance().getWorkingDevice().getIotId()));
                 }
                 break;
-            case R.id.tv_bottom_recharge_x8:
-            case R.id.tv_bottom_recharge_x9://会跳转到遥控界面
+            case R.id.tv_bottom_recharge:
                 mPresenter.enterRechargeMode();
                 break;
             case R.id.tv_control_x9://进入二级操作界面
@@ -506,18 +521,19 @@ public abstract class BaseMapActivity extends BackBaseActivity<MapX9Presenter> i
                 Intent intent = new Intent(this, ClockingActivity.class);
                 startActivity(intent);
                 break;
-            case R.id.tv_virtual_wall_x9://电子墙编辑模式
-                if (mPresenter.isVirtualWallOpen() && (mPresenter.getCurStatus() == MsgCodeUtils.STATUE_PLANNING ||
-                        mPresenter.getCurStatus() == MsgCodeUtils.STATUE_PAUSE)) {
-                    showSetWallDialog();
-                } else {
-                    if (mPresenter.getCurStatus() == MsgCodeUtils.STATUE_CHARGING || mPresenter.getCurStatus() == MsgCodeUtils.STATUE_CHARGING_) {
-                        ToastUtils.showToast(MyApplication.getInstance(), Utils.getString(R.string.map_aty_charge));
-                    } else {
-                        ToastUtils.showToast(MyApplication.getInstance(), Utils.getString(R.string.map_aty_can_not_execute));
-                    }
-                }
-                break;
+            //TODO 实现电子墙编辑功能
+//            case R.id.tv_virtual_wall_x9://电子墙编辑模式
+//                if (mPresenter.isVirtualWallOpen() && (mPresenter.getCurStatus() == MsgCodeUtils.STATUE_PLANNING ||
+//                        mPresenter.getCurStatus() == MsgCodeUtils.STATUE_PAUSE)) {
+//                    showSetWallDialog();
+//                } else {
+//                    if (mPresenter.getCurStatus() == MsgCodeUtils.STATUE_CHARGING || mPresenter.getCurStatus() == MsgCodeUtils.STATUE_CHARGING_) {
+//                        ToastUtils.showToast(MyApplication.getInstance(), Utils.getString(R.string.map_aty_charge));
+//                    } else {
+//                        ToastUtils.showToast(MyApplication.getInstance(), Utils.getString(R.string.map_aty_can_not_execute));
+//                    }
+//                }
+//                break;
             case R.id.tv_add_virtual_x9://增加电子墙模式
                 if (mMapView.isInMode(MapView.MODE_ADD_VIRTUAL)) {
                     tv_add_virtual.setSelected(false);
