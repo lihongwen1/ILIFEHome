@@ -66,6 +66,7 @@ public class EnvConfigure {
     public static final String PATH_REPORY_OTA_VER = "/thing/ota/version/reportByUser";
     public static final String PATH_BIND_SERVER_FILTER = "/awss/enrollee/product/filter";
     public static final String PATH_RESET_FACTORY = "/living/device/reset";
+    public static final String PATH__GET_PROPERTY_TIME_LINE_LIVE="/living/device/property/timeline/get";
     /**
      * topic/method
      */

@@ -832,24 +832,34 @@ public class IlifeAli {
 
             @Override
             public void onResponse(IoTRequest ioTRequest, IoTResponse ioTResponse) {
-//                onResponse.onSuccess(EnvConfigure.PATH_SET_PROPERTIES, EnvConfigure.VALUE_FAC_RESET, 1, ioTResponse.getCode());
-                cloudResetFactory(onResponse);
+                onResponse.onSuccess(EnvConfigure.PATH_SET_PROPERTIES, EnvConfigure.VALUE_FAC_RESET, 1, ioTResponse.getCode());
+                cloudResetFactory();
             }
         }));
     }
 
-    private void cloudResetFactory(final OnAliSetPropertyResponse onResponse) {
+    /**
+     * 删除云端的主机数据
+     */
+    private void cloudResetFactory() {
         HashMap<String, Object> params = new HashMap<>();
         params.put(EnvConfigure.KEY_IOT_ID, iotId);
-        ioTAPIClient.send(buildRequest(EnvConfigure.PATH_RESET_FACTORY, params), new IoTUIThreadCallback(new IoTCallback() {
+        IoTRequest ioTRequest= new IoTRequestBuilder()
+                .setAuthType(EnvConfigure.IOT_AUTH)
+                .setScheme(Scheme.HTTPS)        // 如果是HTTPS，可以省略本设置
+                .setPath(EnvConfigure.PATH_RESET_FACTORY)                  // 参考业务API文档，设置path
+                .setApiVersion("1.0.0")          // 参考业务API文档，设置apiVersion
+                .setParams(params)
+                .build();
+        ioTAPIClient.send(ioTRequest, new IoTUIThreadCallback(new IoTCallback() {
             @Override
             public void onFailure(IoTRequest ioTRequest, Exception e) {
-                onResponse.onFailed(ioTRequest.getPath(), EnvConfigure.VALUE_FAC_RESET, 0, e.getLocalizedMessage());
+                Log.d(TAG,"清除云端数据 异常："+e.getMessage());
             }
 
             @Override
             public void onResponse(IoTRequest ioTRequest, IoTResponse ioTResponse) {
-                onResponse.onSuccess(EnvConfigure.PATH_SET_PROPERTIES, EnvConfigure.VALUE_FAC_RESET, 1, ioTResponse.getCode());
+                Log.d(TAG,"清除云端数据："+ioTRequest.toString());
             }
         }));
     }

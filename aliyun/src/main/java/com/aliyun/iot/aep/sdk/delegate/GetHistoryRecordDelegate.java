@@ -54,13 +54,13 @@ public class GetHistoryRecordDelegate {
         params.put("identifier", EnvConfigure.KEY_CLEAN_HISTORY);
         params.put("start", start);
         params.put("end", end);
-        params.put("pageSize", 200);
-        params.put("ordered", false);
+        params.put("limit", 200);
+        params.put("order", "desc");
         IoTRequest request = new IoTRequestBuilder()
                 .setAuthType(EnvConfigure.IOT_AUTH)
                 .setScheme(Scheme.HTTPS)        // 如果是HTTPS，可以省略本设置
-                .setPath(EnvConfigure.PATH_GET_PROPERTY_TIMELINE)                  // 参考业务API文档，设置path
-                .setApiVersion(EnvConfigure.API_VER)          // 参考业务API文档，设置apiVersion
+                .setPath(EnvConfigure.PATH__GET_PROPERTY_TIME_LINE_LIVE)                  // 参考业务API文档，设置path
+                .setApiVersion("1.0.0")          // 参考业务API文档，设置apiVersion
                 .setParams(params)
                 .build();
         ioTAPIClient.send(request, new IoTUIThreadCallback(new IoTCallback() {
