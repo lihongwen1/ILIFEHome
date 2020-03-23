@@ -6,6 +6,7 @@ import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -20,6 +21,7 @@ import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -27,8 +29,12 @@ import com.aliyun.iot.aep.sdk.contant.AliSkills;
 import com.aliyun.iot.aep.sdk.contant.IlifeAli;
 import com.aliyun.iot.aep.sdk.contant.MsgCodeUtils;
 import com.badoo.mobile.util.WeakHandler;
+import com.google.android.material.bottomsheet.BottomSheetBehavior;
+import com.ilife.home.livebus.LiveEventBus;
 import com.ilife.home.robot.adapter.MapBottomSheetAdapter;
+import com.ilife.home.robot.base.BaseQuickAdapter;
 import com.ilife.home.robot.bean.Coordinate;
+import com.ilife.home.robot.bean.MapDataBean;
 import com.ilife.home.robot.fragment.UniversalDialog;
 import com.ilife.home.robot.able.DeviceUtils;
 import com.ilife.home.robot.app.MyApplication;
@@ -42,8 +48,10 @@ import com.ilife.home.robot.utils.Utils;
 import com.ilife.home.robot.view.CustomPopupWindow;
 import com.ilife.home.robot.R;
 import com.ilife.home.robot.view.MapView;
+import com.ilife.home.robot.view.SpaceItemDecoration;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -98,8 +106,6 @@ public abstract class BaseMapActivity extends BackBaseActivity<MapX9Presenter> i
     TextView tv_recharge_x9;
     @BindView(R.id.v_map)
     MapView mMapView;
-    @BindView(R.id.fl_bottom_x9)
-    LinearLayout fl_bottom_x9;
     @BindView(R.id.fl_control_x9)
     FrameLayout fl_control_x9;
     @BindView(R.id.fl_virtual_wall)
@@ -136,10 +142,14 @@ public abstract class BaseMapActivity extends BackBaseActivity<MapX9Presenter> i
     ImageView iv_along_robot;
     @BindView(R.id.rv_bottom_sheet)
     RecyclerView rv_bottom_sheet;
+    @BindView(R.id.map_bottom_sheet)
+    LinearLayout ll_bottom_sheet;
     public static final int USE_MODE_NORMAL = 1;
     public static final int USE_MODE_REMOTE_CONTROL = 2;
     protected int USE_MODE = USE_MODE_NORMAL;
     private WeakHandler weakHandler;
+    private BottomSheetBehavior mBottomSheetBehavior;
+
 
     @Override
     public void attachPresenter() {
@@ -221,6 +231,7 @@ public abstract class BaseMapActivity extends BackBaseActivity<MapX9Presenter> i
         setDevName();
         fl_setting.setVisibility(View.VISIBLE);
         mMapView.setRobotSeriesX9(mPresenter.isX900Series());
+        initBottomSheet();
 
     }
 
@@ -229,12 +240,30 @@ public abstract class BaseMapActivity extends BackBaseActivity<MapX9Presenter> i
      */
     private void initBottomSheet() {
         String[] functions = new String[]{"虚拟墙/禁区", "选房清扫", "划区清扫", "选择地图", "定位机器"};
-        List<String> fun = new ArrayList<>();
-        for (String fuction : functions) {
-            fun.add(fuction);
-        }
-        rv_bottom_sheet.setLayoutManager(new GridLayoutManager(this,3));
-        rv_bottom_sheet.setAdapter(new MapBottomSheetAdapter(R.layout.item_map_function, fun));
+        rv_bottom_sheet.setLayoutManager(new GridLayoutManager(this, 3));
+        MapBottomSheetAdapter adapter = new MapBottomSheetAdapter(R.layout.item_map_function, Arrays.asList(functions));
+        rv_bottom_sheet.setAdapter(adapter);
+        ll_bottom_sheet = findViewById(R.id.map_bottom_sheet);
+        mBottomSheetBehavior = BottomSheetBehavior.from(ll_bottom_sheet);
+        adapter.setOnItemClickListener((adapter1, view, position) -> {
+            switch (position) {
+                case 0:
+                    LiveEventBus.get(VirtualWallActivity.KEY_MAP_BUNDLE, MapDataBean.class)
+                            .post(mPresenter.getMapDataBean());
+                    startActivity(new Intent(BaseMapActivity.this,VirtualWallActivity.class));
+                    break;
+                case 1:
+                    break;
+                case 2:
+                    break;
+                case 3:
+                    break;
+
+                case 4:
+                    break;
+            }
+            ToastUtils.showToast(functions[position]);
+        });
     }
 
     @Override
@@ -368,12 +397,12 @@ public abstract class BaseMapActivity extends BackBaseActivity<MapX9Presenter> i
                 layout_remote_control.setVisibility(View.GONE);
                 fl_control_x9.setVisibility(View.GONE);
                 fl_virtual_wall.setVisibility(View.GONE);
-                fl_bottom_x9.setVisibility(View.VISIBLE);
                 setMapViewVisible(true);
+                ll_bottom_sheet.setVisibility(View.VISIBLE);
                 break;
             case USE_MODE_REMOTE_CONTROL:
                 fl_virtual_wall.setVisibility(View.GONE);
-                fl_bottom_x9.setVisibility(View.GONE);
+                ll_bottom_sheet.setVisibility(View.GONE);
                 fl_control_x9.setVisibility(View.VISIBLE);
                 layout_remote_control.setVisibility(View.VISIBLE);
                 image_max.setSelected(mPresenter.isMaxMode());
@@ -711,7 +740,7 @@ public abstract class BaseMapActivity extends BackBaseActivity<MapX9Presenter> i
         mMapView.setMAP_MODE(MapView.MODE_ADD_VIRTUAL);
         fl_virtual_wall.setVisibility(View.VISIBLE);
         fl_control_x9.setVisibility(View.GONE);
-        fl_bottom_x9.setVisibility(View.GONE);
+        mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
     }
 
     @Override

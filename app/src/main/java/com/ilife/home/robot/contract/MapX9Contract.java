@@ -5,6 +5,7 @@ import android.content.Context;
 import com.ilife.home.robot.base.BaseActivity;
 import com.ilife.home.robot.base.BaseView;
 import com.ilife.home.robot.bean.Coordinate;
+import com.ilife.home.robot.bean.MapDataBean;
 import com.ilife.home.robot.bean.RobotConfigBean;
 
 import java.util.ArrayList;
@@ -80,6 +81,7 @@ public interface MapX9Contract {
     }
 
     interface Presenter {
+        MapDataBean getMapDataBean();
         void adjustTime();
 
         String getRobotType();

@@ -7,20 +7,20 @@
     android:orientation="vertical">
 
     <LinearLayout
+        android:background="@drawable/bg_shape_top_radius_gray_16"
         android:id="@+id/map_bottom_sheet"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
         app:behavior_hideable="true"
-        app:behavior_peekHeight="100dp"
+        app:behavior_peekHeight="@dimen/dp_100"
         app:layout_behavior="@string/bottom_sheet_behavior">
 
 
         <LinearLayout
-            android:id="@+id/fl_bottom_x9"
             android:layout_width="match_parent"
             android:layout_height="@dimen/dp_100"
-            android:background="@drawable/bg_shape_top_radius"
+            android:background="@drawable/bg_shape_radius_16"
             android:gravity="center_vertical"
             android:orientation="horizontal">
 
@@ -44,9 +44,11 @@
                 android:drawableTop="@drawable/selector_control"
                 android:text="@string/map_aty_remote" />
         </LinearLayout>
+
         <androidx.recyclerview.widget.RecyclerView
+            android:paddingBottom="@dimen/dp_24"
             android:id="@+id/rv_bottom_sheet"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
+            android:layout_height="wrap_content" />
     </LinearLayout>
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

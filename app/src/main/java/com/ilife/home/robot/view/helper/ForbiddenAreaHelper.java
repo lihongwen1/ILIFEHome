@@ -11,6 +11,7 @@ import android.view.MotionEvent;
 import com.ilife.home.robot.model.bean.VirtualWallBean;
 import com.ilife.home.robot.utils.DataUtils;
 import com.ilife.home.robot.utils.MyLogger;
+import com.ilife.home.robot.utils.ToastUtils;
 import com.ilife.home.robot.view.MapView;
 
 import java.util.ArrayList;
@@ -186,6 +187,8 @@ public class ForbiddenAreaHelper {
                     VirtualWallBean fbd = new VirtualWallBean(fbdBeans.size() + 1, coordinate, 2);
                     fbdBeans.add(fbd);
                     updatePath();
+                }else {
+                    ToastUtils.showToast("最多添加10条禁区！");
                 }
                 updatePath();
                 break;

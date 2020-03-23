@@ -45,6 +45,7 @@ public class VirtualWallBean {
         this.number = number;
         this.pointCoordinate = pointCoordinate;
         this.state = state;
+        this.matrix=new Matrix();
     }
 
 
@@ -76,11 +77,6 @@ public class VirtualWallBean {
     public Matrix getMatrix() {
         return matrix;
     }
-
-    public void setMatrix(Matrix matrix) {
-        this.matrix = matrix;
-    }
-
     /**
      * 基于矩阵变换更新禁区区域矩阵
      */

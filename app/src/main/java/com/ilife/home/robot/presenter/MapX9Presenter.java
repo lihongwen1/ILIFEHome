@@ -3,11 +3,7 @@ package com.ilife.home.robot.presenter;
 import android.text.TextUtils;
 import android.util.Base64;
 
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.lifecycle.Observer;
-
 import com.aliyun.iot.aep.sdk._interface.OnAliResponse;
-import com.aliyun.iot.aep.sdk._interface.OnAliResponseSingle;
 import com.aliyun.iot.aep.sdk._interface.OnAliSetPropertyResponse;
 import com.aliyun.iot.aep.sdk._interface.OnDevicePoropertyResponse;
 import com.aliyun.iot.aep.sdk.bean.HistoryRecordBean;
@@ -16,19 +12,16 @@ import com.aliyun.iot.aep.sdk.bean.RealTimeMapBean;
 import com.aliyun.iot.aep.sdk.contant.AliSkills;
 import com.aliyun.iot.aep.sdk.contant.EnvConfigure;
 import com.aliyun.iot.aep.sdk.contant.IlifeAli;
-import com.aliyun.iot.aep.sdk.contant.LiveBusKey;
 import com.aliyun.iot.aep.sdk.contant.MsgCodeUtils;
 import com.google.gson.Gson;
-import com.ilife.home.livebus.LiveEventBus;
 import com.ilife.home.robot.R;
-import com.ilife.home.robot.able.Constants;
 import com.ilife.home.robot.able.DeviceUtils;
 import com.ilife.home.robot.activity.BaseMapActivity;
 import com.ilife.home.robot.activity.SettingActivity;
 import com.ilife.home.robot.app.MyApplication;
 import com.ilife.home.robot.base.BasePresenter;
-import com.ilife.home.robot.bean.CleaningDataX8;
 import com.ilife.home.robot.bean.Coordinate;
+import com.ilife.home.robot.bean.MapDataBean;
 import com.ilife.home.robot.bean.RobotConfigBean;
 import com.ilife.home.robot.contract.MapX9Contract;
 import com.ilife.home.robot.model.MapX9Model;
@@ -780,6 +773,12 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
         return SpUtils.getInt(MyApplication.getInstance(), IlifeAli.getInstance().getWorkingDevice().getProductKey() + SettingActivity.KEY_MODE) == MsgCodeUtils.STATUE_RANDOM;
     }
 
+    @Override
+    public MapDataBean getMapDataBean() {
+        MapDataBean dataBean=new MapDataBean(pointList,"","",0,0
+        ,minX,minY,maxX,maxY);
+        return dataBean;
+    }
 
     private void parseSaveMapData(String[] mapArray) {
         int lineCount = 0;

@@ -180,7 +180,7 @@ public class MapView extends View {
         virtualPaint.setFilterBitmap(true);
         virtualPaint.setStrokeJoin(Paint.Join.ROUND);
         virtualPaint.setColor(getResources().getColor(R.color.color_ff4d00));
-        virtualPaint.setStrokeWidth(3f);
+        virtualPaint.setStrokeWidth(6f);
 
         forbiddenAreaPaint = new Paint(Paint.ANTI_ALIAS_FLAG | Paint.DITHER_FLAG);
         forbiddenAreaPaint.setStyle(Paint.Style.FILL);
@@ -761,6 +761,11 @@ public class MapView extends View {
         return mVirtualWallHelper.getVwData();
     }
 
+    public String getMopFBDData(){
+        return mMopFbdaHelper.getFbdaData();
+    }public String getGlobalFBDData(){
+        return mGlobalFbdaHelper.getFbdaData();
+    }
 
     /**
      * 查询到服务其电子墙数据后调用绘制电子墙

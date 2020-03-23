@@ -27,8 +27,6 @@ public class MapActivity_X8_ extends BaseMapActivity {
         iv_recharge_model.setImageResource(robotPic);
         iv_point_robot.setImageResource(robotPic);
         iv_along_robot.setImageResource(robotPic);
-        tv_bottom_recharge.setVisibility(View.VISIBLE);
-        tv_wall.setVisibility(View.GONE);
         tv_appointment_x9.setVisibility(View.VISIBLE);
         tv_recharge_x9.setVisibility(View.GONE);
     }
@@ -49,10 +47,8 @@ public class MapActivity_X8_ extends BaseMapActivity {
     public void updateStartStatue(boolean isSelect, String value) {
         if (isSelect && mPresenter.getCurStatus() == MsgCodeUtils.STATUE_RECHARGE) {
             tv_control_x9.setVisibility(View.VISIBLE);
-            tv_bottom_recharge.setVisibility(View.GONE);
         } else {
             tv_control_x9.setVisibility(View.VISIBLE);
-            tv_bottom_recharge.setVisibility(View.GONE);
         }
         tv_start.setText(value);
         tv_start.setSelected(isSelect);
