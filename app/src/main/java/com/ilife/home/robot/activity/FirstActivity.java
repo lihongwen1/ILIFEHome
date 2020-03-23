@@ -188,7 +188,7 @@ public class FirstActivity extends BaseActivity {
         public void updateDrawState(TextPaint ds) {
             super.updateDrawState(ds);
             //设置文本的颜色
-            ds.setColor(getResources().getColor(R.color.color_ff4d00));
+            ds.setColor(getResources().getColor(R.color.color_theme));
             //超链接形式的下划线，false 表示不显示下划线，true表示显示下划线
             ds.setUnderlineText(false);
         }

@@ -110,7 +110,7 @@
                 android:layout_height="wrap_content"
                 android:includeFontPadding="true"
                 android:text="@string/login_policy"
-                android:textColor="@color/color_FF4D00"
+                android:textColor="@color/color_theme"
                 android:textSize="12sp" />
         </LinearLayout>
     </LinearLayout>

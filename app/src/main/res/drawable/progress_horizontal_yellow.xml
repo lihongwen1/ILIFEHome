@@ -20,7 +20,7 @@
             <corners android:radius="5dip" />
             <stroke
                 android:width="@dimen/dp_1"
-                android:color="@color/color_ff4d00" />
+                android:color="@color/color_theme" />
             <solid android:color="@color/white" />
         </shape>
     </item>
@@ -30,7 +30,7 @@
             <shape>
                 <corners android:radius="5dip" />
                 <solid
-                    android:color="@color/color_ff4d00" />
+                    android:color="@color/color_theme" />
             </shape>
         </clip>
     </item>
@@ -39,7 +39,7 @@
         <clip>
             <shape>
                 <corners android:radius="5dip" />
-                <solid android:color="@color/color_ff4d00" />
+                <solid android:color="@color/color_theme" />
             </shape>
         </clip>
     </item>

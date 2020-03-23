@@ -55,6 +55,7 @@ import com.aliyun.iot.aep.sdk.login.LoginBusiness;
 import com.aliyun.iot.aep.sdk.login.data.UserInfo;
 import com.aliyun.iot.aep.sdk.threadpool.ThreadPool;
 import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import com.ilife.home.livebus.LiveEventBus;
 
 import java.util.ArrayList;
@@ -574,12 +575,14 @@ public class IlifeAli {
                      */
                     if (jsonObject.containsKey(EnvConfigure.KEY_SAVE_MAP)) {
                         long selectMapId = jsonObject.getJSONObject(EnvConfigure.KEY_SAVE_MAP).getJSONObject(EnvConfigure.KEY_VALUE).getLongValue(EnvConfigure.KEY_SELECT_MAP_ID);
+                        String saveMapId = jsonObject.getJSONObject(EnvConfigure.KEY_SAVE_MAP).getJSONObject(EnvConfigure.KEY_VALUE).getString(EnvConfigure.KEY_SAVE_MAP_ID);
                         bean.setSelectedMapId(selectMapId);
+                        bean.setSaveMapId(saveMapId);
                     }
                     if (jsonObject.containsKey(EnvConfigure.KEY_FORBIDDEN_AREA)) {
                         String forbiddenArea = jsonObject.getJSONObject(EnvConfigure.KEY_FORBIDDEN_AREA).getString(EnvConfigure.KEY_VALUE);
                         bean.setForbiddenArea(forbiddenArea);
-                        Log.d(TAG,"FORBIDDEN AREA DATA: "+forbiddenArea);
+                        Log.d(TAG, "FORBIDDEN AREA DATA: " + forbiddenArea);
                     }
                     if (jsonObject.containsKey(EnvConfigure.VirtualWallData)) {
                         String virtualWallData = jsonObject.getJSONObject(EnvConfigure.VirtualWallData).getString(EnvConfigure.KEY_VALUE);
@@ -984,6 +987,40 @@ public class IlifeAli {
         }));
     }
 
+
+    /**
+     *
+     * @param selectMapId
+     * @param saveMapId
+     * @param onResponse
+     */
+    public void setSelectMapId(long selectMapId, String saveMapId, OnAliResponseSingle<Boolean> onResponse) {
+        String data="{\"SaveMap\":{\"SelectedMapId\":1584604330,\"SaveMapId\":\"XnMkql51jKI=\"}}";
+        JSONObject json = JSONObject.parseObject(data);
+        json.getJSONObject(EnvConfigure.KEY_SAVE_MAP).put(EnvConfigure.KEY_SELECT_MAP_ID,selectMapId);
+        json.getJSONObject(EnvConfigure.KEY_SAVE_MAP).put(EnvConfigure.KEY_SAVE_MAP_ID,saveMapId);
+
+        HashMap<String, Object> params = new HashMap<>();
+        params.put(EnvConfigure.KEY_IOT_ID, iotId);
+        params.put(EnvConfigure.KEY_ITEMS,json);
+        Log.d(TAG, "Save map data: " + json.toString());
+        ioTAPIClient.send(buildRequest(EnvConfigure.PATH_SET_PROPERTIES, params), new IoTUIThreadCallback(new IoTCallback() {
+            @Override
+            public void onFailure(IoTRequest ioTRequest, Exception e) {
+                onResponse.onResponse(false);
+            }
+
+            @Override
+            public void onResponse(IoTRequest ioTRequest, IoTResponse ioTResponse) {
+                if (ioTResponse.getCode() == 200) {
+                    onResponse.onResponse(true);
+                } else {
+                    onResponse.onResponse(false);
+                    Log.d(TAG, "请求失败，错误信息： " + ioTResponse.getLocalizedMsg());
+                }
+            }
+        }));
+    }
 
     public void setVoiceOpen(boolean isOpen, final OnAliSetPropertyResponse onResponse) {
         final int isDisturbOpen = isOpen ? 0 : 1;

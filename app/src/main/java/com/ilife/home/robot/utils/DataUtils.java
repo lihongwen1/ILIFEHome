@@ -10,6 +10,7 @@ import android.view.MotionEvent;
 import com.ilife.home.robot.bean.Coordinate;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -210,4 +211,7 @@ public class DataUtils {
         resultPoint.y += center.y;
         return resultPoint;
     }
+
+
+
 }

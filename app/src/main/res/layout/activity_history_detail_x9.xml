@@ -51,7 +51,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="38m"
-                    android:textColor="@color/color_ff4d00"
+                    android:textColor="@color/color_theme"
                     android:textSize="@dimen/sp_24" />
 
                 <TextView
@@ -80,7 +80,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="12分钟"
-                    android:textColor="@color/color_ff4d00"
+                    android:textColor="@color/color_theme"
                     android:textSize="@dimen/sp_24" />
 
                 <TextView

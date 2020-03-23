@@ -53,7 +53,7 @@
                 android:layout_height="wrap_content"
                 android:includeFontPadding="false"
                 android:text="90"
-                android:textColor="@color/color_ff4d00"
+                android:textColor="@color/color_theme"
                 android:textSize="@dimen/dp_72" />
 
             <TextView
@@ -63,7 +63,7 @@
                 android:layout_toEndOf="@id/tv_bind_progress"
                 android:includeFontPadding="false"
                 android:text="%"
-                android:textColor="@color/color_ff4d00"
+                android:textColor="@color/color_theme"
                 android:textSize="@dimen/dp_24" />
         </RelativeLayout>
     </FrameLayout>

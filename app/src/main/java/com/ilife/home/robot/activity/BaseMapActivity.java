@@ -230,6 +230,7 @@ public abstract class BaseMapActivity extends BackBaseActivity<MapX9Presenter> i
         errorPopup = new PopupWindow();
         setDevName();
         fl_setting.setVisibility(View.VISIBLE);
+        mMapView.setmOT(MapView.OT.MAP);
         mMapView.setRobotSeriesX9(mPresenter.isX900Series());
         initBottomSheet();
 
@@ -256,9 +257,9 @@ public abstract class BaseMapActivity extends BackBaseActivity<MapX9Presenter> i
                     break;
                 case 2:
                     break;
-                case 3:
+                case 3://选择地图
+                    startActivity(new Intent(BaseMapActivity.this,SelectSaveMapActivity.class));
                     break;
-
                 case 4:
                     break;
             }

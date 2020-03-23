@@ -239,7 +239,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/personal_aty_protocol_agreement"
-                    android:textColor="@color/color_FF4D00"
+                    android:textColor="@color/color_theme"
                     android:textSize="@dimen/dp_14" />
 
                 <View
@@ -254,7 +254,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/personal_aty_protocol_privacy"
-                    android:textColor="@color/color_FF4D00"
+                    android:textColor="@color/color_theme"
                     android:textSize="@dimen/dp_14" />
 
             </LinearLayout>

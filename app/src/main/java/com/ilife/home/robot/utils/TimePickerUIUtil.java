@@ -55,7 +55,7 @@ public class TimePickerUIUtil {
     private static void set_numberpicker_text_colour(NumberPicker number_picker, Context context) {
         final int count = number_picker.getChildCount();
         //这里就是要设置的颜色，修改一下作为参数传入会更好
-        final int color = ContextCompat.getColor(context, R.color.color_ff4d00);
+        final int color = ContextCompat.getColor(context, R.color.color_theme);
         for (int i = 0; i < count; i++) {
             View child = number_picker.getChildAt(i);
             try {

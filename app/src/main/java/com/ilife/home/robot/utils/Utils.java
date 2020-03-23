@@ -17,6 +17,8 @@ import com.ilife.home.robot.app.MyApplication;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 
 /**
@@ -154,6 +156,18 @@ public class Utils {
             e.printStackTrace();
         }
         return stringBuilder.toString();
+    }
+
+    /**
+     * 格式化时间
+     * @param time  时间
+     * @param strFormat 模板
+     * @return
+     */
+    public static  String generateTime(long time, String strFormat) {
+        SimpleDateFormat format = new SimpleDateFormat(strFormat);
+        String str = format.format(new Date((time + 10) * 1000));
+        return str;
     }
 
 }

@@ -75,7 +75,7 @@
                 android:layout_height="wrap_content"
                 android:drawableRight="@drawable/button_right_yellow"
                 android:text="设置"
-                android:textColor="@color/color_ff4d00"
+                android:textColor="@color/color_theme"
                 android:textSize="@dimen/dp_16" />
         </LinearLayout>
 
@@ -114,7 +114,7 @@
             android:layout_height="wrap_content"
             app:containerCornerRadius="@dimen/dp_25"
             app:containerDeltaLength="@dimen/dp_8"
-            app:containerShadowColor="@color/color_ff4d00_66"
+            app:containerShadowColor="@color/color_theme_66"
             app:containerShadowRadius="@dimen/dp_6"
             app:deltaY="@dimen/dp_2"
             app:enable="true">

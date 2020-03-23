@@ -140,7 +140,7 @@
     <style name="Text_16sp_f08300">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
-        <item name="android:textColor">@color/color_ff4d00</item>
+        <item name="android:textColor">@color/color_theme</item>
         <item name="android:textSize">@dimen/sp_16</item>
         <item name="android:includeFontPadding">false</item>
     </style>
@@ -148,7 +148,7 @@
     <style name="Text_18sp_f08300">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
-        <item name="android:textColor">@color/color_ff4d00</item>
+        <item name="android:textColor">@color/color_theme</item>
         <item name="android:textSize">@dimen/sp_18</item>
         <item name="android:paddingBottom">2dp</item>
         <item name="android:includeFontPadding">false</item>
@@ -195,7 +195,7 @@
     <style name="Text_14sp_them_color">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
-        <item name="android:textColor">@color/color_ff4d00</item>
+        <item name="android:textColor">@color/color_theme</item>
         <item name="android:textSize">@dimen/sp_14</item>
         <item name="android:includeFontPadding">false</item>
     </style>
@@ -302,9 +302,9 @@
         <item name="android:backgroundDimAmount">0.7</item>
         <item name="android:windowIsFloating">true</item>
     </style>
-
+`
     <style name="Timer_Edit_Style">
-        <item name="android:textColor">@color/color_ff4d00</item>
+        <item name="android:textColor">@color/color_theme</item>
     </style>
 
     <style name="Theme.picker" parent="android:Theme.Holo.NoActionBar">
@@ -312,7 +312,7 @@
     </style>
 
     <style name="Widget.EditText.Yellow" parent="@android:style/Widget.EditText">
-        <item name="android:textColor">@color/color_ff4d00</item>
+        <item name="android:textColor">@color/color_theme</item>
         <item name="android:textSize">@dimen/sp_22</item>
     </style>
 

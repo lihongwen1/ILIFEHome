@@ -139,6 +139,7 @@ public class EnvConfigure {
     public static final String KEY_BEEP_NO_DISTURB = "BeepNoDisturb";
     public static final String KEY_SAVE_MAP="SaveMap";
     public static final String KEY_SELECT_MAP_ID="SelectedMapId";
+    public static final String KEY_SAVE_MAP_ID="SaveMapId";
     public static final String KEY_FORBIDDEN_AREA="ForbiddenAreaData";
     public static final String VirtualWallData="VirtualWallData";
     public static final String KEY_SWITCH = "Switch";

@@ -75,7 +75,7 @@ public class MapView extends View {
     private VirtualWallHelper mVirtualWallHelper;
     private ForbiddenAreaHelper mGlobalFbdaHelper;//全局禁区
     private ForbiddenAreaHelper mMopFbdaHelper;//全局禁区
-    private OT mOT = OT.MAP;//默认操作地图
+    private OT mOT = OT.NOON;//默认操作地图
     private int MAP_MODE;//标记操作地图的类型
     private final int ZOOM = 2;
     private final int DRAG = 3;
@@ -84,6 +84,7 @@ public class MapView extends View {
      * map operation type
      */
     public enum OT {
+        NOON(0),
         MAP(1),//操作地图：缩放，移动
         VIRTUAL_WALL(2),//虚拟墙
         GLOBAL_FORBIDDEN_AREA(3),//全局禁区
@@ -179,7 +180,7 @@ public class MapView extends View {
         virtualPaint.setStyle(Paint.Style.STROKE);
         virtualPaint.setFilterBitmap(true);
         virtualPaint.setStrokeJoin(Paint.Join.ROUND);
-        virtualPaint.setColor(getResources().getColor(R.color.color_ff4d00));
+        virtualPaint.setColor(getResources().getColor(R.color.color_theme));
         virtualPaint.setStrokeWidth(6f);
 
         forbiddenAreaPaint = new Paint(Paint.ANTI_ALIAS_FLAG | Paint.DITHER_FLAG);
@@ -306,7 +307,7 @@ public class MapView extends View {
         }
         //draw end point with yellow color
         if (endX != 0 || endY != 0) {
-            positionCirclePaint.setColor(getResources().getColor(R.color.color_ff4d00));
+            positionCirclePaint.setColor(getResources().getColor(R.color.color_theme));
             slamCanvas.drawCircle(endX, endY, Utils.dip2px(MyApplication.getInstance(), 6), positionCirclePaint);
         }
         invalidateUI();
@@ -504,7 +505,7 @@ public class MapView extends View {
                  * draw virtual wall
                  */
                 canvas.concat(matrix);//应用变换
-                virtualPaint.setColor(getResources().getColor(R.color.color_ff4d00));
+                virtualPaint.setColor(getResources().getColor(R.color.color_theme));
                 canvas.drawPath(mVirtualWallHelper.getVwPath(), virtualPaint);
                 //TODO 绘制删除icon
                 for (VirtualWallBean vw : mVirtualWallHelper.getVwBeans()) {

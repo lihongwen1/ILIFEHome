@@ -66,7 +66,7 @@
             android:gravity="center"
             android:includeFontPadding="false"
             android:text="@string/dialog_del_confirm"
-            android:textColor="@color/color_FF4D00"
+            android:textColor="@color/color_theme"
             android:background="@drawable/shape_bg_gray"
             android:textSize="@dimen/sp_16" />
     </LinearLayout>
