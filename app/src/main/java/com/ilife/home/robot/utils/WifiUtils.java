@@ -193,19 +193,25 @@ public class WifiUtils {
      */
     public static String getSsid(Context activity) {
         String ssid = "unknown id";
-        WifiManager wifiManager = (WifiManager) activity.getApplicationContext().getSystemService(Context.WIFI_SERVICE);
-        if (wifiManager != null) {
-            WifiInfo wifiInfo = wifiManager.getConnectionInfo();
-            if (wifiInfo.getSupplicantState() == SupplicantState.COMPLETED) {
-                ssid = wifiInfo.getSSID();
+        if (isWifiConnected(activity)) {
+            WifiManager wifiManager = (WifiManager) activity.getApplicationContext().getSystemService(Context.WIFI_SERVICE);
+            if (wifiManager != null) {
+                WifiInfo info = wifiManager.getConnectionInfo();
+                int networkId = info.getNetworkId();
+                List<WifiConfiguration> configuredNetworks = wifiManager.getConfiguredNetworks();
+                for (WifiConfiguration wifiConfiguration : configuredNetworks) {
+                    if (wifiConfiguration.networkId == networkId) {
+                        ssid = wifiConfiguration.SSID;
+                        break;
+                    }
+                }
                 if (ssid.contains("\"")) {
-                    ssid = ssid.replace("\"", "");
+                    return ssid.replace("\"", "");
                 }
             }
         }
         return ssid;
     }
-
 
     /**
      * 判断GPS是否开启，GPS或者AGPS开启一个就认为是开启的
