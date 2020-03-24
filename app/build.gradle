@@ -66,7 +66,7 @@ android {
         china {
             dimension "default"
             applicationId "com.ilife.home.robot"
-            versionCode = 5
+            versionCode = 3
             versionName = 'V1.0.2'
             signingConfig signingConfigs.ilife_home
             resValue "string", "app_name", "ILIFEHome"
