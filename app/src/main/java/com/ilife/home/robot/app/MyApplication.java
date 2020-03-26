@@ -6,8 +6,6 @@ import android.content.Context;
 import com.alibaba.sdk.android.openaccount.ConfigManager;
 import com.aliyun.alink.linksdk.tools.ThreadTools;
 import com.aliyun.iot.SdkApplication;
-import com.aliyun.iot.aep.sdk._interface.OnAliResponse;
-import com.aliyun.iot.aep.sdk.contant.IlifeAli;
 import com.google.gson.Gson;
 import com.ilife.home.livebus.LiveEventBus;
 import com.ilife.home.robot.BuildConfig;
@@ -28,8 +26,6 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-
-import cn.ljuns.logcollector.LogCollector;
 
 
 public class MyApplication extends SdkApplication {
@@ -63,7 +59,6 @@ public class MyApplication extends SdkApplication {
                 .tag("ILIFE_ALI")   // (Optional) Global tag for every log. Default PRETTY_LOGGER
                 .build();
         Logger.addLogAdapter(new AndroidLogAdapter(formatStrategy));
-        LogCollector.getInstance().start(this);
     }
 
     private void configLiveBus() {
