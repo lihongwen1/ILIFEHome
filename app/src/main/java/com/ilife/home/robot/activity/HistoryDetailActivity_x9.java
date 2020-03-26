@@ -183,7 +183,7 @@ public class HistoryDetailActivity_x9 extends BackBaseActivity {
             List<Byte> byteList = new ArrayList<>();
             List<Coordinate> pointList = new ArrayList<>();
             List<Coordinate> roadList = new ArrayList<>();
-            int lx=0, ly=0;
+            int lx = 0, ly = 0;
             if (mapArray != null) {
                 if (mapArray.length > 0) {
                     for (String data : mapArray) {
@@ -196,7 +196,7 @@ public class HistoryDetailActivity_x9 extends BackBaseActivity {
                         if (bj == 1) {//map数据
                             lx = DataUtils.bytesToInt(new byte[]{bytes[1], bytes[2]}, 0);
                             ly = DataUtils.bytesToInt(new byte[]{bytes[3], bytes[4]}, 0);
-                            MyLogger.d(TAG,"左上角坐标为："+lx+"   "+ly);
+                            MyLogger.d(TAG, "左上角坐标为：" + lx + "   " + ly);
                             lineCount = DataUtils.bytesToInt(new byte[]{bytes[5], bytes[6]}, 0);
                             for (int j = 7; j < bytes.length; j++) {
                                 byteList.add(bytes[j]);
@@ -207,7 +207,7 @@ public class HistoryDetailActivity_x9 extends BackBaseActivity {
                             for (int i = 1; i < bytes.length; i += 4) {
                                 x = DataUtils.bytesToInt(new byte[]{bytes[i], bytes[i + 1]}, 0);
                                 y = DataUtils.bytesToInt(new byte[]{bytes[i + 2], bytes[i + 3]}, 0);
-                                roadList.add(new Coordinate(x-lx, -y+ly, 4));
+                                roadList.add(new Coordinate(x - lx, -y + ly, 4));
                             }
                         }
                     }
@@ -322,6 +322,6 @@ public class HistoryDetailActivity_x9 extends BackBaseActivity {
     }
 
     public void initView() {
-
+        mapView.setmOT(MapView.OT.MAP);
     }
 }

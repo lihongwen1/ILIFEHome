@@ -27,7 +27,8 @@
             android:textColor="@color/white"
             android:textSize="@dimen/dp_12" />
 
-        <LinearLayout
+        <RadioGroup
+            android:id="@+id/rg_vw_fbd"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="bottom"
@@ -37,31 +38,34 @@
             android:paddingTop="@dimen/dp_14"
             android:paddingBottom="@dimen/dp_14">
 
-            <TextView
+            <RadioButton
+                android:button="@null"
                 android:id="@+id/tv_move_map"
                 style="@style/map_text_button"
-                android:drawableTop="@drawable/n_btn_point_normal"
-                android:text="操作地图"
-                android:visibility="visible" />
+                android:drawableTop="@drawable/selector_select_map"
+                android:text="操作地图" />
 
 
-            <TextView
+            <RadioButton
+                android:button="@null"
                 android:id="@+id/tv_virtual"
                 style="@style/map_text_button"
-                android:drawableTop="@drawable/n_btn_point_normal"
+                android:drawableTop="@drawable/selector_virtual_wall"
                 android:text="虚拟墙" />
 
-            <TextView
+            <RadioButton
+                android:button="@null"
                 android:id="@+id/tv_mop_area"
                 style="@style/map_text_button"
-                android:drawableTop="@drawable/n_btn_point_normal"
+                android:drawableTop="@drawable/selector_mop_area"
                 android:text="抹地禁区" />
 
-            <TextView
+            <RadioButton
+                android:button="@null"
                 android:id="@+id/map_global_area"
                 style="@style/map_text_button"
-                android:drawableTop="@drawable/n_btn_point_normal"
+                android:drawableTop="@drawable/selector_global_area"
                 android:text="全局禁区" />
-        </LinearLayout>
+        </RadioGroup>
     </LinearLayout>
 </LinearLayout>

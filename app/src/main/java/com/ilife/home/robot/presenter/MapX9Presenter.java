@@ -227,7 +227,7 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
                     pointCoor[0] = bytes[i - 2];
                     pointCoor[1] = bytes[i - 1];
                     int y = DataUtils.bytesToInt(pointCoor, 0);
-                    coordinate = new Coordinate(x, -y, type);
+                    coordinate = new Coordinate(x, y, type);
                     index = pointList.indexOf(coordinate);
                     if (index == -1) {
                         pointList.add(coordinate);
@@ -342,6 +342,7 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
                          * 处理保存地图
                          */
                         if (propertyBean.getSelectedMapId() != 0) {
+                            MyLogger.d(TAG,"查询保存的地图数据--"+propertyBean.getSelectedMapId());
                             IlifeAli.getInstance().getSelectMap(propertyBean.getSelectedMapId(), new OnAliResponse<List<HistoryRecordBean>>() {
                                 @Override
                                 public void onSuccess(List<HistoryRecordBean> result) {
@@ -781,6 +782,7 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
     }
 
     private void parseSaveMapData(String[] mapArray) {
+        ArrayList<Coordinate> datas=new ArrayList<>();// map集合
         int lineCount = 0;
         List<Byte> byteList = new ArrayList<>();
         int leftX=0,leftY=0;
@@ -812,7 +814,7 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
                 for (int j = 0; j < length; j++) {
                     if (type != 0) {
                         coordinate = new Coordinate(x, y, type);
-                        pointList.add(coordinate);
+                        datas.add(coordinate);
                     }
                     if (x < lineCount - 1) {
                         x++;
@@ -823,13 +825,13 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
 
                 }
             }
-            minX = 0;
-            maxX = lineCount;
-            minY = 0;
-            maxY = y;
+             minX = 0;
+             maxX = lineCount;
+             minY = 0;
+             maxY = y;
             mView.setLeftTopCoordinate(leftX,leftY);
             mView.updateSlam(minX, maxX, minY, maxY);
-            mView.drawMapX8(pointList);
+            mView.drawMapX8(datas);
         }
     }
 

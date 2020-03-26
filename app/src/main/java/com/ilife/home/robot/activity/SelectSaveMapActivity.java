@@ -15,6 +15,7 @@ import com.ilife.home.robot.R;
 import com.ilife.home.robot.adapter.SelectMapAdapter;
 import com.ilife.home.robot.base.BackBaseActivity;
 import com.ilife.home.robot.utils.MyLogger;
+import com.ilife.home.robot.utils.ToastUtils;
 import com.ilife.home.robot.utils.Utils;
 import com.ilife.home.robot.view.SpaceItemDecoration;
 
@@ -54,11 +55,27 @@ public class SelectSaveMapActivity extends BackBaseActivity {
             switch (view.getId()) {
                 case R.id.tv_apply_this_map:
                     String str_id = encodeSaveMap(ids);
-                    IlifeAli.getInstance().setSelectMapId(ids.get(position), str_id, aBoolean -> {
-                        MyLogger.d(TAG, "选择地图成功：" + aBoolean);
-                        mAdapter.setSelectMapId(ids.get(position));
-                        mAdapter.notifyDataSetChanged();
-                    });
+                    if (selectMapId == ids.get(position)) {
+                        ToastUtils.showToast("已应用此地图");
+                    } else {
+                        IlifeAli.getInstance().setSelectMapId(ids.get(position), str_id, aBoolean -> {
+                            MyLogger.d(TAG, "选择地图成功：" + aBoolean);
+                            mAdapter.setSelectMapId(ids.get(position));
+                            mAdapter.notifyDataSetChanged();
+                        });
+                    }
+                    break;
+                case R.id.iv_delete_map:
+                    if (selectMapId == ids.get(position)) {
+                        ToastUtils.showToast("不能删除当前地图");
+                    } else {
+                        ids.remove(position);
+                        IlifeAli.getInstance().setSelectMapId(ids.get(position), encodeSaveMap(ids), aBoolean -> {
+                            MyLogger.d(TAG, "选择地图成功：" + aBoolean);
+                            mAdapter.setSelectMapId(ids.get(position));
+                            mAdapter.notifyDataSetChanged();
+                        });
+                    }
                     break;
             }
         });

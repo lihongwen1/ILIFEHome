@@ -166,6 +166,10 @@
             android:launchMode="singleTop"
             android:screenOrientation="portrait" />
         <activity
+            android:name=".activity.SelectRoomActivity"
+            android:launchMode="singleTop"
+            android:screenOrientation="portrait" />
+        <activity
             android:name=".activity.SelectSaveMapActivity"
             android:launchMode="singleTop"
             android:screenOrientation="portrait" />

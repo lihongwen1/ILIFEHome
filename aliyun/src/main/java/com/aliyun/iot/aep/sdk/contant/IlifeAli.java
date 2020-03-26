@@ -589,6 +589,14 @@ public class IlifeAli {
                         bean.setVirtualWall(virtualWallData);
                         Log.d(TAG, "VirtualWallData: " + virtualWallData);
                     }
+                    if (jsonObject.containsKey(EnvConfigure.PartitionData)) {
+                        String partitionData  = jsonObject.getJSONObject(EnvConfigure.PartitionData).getString(EnvConfigure.KEY_VALUE);
+                        bean.setPartition(partitionData);
+                        Log.d(TAG, "PartitionData: " + partitionData);
+                    }
+                    if (jsonObject.containsKey("ChargerPiont")){
+                        Log.d(TAG,"ChargerPiont"+jsonObject.getString("ChargerPiont"));
+                    }
                     onAliResponse.onSuccess(bean);
                 } else {
                     onAliResponse.onFailed(0, ioTResponse.getLocalizedMsg());
@@ -987,7 +995,33 @@ public class IlifeAli {
         }));
     }
 
+    /**
+     * 设置主机的某一属性
+     * @param  json 需为json格式的字符串
+     * @param onResponse
+     */
+    public void setProperties(JSONObject json,OnAliResponseSingle<Boolean> onResponse){
+        HashMap<String, Object> params = new HashMap<>();
+        params.put(EnvConfigure.KEY_IOT_ID, iotId);
+        params.put(EnvConfigure.KEY_ITEMS,json);
+        Log.d(TAG, "set properties data : " + json.toString());
+        ioTAPIClient.send(buildRequest(EnvConfigure.PATH_SET_PROPERTIES, params), new IoTUIThreadCallback(new IoTCallback() {
+            @Override
+            public void onFailure(IoTRequest ioTRequest, Exception e) {
+                onResponse.onResponse(false);
+            }
 
+            @Override
+            public void onResponse(IoTRequest ioTRequest, IoTResponse ioTResponse) {
+                if (ioTResponse.getCode() == 200) {
+                    onResponse.onResponse(true);
+                } else {
+                    onResponse.onResponse(false);
+                    Log.d(TAG, "请求失败，错误信息： " + ioTResponse.getLocalizedMsg());
+                }
+            }
+        }));
+    }
     /**
      *
      * @param selectMapId
@@ -1021,6 +1055,9 @@ public class IlifeAli {
             }
         }));
     }
+
+
+
 
     public void setVoiceOpen(boolean isOpen, final OnAliSetPropertyResponse onResponse) {
         final int isDisturbOpen = isOpen ? 0 : 1;

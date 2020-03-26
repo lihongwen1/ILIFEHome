@@ -87,9 +87,13 @@ public class SelectMapAdapter extends BaseQuickAdapter<Integer, BaseViewHolder> 
                     boolean isSelect=id == selectMapId;
                     String time= Utils.generateTime(id,"yyyy-MM-dd HH:mm");
                     holder.setText(R.id.tv_save_map_time,time);
+                    holder.setVisible(R.id.tv_apply_this_map,true);
                     holder.setText(R.id.tv_apply_this_map, isSelect?"已应用":"应用此地图");
+                    holder.setText(R.id.tv_map_name, isSelect?"当前地图":"历史地图");
                     holder.setSelect(R.id.tv_apply_this_map,isSelect);
                     holder.addOnClickListener(R.id.tv_apply_this_map);
+                    holder.addOnClickListener(R.id.iv_delete_map);
+
                 }
             }
 

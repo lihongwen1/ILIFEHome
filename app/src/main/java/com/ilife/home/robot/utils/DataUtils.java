@@ -8,6 +8,8 @@ import android.util.Base64;
 import android.view.MotionEvent;
 
 import com.ilife.home.robot.bean.Coordinate;
+import com.ilife.home.robot.bean.MapDataBean;
+import com.ilife.home.robot.bean.PartitionBean;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -36,7 +38,7 @@ public class DataUtils {
         return value;
     }
 
-    public static int byteToIntF(byte high,byte low){
+    public static int byteToIntF(byte high, byte low) {
         int value;
         value = (int) (((high & 0xFF) << 8)
                 | (low & 0xFF));
@@ -49,9 +51,9 @@ public class DataUtils {
 
 
     //高位
-    public static int bytesToInt(byte h,byte l) {
+    public static int bytesToInt(byte h, byte l) {
         int value;
-        value = (int) (((h& 0xFF) << 8)
+        value = (int) (((h & 0xFF) << 8)
                 | (l & 0xFF));
 
         if ((h & 0x80) == 0x80) {
@@ -72,6 +74,31 @@ public class DataUtils {
         return value;
     }
 
+    /**
+     * 字节数组转int
+     * @param src 原始字节数组，要求数组长度需为4
+     * @return
+     */
+    public static int bytesToInt(byte[] src) {
+        return (((int)src[0]) << 24) + (((int)src[1]) << 16) + (((int)src[2]) << 8) + src[3];
+    }
+
+    /**
+     * 将int类型的数据转换为byte数组
+     * @param n int数据
+     * @return 生成的byte数组，长度为4
+     */
+    public static byte[] intToBytes4(int n){
+        byte[] b = new byte[4];
+        for(int i = 0;i < 4;i++){
+            b[i] = (byte)(n >> (24 - i * 8));
+        }
+        return b;
+    }
+
+
+
+
     public static int toInt(byte[] bRefArr) {
         int iOutcome = 0;
         byte bLoop;
@@ -82,7 +109,13 @@ public class DataUtils {
         return iOutcome;
     }
 
-    public static byte[] intToBytes(int value) {//电子墙坐标转byte数组
+
+    /**
+     * int转byte数组
+     * @param value
+     * @return 长度为2的字节数组
+     */
+    public static byte[] intToBytes(int value) {
         byte[] src = new byte[2];
         src[0] = (byte) ((value >> 8) & 0xFF);
         src[1] = (byte) (value & 0xFF);
@@ -94,7 +127,6 @@ public class DataUtils {
         float y = (event.getY(0) + event.getY(1)) / 2;
         return new PointF(x, y);
     }
-
 
 
     public static int bytesToUInt(byte[] src, int offset) {
@@ -111,6 +143,7 @@ public class DataUtils {
 
     /**
      * 两点之间的距离 （x1,y1）and （x2,y2）
+     *
      * @param x1
      * @param y1
      * @param x2
@@ -125,6 +158,7 @@ public class DataUtils {
 
     /**
      * 两点之间的距离
+     *
      * @param pf1
      * @param pf2
      * @return
@@ -137,12 +171,13 @@ public class DataUtils {
 
     /**
      * 计算旋转角度/选择方式是围绕中心旋转
-     * @param centerP 旋转中心坐标
+     *
+     * @param centerP  旋转中心坐标
      * @param preMoveP 开始旋转按下坐标
      * @param curMoveP 结束旋转按下坐标
      * @return 旋转的角度
      */
-    public static float getAngle(PointF centerP, PointF preMoveP, PointF curMoveP){
+    public static float getAngle(PointF centerP, PointF preMoveP, PointF curMoveP) {
         double a = DataUtils.distance2PointF(centerP, preMoveP);
         double b = DataUtils.distance2PointF(preMoveP, curMoveP);
         double c = DataUtils.distance2PointF(centerP, curMoveP);
@@ -169,13 +204,14 @@ public class DataUtils {
      * 矩阵【x1,y1,x2,y2】
      * 中心点坐标为【(x1+x2)/2,(y1+y2)/2】
      * 计算旋转之后的坐标
+     *
      * @param center 矩形中点坐标
      * @param source 源顶点坐标
      * @param degree 旋转角度
      * @return 源顶点旋转之后的坐标
      */
     public static Point calculateRoationPoint(Point center, Point source, float degree) {
-        PointF disPoint=new PointF();
+        PointF disPoint = new PointF();
         disPoint.x = source.x - center.x;
         disPoint.y = source.y - center.y;
         double orgRadian = 0;//旋转前弧度
@@ -212,6 +248,76 @@ public class DataUtils {
         return resultPoint;
     }
 
+    public static MapDataBean parseSaveMapData(String[] mapArray) {
+        int minX, minY, maxX, maxY;
+        List<Coordinate> pointList = new ArrayList<>();
+        int lineCount = 0;
+        List<Byte> byteList = new ArrayList<>();
+        int leftX = 0, leftY = 0;
+        if (mapArray != null) {
+            if (mapArray.length > 0) {
+                for (String data : mapArray) {
+                    if (data == null) {
+                        continue;
+                    }
+                    byte[] bytes = Base64.decode(data, Base64.DEFAULT);
+                    int bj = bytes[0] & 0xff;
+                    if (bj == 1) {//map数据
+                        leftX = DataUtils.bytesToInt(new byte[]{bytes[1], bytes[2]}, 0);
+                        leftY = DataUtils.bytesToInt(new byte[]{bytes[3], bytes[4]}, 0);
+                        lineCount = DataUtils.bytesToInt(new byte[]{bytes[5], bytes[6]}, 0);
+                        for (int j = 7; j < bytes.length; j++) {
+                            byteList.add(bytes[j]);
+                        }
+                    }
+                }
+            }
+        }
+        Coordinate coordinate;
+        if (byteList.size() > 0) {
+            int x = 0, y = 0, type = 0, length = 0;
+            for (int i = 2; i < byteList.size(); i += 3) {
+                type = byteList.get(i - 1) & 0xff;
+                length = byteList.get(i) & 0xff;
+                for (int j = 0; j < length; j++) {
+                    if (type != 0) {
+                        coordinate = new Coordinate(x, y, type);
+                        pointList.add(coordinate);
+                    }
+                    if (x < lineCount - 1) {
+                        x++;
+                    } else {
+                        x = 0;
+                        y++;
+                    }
 
+                }
+            }
+            minX = 0;
+            maxX = lineCount;
+            minY = 0;
+            maxY = y;
+            MapDataBean bean = new MapDataBean(pointList, leftX, leftY, minX, minY, maxX, maxY, "");
+            return bean;
+        }
+        return null;
+    }
 
+    public static List<PartitionBean> parsePartitionData(String partition) {
+        List<PartitionBean> partions = new ArrayList<>();
+        byte[] bytes = Base64.decode(partition, Base64.DEFAULT);
+        int num = bytes.length / 8;
+        int int1, int2, int3, int4, partionId, x, y;
+        for (int i = 0; i < num; i++) {
+            int1 = (bytes[i * 8] & 0xFF) << 24;
+            int2 = (bytes[i * 8 + 1] & 0xFF) << 16;
+            int3 = (bytes[i * 8 + 2] & 0xFF) << 8;
+            int4 = bytes[i * 8 + 3] & 0xFF;
+            partionId = int1 + int2 + int3 + int4;
+            x = DataUtils.bytesToInt(bytes[i * 8 + 4], bytes[i * 8 + 5]);
+            y = DataUtils.bytesToInt(bytes[i * 8 + 6], bytes[i * 8 + 7]);
+            partions.add(new PartitionBean(partionId, x, y));
+        }
+        return partions;
+    }
 }

@@ -15,6 +15,7 @@ import com.ilife.home.robot.utils.ToastUtils;
 import com.ilife.home.robot.view.MapView;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -24,13 +25,19 @@ public class ForbiddenAreaHelper {
     private static final String TAG = "ForbiddenAreaHelper";
     private List<VirtualWallBean> fbdBeans;
     private MapView mMapView;
-    private FAOT faot = FAOT.ADD;
-    private Path mPath;
+    private Path mGlobalPath;
+    private Path mMoplPath;
     private PointF downPoint;
     private RectF curRectF;
     private final int LENGTH = 20;//一条禁区数据占用的字节数
     private static final int MIN_FBD_LENGTH = 20;
     private VirtualWallBean curFbdBean;//当前操作的禁区对象
+    public static final int TYPE_GLOBAL = 0;
+    public static final int TYPE_MOP = 1;
+    private FAOT faot = FAOT.ADD;
+    private int mFbdAreaType = TYPE_GLOBAL;
+    private int leftX, leftY;
+
     public enum FAOT {
         NOON(31),
         ADD(32),
@@ -44,6 +51,10 @@ public class ForbiddenAreaHelper {
         }
     }
 
+    public void setmFbdAreaType(int mFbdAreaType) {
+        this.mFbdAreaType = mFbdAreaType;
+    }
+
     public List<VirtualWallBean> getFbdBeans() {
         return fbdBeans;
     }
@@ -55,13 +66,18 @@ public class ForbiddenAreaHelper {
     public ForbiddenAreaHelper(MapView mapView) {
         fbdBeans = new ArrayList<>();
         this.mMapView = mapView;
-        this.mPath = new Path();
+        this.mGlobalPath = new Path();
+        this.mMoplPath = new Path();
         this.downPoint = new PointF();
         this.curRectF = new RectF();
     }
 
-    public Path getmPath() {
-        return mPath;
+    public Path getmGlobalPath() {
+        return mGlobalPath;
+    }
+
+    public Path getmMoplPath() {
+        return mMoplPath;
     }
 
     /**
@@ -69,43 +85,70 @@ public class ForbiddenAreaHelper {
      * //todo 对坐标数据做四舍五入操作
      */
     public String getFbdaData() {
-        List<Integer> data = new ArrayList<>();
-        for (VirtualWallBean fbd : fbdBeans) {
-            if (fbd.getState() != 3) {
-                fbd.updateCoordinate();
-                for (float coo : fbd.getPointCoordinate()) {
-                    data.add((int) coo);
-                }
+        List<VirtualWallBean> usefulVr = new ArrayList<>();
+        for (VirtualWallBean vr : fbdBeans) {
+            if (vr.getState() != 3) {
+                usefulVr.add(vr);
             }
         }
-        byte[] bData = new byte[data.size()];
-        for (int i = 0; i < data.size(); i++) {
-            bData[i] = data.get(i).byteValue();
+        byte[] bData = new byte[usefulVr.size() * 20];
+        byte[] intToByte;
+        int index = 0;
+        float[] coordinate;
+        int coor;
+        for (VirtualWallBean vr : usefulVr) {
+            coordinate = vr.getPointCoordinate();
+            byte[] b_type = DataUtils.intToBytes4(vr.getType());
+            bData[index] = b_type[0];
+            index++;
+            bData[index] = b_type[1];
+            index++;
+            bData[index] = b_type[2];
+            index++;
+            bData[index] = b_type[3];
+            index++;
+            for (int i = 0; i < coordinate.length; i++) {
+                if (i % 2 == 0) {
+                    coor =Math.round (coordinate[i] + leftX);
+                } else {
+                    coor = Math.round(leftY - coordinate[i]);
+                }
+                intToByte = DataUtils.intToBytes(coor);
+                bData[index] = intToByte[0];
+                index++;
+                bData[index] = intToByte[1];
+                index++;
+            }
         }
-        return Base64.encodeToString(bData, Base64.DEFAULT);
+        return Base64.encodeToString(bData, Base64.NO_WRAP);
     }
 
 
     /**
      * @param fbdStr
      */
-    public void setForbiddenArea(String fbdStr) {
+    public void setForbiddenArea(int leftX, int leftY, String fbdStr) {
+        this.leftX = leftX;
+        this.leftY = leftY;
         if (!TextUtils.isEmpty(fbdStr)) {
             byte[] bytes = Base64.decode(fbdStr, Base64.DEFAULT);
             int vwCounts = bytes.length / LENGTH;//一条虚拟墙含12个字节，4个保留字节，加4个坐标（x,y）
             fbdBeans.clear();
-            int tlx, tly, trx, try_, blx, bly, brx, bry;
+            int tlx, tly, trx, try_, blx, bly, brx, bry, type;
             VirtualWallBean vwBean;
+            byte[] bType;
             for (int i = 0; i < vwCounts; i++) {
-                tlx = DataUtils.bytesToInt(bytes[LENGTH * i + 4], bytes[LENGTH * i + 5]) + 750;
-                tly = 750 - DataUtils.bytesToInt(bytes[LENGTH * i + 6], bytes[LENGTH * i + 7]);
-                trx = DataUtils.bytesToInt(bytes[LENGTH * i + 8], bytes[LENGTH * i + 9]) + 750;
-                try_ = 750 - DataUtils.bytesToInt(bytes[LENGTH * i + 10], bytes[LENGTH * i + 11]);
-                blx = DataUtils.bytesToInt(bytes[LENGTH * i + 12], bytes[LENGTH * i + 13]) + 750;
-                bly = 750 - DataUtils.bytesToInt(bytes[LENGTH * i + 14], bytes[LENGTH * i + 15]);
-                brx = DataUtils.bytesToInt(bytes[LENGTH * i + 16], bytes[LENGTH * i + 17]) + 750;
-                bry = 750 - DataUtils.bytesToInt(bytes[LENGTH * i + 18], bytes[LENGTH * i + 19]);
-                vwBean = new VirtualWallBean(i, new float[]{tlx, tly, trx, try_, blx, bly, brx, bry}, 1);
+                bType = new byte[]{bytes[LENGTH * i], bytes[LENGTH * i + 1], bytes[LENGTH * i + 2], bytes[LENGTH * i + 3]};
+                type = DataUtils.bytesToInt(bType);
+                tlx = DataUtils.bytesToInt(bytes[LENGTH * i + 4], bytes[LENGTH * i + 5]) - leftX;
+                tly = leftY - DataUtils.bytesToInt(bytes[LENGTH * i + 6], bytes[LENGTH * i + 7]);
+                trx = DataUtils.bytesToInt(bytes[LENGTH * i + 8], bytes[LENGTH * i + 9]) - leftX;
+                try_ = leftY - DataUtils.bytesToInt(bytes[LENGTH * i + 10], bytes[LENGTH * i + 11]);
+                blx = DataUtils.bytesToInt(bytes[LENGTH * i + 12], bytes[LENGTH * i + 13]) - leftX;
+                bly = leftY - DataUtils.bytesToInt(bytes[LENGTH * i + 14], bytes[LENGTH * i + 15]);
+                brx = DataUtils.bytesToInt(bytes[LENGTH * i + 16], bytes[LENGTH * i + 17]) - leftX;
+                bry = leftY - DataUtils.bytesToInt(bytes[LENGTH * i + 18], bytes[LENGTH * i + 19]);
+                vwBean = new VirtualWallBean(i, type, new float[]{tlx, tly, trx, try_, blx, bly, brx, bry}, 1);
                 fbdBeans.add(vwBean);
             }
         }
@@ -174,20 +217,20 @@ public class ForbiddenAreaHelper {
         switch (faot) {
             case ADD:
                 curRectF.setEmpty();
-                if (getUsefulWallNum() < 10 && DataUtils.distance(downPoint.x, downPoint.y, mapX, mapY) > MIN_FBD_LENGTH) {
-                    float left, top, right, bottom;
+                if (getUsefulFbdArea() < 10 && DataUtils.distance(downPoint.x, downPoint.y, mapX, mapY) > MIN_FBD_LENGTH) {
+                    float x1, y1, x2, y2;
                     /**
                      * 转化为云端坐标系坐标
                      */
-                    left = mMapView.reMatrixCoordinateX(downPoint.x < mapX ? downPoint.x : mapX);//x1
-                    top = mMapView.reMatrixCoordinateY(downPoint.y < mapY ? downPoint.y : mapY);//y1
-                    right = mMapView.reMatrixCoordinateX(downPoint.x > mapX ? downPoint.x : mapX);//x2
-                    bottom = mMapView.reMatrixCoordinateY(downPoint.y > mapY ? downPoint.y : mapY);//y2
-                    float[] coordinate = new float[]{left, top, right, top, right, bottom, left, bottom};
-                    VirtualWallBean fbd = new VirtualWallBean(fbdBeans.size() + 1, coordinate, 2);
+                    x1 = mMapView.reMatrixCoordinateX(downPoint.x < mapX ? downPoint.x : mapX);//x1
+                    y1 = mMapView.reMatrixCoordinateY(downPoint.y < mapY ? downPoint.y : mapY);//y1
+                    x2 = mMapView.reMatrixCoordinateX(downPoint.x > mapX ? downPoint.x : mapX);//x2
+                    y2 = mMapView.reMatrixCoordinateY(downPoint.y > mapY ? downPoint.y : mapY);//y2
+                    float[] coordinate = new float[]{x1, y1, x2, y1, x2, y2, x1, y2};
+                    VirtualWallBean fbd = new VirtualWallBean(fbdBeans.size() + 1, mFbdAreaType, coordinate, 2);
                     fbdBeans.add(fbd);
                     updatePath();
-                }else {
+                } else {
                     ToastUtils.showToast("最多添加10条禁区！");
                 }
                 updatePath();
@@ -227,7 +270,7 @@ public class ForbiddenAreaHelper {
      * the method which will be used to deal with virtual wall data
      */
 
-    private int getUsefulWallNum() {
+    private int getUsefulFbdArea() {
         int num = 0;
         for (VirtualWallBean vb : fbdBeans) {
             if (vb.getState() == 1 || vb.getState() == 2) {
@@ -244,15 +287,20 @@ public class ForbiddenAreaHelper {
      */
     private void updatePath() {
         //TODO draw forbidden area
-        mPath.reset();
+        mGlobalPath.reset();
+        mMoplPath.reset();
+        Path realPath = null;
         float[] coordinate;
         for (VirtualWallBean fbd : fbdBeans) {
             coordinate = fbd.getPointCoordinate();
-            mPath.addRect(mMapView.matrixCoordinateX(coordinate[0]), mMapView.matrixCoordinateY(coordinate[1])
-                    , mMapView.matrixCoordinateX(coordinate[4]), mMapView.matrixCoordinateY(coordinate[5]), Path.Direction.CW);
-        }
-        if (curRectF.left != 0) {
-            mPath.addRect(curRectF, Path.Direction.CW);
+            realPath = fbd.getType() == TYPE_GLOBAL ? mGlobalPath : mMoplPath;
+            if (realPath != null) {
+                realPath.moveTo(mMapView.matrixCoordinateX(coordinate[0]), mMapView.matrixCoordinateY(coordinate[1]));
+                realPath.lineTo(mMapView.matrixCoordinateX(coordinate[2]), mMapView.matrixCoordinateY(coordinate[3]));
+                realPath.lineTo(mMapView.matrixCoordinateX(coordinate[4]), mMapView.matrixCoordinateY(coordinate[5]));
+                realPath.lineTo(mMapView.matrixCoordinateX(coordinate[6]), mMapView.matrixCoordinateY(coordinate[7]));
+            }
+
         }
         mMapView.invalidateUI();
     }

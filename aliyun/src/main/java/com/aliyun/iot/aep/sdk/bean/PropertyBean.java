@@ -12,6 +12,7 @@ public class PropertyBean {
     private String saveMapId;
     private String forbiddenArea;
     private String virtualWall;
+    private String partition;//分区
     public PropertyBean(){};
 
     public PropertyBean(boolean maxMode, int workMode, int battery, int waterLevel, long realTimeMapTimeLine, long historyMapTimeLine, boolean voiceOpen) {
@@ -102,6 +103,14 @@ public class PropertyBean {
 
     public void setVirtualWall(String virtualWall) {
         this.virtualWall = virtualWall;
+    }
+
+    public String getPartition() {
+        return partition;
+    }
+
+    public void setPartition(String partition) {
+        this.partition = partition;
     }
 
     public boolean isVoiceOpen() {

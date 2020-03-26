@@ -80,11 +80,13 @@ public class BaseViewHolder extends RecyclerView.ViewHolder {
         view.setText(value);
         return this;
     }
-    public BaseViewHolder setSelect(int viewId,boolean isSelect){
-        View view=getView(viewId);
+
+    public BaseViewHolder setSelect(int viewId, boolean isSelect) {
+        View view = getView(viewId);
         view.setSelected(isSelect);
         return this;
     }
+
 
     public BaseViewHolder setText(@IdRes int viewId, @StringRes int strId) {
         TextView view = getView(viewId);
@@ -104,7 +106,8 @@ public class BaseViewHolder extends RecyclerView.ViewHolder {
         view.setImageResource(imageResId);
         return this;
     }
-    public BaseViewHolder setImageResource(Context context,@IdRes int viewId, @DrawableRes int imageResId) {
+
+    public BaseViewHolder setImageResource(Context context, @IdRes int viewId, @DrawableRes int imageResId) {
         ImageView view = getView(viewId);
         Glide.with(context).load(imageResId).into(view);
         return this;

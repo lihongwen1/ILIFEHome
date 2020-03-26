@@ -25,6 +25,7 @@ import com.ilife.home.robot.utils.DataUtils;
 import com.ilife.home.robot.utils.MyLogger;
 import com.ilife.home.robot.utils.Utils;
 import com.ilife.home.robot.view.helper.ForbiddenAreaHelper;
+import com.ilife.home.robot.view.helper.PartitionHelper;
 import com.ilife.home.robot.view.helper.VirtualWallHelper;
 
 import java.math.BigDecimal;
@@ -55,7 +56,7 @@ public class MapView extends View {
     private int[] colors;
     private static final int MIN_WALL_LENGTH = 20;
     private Bitmap deleteBitmap;//删除电子墙的bitmap
-    private static final int deleteIconW = 36;
+    private static final int deleteIconW = 72;
     private List<SlamLineBean> lastLineBeans = new ArrayList<>();
     private Paint boxPaint;
     private ArrayList<Coordinate> pointList = new ArrayList<>();
@@ -73,13 +74,15 @@ public class MapView extends View {
     private boolean needEndPoint = true;
 
     private VirtualWallHelper mVirtualWallHelper;
-    private ForbiddenAreaHelper mGlobalFbdaHelper;//全局禁区
-    private ForbiddenAreaHelper mMopFbdaHelper;//全局禁区
+    private ForbiddenAreaHelper mForbiddenHelper;//全局禁区
+    private PartitionHelper mPartitionHelper;
     private OT mOT = OT.NOON;//默认操作地图
     private int MAP_MODE;//标记操作地图的类型
     private final int ZOOM = 2;
     private final int DRAG = 3;
-    private int leftX=0,leftY=0;
+    private int leftX = 0, leftY = 0;
+    private List<Float> roadPoints = new ArrayList<>();
+
     /**
      * map operation type
      */
@@ -88,7 +91,9 @@ public class MapView extends View {
         MAP(1),//操作地图：缩放，移动
         VIRTUAL_WALL(2),//虚拟墙
         GLOBAL_FORBIDDEN_AREA(3),//全局禁区
-        MOP_FORBIDDEN_AREA(4);//抹地禁区
+        MOP_FORBIDDEN_AREA(4),//抹地禁区
+        SELECT_ROOM(5),
+        PARTITION(6);
         final int nativeType;
 
         OT(int type) {
@@ -99,6 +104,10 @@ public class MapView extends View {
 
     public void setmOT(OT mOT) {
         this.mOT = mOT;
+        if (mOT == OT.GLOBAL_FORBIDDEN_AREA || mOT == OT.MOP_FORBIDDEN_AREA) {
+            mForbiddenHelper.setmFbdAreaType(mOT == OT.GLOBAL_FORBIDDEN_AREA ? ForbiddenAreaHelper.TYPE_GLOBAL :
+                    ForbiddenAreaHelper.TYPE_MOP);
+        }
     }
 
     public MapView(Context context) {
@@ -139,8 +148,8 @@ public class MapView extends View {
 
     private void init() {
         mVirtualWallHelper = new VirtualWallHelper(this);
-        mGlobalFbdaHelper = new ForbiddenAreaHelper(this);
-        mMopFbdaHelper = new ForbiddenAreaHelper(this);
+        mForbiddenHelper = new ForbiddenAreaHelper(this);
+        mPartitionHelper = new PartitionHelper(this);
         colors = new int[]{getResources().getColor(R.color.obstacle_color), getResources().getColor(R.color.slam_color),
                 getResources().getColor(R.color.color_00ffffff)};
         MAP_MODE = MODE_NONE;
@@ -151,7 +160,7 @@ public class MapView extends View {
         roomPath = new Path();
         slamPath = new Path();
         obstaclePath = new Path();
-        deleteBitmap = BitmapUtils.decodeSampledBitmapFromResource(getResources(), R.drawable.n_icon_delete_virtual, deleteIconW, deleteIconW);
+        deleteBitmap = BitmapUtils.decodeSampledBitmapFromResource(getResources(), R.drawable.operation_btn_closed, deleteIconW, deleteIconW);
 
 
         slamPaint = new Paint();
@@ -206,9 +215,9 @@ public class MapView extends View {
         originalScale = userScale;
     }
 
-    public void setLeftTopCoordinate(int x,int y){
-        this.leftX=x;
-        this.leftY=y;
+    public void setLeftTopCoordinate(int x, int y) {
+        this.leftX = x;
+        this.leftY = y;
     }
 
     /**
@@ -336,11 +345,18 @@ public class MapView extends View {
         /**
          * 绘制路径
          */
+        roadPaint.setColor(getResources().getColor(R.color.white));
         boxCanvas.drawPath(roadPath, roadPaint);
         if (needEndPoint && endX != 0 && endY != 0) {
             positionCirclePaint.setColor(getResources().getColor(R.color.color_map_start_point));
             boxCanvas.drawCircle(endX, endY, Utils.dip2px(MyApplication.getInstance(), 12 * baseScare / 30f), positionCirclePaint);
         }
+        roadPaint.setColor(getResources().getColor(R.color.color_obstacle_box_));
+        float[] points = new float[roadPoints.size()];
+        for (int i = 0; i < roadPoints.size(); i++) {
+            points[i] = roadPoints.get(i);
+        }
+        boxCanvas.drawPoints(points, roadPaint);
         invalidateUI();
     }
 
@@ -371,8 +387,8 @@ public class MapView extends View {
     }
 
     public void drawForbiddenArea(String data) {
-        if (mGlobalFbdaHelper != null) {
-            mGlobalFbdaHelper.setForbiddenArea(data);
+        if (mForbiddenHelper != null) {
+            mForbiddenHelper.setForbiddenArea(leftX, leftY, data);
         }
     }
 
@@ -507,10 +523,14 @@ public class MapView extends View {
                 canvas.concat(matrix);//应用变换
                 virtualPaint.setColor(getResources().getColor(R.color.color_theme));
                 canvas.drawPath(mVirtualWallHelper.getVwPath(), virtualPaint);
-                //TODO 绘制删除icon
+                //TODO 绘制删除icon,rotate ,strength,boundary
+                virtualPaint.setColor(Color.parseColor("#ffffff"));
                 for (VirtualWallBean vw : mVirtualWallHelper.getVwBeans()) {
                     if (vw.getDeleteIcon() != null) {
                         canvas.drawBitmap(deleteBitmap, vw.getDeleteIcon().left, vw.getDeleteIcon().top, virtualPaint);
+                    }
+                    if (/*mVirtualWallHelper.getSelectVwNum()==vw.getNumber()&&*/vw.getBoundaryPath() != null) {
+                        canvas.drawPath(vw.getBoundaryPath(), virtualPaint);
                     }
                 }
                 /**
@@ -520,32 +540,28 @@ public class MapView extends View {
                 if (curVw.left != 0) {
                     canvas.drawLine(curVw.left, curVw.top, curVw.right, curVw.bottom, virtualPaint);
                 }
-                /**
-                 * 虚拟墙边界框
-                 */
-                virtualPaint.setColor(Color.parseColor("#ffffff"));
-                canvas.drawPath(mVirtualWallHelper.getBoundaryPath(), virtualPaint);
-                /**
-                 * draw global forbidden area
+                /*
+                 * draw  forbidden area,which contains global area and mop area
                  */
 
                 forbiddenAreaPaint.setColor(Color.parseColor("#50388E3C"));
-                canvas.drawPath(mGlobalFbdaHelper.getmPath(), forbiddenAreaPaint);
-                for (VirtualWallBean fbd : mGlobalFbdaHelper.getFbdBeans()) {
+                canvas.drawPath(mForbiddenHelper.getmGlobalPath(), forbiddenAreaPaint);
+                forbiddenAreaPaint.setColor(Color.parseColor("#50FFFF00"));
+                canvas.drawPath(mForbiddenHelper.getmMoplPath(), forbiddenAreaPaint);
+                for (VirtualWallBean fbd : mForbiddenHelper.getFbdBeans()) {
                     //TODO 绘制 delete rotate
                 }
-                canvas.drawRect(mGlobalFbdaHelper.getCurRectF(), forbiddenAreaPaint);
-
+                if (mOT == OT.GLOBAL_FORBIDDEN_AREA) {
+                    forbiddenAreaPaint.setColor(Color.parseColor("#50388E3C"));
+                } else {
+                    forbiddenAreaPaint.setColor(Color.parseColor("#50FFFF00"));
+                }
+                canvas.drawRect(mForbiddenHelper.getCurRectF(), forbiddenAreaPaint);
                 /**
-                 * draw mop forbidden area
+                 * draw room tag
                  */
-                forbiddenAreaPaint.setColor(Color.parseColor("#50FFF700"));
-                canvas.drawPath(mMopFbdaHelper.getmPath(), forbiddenAreaPaint);
-                for (VirtualWallBean fbd : mMopFbdaHelper.getFbdBeans()) {
-                    //TODO 绘制 delete rotate
-                }
-                canvas.drawRect(mMopFbdaHelper.getCurRectF(), forbiddenAreaPaint);
-
+                forbiddenAreaPaint.setColor(Color.parseColor("#FFa7a0"));
+                canvas.drawPath(mPartitionHelper.getRoomPath(), forbiddenAreaPaint);
             }
         } else {//x900 series
             if (slamCanvas != null && slamBitmap != null) {
@@ -600,6 +616,7 @@ public class MapView extends View {
         float x = event.getX() / getRealScare() + getOffsetX();
         float y = event.getY() / getRealScare() + getOffsetY();
         switch (mOT) {
+            case SELECT_ROOM:
             case MAP://操作地图
                 switch (me) {
                     case MotionEvent.ACTION_CANCEL:
@@ -625,29 +642,41 @@ public class MapView extends View {
                         invalidateUI();
                         break;
                     case MotionEvent.ACTION_UP:
-                        boolean needResetChange = false;
-                        switch (MAP_MODE) {
-                            case ZOOM:
-                                originalScale = userScale;
-                                MAP_MODE = MODE_NONE;
-                                needResetChange = true;
-                                break;
-                            case DRAG:
-                                needResetChange = true;
-                                MAP_MODE = MODE_NONE;
-                                break;
-                        }
+                        if (x == downPoint.x && y == downPoint.y) {//点击事件
+                            MAP_MODE = MODE_NONE;
+                            switch (mOT) {
+                                case SELECT_ROOM:
+                                    mPartitionHelper.clickRoomTag(x, y);
+                                    break;
+                                case PARTITION:
+                                    break;
 
-                        if (needResetChange) {
-                            if (isNeedRestore && restoreRunnable == null) {
-                                restoreRunnable = () -> {
-                                    userScale = 1;
-                                    originalScale = 1;
-                                    dragX = 0;
-                                    dragY = 0;
-                                    invalidateUI();
-                                    MyLogger.d(TAG, "-------restore map to the original state----------");
-                                };
+                            }
+                        } else {
+                            boolean needResetChange = false;
+                            switch (MAP_MODE) {
+                                case ZOOM:
+                                    originalScale = userScale;
+                                    MAP_MODE = MODE_NONE;
+                                    needResetChange = true;
+                                    break;
+                                case DRAG:
+                                    needResetChange = true;
+                                    MAP_MODE = MODE_NONE;
+                                    break;
+                            }
+
+                            if (needResetChange) {
+                                if (isNeedRestore && restoreRunnable == null) {
+                                    restoreRunnable = () -> {
+                                        userScale = 1;
+                                        originalScale = 1;
+                                        dragX = 0;
+                                        dragY = 0;
+                                        invalidateUI();
+                                        MyLogger.d(TAG, "-------restore map to the original state----------");
+                                    };
+                                }
                             }
                         }
                         break;
@@ -667,11 +696,9 @@ public class MapView extends View {
             case VIRTUAL_WALL://虚拟墙
                 mVirtualWallHelper.onTouch(event, x, y);
                 break;
-            case GLOBAL_FORBIDDEN_AREA://全局禁区
-                mGlobalFbdaHelper.onTouch(event, x, y);
-                break;
             case MOP_FORBIDDEN_AREA://抹地禁区
-                mMopFbdaHelper.onTouch(event, x, y);
+            case GLOBAL_FORBIDDEN_AREA://全局禁区
+                mForbiddenHelper.onTouch(event, x, y);
                 break;
         }
         return true;
@@ -762,10 +789,14 @@ public class MapView extends View {
         return mVirtualWallHelper.getVwData();
     }
 
-    public String getMopFBDData(){
-        return mMopFbdaHelper.getFbdaData();
-    }public String getGlobalFBDData(){
-        return mGlobalFbdaHelper.getFbdaData();
+
+    /**
+     * 获取禁区数据，包含全局禁区，抹地禁区
+     *
+     * @return
+     */
+    public String getForbiddenData() {
+        return mForbiddenHelper.getFbdaData();
     }
 
     /**
@@ -774,10 +805,18 @@ public class MapView extends View {
      * @param vwData 服务器电子墙数据集合
      */
     public void drawVirtualWall(String vwData) {
-        mVirtualWallHelper.drawVirtualWall(vwData,leftX,leftY);
+        mVirtualWallHelper.drawVirtualWall(vwData, leftX, leftY);
         invalidateUI();
     }
 
+    /**
+     * 查询到房间标记数据后，绘制房间标记
+     *
+     * @param roomData
+     */
+    public void drawRoomTag(String roomData) {
+        mPartitionHelper.drawRoom(leftX, leftY, roomData);
+    }
 
     /**
      * 从(0,1500)开始向上一行行绘制slam map
@@ -889,6 +928,7 @@ public class MapView extends View {
         roadPath.reset();
         roadPath.reset();
         obstaclePath.reset();
+        roadPoints.clear();
         int x, y, type;
 //        float space = new BigDecimal(baseScare * 0.1f).setScale(0, BigDecimal.ROUND_HALF_DOWN).floatValue();
         float space = 0;
@@ -915,14 +955,17 @@ public class MapView extends View {
                     case 3://房间门
                         roomPath.addRect(matrixCoordinateX(x), matrixCoordinateY(y), matrixCoordinateX(x) + baseScare - space, matrixCoordinateY(y) + baseScare - space, Path.Direction.CCW);
                         break;
-                    case 4:
+                    case 4://路径
+                        roadPoints.add(matrixCoordinateX(x));
+                        roadPoints.add(matrixCoordinateY(y));
                         if (!isStartRoad) {
                             isStartRoad = true;
                             roadPath.moveTo(matrixCoordinateX(x), matrixCoordinateY(y));
                         } else {
+                            roadPoints.add(matrixCoordinateX(x));
+                            roadPoints.add(matrixCoordinateY(y));
                             roadPath.lineTo(matrixCoordinateX(x), matrixCoordinateY(y));
                         }
-
                         break;
                 }
             }
@@ -940,6 +983,11 @@ public class MapView extends View {
     }
 
     @Override
+    protected void onAttachedToWindow() {
+        super.onAttachedToWindow();
+    }
+
+    @Override
     protected void onDetachedFromWindow() {
         super.onDetachedFromWindow();
         if (slamBitmap != null) {
@@ -950,6 +998,13 @@ public class MapView extends View {
             boxBitmap.recycle();
             boxBitmap = null;
         }
+        if (boxCanvas != null) {
+            boxCanvas = null;
+        }
+        if (slamCanvas != null) {
+            slamCanvas = null;
+        }
+
 
     }
 }

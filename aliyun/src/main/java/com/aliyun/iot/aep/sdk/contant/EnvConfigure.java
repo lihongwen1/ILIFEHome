@@ -23,8 +23,8 @@ public class EnvConfigure {
     static final public String PRODUCT_KEY_X800 = "a1nIeZXrVFg";//CHINA
     static final public String PRODUCT_KEY_X800_W = "a1cdxiwZfP9";//CHINA
     static final public String PRODUCT_KEY_X320 = "a1r76ksgLTV";//CHINA
-    static final public String PRODUCT_KEY_X787="a1wBeDmFnJu";//CHINA
-    static final public String PRODUCT_KEY_X434="a1JyoDFAJQT";//CHINA
+    static final public String PRODUCT_KEY_X787 = "a1wBeDmFnJu";//CHINA
+    static final public String PRODUCT_KEY_X434 = "a1JyoDFAJQT";//CHINA
 
     /**
      * 海外
@@ -137,11 +137,12 @@ public class EnvConfigure {
     public static String KEY_CLEAN_AREA = "CleanArea";
     public static String KEY_CLEAN_TIME = "CleanTime";
     public static final String KEY_BEEP_NO_DISTURB = "BeepNoDisturb";
-    public static final String KEY_SAVE_MAP="SaveMap";
-    public static final String KEY_SELECT_MAP_ID="SelectedMapId";
-    public static final String KEY_SAVE_MAP_ID="SaveMapId";
-    public static final String KEY_FORBIDDEN_AREA="ForbiddenAreaData";
-    public static final String VirtualWallData="VirtualWallData";
+    public static final String KEY_SAVE_MAP = "SaveMap";
+    public static final String KEY_SELECT_MAP_ID = "SelectedMapId";
+    public static final String KEY_SAVE_MAP_ID = "SaveMapId";
+    public static final String KEY_FORBIDDEN_AREA = "ForbiddenAreaData";
+    public static final String VirtualWallData = "VirtualWallData";
+    public static final String PartitionData = "PartitionData";
     public static final String KEY_SWITCH = "Switch";
     public static final String KEY_DATA = "data";
     public static final String KEY_START_TIME = "StartTime";

@@ -10,7 +10,7 @@ public class MapDataBean {
     private String forbiddenArea;
     private int leftX,leftY;
     private int minX,minY,maxX,maxY;
-
+    private String partitionData;
     public MapDataBean(List<Coordinate> coordinates, String virtualWall, String forbiddenArea, int leftX, int leftY, int minX, int minY, int maxX, int maxY) {
         this.coordinates = coordinates;
         this.virtualWall = virtualWall;
@@ -21,6 +21,38 @@ public class MapDataBean {
         this.minY = minY;
         this.maxX = maxX;
         this.maxY = maxY;
+    }
+
+    public MapDataBean(List<Coordinate> coordinates, String virtualWall, String forbiddenArea, int leftX, int leftY, int minX, int minY, int maxX, int maxY, String partitionData) {
+        this.coordinates = coordinates;
+        this.virtualWall = virtualWall;
+        this.forbiddenArea = forbiddenArea;
+        this.leftX = leftX;
+        this.leftY = leftY;
+        this.minX = minX;
+        this.minY = minY;
+        this.maxX = maxX;
+        this.maxY = maxY;
+        this.partitionData = partitionData;
+    }
+
+    public MapDataBean(List<Coordinate> coordinates, int leftX, int leftY, int minX, int minY, int maxX, int maxY, String partitionData) {
+        this.coordinates = coordinates;
+        this.leftX = leftX;
+        this.leftY = leftY;
+        this.minX = minX;
+        this.minY = minY;
+        this.maxX = maxX;
+        this.maxY = maxY;
+        this.partitionData = partitionData;
+    }
+
+    public String getPartitionData() {
+        return partitionData;
+    }
+
+    public void setPartitionData(String partitionData) {
+        this.partitionData = partitionData;
     }
 
     public List<Coordinate> getCoordinates() {

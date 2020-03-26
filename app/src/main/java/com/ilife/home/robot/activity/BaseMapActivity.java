@@ -249,11 +249,10 @@ public abstract class BaseMapActivity extends BackBaseActivity<MapX9Presenter> i
         adapter.setOnItemClickListener((adapter1, view, position) -> {
             switch (position) {
                 case 0:
-                    LiveEventBus.get(VirtualWallActivity.KEY_MAP_BUNDLE, MapDataBean.class)
-                            .post(mPresenter.getMapDataBean());
                     startActivity(new Intent(BaseMapActivity.this,VirtualWallActivity.class));
                     break;
-                case 1:
+                case 1://选房清扫
+                    startActivity(new Intent(BaseMapActivity.this,SelectRoomActivity.class));
                     break;
                 case 2:
                     break;
