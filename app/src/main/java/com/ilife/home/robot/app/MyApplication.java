@@ -29,6 +29,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import cn.ljuns.logcollector.LogCollector;
+
 
 public class MyApplication extends SdkApplication {
     private final String TAG = MyApplication.class.getSimpleName();
@@ -61,6 +63,7 @@ public class MyApplication extends SdkApplication {
                 .tag("ILIFE_ALI")   // (Optional) Global tag for every log. Default PRETTY_LOGGER
                 .build();
         Logger.addLogAdapter(new AndroidLogAdapter(formatStrategy));
+        LogCollector.getInstance().start(this);
     }
 
     private void configLiveBus() {
