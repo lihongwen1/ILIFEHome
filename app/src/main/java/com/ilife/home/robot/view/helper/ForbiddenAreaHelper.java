@@ -4,6 +4,7 @@ import android.graphics.Matrix;
 import android.graphics.Path;
 import android.graphics.PointF;
 import android.graphics.RectF;
+import android.graphics.Region;
 import android.text.TextUtils;
 import android.util.Base64;
 import android.view.MotionEvent;
@@ -15,7 +16,6 @@ import com.ilife.home.robot.utils.ToastUtils;
 import com.ilife.home.robot.view.MapView;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -37,7 +37,9 @@ public class ForbiddenAreaHelper {
     private FAOT faot = FAOT.ADD;
     private int mFbdAreaType = TYPE_GLOBAL;
     private int leftX, leftY;
-
+    private final int ICON_RADIUS = 50;
+    private int selectVwNum = -1;
+    private Matrix mMatrix;
     public enum FAOT {
         NOON(31),
         ADD(32),
@@ -109,7 +111,7 @@ public class ForbiddenAreaHelper {
             index++;
             for (int i = 0; i < coordinate.length; i++) {
                 if (i % 2 == 0) {
-                    coor =Math.round (coordinate[i] + leftX);
+                    coor = Math.round(coordinate[i] + leftX);
                 } else {
                     coor = Math.round(leftY - coordinate[i]);
                 }
@@ -148,7 +150,7 @@ public class ForbiddenAreaHelper {
                 bly = leftY - DataUtils.bytesToInt(bytes[LENGTH * i + 14], bytes[LENGTH * i + 15]);
                 brx = DataUtils.bytesToInt(bytes[LENGTH * i + 16], bytes[LENGTH * i + 17]) - leftX;
                 bry = leftY - DataUtils.bytesToInt(bytes[LENGTH * i + 18], bytes[LENGTH * i + 19]);
-                vwBean = new VirtualWallBean(i, type, new float[]{tlx, tly, trx, try_, blx, bly, brx, bry}, 1);
+                vwBean = new VirtualWallBean(i + 1, type, new float[]{tlx, tly, trx, try_, blx, bly, brx, bry}, 1);
                 fbdBeans.add(vwBean);
             }
         }
@@ -194,17 +196,14 @@ public class ForbiddenAreaHelper {
                 float tx = mapX - downPoint.x;//x轴平移距离
                 float ty = mapY - downPoint.y;//y轴平移距离
                 if (curFbdBean != null) {//理论上不为空，为空时应该是在添加禁区
-                    Matrix matrix = curFbdBean.getMatrix();
-                    matrix.postTranslate(tx, ty);
-                    curFbdBean.updateAreaRect();
+                    mMatrix.postTranslate(tx, ty);
                     updatePath();
                 }
                 break;
             case ROTATE:
                 PointF centerP = curFbdBean.getCenterPoint();
                 float angle = DataUtils.getAngle(centerP, downPoint, new PointF(mapX, mapY));
-                curFbdBean.getMatrix().postRotate(angle, centerP.x, centerP.y);
-                curFbdBean.updateAreaRect();
+               mMatrix.postRotate(angle, centerP.x, centerP.y);
                 updatePath();
                 break;
             default:
@@ -214,54 +213,73 @@ public class ForbiddenAreaHelper {
 
 
     private void doOnActionUp(float mapX, float mapY) {
-        switch (faot) {
-            case ADD:
-                curRectF.setEmpty();
-                if (getUsefulFbdArea() < 10 && DataUtils.distance(downPoint.x, downPoint.y, mapX, mapY) > MIN_FBD_LENGTH) {
-                    float x1, y1, x2, y2;
-                    /**
-                     * 转化为云端坐标系坐标
-                     */
-                    x1 = mMapView.reMatrixCoordinateX(downPoint.x < mapX ? downPoint.x : mapX);//x1
-                    y1 = mMapView.reMatrixCoordinateY(downPoint.y < mapY ? downPoint.y : mapY);//y1
-                    x2 = mMapView.reMatrixCoordinateX(downPoint.x > mapX ? downPoint.x : mapX);//x2
-                    y2 = mMapView.reMatrixCoordinateY(downPoint.y > mapY ? downPoint.y : mapY);//y2
-                    float[] coordinate = new float[]{x1, y1, x2, y1, x2, y2, x1, y2};
-                    VirtualWallBean fbd = new VirtualWallBean(fbdBeans.size() + 1, mFbdAreaType, coordinate, 2);
-                    fbdBeans.add(fbd);
-                    updatePath();
-                } else {
-                    ToastUtils.showToast("最多添加10条禁区！");
-                }
-                updatePath();
-                break;
-            case DELETE:
-                for (VirtualWallBean fbd : fbdBeans) {
-                    if (fbd.getDeleteIcon().contains(mapX, mapY)) {
-                        fbd.setState(3);
-                        break;
+        if (mapX == downPoint.x && mapY == downPoint.y || DataUtils.distance(downPoint.x, downPoint.y, mapX, mapY) < 10) {//点击事件
+            if (selectVwNum != -1) {//已有选中的虚拟墙，已绘制矩形边界，delete rotate等
+                VirtualWallBean vr = null;
+                for (VirtualWallBean v : fbdBeans) {
+                    if (v.getNumber() == selectVwNum) {
+                        vr = v;
                     }
                 }
-                break;
-            case DRAG:
-                float tx = mapX - downPoint.x;//x轴平移距离
-                float ty = mapY - downPoint.y;//y轴平移距离
-                if (curFbdBean != null) {//理论上不为空，为空时应该是在添加禁区
-                    Matrix matrix = curFbdBean.getMatrix();
-                    matrix.postTranslate(tx, ty);
-                    curFbdBean.updateAreaRect();
+                if (vr == null) {
+                    return;
+                }
+                if (vr.getDeleteIcon() != null && vr.getDeleteIcon().contains(downPoint.x, downPoint.y)) {//点击了删除键
+                    if (vr.getState() == 2) {//新增的禁区，还未保存到服务器，可以直接移除
+                        fbdBeans.remove(vr);
+                    }
+                    if (vr.getState() == 1) {//服务器上的禁区，可能操作会被取消掉，只需要改变状态
+                        vr.setState(3);
+                    }
+                    selectVwNum = -1;
+                    vr.clear();
+                    updatePath();
+                } else if (vr.getRotateIcon() != null && vr.getRotateIcon().contains(downPoint.x, downPoint.y)) {//点击了旋转图标
+                    PointF centerP = curFbdBean.getCenterPoint();
+                    float angle = DataUtils.getAngle(centerP, downPoint, new PointF(mapX, mapY));
+                    mMatrix.postRotate(angle, centerP.x, centerP.y);
+                    updatePath();
+                } else if (vr.getPullIcon() != null && vr.getPullIcon().contains(downPoint.x, downPoint.y)) {//点击了拉长图标
+                    float tx = mapX - downPoint.x;//x轴平移距离
+                    float ty = mapY - downPoint.y;//y轴平移距离
+                    if (curFbdBean != null) {//理论上不为空，为空时应该是在添加禁区
+                        mMatrix.postTranslate(tx, ty);
+                        updatePath();
+                    }
+                } else {
+                    curRectF.setEmpty();
+                    clickFbdArea(downPoint.x, downPoint.y);
                     updatePath();
                 }
-                break;
-            case ROTATE:
-                PointF centerP = curFbdBean.getCenterPoint();
-                float angle = DataUtils.getAngle(centerP, downPoint, new PointF(mapX, mapY));
-                curFbdBean.getMatrix().postRotate(angle, centerP.x, centerP.y);
-                curFbdBean.updateAreaRect();
+
+            } else {
+                curRectF.setEmpty();
+                clickFbdArea(downPoint.x, downPoint.y);
                 updatePath();
-                break;
-            default:
-                break;
+            }
+         return;
+        }
+        if (faot == FAOT.ADD) {
+            curRectF.setEmpty();
+            if (getUsefulFbdArea() > 10) {
+                ToastUtils.showToast("最多添加10条禁区！");
+            } else if (DataUtils.distance(downPoint.x, downPoint.y, mapX, mapY) > MIN_FBD_LENGTH) {
+                float x1, y1, x2, y2;
+                /**
+                 * 转化为云端坐标系坐标
+                 */
+                x1 = mMapView.reMatrixCoordinateX(downPoint.x < mapX ? downPoint.x : mapX);//x1
+                y1 = mMapView.reMatrixCoordinateY(downPoint.y < mapY ? downPoint.y : mapY);//y1
+                x2 = mMapView.reMatrixCoordinateX(downPoint.x > mapX ? downPoint.x : mapX);//x2
+                y2 = mMapView.reMatrixCoordinateY(downPoint.y > mapY ? downPoint.y : mapY);//y2
+                float[] coordinate = new float[]{x1, y1, x2, y1, x2, y2, x1, y2};
+                VirtualWallBean fbd = new VirtualWallBean(fbdBeans.size() + 1, mFbdAreaType, coordinate, 2);
+                fbdBeans.add(fbd);
+                updatePath();
+            } else {
+                //  禁区太小
+            }
+            updatePath();
         }
     }
 
@@ -290,18 +308,45 @@ public class ForbiddenAreaHelper {
         mGlobalPath.reset();
         mMoplPath.reset();
         Path realPath = null;
-        float[] coordinate;
+        float[] matrixCoordinate;
+        Region boundaryRegion;
         for (VirtualWallBean fbd : fbdBeans) {
-            coordinate = fbd.getPointCoordinate();
+            matrixCoordinate = new float[8];
+            int index = 0;
+            for (float coo : fbd.getPointCoordinate()) {
+                if (index % 2 == 0) {
+                    matrixCoordinate[index] = mMapView.matrixCoordinateX(coo);
+                } else {
+                    matrixCoordinate[index] = mMapView.matrixCoordinateY(coo);
+                }
+                index++;
+            }
             realPath = fbd.getType() == TYPE_GLOBAL ? mGlobalPath : mMoplPath;
             if (realPath != null) {
-                realPath.moveTo(mMapView.matrixCoordinateX(coordinate[0]), mMapView.matrixCoordinateY(coordinate[1]));
-                realPath.lineTo(mMapView.matrixCoordinateX(coordinate[2]), mMapView.matrixCoordinateY(coordinate[3]));
-                realPath.lineTo(mMapView.matrixCoordinateX(coordinate[4]), mMapView.matrixCoordinateY(coordinate[5]));
-                realPath.lineTo(mMapView.matrixCoordinateX(coordinate[6]), mMapView.matrixCoordinateY(coordinate[7]));
+                realPath.moveTo(matrixCoordinate[0], matrixCoordinate[1]);
+                realPath.lineTo(matrixCoordinate[2], matrixCoordinate[3]);
+                realPath.lineTo(matrixCoordinate[4], matrixCoordinate[5]);
+                realPath.lineTo(matrixCoordinate[6], matrixCoordinate[7]);
             }
-
+            boundaryRegion=new Region(Math.round(matrixCoordinate[0]),Math.round(matrixCoordinate[1]),Math.round(matrixCoordinate[4]),Math.round(matrixCoordinate[5]));
+            fbd.setBoundaryRegion(boundaryRegion);
+            fbd.setDeleteIcon(new RectF(matrixCoordinate[0] - ICON_RADIUS, matrixCoordinate[1] - ICON_RADIUS, matrixCoordinate[0] + ICON_RADIUS, matrixCoordinate[1] + ICON_RADIUS));
+            fbd.setRotateIcon(new RectF(matrixCoordinate[2] - ICON_RADIUS, matrixCoordinate[3] - ICON_RADIUS, matrixCoordinate[2] + ICON_RADIUS, matrixCoordinate[3] + ICON_RADIUS));
+            fbd.setPullIcon(new RectF(matrixCoordinate[4] - ICON_RADIUS, matrixCoordinate[5] - ICON_RADIUS, matrixCoordinate[4] + ICON_RADIUS, matrixCoordinate[5] + ICON_RADIUS));
         }
         mMapView.invalidateUI();
+    }
+
+    public void clickFbdArea(float mapX, float mapY) {
+        for (VirtualWallBean vw : fbdBeans) {
+            if (vw.getBoundaryRegion()!=null&&vw.getBoundaryRegion().contains(Math.round(mapX), Math.round(mapY))) {
+                selectVwNum = vw.getNumber();
+                ToastUtils.showToast("选中了虚拟墙：" + selectVwNum);
+            }
+        }
+    }
+
+    public int getSelectVwNum() {
+        return selectVwNum;
     }
 }

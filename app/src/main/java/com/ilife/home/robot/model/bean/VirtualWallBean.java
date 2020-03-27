@@ -3,7 +3,6 @@ package com.ilife.home.robot.model.bean;
 import android.graphics.Matrix;
 import android.graphics.Path;
 import android.graphics.PointF;
-import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.Region;
 
@@ -14,17 +13,15 @@ public class VirtualWallBean {
     private int number;
     private float[] pointCoordinate;//virtual wall have 4 data,forbidden area have 8 data
     private RectF deleteIcon;//delete virtual wall icon
-    private Rect pullIcon;//pull virtual wall icon,change the wall's end point,may be change the virtual wall's size;
-    private Rect rotateWallIcon;//rotate the virtual wall ,won't change the it size;
+    private RectF pullIcon;//pull virtual wall icon,change the wall's end point,may be change the virtual wall's size;
+    private RectF rotateIcon;//rotate the virtual wall ,won't change the it size;
     private int state;//1-original   2-new added 3-may delete
-    private Matrix matrix;
     private int type;//-1-virtual wall  0-global area 1-mop area 2-sweep area
     private Path boundaryPath;//虚拟墙边界框框path;
     private Region boundaryRegion;
     public float[] getPointCoordinate() {
         return pointCoordinate;
     }
-
     public void setPointCoordinate(float[] pointCoordinate) {
         this.pointCoordinate = pointCoordinate;
     }
@@ -50,7 +47,6 @@ public class VirtualWallBean {
         this.type=type;
         this.pointCoordinate = pointCoordinate;
         this.state = state;
-        this.matrix=new Matrix();
     }
 
 
@@ -62,39 +58,26 @@ public class VirtualWallBean {
         this.deleteIcon = deleteIcon;
     }
 
-    public Rect getPullIcon() {
+    public RectF getPullIcon() {
         return pullIcon;
     }
 
-    public void setPullIcon(Rect pullIcon) {
+    public void setPullIcon(RectF pullIcon) {
         this.pullIcon = pullIcon;
     }
 
-    public Rect getRotateWallIcon() {
-        return rotateWallIcon;
+    public RectF getRotateIcon() {
+        return rotateIcon;
     }
 
 
-    public void setRotateWallIcon(Rect rotateWallIcon) {
-        this.rotateWallIcon = rotateWallIcon;
+    public void setRotateIcon(RectF rotateIcon) {
+        this.rotateIcon = rotateIcon;
     }
 
-    public Matrix getMatrix() {
-        return matrix;
-    }
-    /**
-     * 基于矩阵变换更新禁区区域矩阵
-     */
-    public void updateAreaRect() {
+   public void updateCoordinateWithMatrix(Matrix matrix){
         matrix.mapPoints(pointCoordinate);
-    }
-
-    /**
-     * 根据位移和旋转，更新坐标
-     */
-    public void updateCoordinate() {
-        matrix.mapPoints(pointCoordinate);
-    }
+   }
 
     public PointF getCenterPoint() {
         RectF rectF = new RectF(pointCoordinate[0], pointCoordinate[1], pointCoordinate[4], pointCoordinate[5]);
@@ -126,5 +109,12 @@ public class VirtualWallBean {
 
     public void setBoundaryRegion(Region boundaryRegion) {
         this.boundaryRegion = boundaryRegion;
+    }
+    public void clear(){
+        deleteIcon=null;
+        rotateIcon=null;
+        pullIcon=null;
+        boundaryRegion=null;
+        boundaryPath=null;
     }
 }

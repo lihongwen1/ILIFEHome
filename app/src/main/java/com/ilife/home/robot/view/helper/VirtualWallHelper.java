@@ -1,11 +1,13 @@
 package com.ilife.home.robot.view.helper;
 
+import android.graphics.Matrix;
 import android.graphics.Path;
 import android.graphics.PointF;
 import android.graphics.RectF;
 import android.graphics.Region;
 import android.text.TextUtils;
 import android.util.Base64;
+import android.util.Log;
 import android.view.MotionEvent;
 
 import com.ilife.home.robot.R;
@@ -26,19 +28,22 @@ public class VirtualWallHelper {
     private List<VirtualWallBean> vwBeans;
     private MapView mMapView;
     private VWOT vwot = VWOT.ADD;
-    private static final int MIN_WALL_LENGTH = 20;
+    private static final int MIN_WALL_LENGTH = 60;
     private PointF downPoint;
     private RectF curVw;//当前正在操作的虚拟墙
     private Path vwPath;
     private int leftX, leftY;
     private int selectVwNum = -1;
+    private final int ICON_RADIUS = 50;
+    private VirtualWallBean curVwBean;//当前操作虚拟墙对象
+    private Matrix mMatix;
 
     public enum VWOT {
-        NOON(21),
         ADD(22),
         DELETE(23),
         DRAG(24),
-        ROTATE(25);
+        PULL(26);
+
         final int nativeType;
 
         VWOT(int type) {
@@ -65,6 +70,7 @@ public class VirtualWallHelper {
         this.vwPath = new Path();
         this.downPoint = new PointF();
         this.curVw = new RectF();
+        this.mMatix = new Matrix();
     }
 
     /**
@@ -89,22 +95,25 @@ public class VirtualWallHelper {
     }
 
     private void doOnActionDown(float mapX, float mapY) {
-        switch (vwot) {
-            case ADD:
-                downPoint.set(mapX, mapY);
-                if (getUsefulWallNum() >= 10) {
-                    ToastUtils.showToast(UiUtil.getString(R.string.map_aty_max_count));
-                }
-                break;
-            case DELETE:
-                break;
-            case DRAG:
-                break;
-            case ROTATE:
-                break;
-            default:
-                break;
+        downPoint.set(mapX, mapY);
+        mMatix.reset();
+        for (VirtualWallBean vw : vwBeans) {
+            if (vw.getBoundaryRegion() != null && vw.getBoundaryRegion().contains(Math.round(mapX), Math.round(mapY))) {//drag
+                Log.d(TAG, "推拽虚拟墙");
+                selectVwNum = vw.getNumber();
+                vwot = VWOT.DRAG;
+                curVwBean = vw;
+            } else if (vw.getPullIcon() != null && vw.getPullIcon().contains(downPoint.x, downPoint.y)) {//点击了拉长图标
+                vwot = VWOT.PULL;
+                Log.d(TAG, "拉伸虚拟墙");
+                curVwBean = vw;
+            } else if (vw.getDeleteIcon() != null && vw.getDeleteIcon().contains(downPoint.x, downPoint.y)) {//点击了拉长图标
+                vwot = VWOT.DELETE;
+                Log.d(TAG, "删除虚拟墙");
+                curVwBean = vw;
+            }
         }
+
     }
 
     private void doOnActionMove(float mapX, float mapY) {
@@ -119,23 +128,55 @@ public class VirtualWallHelper {
             case DELETE:
                 break;
             case DRAG:
+                float tx = mapX - downPoint.x;//x轴平移距离
+                float ty = mapY - downPoint.y;//y轴平移距离
+                if (curVwBean != null) {//理论上不为空，为空时应该是在添加禁区
+                    mMatix.reset();
+                    mMatix.postTranslate(tx, ty);
+                    MyLogger.d(TAG, "变换后的坐标:" + Arrays.toString(curVwBean.getPointCoordinate()));
+                    drawVirtualWall();
+                }
                 break;
-            case ROTATE:
+            case PULL:
+                float[] coordinate = new float[]{mMapView.matrixCoordinateX(curVwBean.getPointCoordinate()[0]), mMapView.matrixCoordinateY(curVwBean.getPointCoordinate()[1])
+                        , mMapView.matrixCoordinateX(curVwBean.getPointCoordinate()[2]), mMapView.matrixCoordinateY(curVwBean.getPointCoordinate()[3])};
+
+                float k = (coordinate[3] - coordinate[1]) / (coordinate[2]
+                        - coordinate[0]);
+                //
+                //垂直偏离需要的坐标变化
+                float translationY = (float) (60 * (Math.sqrt(1 + k * k) / (1 + k * k)));
+                float translationX = Math.abs(k) * translationY;
+                //坐标延长
+                float lengthenX = (float) (60 * Math.abs(Math.sqrt(1 / (k * k + 1))));
+                float lengthenY = lengthenX * k;
+                float endX, endY;
+                //TODO k=0;
+                if (k < 0) {//lengthY<0
+                    endX = mapX + translationX + lengthenX;
+                    endY = mapY + translationY + lengthenY;
+                } else {
+                    endX = mapX + translationX - lengthenX;
+                    endY = mapY - translationY - lengthenY;
+                }
+                float[] orginalCoo = curVwBean.getPointCoordinate();
+                orginalCoo[2] = mMapView.reMatrixCoordinateX(endX);
+                orginalCoo[3] = mMapView.reMatrixCoordinateY(endY);
+                drawVirtualWall();
                 break;
             default:
                 break;
         }
     }
 
+    /**
+     * @param mapX
+     * @param mapY
+     */
     private void doOnActionUp(float mapX, float mapY) {
-        if (mapX == downPoint.x && mapY == downPoint.y) {//点击事件
-            curVw.setEmpty();
-            clickVirtual(mapX, mapY);
-            drawVirtualWall();
-        }
         switch (vwot) {
             case ADD:
-                if (downPoint.y > mapY) {//从屏幕下方往上方绘制虚拟墙,需要交换起始点位置，保证从逻辑看，始终是从上往下绘制
+                if (downPoint.x > mapX) {//保证从左往右绘制
                     float tempX = mapX;
                     float tempY = mapY;
                     mapX = downPoint.x;
@@ -148,35 +189,51 @@ public class VirtualWallHelper {
                     VirtualWallBean virtualWallBean = new VirtualWallBean(vwBeans.size() + 1, -1,
                             new float[]{mMapView.reMatrixCoordinateX(downPoint.x), mMapView.reMatrixCoordinateY(downPoint.y), mMapView.reMatrixCoordinateX(mapX), mMapView.reMatrixCoordinateY(mapY)}
                             , 2);
+                    selectVwNum = virtualWallBean.getNumber();
                     vwBeans.add(virtualWallBean);
                     drawVirtualWall();
                 }
                 break;
             case DELETE:
-                Iterator<VirtualWallBean> iterator = vwBeans.iterator();
-                VirtualWallBean vr;
-                while (iterator.hasNext()) {
-                    vr = iterator.next();
-                    if (vr.getDeleteIcon().contains(mapX, mapY)) {
-                        if (vr.getState() == 2) {//新增的电子墙，还未保存到服务器，可以直接移除
-                            vwBeans.remove(vr);
+                if ((mapX == downPoint.x && mapY == downPoint.y) || DataUtils.distance(downPoint.x, downPoint.y, mapX, mapY) < 10) {//点击事件
+                    if (curVwBean != null) {
+                        if (curVwBean.getDeleteIcon() != null && curVwBean.getDeleteIcon().contains(downPoint.x, downPoint.y)) {//点击了删除键
+                            if (curVwBean.getState() == 2) {//新增的电子墙，还未保存到服务器，可以直接移除
+                                vwBeans.remove(curVwBean);
+                            }
+                            if (curVwBean.getState() == 1) {//服务器上的电子墙，可能操作会被取消掉，只需要改变状态
+                                curVwBean.setState(3);
+                                curVwBean.clear();
+                            }
+                            selectVwNum = -1;
+                            drawVirtualWall();
                         }
-                        if (vr.getState() == 1) {//服务器上的电子墙，可能操作会被取消掉，只需要改变状态
-                            vr.setState(3);
-                        }
-                        drawVirtualWall();
-                        break;
                     }
                 }
                 break;
             case DRAG:
+                float tx = mapX - downPoint.x;//x轴平移距离
+                float ty = mapY - downPoint.y;//y轴平移距离 预览地图偏移量
+                if (curVwBean != null) {//理论上不为空，为空时应该是在添加禁区
+                    mMatix.reset();
+                    mMatix.postTranslate(tx, ty);
+                    MyLogger.d(TAG, "变换后的坐标:" + Arrays.toString(curVwBean.getPointCoordinate()));
+                    drawVirtualWall();
+                }
+                float ctx = mMapView.reMatrixCoordinateX(mapX) - mMapView.reMatrixCoordinateX(downPoint.x);//x轴平移距离
+                float cty = mMapView.reMatrixCoordinateY(mapY) - mMapView.reMatrixCoordinateY(downPoint.y);//y轴平移距离 主机坐标偏移量
+                mMatix.reset();
+                mMatix.postTranslate(ctx, cty);
+                curVwBean.updateCoordinateWithMatrix(mMatix);
+                break;
+            case PULL:
 
                 break;
-            case ROTATE:
-                break;
-            default:
-                break;
         }
+        curVwBean = null;
+        mMatix.reset();
+        curVw.setEmpty();
+        vwot = VWOT.ADD;
     }
 
 
@@ -200,10 +257,20 @@ public class VirtualWallHelper {
                 sy = leftY - DataUtils.bytesToInt(bytes[12 * i + 6], bytes[12 * i + 7]);
                 ex = DataUtils.bytesToInt(bytes[12 * i + 8], bytes[12 * i + 9]) - leftX;
                 ey = leftY - DataUtils.bytesToInt(bytes[12 * i + 10], bytes[12 * i + 11]);
-                vwBean = new VirtualWallBean(i, -1, new float[]{sx, sy, ex, ey}, 1);
+
+                if (sx > ex) {//保证始终是从左往右绘制
+                    int tempX = ex;
+                    int tempY = ey;
+                    ex = sx;
+                    ey = sy;
+                    sx = tempX;
+                    sy = tempY;
+                }
+                vwBean = new VirtualWallBean(i + 1, -1, new float[]{sx, sy, ex, ey}, 1);
                 vwBeans.add(vwBean);
             }
         }
+
         drawVirtualWall();
     }
 
@@ -214,16 +281,17 @@ public class VirtualWallHelper {
         if (vwBeans == null) {
             return;
         }
-        boolean isDrawActionRect = true;
         vwPath.reset();
         Path boundaryPath = new Path();
         Region boundaryRegion;
         float[] coordinate;
-        MyLogger.d(TAG, "虚拟墙条数：" + vwBeans.size());
         for (VirtualWallBean vir : vwBeans) {
             if (vir.getState() != 3) {
                 coordinate = new float[]{mMapView.matrixCoordinateX(vir.getPointCoordinate()[0]), mMapView.matrixCoordinateY(vir.getPointCoordinate()[1])
                         , mMapView.matrixCoordinateX(vir.getPointCoordinate()[2]), mMapView.matrixCoordinateY(vir.getPointCoordinate()[3])};
+                if (selectVwNum == vir.getNumber()) {
+                    mMatix.mapPoints(coordinate);
+                }
                 vwPath.moveTo(coordinate[0], coordinate[1]);
                 vwPath.lineTo(coordinate[2], coordinate[3]);
                 /**
@@ -233,6 +301,9 @@ public class VirtualWallHelper {
                 float k = (coordinate[3] - coordinate[1]) / (coordinate[2]
                         - coordinate[0]);
                 //
+                if (selectVwNum == vir.getNumber()) {
+                    MyLogger.d(TAG, "虚拟墙斜率：" + k + "坐标：  " + Arrays.toString(vir.getPointCoordinate()));
+                }
                 //垂直偏离需要的坐标变化
                 float translationY = (float) (60 * (Math.sqrt(1 + k * k) / (1 + k * k)));
                 float translationX = Math.abs(k) * translationY;
@@ -243,34 +314,59 @@ public class VirtualWallHelper {
                 //绘制虚拟墙的矩形边界
                 float[] cooBoundary = new float[8];//虚拟墙边界坐标数组
                 if (k < 0) {// lengthY<0
-                    cooBoundary[0] = coordinate[0] + lengthenX + translationX;
-                    cooBoundary[1] = coordinate[1] + lengthenY + translationY;
-                    cooBoundary[2] = coordinate[0] + lengthenX - translationX;
-                    cooBoundary[3] = coordinate[1] + lengthenY - translationY;
-                    cooBoundary[4] = coordinate[2] - lengthenX - translationX;
-                    cooBoundary[5] = coordinate[3] - lengthenY - translationY;
-                    cooBoundary[6] = coordinate[2] - lengthenX + translationX;
-                    cooBoundary[7] = coordinate[3] - lengthenY + translationY;
+                    if (coordinate[0] < coordinate[2]) {
+                        boundaryRegion = new Region((int) coordinate[0], (int) coordinate[3], (int) coordinate[2], (int) coordinate[1]);
+                        cooBoundary[0] = coordinate[0] - lengthenX - translationX;
+                        cooBoundary[1] = coordinate[1] - lengthenY - translationY;
+
+                        cooBoundary[2] = coordinate[2] + lengthenX - translationX;
+                        cooBoundary[3] = coordinate[3] + lengthenY - translationY;
+
+                        cooBoundary[4] = coordinate[2] + lengthenX + translationX;
+                        cooBoundary[5] = coordinate[3] + lengthenY + translationY;
+
+                        cooBoundary[6] = coordinate[0] - lengthenX + translationX;
+                        cooBoundary[7] = coordinate[1] - lengthenY + translationY;
+                    } else {
+                        boundaryRegion = new Region((int) coordinate[2], (int) coordinate[1], (int) coordinate[0], (int) coordinate[3]);
+                        cooBoundary[0] = coordinate[0] - lengthenX - translationX;
+                        cooBoundary[1] = coordinate[1] - lengthenY - translationY;
+
+                        cooBoundary[2] = coordinate[2] + lengthenX - translationX;
+                        cooBoundary[3] = coordinate[3] + lengthenY - translationY;
+
+                        cooBoundary[4] = coordinate[2] + lengthenX + translationX;
+                        cooBoundary[5] = coordinate[3] + lengthenY + translationY;
+
+                        cooBoundary[6] = coordinate[0] - lengthenX + translationX;
+                        cooBoundary[7] = coordinate[1] - lengthenY + translationY;
+                    }
                 } else {//lengthY>0
+                    boundaryRegion = new Region((int) coordinate[0], (int) coordinate[1], (int) coordinate[2], (int) coordinate[3]);
                     cooBoundary[0] = coordinate[0] - lengthenX + translationX;
                     cooBoundary[1] = coordinate[1] - lengthenY - translationY;
-                    cooBoundary[2] = coordinate[0] - lengthenX - translationX;
-                    cooBoundary[3] = coordinate[1] - lengthenY + translationY;
+
+                    cooBoundary[2] = coordinate[2] + lengthenX + translationX;
+                    cooBoundary[3] = coordinate[3] + lengthenY - translationY;
+
                     cooBoundary[4] = coordinate[2] + lengthenX - translationX;
                     cooBoundary[5] = coordinate[3] + lengthenY + translationY;
-                    cooBoundary[6] = coordinate[2] + lengthenX + translationX;
-                    cooBoundary[7] = coordinate[3] + lengthenY - translationY;
-                    vir.setDeleteIcon(new RectF(coordinate[0] - lengthenX + translationX - 36, coordinate[1] - lengthenY - translationY - 36
-                            , coordinate[0] - lengthenX + translationX + 36, coordinate[1] - lengthenY - translationY + 36));
+
+
+                    cooBoundary[6] = coordinate[0] - lengthenX - translationX;
+                    cooBoundary[7] = coordinate[1] - lengthenY + translationY;
+
                 }
                 boundaryPath.moveTo(cooBoundary[0], cooBoundary[1]);
                 boundaryPath.lineTo(cooBoundary[2], cooBoundary[3]);
                 boundaryPath.lineTo(cooBoundary[4], cooBoundary[5]);
                 boundaryPath.lineTo(cooBoundary[6], cooBoundary[7]);
                 boundaryPath.close();
-                vir.setDeleteIcon(new RectF(cooBoundary[0] - 36, cooBoundary[1] - 36, cooBoundary[0] + 36, cooBoundary[1] + 36));
+                vir.setDeleteIcon(new RectF(cooBoundary[0] - ICON_RADIUS, cooBoundary[1] - ICON_RADIUS, cooBoundary[0] + ICON_RADIUS, cooBoundary[1] + ICON_RADIUS));
+                vir.setPullIcon(new RectF(cooBoundary[4] - ICON_RADIUS, cooBoundary[5] - ICON_RADIUS, cooBoundary[4] + ICON_RADIUS, cooBoundary[5] + ICON_RADIUS));
+
                 vir.setBoundaryPath(boundaryPath);
-                boundaryRegion = new Region((int) coordinate[0], (int) coordinate[1], (int) coordinate[2], (int) coordinate[3]);
+
                 boundaryRegion.setPath(boundaryPath, boundaryRegion);
                 vir.setBoundaryRegion(boundaryRegion);
             }
@@ -345,17 +441,7 @@ public class VirtualWallHelper {
                 num++;
             }
         }
-        MyLogger.d(TAG, "useful wall number:" + num);
         return num;
-    }
-
-    public void clickVirtual(float mapX, float mapY) {
-        for (VirtualWallBean vw : vwBeans) {
-            if (vw.getBoundaryRegion().contains(Math.round(mapX), Math.round(mapY))) {
-                selectVwNum = vw.getNumber();
-                ToastUtils.showToast("选中了虚拟墙：" + selectVwNum);
-            }
-        }
     }
 
     public int getSelectVwNum() {

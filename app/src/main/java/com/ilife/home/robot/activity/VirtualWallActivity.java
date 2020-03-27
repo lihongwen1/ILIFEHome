@@ -57,7 +57,6 @@ public class VirtualWallActivity extends BackBaseActivity {
         iv_back.setImageResource(R.drawable.nav_button_cancel);
         iv_finish.setImageResource(R.drawable.nav_button_finish);
         fl_top_menu.setVisibility(View.VISIBLE);
-        mMapView.setmOT(MapView.OT.MAP);
         rg_vw_fbd.setOnCheckedChangeListener((group, checkedId) -> {
             switch (checkedId) {
                 case R.id.tv_move_map:
@@ -74,7 +73,7 @@ public class VirtualWallActivity extends BackBaseActivity {
                     break;
             }
         });
-
+        rg_vw_fbd.check(R.id.tv_move_map);
     }
 
     @Override
