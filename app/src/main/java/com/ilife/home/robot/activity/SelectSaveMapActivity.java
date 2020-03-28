@@ -70,7 +70,7 @@ public class SelectSaveMapActivity extends BackBaseActivity {
                         ToastUtils.showToast("不能删除当前地图");
                     } else {
                         ids.remove(position);
-                        IlifeAli.getInstance().setSelectMapId(ids.get(position), encodeSaveMap(ids), aBoolean -> {
+                        IlifeAli.getInstance().setSelectMapId(selectMapId, encodeSaveMap(ids), aBoolean -> {
                             MyLogger.d(TAG, "选择地图成功：" + aBoolean);
                             mAdapter.setSelectMapId(ids.get(position));
                             mAdapter.notifyDataSetChanged();
