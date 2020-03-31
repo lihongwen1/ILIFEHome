@@ -99,22 +99,24 @@ public class VirtualWallHelper {
         downPoint.set(mapX, mapY);
         mMatix.reset();
         for (VirtualWallBean vw : vwBeans) {
-            if (vw.getBoundaryRegion() != null && vw.getBoundaryRegion().contains(Math.round(mapX), Math.round(mapY))) {//drag
-                Log.d(TAG, "推拽虚拟墙");
-                selectVwNum = vw.getNumber();
-                vwot = VWOT.DRAG;
-                curVwBean = vw;
-            } else if (vw.getPullIcon() != null && vw.getPullIcon().contains(downPoint.x, downPoint.y)) {//点击了拉长图标
+            if (vw.getPullIcon() != null && vw.getPullIcon().contains(downPoint.x, downPoint.y)) {//点击了拉长图标
                 vwot = VWOT.PULL;
                 Log.d(TAG, "拉伸虚拟墙");
                 curVwBean = vw;
+                break;
             } else if (vw.getDeleteIcon() != null && vw.getDeleteIcon().contains(downPoint.x, downPoint.y)) {//点击了拉长图标
                 vwot = VWOT.DELETE;
                 Log.d(TAG, "删除虚拟墙");
                 curVwBean = vw;
+                break;
+            } else if (vw.getBoundaryRegion() != null && vw.getBoundaryRegion().contains(Math.round(mapX), Math.round(mapY))) {//drag
+                Log.d(TAG, "推拽虚拟墙");
+                selectVwNum = vw.getNumber();
+                vwot = VWOT.DRAG;
+                curVwBean = vw;
+                break;
             }
         }
-
     }
 
     private void doOnActionMove(float mapX, float mapY) {
@@ -156,14 +158,6 @@ public class VirtualWallHelper {
     private void doOnActionUp(float mapX, float mapY) {
         switch (vwot) {
             case ADD:
-//                if (downPoint.x > mapX) {//保证从左往右绘制
-//                    float tempX = mapX;
-//                    float tempY = mapY;
-//                    mapX = downPoint.x;
-//                    mapY = downPoint.y;
-//                    downPoint.set(tempX, tempY);
-//                }
-                //clear the cur wall rect ,and make it to a virtual wall bean
                 curVw.setEmpty();
                 if (getUsefulWallNum() < 10 && DataUtils.distance(downPoint.x, downPoint.y, mapX, mapY) > MIN_WALL_LENGTH) {
                     VirtualWallBean virtualWallBean = new VirtualWallBean(vwBeans.size() + 1, -1,
@@ -269,81 +263,129 @@ public class VirtualWallHelper {
                  * 绘制虚拟墙边界
                  */
                 boundaryPath.reset();
-                float k = (coordinate[3] - coordinate[1]) / (coordinate[2]
-                        - coordinate[0]);
-                //
-                //垂直偏离需要的坐标变化
-                float translationY = (float) (60 * (Math.sqrt(1 + k * k) / (1 + k * k)));
-                float translationX = Math.abs(k) * translationY;
-                //坐标延长
-                float lengthenX = (float) (60 * Math.abs(Math.sqrt(1 / (k * k + 1))));
-                float lengthenY = Math.abs(lengthenX * k);
                 float[] cooBoundary = new float[8];//虚拟墙边界坐标数组,边界以虚拟墙起点偏上，偏右为起点
-                if (k > 0) {
-                    if (coordinate[0] < coordinate[2]) {
-                        float[] lengthenCoor = new float[]{coordinate[0] - lengthenX, coordinate[1] - lengthenY, coordinate[2] + lengthenX, coordinate[3] + lengthenY};
-                        cooBoundary[0] = lengthenCoor[0] + translationX;
-                        cooBoundary[1] = lengthenCoor[1] - translationY;
-
-                        cooBoundary[2] = lengthenCoor[2] + translationX;
-                        cooBoundary[3] = lengthenCoor[3] - translationY;
-
-                        cooBoundary[4] = lengthenCoor[2] - translationX;
-                        cooBoundary[5] = lengthenCoor[3] + translationY;
-
-                        cooBoundary[6] = lengthenCoor[0] - translationX;
-                        cooBoundary[7] = lengthenCoor[1] + translationY;
-
-
-                    } else {
-                        float[] lengthenCoor = new float[]{coordinate[0] + lengthenX, coordinate[1] + lengthenY, coordinate[2] - lengthenX, coordinate[3] - lengthenY};
-                        cooBoundary[0] = lengthenCoor[0] + translationX;
-                        cooBoundary[1] = lengthenCoor[1] - translationY;
-
-                        cooBoundary[2] = lengthenCoor[0] - translationX;
-                        cooBoundary[3] = lengthenCoor[1] + translationY;
-
-                        cooBoundary[4] = lengthenCoor[2] - translationX;
-                        cooBoundary[5] = lengthenCoor[3] + translationY;
-
-                        cooBoundary[6] = lengthenCoor[2] + translationX;
-                        cooBoundary[7] = lengthenCoor[3] - translationY;
-                    }
-                } else {//k<0
-                    if (coordinate[0] < coordinate[2]) {
-                        float[] lengthenCoor = new float[]{coordinate[0] - lengthenX, coordinate[1] + lengthenY, coordinate[2] + lengthenX, coordinate[3] - lengthenY};
+                if (coordinate[2] == coordinate[0]) {//垂直于X轴 k无限大
+                    int translationX = 60;
+                    if (coordinate[1] < coordinate[3]) {
+                        float[] lengthenCoor = new float[]{coordinate[0], coordinate[1] - 60, coordinate[2], coordinate[3] + 60};
                         cooBoundary[0] = lengthenCoor[0] - translationX;
-                        cooBoundary[1] = lengthenCoor[1] - translationY;
+                        cooBoundary[1] = lengthenCoor[1];
 
                         cooBoundary[2] = lengthenCoor[2] - translationX;
-                        cooBoundary[3] = lengthenCoor[3] - translationY;
+                        cooBoundary[3] = lengthenCoor[3];
 
                         cooBoundary[4] = lengthenCoor[2] + translationX;
-                        cooBoundary[5] = lengthenCoor[3] + translationY;
+                        cooBoundary[5] = lengthenCoor[3];
 
                         cooBoundary[6] = lengthenCoor[0] + translationX;
-                        cooBoundary[7] = lengthenCoor[1] + translationY;
+                        cooBoundary[7] = lengthenCoor[1];
                     } else {
-                        float[] lengthenCoor = new float[]{coordinate[0] + lengthenX, coordinate[1] - lengthenY, coordinate[2] - lengthenX, coordinate[3] + lengthenY};
+                        float[] lengthenCoor = new float[]{coordinate[0], coordinate[1] + 60, coordinate[2], coordinate[3] - 60};
                         cooBoundary[0] = lengthenCoor[0] - translationX;
-                        cooBoundary[1] = lengthenCoor[1] - translationY;
+                        cooBoundary[1] = lengthenCoor[1];
 
-                        cooBoundary[2] = lengthenCoor[0] + translationX;
-                        cooBoundary[3] = lengthenCoor[1] + translationY;
+                        cooBoundary[2] = lengthenCoor[2] - translationX;
+                        cooBoundary[3] = lengthenCoor[3];
 
                         cooBoundary[4] = lengthenCoor[2] + translationX;
-                        cooBoundary[5] = lengthenCoor[3] + translationY;
+                        cooBoundary[5] = lengthenCoor[3];
 
-                        cooBoundary[6] = lengthenCoor[2] - translationX;
-                        cooBoundary[7] = lengthenCoor[3] - translationY;
+                        cooBoundary[6] = lengthenCoor[0] + translationX;
+                        cooBoundary[7] = lengthenCoor[1];
+                    }
+                } else if (coordinate[3] == coordinate[1]) {//垂直于Y轴 k=0
+
+                } else {
+                    float k = (coordinate[3] - coordinate[1]) / (coordinate[2]
+                            - coordinate[0]);
+                    //
+                    //垂直偏离需要的坐标变化
+                    float translationY = (float) (60 * (Math.sqrt(1 + k * k) / (1 + k * k)));
+                    float translationX = Math.abs(k) * translationY;
+                    //坐标延长
+                    float lengthenX = (float) (60 * Math.abs(Math.sqrt(1 / (k * k + 1))));
+                    float lengthenY = Math.abs(lengthenX * k);
+                    MyLogger.d(TAG, "虚拟墙斜率：" + k);
+                    if (k > 0) {
+                        if (coordinate[0] < coordinate[2]) {
+                            float[] lengthenCoor = new float[]{coordinate[0] - lengthenX, coordinate[1] - lengthenY, coordinate[2] + lengthenX, coordinate[3] + lengthenY};
+                            cooBoundary[0] = lengthenCoor[0] + translationX;
+                            cooBoundary[1] = lengthenCoor[1] - translationY;
+
+                            cooBoundary[2] = lengthenCoor[2] + translationX;
+                            cooBoundary[3] = lengthenCoor[3] - translationY;
+
+                            cooBoundary[4] = lengthenCoor[2] - translationX;
+                            cooBoundary[5] = lengthenCoor[3] + translationY;
+
+                            cooBoundary[6] = lengthenCoor[0] - translationX;
+                            cooBoundary[7] = lengthenCoor[1] + translationY;
+
+
+                        } else {
+                            float[] lengthenCoor = new float[]{coordinate[0] + lengthenX, coordinate[1] + lengthenY, coordinate[2] - lengthenX, coordinate[3] - lengthenY};
+                            cooBoundary[0] = lengthenCoor[0] + translationX;
+                            cooBoundary[1] = lengthenCoor[1] - translationY;
+
+                            cooBoundary[2] = lengthenCoor[0] - translationX;
+                            cooBoundary[3] = lengthenCoor[1] + translationY;
+
+                            cooBoundary[4] = lengthenCoor[2] - translationX;
+                            cooBoundary[5] = lengthenCoor[3] + translationY;
+
+                            cooBoundary[6] = lengthenCoor[2] + translationX;
+                            cooBoundary[7] = lengthenCoor[3] - translationY;
+                        }
+                    } else {//k<0
+                        if (coordinate[0] < coordinate[2]) {
+                            float[] lengthenCoor = new float[]{coordinate[0] - lengthenX, coordinate[1] + lengthenY, coordinate[2] + lengthenX, coordinate[3] - lengthenY};
+                            cooBoundary[0] = lengthenCoor[0] - translationX;
+                            cooBoundary[1] = lengthenCoor[1] - translationY;
+
+                            cooBoundary[2] = lengthenCoor[2] - translationX;
+                            cooBoundary[3] = lengthenCoor[3] - translationY;
+
+                            cooBoundary[4] = lengthenCoor[2] + translationX;
+                            cooBoundary[5] = lengthenCoor[3] + translationY;
+
+                            cooBoundary[6] = lengthenCoor[0] + translationX;
+                            cooBoundary[7] = lengthenCoor[1] + translationY;
+                        } else {
+                            float[] lengthenCoor = new float[]{coordinate[0] + lengthenX, coordinate[1] - lengthenY, coordinate[2] - lengthenX, coordinate[3] + lengthenY};
+                            cooBoundary[0] = lengthenCoor[0] - translationX;
+                            cooBoundary[1] = lengthenCoor[1] - translationY;
+
+                            cooBoundary[2] = lengthenCoor[0] + translationX;
+                            cooBoundary[3] = lengthenCoor[1] + translationY;
+
+                            cooBoundary[4] = lengthenCoor[2] + translationX;
+                            cooBoundary[5] = lengthenCoor[3] + translationY;
+
+                            cooBoundary[6] = lengthenCoor[2] - translationX;
+                            cooBoundary[7] = lengthenCoor[3] - translationY;
+                        }
                     }
                 }
-                int minx, miny, maxx, maxy;
-                minx = (int) Math.min(coordinate[0], coordinate[2]);
-                maxx = (int) Math.max(coordinate[0], coordinate[2]);
-                miny = (int) Math.min(coordinate[1], coordinate[3]);
-                maxy = (int) Math.max(coordinate[1], coordinate[3]);
-                boundaryRegion = new Region(minx, miny, maxx, maxy);
+                float minx = cooBoundary[0], miny = cooBoundary[1], maxx = cooBoundary[0], maxy = cooBoundary[1];
+                for (int i = 0; i < cooBoundary.length; i++) {
+                    float value = cooBoundary[i];
+                    if (i % 2 == 0) {//x
+                        if (value < minx) {
+                            minx = value;
+                        }
+                        if (value > maxx) {
+                            maxx = value;
+                        }
+                    } else {//y
+                        if (value < miny) {
+                            miny = value;
+                        }
+                        if (value > maxy) {
+                            maxy = value;
+                        }
+                    }
+                }
+                boundaryRegion = new Region((int) minx, (int) miny, (int) maxx, (int) maxy);
                 boundaryPath.moveTo(cooBoundary[0], cooBoundary[1]);
                 boundaryPath.lineTo(cooBoundary[2], cooBoundary[3]);
                 boundaryPath.lineTo(cooBoundary[4], cooBoundary[5]);
@@ -351,9 +393,7 @@ public class VirtualWallHelper {
                 boundaryPath.close();
                 vir.setDeleteIcon(new RectF(cooBoundary[0] - ICON_RADIUS, cooBoundary[1] - ICON_RADIUS, cooBoundary[0] + ICON_RADIUS, cooBoundary[1] + ICON_RADIUS));
                 vir.setPullIcon(new RectF(cooBoundary[4] - ICON_RADIUS, cooBoundary[5] - ICON_RADIUS, cooBoundary[4] + ICON_RADIUS, cooBoundary[5] + ICON_RADIUS));
-
                 vir.setBoundaryPath(boundaryPath);
-
                 boundaryRegion.setPath(boundaryPath, boundaryRegion);
                 vir.setBoundaryRegion(boundaryRegion);
             }

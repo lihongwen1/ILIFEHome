@@ -19,6 +19,7 @@ public class VirtualWallBean {
     private int type;//-1-virtual wall  0-global area 1-mop area 2-sweep area
     private Path boundaryPath;//虚拟墙边界框框path;
     private Region boundaryRegion;
+    private Path path;
     public float[] getPointCoordinate() {
         return pointCoordinate;
     }
@@ -110,6 +111,15 @@ public class VirtualWallBean {
     public void setBoundaryRegion(Region boundaryRegion) {
         this.boundaryRegion = boundaryRegion;
     }
+
+    public Path getPath() {
+        return path;
+    }
+
+    public void setPath(Path path) {
+        this.path = path;
+    }
+
     public void clear(){
         deleteIcon=null;
         rotateIcon=null;

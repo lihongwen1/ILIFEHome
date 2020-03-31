@@ -55,7 +55,7 @@ public class MapView extends View {
     private float dragX, dragY;
     private int[] colors;
     private static final int MIN_WALL_LENGTH = 20;
-    private Bitmap deleteBitmap,rotateBitmap,pullBitmap;//删除电子墙的bitmap
+    private Bitmap deleteBitmap, rotateBitmap, pullBitmap;//删除电子墙的bitmap
     private static final int deleteIconW = 100;
     private List<SlamLineBean> lastLineBeans = new ArrayList<>();
     private Paint boxPaint;
@@ -518,11 +518,54 @@ public class MapView extends View {
                 matrix.postTranslate(dragX + sCenter.x - boxBitmap.getWidth() / 2f, dragY + sCenter.y - boxBitmap.getHeight() / 2f);
                 matrix.postScale(getRealScare(), getRealScare(), sCenter.x, sCenter.y);
                 canvas.drawBitmap(boxBitmap, matrix, boxPaint);
+                canvas.concat(matrix);//应用变换
+
+                /**
+                 * draw  forbidden area,which contains global area and mop area
+                 */
+                VirtualWallBean fbd;
+                for (int i = mForbiddenHelper.getFbdBeans().size() - 1; i >= 0; i--) {
+                    fbd = mForbiddenHelper.getFbdBeans().get(i);
+                    if (fbd.getType() == ForbiddenAreaHelper.TYPE_GLOBAL) {
+                        forbiddenAreaPaint.setColor(Color.parseColor("#50388E3C"));
+                    } else {
+                        forbiddenAreaPaint.setColor(Color.parseColor("#50FFFF00"));
+                    }
+                    if (fbd.getState() == 3) {
+                        continue;
+                    }
+                    if (fbd.getPath() != null) {
+                        canvas.drawPath(fbd.getPath(), forbiddenAreaPaint);
+                    }
+                    if (mForbiddenHelper.getSelectVwNum() == fbd.getNumber()) {//保存操作中的禁区
+                        if (fbd.getBoundaryPath() != null) {
+                            canvas.drawPath(fbd.getBoundaryPath(), virtualPaint);
+                        }
+                        if (fbd.getDeleteIcon() != null) {
+                            canvas.drawBitmap(deleteBitmap, fbd.getDeleteIcon().left, fbd.getDeleteIcon().top, virtualPaint);
+                        }
+                        if (fbd.getPullIcon() != null) {
+                            canvas.drawBitmap(pullBitmap, fbd.getPullIcon().left, fbd.getPullIcon().top, virtualPaint);
+                        }
+                        if (fbd.getRotateIcon() != null) {
+                            canvas.drawBitmap(rotateBitmap, fbd.getRotateIcon().left, fbd.getRotateIcon().top, virtualPaint);
+                        }
+                    }
+                }
+                /**
+                 * 预览禁区
+                 */
+                if (mOT == OT.GLOBAL_FORBIDDEN_AREA) {
+                    forbiddenAreaPaint.setColor(Color.parseColor("#50388E3C"));
+                } else {
+                    forbiddenAreaPaint.setColor(Color.parseColor("#50FFFF00"));
+                }
+                canvas.drawRect(mForbiddenHelper.getCurRectF(), forbiddenAreaPaint);
+
 
                 /**
                  * draw virtual wall
                  */
-                canvas.concat(matrix);//应用变换
                 virtualPaint.setColor(getResources().getColor(R.color.color_theme));
                 canvas.drawPath(mVirtualWallHelper.getVwPath(), virtualPaint);
                 /**
@@ -535,6 +578,9 @@ public class MapView extends View {
                 //TODO 绘制删除icon,rotate ,strength,boundary
                 virtualPaint.setColor(Color.parseColor("#ffffff"));
                 for (VirtualWallBean vw : mVirtualWallHelper.getVwBeans()) {
+                    if (vw.getState() == 3) {
+                        continue;
+                    }
                     if (mVirtualWallHelper.getSelectVwNum() == vw.getNumber()) {
                         if (vw.getBoundaryPath() != null) {
                             canvas.drawPath(vw.getBoundaryPath(), virtualPaint);
@@ -542,41 +588,13 @@ public class MapView extends View {
                         if (vw.getDeleteIcon() != null) {
                             canvas.drawBitmap(deleteBitmap, vw.getDeleteIcon().left, vw.getDeleteIcon().top, virtualPaint);
                         }
-                        if (vw.getPullIcon()!=null){
-                            canvas.drawBitmap(pullBitmap,vw.getPullIcon().left,vw.getPullIcon().top,virtualPaint);
+                        if (vw.getPullIcon() != null) {
+                            canvas.drawBitmap(pullBitmap, vw.getPullIcon().left, vw.getPullIcon().top, virtualPaint);
                         }
                     }
                 }
 
-                /**
-                 * draw  forbidden area,which contains global area and mop area
-                 */
 
-                forbiddenAreaPaint.setColor(Color.parseColor("#50388E3C"));
-                canvas.drawPath(mForbiddenHelper.getmGlobalPath(), forbiddenAreaPaint);
-                forbiddenAreaPaint.setColor(Color.parseColor("#50FFFF00"));
-                canvas.drawPath(mForbiddenHelper.getmMoplPath(), forbiddenAreaPaint);
-                for (VirtualWallBean fbd : mForbiddenHelper.getFbdBeans()) {
-                    if (mForbiddenHelper.getSelectVwNum() == fbd.getNumber()) {
-                        if (fbd.getBoundaryPath() != null) {
-                            canvas.drawPath(fbd.getBoundaryPath(), virtualPaint);
-                        }
-                        if (fbd.getDeleteIcon() != null) {
-                            canvas.drawBitmap(deleteBitmap, fbd.getDeleteIcon().left, fbd.getDeleteIcon().top, virtualPaint);
-                        }
-                        if (fbd.getPullIcon()!=null){
-                            canvas.drawBitmap(pullBitmap,fbd.getPullIcon().left,fbd.getPullIcon().top,virtualPaint);
-                        }  if (fbd.getRotateIcon()!=null){
-                            canvas.drawBitmap(rotateBitmap,fbd.getRotateIcon().left,fbd.getRotateIcon().top,virtualPaint);
-                        }
-                    }
-                }
-                if (mOT == OT.GLOBAL_FORBIDDEN_AREA) {
-                    forbiddenAreaPaint.setColor(Color.parseColor("#50388E3C"));
-                } else {
-                    forbiddenAreaPaint.setColor(Color.parseColor("#50FFFF00"));
-                }
-                canvas.drawRect(mForbiddenHelper.getCurRectF(), forbiddenAreaPaint);
                 /**
                  * draw room tag
                  */
@@ -1024,13 +1042,13 @@ public class MapView extends View {
         if (slamCanvas != null) {
             slamCanvas = null;
         }
-        if (deleteBitmap!=null){
+        if (deleteBitmap != null) {
             deleteBitmap.recycle();
         }
-        if (rotateBitmap!=null){
+        if (rotateBitmap != null) {
             rotateBitmap.recycle();
         }
-        if (pullBitmap!=null){
+        if (pullBitmap != null) {
             pullBitmap.recycle();
         }
 
