@@ -117,23 +117,29 @@ public class VirtualWallActivity extends BackBaseActivity {
         });
     }
 
+    /**
+     * //todo 虚拟墙和禁区保存时，虚拟墙大概率会失败
+     * @param view
+     */
     @OnClick({R.id.fl_top_menu})
     public void onClick(View view) {
         if (view.getId() == R.id.fl_top_menu) {
-            MyLogger.d(TAG, "虚拟墙数据" + mMapView.getVirtualWallPointfs());
-            MyLogger.d(TAG, "全局禁区数据" + mMapView.getForbiddenData());
             String vrData = "{\"VirtualWallData\":\"\"}";
             String parData = "{\"ForbiddenAreaData\":\"\"}";
             JSONObject vrJson = JSONObject.parseObject(vrData);
             vrJson.put(EnvConfigure.VirtualWallData, mMapView.getVirtualWallPointfs());
             IlifeAli.getInstance().setProperties(vrJson, aBoolean -> {
-                ToastUtils.showToast("设置虚拟墙：" + (aBoolean ? "成功" : "失败"));
+                if (aBoolean) {
+                    JSONObject parJson = JSONObject.parseObject(parData);
+                    parJson.put(EnvConfigure.KEY_FORBIDDEN_AREA, mMapView.getForbiddenData());
+                    IlifeAli.getInstance().setProperties(parJson, result -> {
+                        if (result) {
+                            finish();
+                        }
+                    });
+                }
             });
-            JSONObject parJson = JSONObject.parseObject(parData);
-            parJson.put(EnvConfigure.KEY_FORBIDDEN_AREA, mMapView.getForbiddenData());
-            IlifeAli.getInstance().setProperties(parJson, aBoolean -> {
-                ToastUtils.showToast("设置禁区：" + (aBoolean ? "成功" : "失败"));
-            });
+
         }
     }
 

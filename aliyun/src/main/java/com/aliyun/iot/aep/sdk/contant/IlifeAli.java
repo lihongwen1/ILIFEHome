@@ -590,12 +590,17 @@ public class IlifeAli {
                         Log.d(TAG, "VirtualWallData: " + virtualWallData);
                     }
                     if (jsonObject.containsKey(EnvConfigure.PartitionData)) {
-                        String partitionData  = jsonObject.getJSONObject(EnvConfigure.PartitionData).getString(EnvConfigure.KEY_VALUE);
+                        String partitionData = jsonObject.getJSONObject(EnvConfigure.PartitionData).getString(EnvConfigure.KEY_VALUE);
                         bean.setPartition(partitionData);
                         Log.d(TAG, "PartitionData: " + partitionData);
                     }
-                    if (jsonObject.containsKey("ChargerPiont")){
-                        Log.d(TAG,"ChargerPiont"+jsonObject.getString("ChargerPiont"));
+                    if (jsonObject.containsKey(EnvConfigure.ChargerPiont)) {
+                        Log.d(TAG, "ChargerPiont" + jsonObject.getString("ChargerPiont"));
+                    }
+                    if (jsonObject.containsKey(EnvConfigure.CleanAreaData)) {
+                        String cleanAreaData = jsonObject.getJSONObject(EnvConfigure.CleanAreaData).getString(EnvConfigure.KEY_VALUE);
+                        bean.setCleanArea(cleanAreaData);
+                        Log.d(TAG, "cleanAreaData: " + cleanAreaData);
                     }
                     onAliResponse.onSuccess(bean);
                 } else {
@@ -997,13 +1002,14 @@ public class IlifeAli {
 
     /**
      * 设置主机的某一属性
-     * @param  json 需为json格式的字符串
+     *
+     * @param json       需为json格式的字符串
      * @param onResponse
      */
-    public void setProperties(JSONObject json,OnAliResponseSingle<Boolean> onResponse){
+    public void setProperties(JSONObject json, OnAliResponseSingle<Boolean> onResponse) {
         HashMap<String, Object> params = new HashMap<>();
         params.put(EnvConfigure.KEY_IOT_ID, iotId);
-        params.put(EnvConfigure.KEY_ITEMS,json);
+        params.put(EnvConfigure.KEY_ITEMS, json);
         Log.d(TAG, "set properties data : " + json.toString());
         ioTAPIClient.send(buildRequest(EnvConfigure.PATH_SET_PROPERTIES, params), new IoTUIThreadCallback(new IoTCallback() {
             @Override
@@ -1022,21 +1028,21 @@ public class IlifeAli {
             }
         }));
     }
+
     /**
-     *
      * @param selectMapId
      * @param saveMapId
      * @param onResponse
      */
     public void setSelectMapId(long selectMapId, String saveMapId, OnAliResponseSingle<Boolean> onResponse) {
-        String data="{\"SaveMap\":{\"SelectedMapId\":1584604330,\"SaveMapId\":\"XnMkql51jKI=\"}}";
+        String data = "{\"SaveMap\":{\"SelectedMapId\":1584604330,\"SaveMapId\":\"XnMkql51jKI=\"}}";
         JSONObject json = JSONObject.parseObject(data);
-        json.getJSONObject(EnvConfigure.KEY_SAVE_MAP).put(EnvConfigure.KEY_SELECT_MAP_ID,selectMapId);
-        json.getJSONObject(EnvConfigure.KEY_SAVE_MAP).put(EnvConfigure.KEY_SAVE_MAP_ID,saveMapId);
+        json.getJSONObject(EnvConfigure.KEY_SAVE_MAP).put(EnvConfigure.KEY_SELECT_MAP_ID, selectMapId);
+        json.getJSONObject(EnvConfigure.KEY_SAVE_MAP).put(EnvConfigure.KEY_SAVE_MAP_ID, saveMapId);
 
         HashMap<String, Object> params = new HashMap<>();
         params.put(EnvConfigure.KEY_IOT_ID, iotId);
-        params.put(EnvConfigure.KEY_ITEMS,json);
+        params.put(EnvConfigure.KEY_ITEMS, json);
         Log.d(TAG, "Save map data: " + json.toString());
         ioTAPIClient.send(buildRequest(EnvConfigure.PATH_SET_PROPERTIES, params), new IoTUIThreadCallback(new IoTCallback() {
             @Override
@@ -1055,8 +1061,6 @@ public class IlifeAli {
             }
         }));
     }
-
-
 
 
     public void setVoiceOpen(boolean isOpen, final OnAliSetPropertyResponse onResponse) {

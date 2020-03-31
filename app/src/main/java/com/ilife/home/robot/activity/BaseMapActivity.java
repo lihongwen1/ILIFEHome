@@ -254,7 +254,8 @@ public abstract class BaseMapActivity extends BackBaseActivity<MapX9Presenter> i
                 case 1://选房清扫
                     startActivity(new Intent(BaseMapActivity.this,SelectRoomActivity.class));
                     break;
-                case 2:
+                case 2://划区清扫
+                    startActivity(new Intent(BaseMapActivity.this,CleanAreaActivity.class));
                     break;
                 case 3://选择地图
                     startActivity(new Intent(BaseMapActivity.this,SelectSaveMapActivity.class));

@@ -13,7 +13,6 @@ import android.view.MotionEvent;
 import com.ilife.home.robot.model.bean.VirtualWallBean;
 import com.ilife.home.robot.utils.DataUtils;
 import com.ilife.home.robot.utils.MyLogger;
-import com.ilife.home.robot.utils.ToastUtils;
 import com.ilife.home.robot.view.MapView;
 
 import java.util.ArrayList;
@@ -21,6 +20,7 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
+ * //todo 旋转，拉伸导致禁区区域不为正矩形的bug
  * contains global forbidden area and mop forbidden area
  */
 public class ForbiddenAreaHelper {
@@ -30,6 +30,7 @@ public class ForbiddenAreaHelper {
     private Path mGlobalPath;
     private Path mMopPath;
     private PointF downPoint;
+    private PointF touchPoint;
     private RectF curRectF;
     private final int LENGTH = 20;//一条禁区数据占用的字节数
     private static final int MIN_FBD_LENGTH = 20;
@@ -75,6 +76,7 @@ public class ForbiddenAreaHelper {
         this.mGlobalPath = new Path();
         this.mMopPath = new Path();
         this.downPoint = new PointF();
+        this.touchPoint = new PointF();
         this.curRectF = new RectF();
         this.mMatrix = new Matrix();
     }
@@ -114,12 +116,15 @@ public class ForbiddenAreaHelper {
             index++;
             bData[index] = b_type[3];
             index++;
+            MyLogger.d(TAG, "禁区坐标： lx" + leftX + "  ly" + leftY);
+            MyLogger.d(TAG, "禁区坐标：" + Arrays.toString(coordinate));
             for (int i = 0; i < coordinate.length; i++) {
                 if (i % 2 == 0) {
-                    coor = (int) Math.ceil(coordinate[i] + leftX);
+                    coor = Math.round(coordinate[i]) + leftX;
                 } else {
-                    coor = (int) Math.ceil(leftY - coordinate[i]);
+                    coor = leftY - Math.round(coordinate[i]);
                 }
+                MyLogger.d(TAG, "禁区坐标 ：" + coor);
                 intToByte = DataUtils.intToBytes(coor);
                 bData[index] = intToByte[0];
                 index++;
@@ -169,8 +174,9 @@ public class ForbiddenAreaHelper {
      * @param mapX  屏幕坐标转化后的地图坐标X
      * @param mapY  屏幕坐标转化后的地图坐标Y
      */
-    public void onTouch(MotionEvent event, float mapX, float mapY) {
+    public void onTouch(MotionEvent event, int mapX, int mapY) {
         int action = event.getAction() & MotionEvent.ACTION_MASK;
+        touchPoint.set(mapX, mapY);
         switch (action) {
             case MotionEvent.ACTION_DOWN:
                 doOnActionDown(mapX, mapY);
@@ -248,19 +254,12 @@ public class ForbiddenAreaHelper {
                 updatePath();
                 break;
             case PULL:
-                float[] coo = curFbdBean.getPointCoordinate();
-                float[] value = new float[]{mMapView.matrixCoordinateX(coo[0]), (mMapView.matrixCoordinateY(coo[1])),
-                        0, 0, mapX, mapY, 0, 0
-                };
-                float k = (coo[3] - coo[1]) / (coo[2] - coo[0]);
-                float degree = (float) Math.atan(k);
+                float[] matrixCoordinate = toMapCoordinate(curFbdBean.getPointCoordinate());
+                float k = (matrixCoordinate[3] - matrixCoordinate[1]) / (matrixCoordinate[2] - matrixCoordinate[0]);
+                float degree = (float) (Math.atan(k) * 180 / Math.PI);
                 mMatrix.reset();
-                mMatrix.setRotate(-degree,(value[0]+value[4])/2,(value[1]+value[5])/2);
-                mMatrix.mapPoints(value);
-                value[2]=value[4];
-                value[3]=value[1];
-                value[6]=value[0];
-                value[7]=value[5];
+                mMatrix.setTranslate(-matrixCoordinate[0], -matrixCoordinate[1]);
+                mMatrix.postRotate(-degree, 0, 0);
                 updatePath();
                 break;
             default:
@@ -272,7 +271,7 @@ public class ForbiddenAreaHelper {
     private void doOnActionUp(float mapX, float mapY) {
         switch (faot) {
             case ADD:
-                if (getUsefulFbdArea() < 10 && DataUtils.distance(downPoint.x, downPoint.y, mapX, mapY) > MIN_FBD_LENGTH) {
+                if (getUsefulFbdArea() < 10 &&Math.abs( mapX-downPoint.x )> MIN_FBD_LENGTH&&Math.abs(mapY-downPoint.y)>MIN_FBD_LENGTH) {
                     float x1, y1, x2, y2;
                     /**
                      * 转化为云端坐标系坐标
@@ -334,7 +333,29 @@ public class ForbiddenAreaHelper {
                 updatePath();
                 break;
             case PULL:
+                float[] matrixCoordinate = toMapCoordinate(curFbdBean.getPointCoordinate());
+                float k = (matrixCoordinate[3] - matrixCoordinate[1]) / (matrixCoordinate[2] - matrixCoordinate[0]);
+                float degree = (float) (Math.atan(k) * 180 / Math.PI);
+                mMatrix.reset();
+                mMatrix.setTranslate(-matrixCoordinate[0], -matrixCoordinate[1]);
+                mMatrix.postRotate(-degree, 0, 0);
 
+                float[] touchCoordinate = new float[]{mapX,mapY};
+                mMatrix.mapPoints(touchCoordinate);
+                mMatrix.mapPoints(matrixCoordinate);
+                matrixCoordinate[2] = touchCoordinate[0];
+                matrixCoordinate[3] = matrixCoordinate[1];
+
+                matrixCoordinate[4] = touchCoordinate[0];
+                matrixCoordinate[5] = touchCoordinate[1];
+
+                matrixCoordinate[6] = matrixCoordinate[0];
+                matrixCoordinate[7] = touchCoordinate[1];
+                mMatrix.invert(mMatrix);
+                mMatrix.mapPoints(matrixCoordinate);
+                curFbdBean.setPointCoordinate(toRobotCoordinate(matrixCoordinate));
+                mMatrix.reset();
+                updatePath();
                 break;
         }
         curFbdBean = null;
@@ -360,7 +381,6 @@ public class ForbiddenAreaHelper {
         return num;
     }
 
-
     /**
      * draw history forbidden area,draw the adding forbidden area
      */
@@ -375,21 +395,26 @@ public class ForbiddenAreaHelper {
             if (fbd.getState() == 3) {
                 continue;
             }
-            matrixCoordinate = new float[8];
-            int index = 0;
-            for (float coo : fbd.getPointCoordinate()) {
-                if (index % 2 == 0) {
-                    matrixCoordinate[index] = mMapView.matrixCoordinateX(coo);
-                } else {
-                    matrixCoordinate[index] = mMapView.matrixCoordinateY(coo);
-                }
-                index++;
-            }
-//            realPath = fbd.getType() == TYPE_GLOBAL ? mGlobalPath : mMopPath;
-            if (selectVwNum == fbd.getNumber()) {
-                mMatrix.mapPoints(matrixCoordinate);
-            }
+            matrixCoordinate = toMapCoordinate(fbd.getPointCoordinate());
+            if (selectVwNum == fbd.getNumber()&&mMatrix!=null&&!mMatrix.isIdentity()) {
+                if (faot == FAOT.PULL) {
+                    float[] touchCoordinate = new float[]{touchPoint.x, touchPoint.y};
+                    mMatrix.mapPoints(touchCoordinate);
+                    mMatrix.mapPoints(matrixCoordinate);
+                    matrixCoordinate[2] = touchCoordinate[0];
+                    matrixCoordinate[3] = matrixCoordinate[1];
 
+                    matrixCoordinate[4] = touchCoordinate[0];
+                    matrixCoordinate[5] = touchCoordinate[1];
+
+                    matrixCoordinate[6] = matrixCoordinate[0];
+                    matrixCoordinate[7] = touchCoordinate[1];
+                    mMatrix.invert(mMatrix);
+                    mMatrix.mapPoints(matrixCoordinate);
+                } else {
+                    mMatrix.mapPoints(matrixCoordinate);
+                }
+            }
             float minx = matrixCoordinate[0], miny = matrixCoordinate[1], maxx = matrixCoordinate[0], maxy = matrixCoordinate[1];
             for (int i = 0; i < matrixCoordinate.length; i++) {
                 float value = matrixCoordinate[i];
@@ -429,6 +454,43 @@ public class ForbiddenAreaHelper {
         mMapView.invalidateUI();
     }
 
+    /**
+     * 根据地图坐标计算主机坐标
+     *
+     * @param coordinate 地图坐标
+     */
+    private float[] toRobotCoordinate(float[] coordinate) {
+        float[] robotCoor = new float[coordinate.length];
+        int index = 0;
+        for (float coo : coordinate) {
+            if (index % 2 == 0) {
+                robotCoor[index] = mMapView.reMatrixCoordinateY(coo);
+            } else {
+                robotCoor[index] = mMapView.reMatrixCoordinateY(coo);
+            }
+            index++;
+        }
+        return robotCoor;
+    }
+
+    /**
+     * 根据主机坐标计算地图坐标
+     *
+     * @param coordinate
+     */
+    private float[] toMapCoordinate(float[] coordinate) {
+        float[] mapCoor = new float[coordinate.length];
+        int index = 0;
+        for (float coo : coordinate) {
+            if (index % 2 == 0) {
+                mapCoor[index] = mMapView.matrixCoordinateX(coo);
+            } else {
+                mapCoor[index] = mMapView.matrixCoordinateY(coo);
+            }
+            index++;
+        }
+        return mapCoor;
+    }
 
     public int getSelectVwNum() {
         return selectVwNum;

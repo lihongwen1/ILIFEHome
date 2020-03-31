@@ -736,7 +736,7 @@ public class MapView extends View {
                 break;
             case MOP_FORBIDDEN_AREA://抹地禁区
             case GLOBAL_FORBIDDEN_AREA://全局禁区
-                mForbiddenHelper.onTouch(event, x, y);
+                mForbiddenHelper.onTouch(event, (int) x, (int) y);
                 break;
         }
         return true;
@@ -854,6 +854,10 @@ public class MapView extends View {
      */
     public void drawRoomTag(String roomData) {
         mPartitionHelper.drawRoom(leftX, leftY, roomData);
+    }
+
+    public void drawCleanArea(String cleanArea){
+        mForbiddenHelper.setForbiddenArea(leftX, leftY,cleanArea);
     }
 
     /**

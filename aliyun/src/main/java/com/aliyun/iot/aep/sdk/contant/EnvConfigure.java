@@ -143,6 +143,8 @@ public class EnvConfigure {
     public static final String KEY_FORBIDDEN_AREA = "ForbiddenAreaData";
     public static final String VirtualWallData = "VirtualWallData";
     public static final String PartitionData = "PartitionData";
+    public static final String CleanAreaData = "CleanAreaData";
+    public static final String ChargerPiont = "ChargerPiont";
     public static final String KEY_SWITCH = "Switch";
     public static final String KEY_DATA = "data";
     public static final String KEY_START_TIME = "StartTime";

@@ -10,10 +10,11 @@ public class PropertyBean {
     private boolean voiceOpen;//0-代表开 1-代表关
     private long selectedMapId;
     private String saveMapId;
-    private String forbiddenArea;
+    private String forbiddenArea;//禁区
     private String virtualWall;
-    private String partition;//分区
-    public PropertyBean(){};
+    private String partition;//分区（分房）
+    private String cleanArea;//划区数据
+    public PropertyBean(){}
 
     public PropertyBean(boolean maxMode, int workMode, int battery, int waterLevel, long realTimeMapTimeLine, long historyMapTimeLine, boolean voiceOpen) {
         this.maxMode = maxMode;
@@ -63,6 +64,14 @@ public class PropertyBean {
 
     public void setRealTimeMapTimeLine(long realTimeMapTimeLine) {
         this.realTimeMapTimeLine = realTimeMapTimeLine;
+    }
+
+    public String getCleanArea() {
+        return cleanArea;
+    }
+
+    public void setCleanArea(String cleanArea) {
+        this.cleanArea = cleanArea;
     }
 
     public long getHistoryMapTimeLine() {
