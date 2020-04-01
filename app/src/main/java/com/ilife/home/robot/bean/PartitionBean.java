@@ -1,5 +1,7 @@
 package com.ilife.home.robot.bean;
 
+import android.graphics.PointF;
+import android.graphics.RectF;
 import android.graphics.Region;
 
 public class PartitionBean {
@@ -7,7 +9,7 @@ public class PartitionBean {
     private int x;
     private int y;
     private Region region;
-
+    private RectF tagIcon;
     public PartitionBean(int partitionId, int x, int y) {
         this.partitionId = partitionId;
         this.x = x;
@@ -44,5 +46,13 @@ public class PartitionBean {
 
     public void setRegion(Region region) {
         this.region = region;
+    }
+
+    public RectF getTagIcon() {
+        return tagIcon;
+    }
+
+    public void setTagIcon(RectF tagIcon) {
+        this.tagIcon = tagIcon;
     }
 }

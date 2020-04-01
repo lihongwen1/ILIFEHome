@@ -1,6 +1,7 @@
 package com.ilife.home.robot.adapter;
 
 import android.util.Base64;
+import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 
@@ -27,6 +28,7 @@ public class SelectMapAdapter extends BaseQuickAdapter<Integer, BaseViewHolder> 
     @Override
     protected void convert(@NonNull BaseViewHolder holder, int position) {
         int id = data.get(position);
+        holder.setIsRecyclable(false);
         IlifeAli.getInstance().getSelectMap(id, new OnAliResponse<List<HistoryRecordBean>>() {
             @Override
             public void onSuccess(List<HistoryRecordBean> result) {

@@ -18,12 +18,14 @@ import android.view.View;
 import com.ilife.home.robot.R;
 import com.ilife.home.robot.app.MyApplication;
 import com.ilife.home.robot.bean.Coordinate;
+import com.ilife.home.robot.bean.PartitionBean;
 import com.ilife.home.robot.model.bean.SlamLineBean;
 import com.ilife.home.robot.model.bean.VirtualWallBean;
 import com.ilife.home.robot.utils.BitmapUtils;
 import com.ilife.home.robot.utils.DataUtils;
 import com.ilife.home.robot.utils.MyLogger;
 import com.ilife.home.robot.utils.Utils;
+import com.ilife.home.robot.view.helper.CleanAreaHelper;
 import com.ilife.home.robot.view.helper.ForbiddenAreaHelper;
 import com.ilife.home.robot.view.helper.PartitionHelper;
 import com.ilife.home.robot.view.helper.VirtualWallHelper;
@@ -75,6 +77,7 @@ public class MapView extends View {
 
     private VirtualWallHelper mVirtualWallHelper;
     private ForbiddenAreaHelper mForbiddenHelper;//全局禁区
+    private CleanAreaHelper mCleanHelper;
     private PartitionHelper mPartitionHelper;
     private OT mOT = OT.NOON;//默认操作地图
     private int MAP_MODE;//标记操作地图的类型
@@ -92,8 +95,9 @@ public class MapView extends View {
         VIRTUAL_WALL(2),//虚拟墙
         GLOBAL_FORBIDDEN_AREA(3),//全局禁区
         MOP_FORBIDDEN_AREA(4),//抹地禁区
-        SELECT_ROOM(5),
-        PARTITION(6);
+        SELECT_ROOM(5),//选房清扫
+        PARTITION(6),//分区
+        CLEAN_AREA(7);//划区清扫
         final int nativeType;
 
         OT(int type) {
@@ -149,6 +153,7 @@ public class MapView extends View {
     private void init() {
         mVirtualWallHelper = new VirtualWallHelper(this);
         mForbiddenHelper = new ForbiddenAreaHelper(this);
+        mCleanHelper = new CleanAreaHelper(this);
         mPartitionHelper = new PartitionHelper(this);
         colors = new int[]{getResources().getColor(R.color.obstacle_color), getResources().getColor(R.color.slam_color),
                 getResources().getColor(R.color.color_00ffffff)};
@@ -562,6 +567,31 @@ public class MapView extends View {
                 }
                 canvas.drawRect(mForbiddenHelper.getCurRectF(), forbiddenAreaPaint);
 
+                /**
+                 *
+                 *  draw clean area
+                 *  绘制清扫区域
+                 */
+                forbiddenAreaPaint.setColor(Color.parseColor("#50f0a0f0"));
+                VirtualWallBean cleanArea = mCleanHelper.getCurCleanAreaBean();
+                if (cleanArea != null && cleanArea.getState() != 3) {
+                    if (cleanArea.getPath() != null) {
+                        canvas.drawPath(cleanArea.getPath(), forbiddenAreaPaint);
+                    }
+                    if (cleanArea.getBoundaryPath() != null) {
+                        canvas.drawPath(cleanArea.getBoundaryPath(), virtualPaint);
+                    }
+                    if (cleanArea.getDeleteIcon() != null) {
+                        canvas.drawBitmap(deleteBitmap, cleanArea.getDeleteIcon().left, cleanArea.getDeleteIcon().top, virtualPaint);
+                    }
+                    if (cleanArea.getPullIcon() != null) {
+                        canvas.drawBitmap(pullBitmap, cleanArea.getPullIcon().left, cleanArea.getPullIcon().top, virtualPaint);
+                    }
+                    if (cleanArea.getRotateIcon() != null) {
+                        canvas.drawBitmap(rotateBitmap, cleanArea.getRotateIcon().left, cleanArea.getRotateIcon().top, virtualPaint);
+                    }
+                }
+                canvas.drawRect(mCleanHelper.getCurRectF(), forbiddenAreaPaint);
 
                 /**
                  * draw virtual wall
@@ -598,8 +628,17 @@ public class MapView extends View {
                 /**
                  * draw room tag
                  */
-                forbiddenAreaPaint.setColor(Color.parseColor("#FFa7a0"));
-                canvas.drawPath(mPartitionHelper.getRoomPath(), forbiddenAreaPaint);
+
+                for (PartitionBean room : mPartitionHelper.getRooms()) {
+                    if (mPartitionHelper.getSelecRoom().indexOfKey(room.getPartitionId()) > 0) {
+                        forbiddenAreaPaint.setColor(Color.parseColor("#FFa7a0"));
+                    } else {
+                        forbiddenAreaPaint.setColor(Color.parseColor("#EF7C00"));
+                    }
+                    int cx = (int) matrixCoordinateX(room.getX() - leftX);
+                    int cy = (int) matrixCoordinateY(leftY - room.getY());
+                    canvas.drawCircle(cx, cy, mPartitionHelper.getRadius(), forbiddenAreaPaint);
+                }
             }
         } else {//x900 series
             if (slamCanvas != null && slamBitmap != null) {
@@ -738,6 +777,9 @@ public class MapView extends View {
             case GLOBAL_FORBIDDEN_AREA://全局禁区
                 mForbiddenHelper.onTouch(event, (int) x, (int) y);
                 break;
+            case CLEAN_AREA:
+                mCleanHelper.onTouch(event, (int) x, (int) y);
+                break;
         }
         return true;
     }
@@ -837,6 +879,11 @@ public class MapView extends View {
         return mForbiddenHelper.getFbdaData();
     }
 
+    public String getCleanAreaData() {
+        return mCleanHelper.getCleanAreaData();
+    }
+
+
     /**
      * 查询到服务其电子墙数据后调用绘制电子墙
      *
@@ -856,8 +903,8 @@ public class MapView extends View {
         mPartitionHelper.drawRoom(leftX, leftY, roomData);
     }
 
-    public void drawCleanArea(String cleanArea){
-        mForbiddenHelper.setForbiddenArea(leftX, leftY,cleanArea);
+    public void drawCleanArea(String cleanArea) {
+        mCleanHelper.setCleanArea(leftX, leftY, cleanArea);
     }
 
     /**

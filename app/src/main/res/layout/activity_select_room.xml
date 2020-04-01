@@ -15,8 +15,8 @@
             android:id="@+id/map_room"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
-
-        <LinearLayout
+        <RadioGroup
+            android:id="@+id/rg_select_room"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="bottom"
@@ -26,18 +26,20 @@
             android:paddingTop="@dimen/dp_14"
             android:paddingBottom="@dimen/dp_14">
 
-            <TextView
+            <RadioButton
+                android:button="@null"
                 android:id="@+id/tv_name_room"
                 style="@style/map_text_button"
-                android:drawableTop="@drawable/n_btn_point_normal"
+                android:drawableTop="@drawable/selector_name_room"
                 android:text="房间命名" />
 
-            <TextView
+            <RadioButton
+                android:button="@null"
                 android:id="@+id/tv_select_room"
                 style="@style/map_text_button"
-                android:drawableTop="@drawable/n_btn_point_normal"
+                android:drawableTop="@drawable/selector_select_room"
                 android:text="选房清扫" />
-        </LinearLayout>
+        </RadioGroup>
     </FrameLayout>
 
 </LinearLayout>

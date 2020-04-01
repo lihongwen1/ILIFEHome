@@ -1,6 +1,9 @@
 package com.ilife.home.robot.activity;
 
 import android.view.View;
+import android.widget.CompoundButton;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.TextView;
 
 import com.aliyun.iot.aep.sdk._interface.OnAliResponse;
@@ -30,6 +33,9 @@ public class SelectRoomActivity extends BackBaseActivity {
     TextView tv_name_room;
     @BindView(R.id.tv_select_room)
     TextView tv_select_room;
+
+    @BindView(R.id.rg_select_room)
+    RadioGroup rg_select_room;
     @Override
     public int getLayoutId() {
         return R.layout.activity_select_room;
@@ -39,6 +45,10 @@ public class SelectRoomActivity extends BackBaseActivity {
     public void initView() {
         tv_title.setText("选房清扫");
         map_room.setmOT(MapView.OT.SELECT_ROOM);
+        rg_select_room.setOnCheckedChangeListener((group, checkedId) -> {
+
+        });
+        rg_select_room.check(R.id.tv_select_room);
     }
 
     @Override
