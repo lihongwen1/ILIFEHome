@@ -591,21 +591,23 @@ public abstract class BaseMapActivity extends BackBaseActivity<MapX9Presenter> i
                     v.setSelected(true);
                 }
                 if (mPresenter.isLongPressControl()) {
-                    remoteDisposable = Observable.interval(0, 3, TimeUnit.SECONDS).observeOn(Schedulers.io()).subscribe(aLong -> {
-                        MyLogger.d(TAG, "下发方向移动指令");
-                        switch (v.getId()) {
-                            /* 遥控器方向键*/
-                            case R.id.image_left:
-                                mPresenter.setPropertiesWithParams(AliSkills.get().turnLeft(IlifeAli.getInstance().getIotId()));
-                                break;
-                            case R.id.image_right:
-                                mPresenter.setPropertiesWithParams(AliSkills.get().turnRight(IlifeAli.getInstance().getIotId()));
-                                break;
-                            case R.id.image_forward:
-                                mPresenter.setPropertiesWithParams(AliSkills.get().turnForward(IlifeAli.getInstance().getIotId()));
-                                break;
-                        }
-                    });
+                    if (!mPresenter.isWork(mPresenter.getCurStatus())) {
+                        remoteDisposable = Observable.interval(0, 3, TimeUnit.SECONDS).observeOn(Schedulers.io()).subscribe(aLong -> {
+                            MyLogger.d(TAG, "下发方向移动指令");
+                            switch (v.getId()) {
+                                /* 遥控器方向键*/
+                                case R.id.image_left:
+                                    mPresenter.setPropertiesWithParams(AliSkills.get().turnLeft(IlifeAli.getInstance().getIotId()));
+                                    break;
+                                case R.id.image_right:
+                                    mPresenter.setPropertiesWithParams(AliSkills.get().turnRight(IlifeAli.getInstance().getIotId()));
+                                    break;
+                                case R.id.image_forward:
+                                    mPresenter.setPropertiesWithParams(AliSkills.get().turnForward(IlifeAli.getInstance().getIotId()));
+                                    break;
+                            }
+                        });
+                    }
 
                 }
                 break;
@@ -622,7 +624,11 @@ public abstract class BaseMapActivity extends BackBaseActivity<MapX9Presenter> i
                     if (v.getId() == R.id.image_control_back) {//max吸力
                         mPresenter.reverseMaxMode();
                     } else {
-                        mPresenter.setPropertiesWithParams(AliSkills.get().turnPause(IlifeAli.getInstance().getIotId()));
+                        if (!mPresenter.isWork(mPresenter.getCurStatus())) {
+                            mPresenter.setPropertiesWithParams(AliSkills.get().turnPause(IlifeAli.getInstance().getIotId()));
+                        } else {
+                            ToastUtils.showToast(this, getString(R.string.map_aty_can_not_execute));
+                        }
                     }
                 } else {
                     switch (v.getId()) {

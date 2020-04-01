@@ -178,7 +178,7 @@
       "isHaveMap": true,
       "isHaveMapData": true,
       "isOnlyRandomMode": false,
-      "isLongPressControl": true,
+      "isLongPressControl": false,
       "isSupportPause": false,
       "pointToAlong": true,
       "alongToPoint": true,
