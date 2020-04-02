@@ -6,7 +6,6 @@ import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -30,11 +29,8 @@ import com.aliyun.iot.aep.sdk.contant.IlifeAli;
 import com.aliyun.iot.aep.sdk.contant.MsgCodeUtils;
 import com.badoo.mobile.util.WeakHandler;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
-import com.ilife.home.livebus.LiveEventBus;
 import com.ilife.home.robot.adapter.MapBottomSheetAdapter;
-import com.ilife.home.robot.base.BaseQuickAdapter;
 import com.ilife.home.robot.bean.Coordinate;
-import com.ilife.home.robot.bean.MapDataBean;
 import com.ilife.home.robot.fragment.UniversalDialog;
 import com.ilife.home.robot.able.DeviceUtils;
 import com.ilife.home.robot.app.MyApplication;
@@ -48,11 +44,9 @@ import com.ilife.home.robot.utils.Utils;
 import com.ilife.home.robot.view.CustomPopupWindow;
 import com.ilife.home.robot.R;
 import com.ilife.home.robot.view.MapView;
-import com.ilife.home.robot.view.SpaceItemDecoration;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -126,6 +120,8 @@ public abstract class BaseMapActivity extends BackBaseActivity<MapX9Presenter> i
     @BindView(R.id.image_right)
     ImageView image_right;
 
+    @BindView(R.id.iv_extension)
+    ImageView iv_extension;
     @BindView(R.id.tv_bottom_recharge)
     TextView tv_bottom_recharge;
     @BindView(R.id.iv_recharge_model)
@@ -156,23 +152,20 @@ public abstract class BaseMapActivity extends BackBaseActivity<MapX9Presenter> i
         super.attachPresenter();
         mPresenter = new MapX9Presenter();
         mPresenter.attachView(this);
-        weakHandler = new WeakHandler(new Handler.Callback() {
-            @Override
-            public boolean handleMessage(Message msg) {
-                switch (msg.what) {
-                    case 1://更新清扫面积
-                        tv_area.setText((String) msg.obj);
-                        break;
-                    case 2://清扫时长
-                        tv_time.setText((String) msg.obj);
-                        break;
-                    case 3:
-                        mMapView.drawMapX8((List<Coordinate>) msg.obj);
-                        break;
-                }
-
-                return false;
+        weakHandler = new WeakHandler(msg -> {
+            switch (msg.what) {
+                case 1://更新清扫面积
+                    tv_area.setText((String) msg.obj);
+                    break;
+                case 2://清扫时长
+                    tv_time.setText((String) msg.obj);
+                    break;
+                case 3:
+                    mMapView.drawMapX8((List<Coordinate>) msg.obj);
+                    break;
             }
+
+            return false;
         });
     }
 
@@ -246,19 +239,41 @@ public abstract class BaseMapActivity extends BackBaseActivity<MapX9Presenter> i
         rv_bottom_sheet.setAdapter(adapter);
         ll_bottom_sheet = findViewById(R.id.map_bottom_sheet);
         mBottomSheetBehavior = BottomSheetBehavior.from(ll_bottom_sheet);
+        mBottomSheetBehavior.setBottomSheetCallback(new BottomSheetBehavior.BottomSheetCallback() {
+            @Override
+            public void onStateChanged(@NonNull View view, int state) {
+                switch (state) {
+                    case BottomSheetBehavior.STATE_HIDDEN://隐藏状态
+                        break;
+                    case BottomSheetBehavior.STATE_EXPANDED://展开状态
+                        iv_extension.setSelected(true);
+                        break;
+                    case BottomSheetBehavior.STATE_COLLAPSED://折叠状态
+                        iv_extension.setSelected(false);
+                        break;
+                    case BottomSheetBehavior.STATE_DRAGGING://拖拽状态
+                        iv_extension.setSelected(!iv_extension.isSelected());
+                        break;
+                }
+            }
+
+            @Override
+            public void onSlide(@NonNull View view, float v) {
+            }
+        });
         adapter.setOnItemClickListener((adapter1, view, position) -> {
             switch (position) {
                 case 0:
-                    startActivity(new Intent(BaseMapActivity.this,VirtualWallActivity.class));
+                    startActivity(new Intent(BaseMapActivity.this, VirtualWallActivity.class));
                     break;
                 case 1://选房清扫
-                    startActivity(new Intent(BaseMapActivity.this,SelectRoomActivity.class));
+                    startActivity(new Intent(BaseMapActivity.this, SelectRoomActivity.class));
                     break;
                 case 2://划区清扫
-                    startActivity(new Intent(BaseMapActivity.this,CleanAreaActivity.class));
+                    startActivity(new Intent(BaseMapActivity.this, CleanAreaActivity.class));
                     break;
                 case 3://选择地图
-                    startActivity(new Intent(BaseMapActivity.this,SelectSaveMapActivity.class));
+                    startActivity(new Intent(BaseMapActivity.this, SelectSaveMapActivity.class));
                     break;
                 case 4:
                     break;

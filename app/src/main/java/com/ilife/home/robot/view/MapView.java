@@ -200,10 +200,10 @@ public class MapView extends View {
         virtualPaint.setStrokeWidth(6f);
 
         forbiddenAreaPaint = new Paint(Paint.ANTI_ALIAS_FLAG | Paint.DITHER_FLAG);
-        forbiddenAreaPaint.setStyle(Paint.Style.FILL);
+        forbiddenAreaPaint.setStyle(Paint.Style.FILL_AND_STROKE);
         forbiddenAreaPaint.setFilterBitmap(true);
-        virtualPaint.setColor(getResources().getColor(R.color.successColor));
-        forbiddenAreaPaint.setStrokeWidth(1f);
+        forbiddenAreaPaint.setColor(getResources().getColor(R.color.successColor));
+        forbiddenAreaPaint.setStrokeWidth(1);
 
         boxPaint = new Paint(Paint.ANTI_ALIAS_FLAG | Paint.DITHER_FLAG);
         boxPaint.setStyle(Paint.Style.FILL);
@@ -570,13 +570,19 @@ public class MapView extends View {
                 /**
                  *
                  *  draw clean area
-                 *  绘制清扫区域
+                 *  绘制清扫区域/划区清扫
                  */
-                forbiddenAreaPaint.setColor(Color.parseColor("#50f0a0f0"));
                 VirtualWallBean cleanArea = mCleanHelper.getCurCleanAreaBean();
                 if (cleanArea != null && cleanArea.getState() != 3) {
                     if (cleanArea.getPath() != null) {
+                        forbiddenAreaPaint.setStyle(Paint.Style.FILL);
+                        forbiddenAreaPaint.setColor(Color.parseColor("#50f0a0f0"));
                         canvas.drawPath(cleanArea.getPath(), forbiddenAreaPaint);
+                        forbiddenAreaPaint.setStyle(Paint.Style.STROKE);
+                        forbiddenAreaPaint.setColor(Color.parseColor("#f0a0f0"));
+                        forbiddenAreaPaint.setStrokeWidth(5);
+                        canvas.drawPath(cleanArea.getPath(), forbiddenAreaPaint);
+
                     }
                     if (cleanArea.getBoundaryPath() != null) {
                         canvas.drawPath(cleanArea.getBoundaryPath(), virtualPaint);
@@ -630,7 +636,7 @@ public class MapView extends View {
                  */
 
                 for (PartitionBean room : mPartitionHelper.getRooms()) {
-                    if (mPartitionHelper.getSelecRoom().indexOfKey(room.getPartitionId()) > 0) {
+                    if (mPartitionHelper.getSelecRoom().indexOfKey(room.getPartitionId()) < 0) {//未选中
                         forbiddenAreaPaint.setColor(Color.parseColor("#FFa7a0"));
                     } else {
                         forbiddenAreaPaint.setColor(Color.parseColor("#EF7C00"));
@@ -879,8 +885,22 @@ public class MapView extends View {
         return mForbiddenHelper.getFbdaData();
     }
 
+    /**
+     * 获取清扫区域数据
+     *
+     * @return
+     */
     public String getCleanAreaData() {
         return mCleanHelper.getCleanAreaData();
+    }
+
+    /**
+     * 获取房间数据
+     *
+     * @return
+     */
+    public int getSelectRoom() {
+        return mPartitionHelper.getSelectRoomId();
     }
 
 

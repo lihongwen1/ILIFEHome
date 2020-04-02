@@ -227,14 +227,13 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
                     pointCoor[0] = bytes[i - 2];
                     pointCoor[1] = bytes[i - 1];
                     int y = DataUtils.bytesToInt(pointCoor, 0);
-                    coordinate = new Coordinate(x, y, type);
+                    coordinate = new Coordinate(x, -y, type);
                     index = pointList.indexOf(coordinate);
                     if (index == -1) {
                         pointList.add(coordinate);
                     } else {
                         pointList.remove(index);
                         pointList.add(coordinate);
-//                        pointList.get(index).setType(type);
                     }
                 }
             }
@@ -341,14 +340,14 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
                         /**
                          * 处理保存地图
                          */
-                        if (propertyBean.getSelectedMapId() != 0) {
-                            MyLogger.d(TAG,"查询保存的地图数据--"+propertyBean.getSelectedMapId());
+                        if (propertyBean.isInitStatus()&&propertyBean.getSelectedMapId() != 0) {
+                            MyLogger.d(TAG, "查询保存的地图数据--" + propertyBean.getSelectedMapId());
                             IlifeAli.getInstance().getSelectMap(propertyBean.getSelectedMapId(), new OnAliResponse<List<HistoryRecordBean>>() {
                                 @Override
                                 public void onSuccess(List<HistoryRecordBean> result) {
                                     //只有一条记录才正确
-                                    if (result==null||result.size()==0){
-                                        MyLogger.e(TAG,"保存地图数据错误！！！！！！！！！！");
+                                    if (result == null || result.size() == 0) {
+                                        MyLogger.e(TAG, "保存地图数据错误！！！！！！！！！！");
                                         return;
                                     }
                                     parseSaveMapData(result.get(0).getMapDataArray());
@@ -361,7 +360,7 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
                                     /**
                                      * 处理虚拟墙数据
                                      */
-                                    if (!TextUtils.isEmpty(propertyBean.getVirtualWall())&&isViewAttached()&&isDrawMap()){
+                                    if (!TextUtils.isEmpty(propertyBean.getVirtualWall()) && isViewAttached() && isDrawMap()) {
                                         mView.drawVirtualWall(propertyBean.getVirtualWall());
                                     }
                                 }
@@ -776,16 +775,15 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
 
     @Override
     public MapDataBean getMapDataBean() {
-        MapDataBean dataBean=new MapDataBean(pointList,"","",0,0
-        ,minX,minY,maxX,maxY);
+        MapDataBean dataBean = new MapDataBean(pointList, "", "", 0, 0
+                , minX, minY, maxX, maxY);
         return dataBean;
     }
 
     private void parseSaveMapData(String[] mapArray) {
-        ArrayList<Coordinate> datas=new ArrayList<>();// map集合
         int lineCount = 0;
         List<Byte> byteList = new ArrayList<>();
-        int leftX=0,leftY=0;
+        int leftX = 0, leftY = 0;
         if (mapArray != null) {
             if (mapArray.length > 0) {
                 for (String data : mapArray) {
@@ -796,7 +794,7 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
                     int bj = bytes[0] & 0xff;
                     if (bj == 1) {//map数据
                         leftX = DataUtils.bytesToInt(new byte[]{bytes[1], bytes[2]}, 0);
-                        leftY= DataUtils.bytesToInt(new byte[]{bytes[3], bytes[4]}, 0);
+                        leftY = DataUtils.bytesToInt(new byte[]{bytes[3], bytes[4]}, 0);
                         lineCount = DataUtils.bytesToInt(new byte[]{bytes[5], bytes[6]}, 0);
                         for (int j = 7; j < bytes.length; j++) {
                             byteList.add(bytes[j]);
@@ -807,14 +805,14 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
         }
         Coordinate coordinate;
         if (byteList.size() > 0) {
-            int x = 0, y = 0, type = 0, length = 0;
+            int x = 0, y = 0, type, length;
             for (int i = 2; i < byteList.size(); i += 3) {
                 type = byteList.get(i - 1) & 0xff;
                 length = byteList.get(i) & 0xff;
                 for (int j = 0; j < length; j++) {
                     if (type != 0) {
-                        coordinate = new Coordinate(x, y, type);
-                        datas.add(coordinate);
+                        coordinate = new Coordinate(x+leftX, y+leftY, type);
+                        pointList.add(coordinate);
                     }
                     if (x < lineCount - 1) {
                         x++;
@@ -825,13 +823,11 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
 
                 }
             }
-             minX = 0;
-             maxX = lineCount;
-             minY = 0;
-             maxY = y;
-            mView.setLeftTopCoordinate(leftX,leftY);
+
+            mView.setLeftTopCoordinate(leftX, leftY);
+            updateSlamX8(pointList,0);
             mView.updateSlam(minX, maxX, minY, maxY);
-            mView.drawMapX8(datas);
+            mView.drawMapX8(pointList);
         }
     }
 

@@ -207,6 +207,7 @@ public class HistoryDetailActivity_x9 extends BackBaseActivity {
                             for (int i = 1; i < bytes.length; i += 4) {
                                 x = DataUtils.bytesToInt(new byte[]{bytes[i], bytes[i + 1]}, 0);
                                 y = DataUtils.bytesToInt(new byte[]{bytes[i + 2], bytes[i + 3]}, 0);
+                                MyLogger.d(TAG,"路径坐标："+x+"   "+y);
                                 roadList.add(new Coordinate(x - lx, -y + ly, 4));
                             }
                         }

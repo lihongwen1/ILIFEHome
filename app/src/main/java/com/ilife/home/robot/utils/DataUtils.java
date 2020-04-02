@@ -12,6 +12,7 @@ import com.ilife.home.robot.bean.MapDataBean;
 import com.ilife.home.robot.bean.PartitionBean;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -80,7 +81,11 @@ public class DataUtils {
      * @return
      */
     public static int bytesToInt(byte[] src) {
-        return (((int)src[0]) << 24) + (((int)src[1]) << 16) + (((int)src[2]) << 8) + src[3];
+        int value1=src[0]<<24&0xff000000;
+        int value2=src[1]<<16&0xff0000;
+        int value3=src[2]<<8&0xff00;
+        int value4=src[3]&0xff;
+        return value1+value2+value3+value4;
     }
 
     /**
@@ -303,21 +308,5 @@ public class DataUtils {
         return null;
     }
 
-    public static List<PartitionBean> parsePartitionData(String partition) {
-        List<PartitionBean> partions = new ArrayList<>();
-        byte[] bytes = Base64.decode(partition, Base64.DEFAULT);
-        int num = bytes.length / 8;
-        int int1, int2, int3, int4, partionId, x, y;
-        for (int i = 0; i < num; i++) {
-            int1 = (bytes[i * 8] & 0xFF) << 24;
-            int2 = (bytes[i * 8 + 1] & 0xFF) << 16;
-            int3 = (bytes[i * 8 + 2] & 0xFF) << 8;
-            int4 = bytes[i * 8 + 3] & 0xFF;
-            partionId = int1 + int2 + int3 + int4;
-            x = DataUtils.bytesToInt(bytes[i * 8 + 4], bytes[i * 8 + 5]);
-            y = DataUtils.bytesToInt(bytes[i * 8 + 6], bytes[i * 8 + 7]);
-            partions.add(new PartitionBean(partionId, x, y));
-        }
-        return partions;
-    }
+
 }

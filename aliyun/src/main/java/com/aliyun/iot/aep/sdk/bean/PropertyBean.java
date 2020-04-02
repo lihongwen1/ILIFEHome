@@ -14,6 +14,7 @@ public class PropertyBean {
     private String virtualWall;
     private String partition;//分区（分房）
     private String cleanArea;//划区数据
+    private boolean initStatus;
     public PropertyBean(){}
 
     public PropertyBean(boolean maxMode, int workMode, int battery, int waterLevel, long realTimeMapTimeLine, long historyMapTimeLine, boolean voiceOpen) {
@@ -128,6 +129,14 @@ public class PropertyBean {
 
     public void setVoiceOpen(boolean voiceOpen) {
         this.voiceOpen = voiceOpen;
+    }
+
+    public boolean isInitStatus() {
+        return initStatus;
+    }
+
+    public void setInitStatus(boolean initStatus) {
+        this.initStatus = initStatus;
     }
 
     @Override

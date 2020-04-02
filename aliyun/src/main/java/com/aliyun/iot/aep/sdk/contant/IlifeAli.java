@@ -573,6 +573,11 @@ public class IlifeAli {
                     /**
                      * 特殊字段
                      */
+
+                    if (jsonObject.containsKey(EnvConfigure.KEY_INIT_STATUS)){
+                        int initStatus=jsonObject.getJSONObject(EnvConfigure.KEY_INIT_STATUS).getIntValue(EnvConfigure.KEY_VALUE);
+                        bean.setInitStatus(initStatus==1);
+                    }
                     if (jsonObject.containsKey(EnvConfigure.KEY_SAVE_MAP)) {
                         long selectMapId = jsonObject.getJSONObject(EnvConfigure.KEY_SAVE_MAP).getJSONObject(EnvConfigure.KEY_VALUE).getLongValue(EnvConfigure.KEY_SELECT_MAP_ID);
                         String saveMapId = jsonObject.getJSONObject(EnvConfigure.KEY_SAVE_MAP).getJSONObject(EnvConfigure.KEY_VALUE).getString(EnvConfigure.KEY_SAVE_MAP_ID);

@@ -32,7 +32,7 @@ public class CleanAreaHelper {
     private int leftX, leftY;
     private final int ICON_RADIUS = 50;
     private Matrix mMatrix;
-
+    private Matrix boundaryMatrix;
     public enum CAOT {
         NOON(51),
         ADD(52),
@@ -62,6 +62,7 @@ public class CleanAreaHelper {
         this.touchPoint = new PointF();
         this.curRectF = new RectF();
         this.mMatrix = new Matrix();
+        this.boundaryMatrix=new Matrix();
     }
 
 
@@ -300,6 +301,7 @@ public class CleanAreaHelper {
     private void updatePath() {
         //TODO draw forbidden area
         float[] matrixCoordinate;
+        float[] boundaryCoordinate;
         Region boundaryRegion;
         if (curCleanAreaBean == null) {
             mMapView.invalidateUI();
@@ -325,9 +327,14 @@ public class CleanAreaHelper {
                 mMatrix.mapPoints(matrixCoordinate);
             }
         }
-        float minx = matrixCoordinate[0], miny = matrixCoordinate[1], maxx = matrixCoordinate[0], maxy = matrixCoordinate[1];
-        for (int i = 0; i < matrixCoordinate.length; i++) {
-            float value = matrixCoordinate[i];
+        boundaryCoordinate = new float[matrixCoordinate.length];
+        System.arraycopy(matrixCoordinate, 0, boundaryCoordinate, 0, matrixCoordinate.length);
+        boundaryMatrix.setScale(1.2f, 1.2f,
+                (boundaryCoordinate[0] + boundaryCoordinate[4]) / 2, (boundaryCoordinate[1] + boundaryCoordinate[5]) / 2);
+        boundaryMatrix.mapPoints(boundaryCoordinate);
+        float minx = boundaryCoordinate[0], miny = boundaryCoordinate[1], maxx = boundaryCoordinate[0], maxy = boundaryCoordinate[1];
+        for (int i = 0; i < boundaryCoordinate.length; i++) {
+            float value = boundaryCoordinate[i];
             if (i % 2 == 0) {//x
                 if (value < minx) {
                     minx = value;
@@ -348,18 +355,35 @@ public class CleanAreaHelper {
         if (curCleanAreaBean.getPath() == null) {
             curCleanAreaBean.setPath(new Path());
         }
+        /**
+         * 划去
+         */
         Path realPath = curCleanAreaBean.getPath();
         realPath.reset();
         realPath.moveTo(matrixCoordinate[0], matrixCoordinate[1]);
         realPath.lineTo(matrixCoordinate[2], matrixCoordinate[3]);
         realPath.lineTo(matrixCoordinate[4], matrixCoordinate[5]);
         realPath.lineTo(matrixCoordinate[6], matrixCoordinate[7]);
+        realPath.close();
+        /**
+         * 边界
+         */
+        if (curCleanAreaBean.getBoundaryPath()==null){
+            curCleanAreaBean.setBoundaryPath(new Path());
+        }
+        Path boundaryPath=curCleanAreaBean.getBoundaryPath();
+        boundaryPath.reset();
+        boundaryPath.moveTo(boundaryCoordinate[0], boundaryCoordinate[1]);
+        boundaryPath.lineTo(boundaryCoordinate[2], boundaryCoordinate[3]);
+        boundaryPath.lineTo(boundaryCoordinate[4], boundaryCoordinate[5]);
+        boundaryPath.lineTo(boundaryCoordinate[6], boundaryCoordinate[7]);
+        boundaryPath.close();
         boundaryRegion = new Region((int) minx, (int) miny, (int) maxx, (int) maxy);
-        boundaryRegion.setPath(realPath, boundaryRegion);
+        boundaryRegion.setPath(boundaryPath, boundaryRegion);
         curCleanAreaBean.setBoundaryRegion(boundaryRegion);
-        curCleanAreaBean.setDeleteIcon(new RectF(matrixCoordinate[0] - ICON_RADIUS, matrixCoordinate[1] - ICON_RADIUS, matrixCoordinate[0] + ICON_RADIUS, matrixCoordinate[1] + ICON_RADIUS));
-        curCleanAreaBean.setRotateIcon(new RectF(matrixCoordinate[2] - ICON_RADIUS, matrixCoordinate[3] - ICON_RADIUS, matrixCoordinate[2] + ICON_RADIUS, matrixCoordinate[3] + ICON_RADIUS));
-        curCleanAreaBean.setPullIcon(new RectF(matrixCoordinate[4] - ICON_RADIUS, matrixCoordinate[5] - ICON_RADIUS, matrixCoordinate[4] + ICON_RADIUS, matrixCoordinate[5] + ICON_RADIUS));
+        curCleanAreaBean.setDeleteIcon(new RectF(boundaryCoordinate[0] - ICON_RADIUS, boundaryCoordinate[1] - ICON_RADIUS, boundaryCoordinate[0] + ICON_RADIUS, matrixCoordinate[1] + ICON_RADIUS));
+        curCleanAreaBean.setRotateIcon(new RectF(boundaryCoordinate[2] - ICON_RADIUS, boundaryCoordinate[3] - ICON_RADIUS, boundaryCoordinate[2] + ICON_RADIUS, boundaryCoordinate[3] + ICON_RADIUS));
+        curCleanAreaBean.setPullIcon(new RectF(boundaryCoordinate[4] - ICON_RADIUS, boundaryCoordinate[5] - ICON_RADIUS, boundaryCoordinate[4] + ICON_RADIUS, boundaryCoordinate[5] + ICON_RADIUS));
         mMapView.invalidateUI();
     }
 
