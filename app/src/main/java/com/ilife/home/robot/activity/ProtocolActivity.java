@@ -39,11 +39,11 @@ public class ProtocolActivity extends BackBaseActivity {
     @Override
     public void initData() {
         super.initData();
-        type = getIntent().getIntExtra(KEY_TYPE, 0);
     }
 
     @SuppressLint("ClickableViewAccessibility")
     public void initView() {
+        type = getIntent().getIntExtra(KEY_TYPE, 0);
         String fileName = "";
         String titile = "";
         switch (type) {
