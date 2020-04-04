@@ -34,10 +34,13 @@ import com.ilife.home.robot.utils.TimePickerUIUtil;
 import com.ilife.home.robot.R;
 import com.ilife.home.robot.adapter.ClockAdapter;
 import com.ilife.home.robot.entity.NewClockInfo;
+import com.ilife.home.robot.utils.Utils;
+import com.ilife.home.robot.view.SpaceItemDecoration;
 import com.scwang.smartrefresh.layout.SmartRefreshLayout;
 import com.scwang.smartrefresh.layout.header.ClassicsHeader;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import butterknife.BindView;
 
@@ -57,9 +60,8 @@ public class ClockingActivity extends BackBaseActivity {
     LayoutInflater inflater;
     TimePicker timePicker;
     SmartRefreshLayout refreshLayout;
-    ArrayList<NewClockInfo> clockInfos;
+    ArrayList<NewClockInfo> clockInfos = new ArrayList<>();
     int hour, minute, open;
-    String[] weeks;
     String last;
     @BindView(R.id.tv_top_title)
     TextView tv_title;
@@ -109,20 +111,6 @@ public class ClockingActivity extends BackBaseActivity {
         recyclerView.setAdapter(adapter);
     }
 
-    @Override
-    public void initData() {
-        clockInfos = new ArrayList<>();
-        weeks = getResources().getStringArray(R.array.array_week);
-        for (int i = 0; i < 7; i++) {
-            NewClockInfo info = new NewClockInfo();
-            info.setWeek(weeks[i]);
-            info.setHour((byte) 0);
-            info.setMinute((byte) 0);
-            info.setOpen((byte) 0);
-            clockInfos.add(info);
-        }
-    }
-
     public void showSetClockDialog(int position) {
         if (alertDialog == null) {
             View contentView = inflater.inflate(R.layout.layout_timepick_dialog, null);
@@ -140,8 +128,8 @@ public class ClockingActivity extends BackBaseActivity {
         }
         tv_cancel.setOnClickListener(new MyListener(position));
         tv_confirm.setOnClickListener(new MyListener(position));
-        byte hour = clockInfos.get(position).getHour();
-        byte minute = clockInfos.get(position).getMinute();
+        byte hour = (byte) clockInfos.get(position).getHour();
+        byte minute = (byte) clockInfos.get(position).getMinute();
         last = hour + UNDER_LINE + minute;
         if (DateFormat.is24HourFormat(context)) {
             timePicker.setIs24HourView(true);
@@ -170,7 +158,7 @@ public class ClockingActivity extends BackBaseActivity {
                     hour = timePicker.getCurrentHour();
                     minute = timePicker.getCurrentMinute();
                     selectPosition = position;
-                    RobotConfigBean.RobotBean rBean=MyApplication.getInstance().readRobotConfig().getRobotBeanByPk(IlifeAli.getInstance().getWorkingDevice().getProductKey());
+                    RobotConfigBean.RobotBean rBean = MyApplication.getInstance().readRobotConfig().getRobotBeanByPk(IlifeAli.getInstance().getWorkingDevice().getProductKey());
                     if (rBean.isScheduleInDark()) {//V3x，X787没有黑暗环境限制
                         setSchedule(selectPosition, 1);
                     } else if ((hour > 5 && hour < 20) || (hour == 5 && minute > 0)) {//可用时间段(预约夜间时间提醒)
@@ -190,9 +178,15 @@ public class ClockingActivity extends BackBaseActivity {
 
     }
 
+    /**
+     * position 0-6《-----》schedule1-schedule7
+     *
+     * @param position
+     * @param open
+     */
     private void setSchedule(int position, int open) {
-        RobotConfigBean.RobotBean rBean=MyApplication.getInstance().readRobotConfig().getRobotBeanByPk(IlifeAli.getInstance().getWorkingDevice().getProductKey());
-        IlifeAli.getInstance().setSchedule(rBean.isNewScheduleVersion(),position, open, hour, minute, new OnAliResponse<ScheduleBean>() {
+        RobotConfigBean.RobotBean rBean = MyApplication.getInstance().readRobotConfig().getRobotBeanByPk(IlifeAli.getInstance().getWorkingDevice().getProductKey());
+        IlifeAli.getInstance().setSchedule(rBean.isNewScheduleVersion(), position + 1, open, hour, minute, new OnAliResponse<ScheduleBean>() {
             @Override
             public void onSuccess(ScheduleBean scheduleBean) {
                 NewClockInfo clockInfo = clockInfos.get(position);
@@ -210,33 +204,12 @@ public class ClockingActivity extends BackBaseActivity {
     }
 
     public void getClockInfo() {
-        IlifeAli.getInstance().getScheduleInfo(new OnAliResponse<String>() {
+        IlifeAli.getInstance().getScheduleInfo(new OnAliResponse<List<ScheduleBean>>() {
             @Override
-            public void onSuccess(String content) {
-                MyLogger.d(TAG, "getClockInfo  content:     " + content);
-                JSONObject object = JSONObject.parseObject(content);
-                for (int i = 0; i < 7; i++) {
-                    String week;
-                    String key = EnvConfigure.KEY_SCHEDULE + (i + 1);
-                    if (!object.containsKey(key)) {
-                        MyLogger.d(TAG, "json 数据缺失---：" + key);
-                        continue;
-                    }
-                    int hour = object.getJSONObject(key).getJSONObject(EnvConfigure.KEY_VALUE).getIntValue(EnvConfigure.KEY_SCHEDULE_HOUR);
-                    int minute = object.getJSONObject(key).getJSONObject(EnvConfigure.KEY_VALUE).getIntValue(EnvConfigure.KEY_SCHEDULE_MINUTES);
-                    int open = object.getJSONObject(key).getJSONObject(EnvConfigure.KEY_VALUE).getIntValue(EnvConfigure.KEY_SCHEDULE_ENABLE);
-                    NewClockInfo clockInfo;
-                    if (i != 6) {
-                        week = weeks[i + 1];
-                        clockInfo = clockInfos.get(i + 1);
-                    } else {
-                        week = weeks[0];
-                        clockInfo = clockInfos.get(0);
-                    }
-                    clockInfo.setWeek(week);
-                    clockInfo.setOpen((byte) open);
-                    clockInfo.setHour((byte) hour);
-                    clockInfo.setMinute((byte) minute);
+            public void onSuccess(List<ScheduleBean> scheduleBeans) {
+                clockInfos.clear();
+                for (ScheduleBean bean : scheduleBeans) {
+                    clockInfos.add(new NewClockInfo(bean));
                 }
                 adapter.notifyDataSetChanged();
                 if (refreshLayout != null) {

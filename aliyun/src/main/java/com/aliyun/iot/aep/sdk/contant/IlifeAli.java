@@ -2,6 +2,7 @@ package com.aliyun.iot.aep.sdk.contant;
 
 import android.os.Build;
 import android.os.Process;
+import android.text.TextUtils;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -574,9 +575,9 @@ public class IlifeAli {
                      * 特殊字段
                      */
 
-                    if (jsonObject.containsKey(EnvConfigure.KEY_INIT_STATUS)){
-                        int initStatus=jsonObject.getJSONObject(EnvConfigure.KEY_INIT_STATUS).getIntValue(EnvConfigure.KEY_VALUE);
-                        bean.setInitStatus(initStatus==1);
+                    if (jsonObject.containsKey(EnvConfigure.KEY_INIT_STATUS)) {
+                        int initStatus = jsonObject.getJSONObject(EnvConfigure.KEY_INIT_STATUS).getIntValue(EnvConfigure.KEY_VALUE);
+                        bean.setInitStatus(initStatus == 1);
                     }
                     if (jsonObject.containsKey(EnvConfigure.KEY_SAVE_MAP)) {
                         long selectMapId = jsonObject.getJSONObject(EnvConfigure.KEY_SAVE_MAP).getJSONObject(EnvConfigure.KEY_VALUE).getLongValue(EnvConfigure.KEY_SELECT_MAP_ID);
@@ -1103,7 +1104,6 @@ public class IlifeAli {
         } else {
             schedule = "{\"Schedule\":{\"ScheduleHour\":0,\"ScheduleEnd\":300,\"ScheduleEnable\":0,\"ScheduleMode\":3,\"ScheduleWeek\":1,\"ScheduleArea\":1,\"ScheduleMinutes\":0}}";
         }
-        position = position == 0 ? 7 : position;
         String str = EnvConfigure.KEY_SCHEDULE + position;
         String schedule_ = schedule.replaceFirst(EnvConfigure.KEY_SCHEDULE, str);
         final JSONObject json = JSONObject.parseObject(schedule_);
@@ -1138,7 +1138,7 @@ public class IlifeAli {
         }));
     }
 
-    public void getScheduleInfo(final OnAliResponse<String> onAliResponse) {
+    public void getScheduleInfo(final OnAliResponse<List<ScheduleBean>> onAliResponse) {
         HashMap<String, Object> params = new HashMap<>();
         params.put(EnvConfigure.KEY_TAG, EnvConfigure.VALUE_GET_PROPERTY);
         params.put(EnvConfigure.KEY_IOT_ID, iotId);
@@ -1152,7 +1152,25 @@ public class IlifeAli {
             public void onResponse(IoTRequest ioTRequest, IoTResponse ioTResponse) {
                 if (ioTResponse.getCode() == 200) {
                     String content = ioTResponse.getData().toString();
-                    onAliResponse.onSuccess(content);
+                    if (TextUtils.isEmpty(content)) {
+                        return;
+                    }
+                    JSONObject jsonObject = JSONObject.parseObject(content);
+                    List<ScheduleBean> scheduleBeans = new ArrayList<>();
+                    ScheduleBean bean;
+                    String key;
+                    String value;
+                    Gson gson = new Gson();
+                    //TODO 解析预约数据
+                    for (int i = 1; i <= 7; i++) {
+                        key = EnvConfigure.KEY_SCHEDULE + i;
+                        if (content.contains(key)) {
+                            value = jsonObject.getJSONObject(key).getString(EnvConfigure.KEY_VALUE);
+                            bean = gson.fromJson(value, ScheduleBean.class);
+                            scheduleBeans.add(bean);
+                        }
+                    }
+                    onAliResponse.onSuccess(scheduleBeans);
                 }
             }
         }));

@@ -43,7 +43,7 @@ public class ForbiddenAreaHelper {
     private final int ICON_RADIUS = 50;
     private int selectVwNum = -1;
     private Matrix mMatrix;
-
+    private Matrix boundaryMatrix;
     public enum FAOT {
         NOON(31),
         ADD(32),
@@ -79,6 +79,7 @@ public class ForbiddenAreaHelper {
         this.touchPoint = new PointF();
         this.curRectF = new RectF();
         this.mMatrix = new Matrix();
+        this.boundaryMatrix=new Matrix();
     }
 
     public Path getmGlobalPath() {
@@ -282,7 +283,8 @@ public class ForbiddenAreaHelper {
                     y2 = mMapView.reMatrixCoordinateY(downPoint.y > mapY ? downPoint.y : mapY);//y2
                     float[] coordinate = new float[]{x1, y1, x2, y1, x2, y2, x1, y2};
                     VirtualWallBean fbd = new VirtualWallBean(fbdBeans.size() + 1, mFbdAreaType, coordinate, 2);
-                    fbdBeans.add(fbd);
+                    fbdBeans.add(0,fbd);
+                    selectVwNum=fbd.getNumber();
                     updatePath();
                 }
                 break;
@@ -390,6 +392,7 @@ public class ForbiddenAreaHelper {
         mMopPath.reset();
         Path realPath;
         float[] matrixCoordinate;
+        float[] boundaryCoordinate;
         Region boundaryRegion;
         for (VirtualWallBean fbd : fbdBeans) {
             if (fbd.getState() == 3) {
@@ -415,9 +418,14 @@ public class ForbiddenAreaHelper {
                     mMatrix.mapPoints(matrixCoordinate);
                 }
             }
-            float minx = matrixCoordinate[0], miny = matrixCoordinate[1], maxx = matrixCoordinate[0], maxy = matrixCoordinate[1];
-            for (int i = 0; i < matrixCoordinate.length; i++) {
-                float value = matrixCoordinate[i];
+            boundaryCoordinate = new float[matrixCoordinate.length];
+            System.arraycopy(matrixCoordinate, 0, boundaryCoordinate, 0, matrixCoordinate.length);
+            boundaryMatrix.setScale(1.2f, 1.2f,
+                    (boundaryCoordinate[0] + boundaryCoordinate[4]) / 2, (boundaryCoordinate[1] + boundaryCoordinate[5]) / 2);
+            boundaryMatrix.mapPoints(boundaryCoordinate);
+            float minx = boundaryCoordinate[0], miny = boundaryCoordinate[1], maxx = boundaryCoordinate[0], maxy = boundaryCoordinate[1];
+            for (int i = 0; i < boundaryCoordinate.length; i++) {
+                float value = boundaryCoordinate[i];
                 if (i % 2 == 0) {//x
                     if (value < minx) {
                         minx = value;
@@ -444,12 +452,26 @@ public class ForbiddenAreaHelper {
             realPath.lineTo(matrixCoordinate[2], matrixCoordinate[3]);
             realPath.lineTo(matrixCoordinate[4], matrixCoordinate[5]);
             realPath.lineTo(matrixCoordinate[6], matrixCoordinate[7]);
+            realPath.close();
+            /**
+             * 边界
+             */
+            if (fbd.getBoundaryPath()==null){
+                fbd.setBoundaryPath(new Path());
+            }
+            Path boundaryPath=fbd.getBoundaryPath();
+            boundaryPath.reset();
+            boundaryPath.moveTo(boundaryCoordinate[0], boundaryCoordinate[1]);
+            boundaryPath.lineTo(boundaryCoordinate[2], boundaryCoordinate[3]);
+            boundaryPath.lineTo(boundaryCoordinate[4], boundaryCoordinate[5]);
+            boundaryPath.lineTo(boundaryCoordinate[6], boundaryCoordinate[7]);
+            boundaryPath.close();
             boundaryRegion = new Region((int) minx, (int) miny, (int) maxx, (int) maxy);
-            boundaryRegion.setPath(realPath, boundaryRegion);
+            boundaryRegion.setPath(boundaryPath, boundaryRegion);
             fbd.setBoundaryRegion(boundaryRegion);
-            fbd.setDeleteIcon(new RectF(matrixCoordinate[0] - ICON_RADIUS, matrixCoordinate[1] - ICON_RADIUS, matrixCoordinate[0] + ICON_RADIUS, matrixCoordinate[1] + ICON_RADIUS));
-            fbd.setRotateIcon(new RectF(matrixCoordinate[2] - ICON_RADIUS, matrixCoordinate[3] - ICON_RADIUS, matrixCoordinate[2] + ICON_RADIUS, matrixCoordinate[3] + ICON_RADIUS));
-            fbd.setPullIcon(new RectF(matrixCoordinate[4] - ICON_RADIUS, matrixCoordinate[5] - ICON_RADIUS, matrixCoordinate[4] + ICON_RADIUS, matrixCoordinate[5] + ICON_RADIUS));
+            fbd.setDeleteIcon(new RectF(boundaryCoordinate[0] - ICON_RADIUS, boundaryCoordinate[1] - ICON_RADIUS, boundaryCoordinate[0] + ICON_RADIUS, matrixCoordinate[1] + ICON_RADIUS));
+            fbd.setRotateIcon(new RectF(boundaryCoordinate[2] - ICON_RADIUS, boundaryCoordinate[3] - ICON_RADIUS, boundaryCoordinate[2] + ICON_RADIUS, boundaryCoordinate[3] + ICON_RADIUS));
+            fbd.setPullIcon(new RectF(boundaryCoordinate[4] - ICON_RADIUS, boundaryCoordinate[5] - ICON_RADIUS, boundaryCoordinate[4] + ICON_RADIUS, boundaryCoordinate[5] + ICON_RADIUS));
         }
         mMapView.invalidateUI();
     }

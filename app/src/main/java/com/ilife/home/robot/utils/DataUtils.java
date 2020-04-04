@@ -77,31 +77,31 @@ public class DataUtils {
 
     /**
      * 字节数组转int
+     *
      * @param src 原始字节数组，要求数组长度需为4
      * @return
      */
     public static int bytesToInt(byte[] src) {
-        int value1=src[0]<<24&0xff000000;
-        int value2=src[1]<<16&0xff0000;
-        int value3=src[2]<<8&0xff00;
-        int value4=src[3]&0xff;
-        return value1+value2+value3+value4;
+        int value1 = src[0] << 24 & 0xff000000;
+        int value2 = src[1] << 16 & 0xff0000;
+        int value3 = src[2] << 8 & 0xff00;
+        int value4 = src[3] & 0xff;
+        return value1 + value2 + value3 + value4;
     }
 
     /**
      * 将int类型的数据转换为byte数组
+     *
      * @param n int数据
      * @return 生成的byte数组，长度为4
      */
-    public static byte[] intToBytes4(int n){
+    public static byte[] intToBytes4(int n) {
         byte[] b = new byte[4];
-        for(int i = 0;i < 4;i++){
-            b[i] = (byte)(n >> (24 - i * 8));
+        for (int i = 0; i < 4; i++) {
+            b[i] = (byte) (n >> (24 - i * 8));
         }
         return b;
     }
-
-
 
 
     public static int toInt(byte[] bRefArr) {
@@ -117,6 +117,7 @@ public class DataUtils {
 
     /**
      * int转byte数组
+     *
      * @param value
      * @return 长度为2的字节数组
      */
@@ -308,5 +309,16 @@ public class DataUtils {
         return null;
     }
 
+    /**
+     * b为传入的字节，i为第几位（范围0-7），如要获取bit0，则i=0
+     *
+     * @param b
+     * @param i
+     * @return
+     */
+    public static int getBit(byte b, int i) {
+        int bit = (int) ((b >> i) & 0x1);
+        return bit;
+    }
 
 }

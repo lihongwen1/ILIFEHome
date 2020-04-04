@@ -2,14 +2,17 @@ package com.aliyun.iot.aep.sdk.bean;
 
 public class ScheduleBean {
 
+
     /**
      * ScheduleHour : 0
      * ScheduleType : 0
      * ScheduleEnd : 300
      * ScheduleEnable : 0
      * ScheduleMode : 6
+     * ScheduleLoop : 0
      * ScheduleWeek : 1
-     * ScheduleArea : AAAAAAAAAAAAAAAA
+     * ScheduleArea : AAAAAAAAAAAAAAAAAAAAAA==
+     * ScheduleRoom : 0
      * ScheduleMinutes : 0
      */
 
@@ -18,8 +21,10 @@ public class ScheduleBean {
     private int ScheduleEnd;
     private int ScheduleEnable;
     private int ScheduleMode;
+    private int ScheduleLoop;
     private int ScheduleWeek;
     private String ScheduleArea;
+    private int ScheduleRoom;
     private int ScheduleMinutes;
 
     public int getScheduleHour() {
@@ -62,6 +67,14 @@ public class ScheduleBean {
         this.ScheduleMode = ScheduleMode;
     }
 
+    public int getScheduleLoop() {
+        return ScheduleLoop;
+    }
+
+    public void setScheduleLoop(int ScheduleLoop) {
+        this.ScheduleLoop = ScheduleLoop;
+    }
+
     public int getScheduleWeek() {
         return ScheduleWeek;
     }
@@ -76,6 +89,14 @@ public class ScheduleBean {
 
     public void setScheduleArea(String ScheduleArea) {
         this.ScheduleArea = ScheduleArea;
+    }
+
+    public int getScheduleRoom() {
+        return ScheduleRoom;
+    }
+
+    public void setScheduleRoom(int ScheduleRoom) {
+        this.ScheduleRoom = ScheduleRoom;
     }
 
     public int getScheduleMinutes() {

@@ -46,6 +46,7 @@
     <color name="moka_color">#45362E</color>
     <color name="color_c7c7c7">#ffc7c7c7</color>
     <color name="color_666666">#ff666666</color>
+    <color name="color_999999">#999999</color>
 
 <!--    800格子地图的格子颜色-->
     <color name="color_road_box">#6b4940</color>
