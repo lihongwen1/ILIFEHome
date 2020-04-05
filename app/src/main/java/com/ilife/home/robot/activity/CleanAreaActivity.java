@@ -100,9 +100,13 @@ public class CleanAreaActivity extends BackBaseActivity {
                             JSONObject json = JSON.parseObject(cleanAreaData);
                             times = json.getIntValue("CleanLoop");
                             updateLoopImage();
-                            String area = json.getString("AreaData");
-                            if (area.equals("AAAAAAAAAAAAAAAAAAAAAA==")) {
-                                area = "";
+                            boolean enable = json.getIntValue("Enable")==1;
+                            String area = "";
+                            if (enable) {
+                                area = json.getString("AreaData");
+                                if (area.equals("AAAAAAAAAAAAAAAAAAAAAA==")) {
+                                    area = "";
+                                }
                             }
                             map_clean_area.drawCleanArea(area);
                         }

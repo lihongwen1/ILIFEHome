@@ -35,7 +35,7 @@ public class VirtualWallHelper {
     private VirtualWallBean curVwBean;//当前操作虚拟墙对象
     private Matrix mMatrix;
     private Matrix mBoundaryMatix;
-    private  int BOUNDARY_LENGTH = 60;
+    private int BOUNDARY_LENGTH = 60;
 
     public enum VWOT {
         ADD(22),
@@ -272,15 +272,15 @@ public class VirtualWallHelper {
                 mBoundaryMatix.postRotate(-degree, 0, 0);
 
                 mBoundaryMatix.mapPoints(coordinate);
-                int dirction=coordinate[0]<coordinate[2]?1:-1;
-                cooBoundary[0] = coordinate[0] - dirction*BOUNDARY_LENGTH;
-                cooBoundary[1] = coordinate[1] - BOUNDARY_LENGTH;
-                cooBoundary[2] = coordinate[0] - dirction*BOUNDARY_LENGTH;
-                cooBoundary[3] = coordinate[1] + BOUNDARY_LENGTH;
-                cooBoundary[4] = coordinate[2] + dirction*BOUNDARY_LENGTH;
-                cooBoundary[5] = coordinate[3] + BOUNDARY_LENGTH;
-                cooBoundary[6] = coordinate[2] + dirction*BOUNDARY_LENGTH;
-                cooBoundary[7] = coordinate[3] - BOUNDARY_LENGTH;
+                int x_direction = coordinate[0] < coordinate[2] ? 1 : -1;
+                cooBoundary[0] = coordinate[0] - x_direction * BOUNDARY_LENGTH;
+                cooBoundary[1] = coordinate[1] - x_direction * BOUNDARY_LENGTH;
+                cooBoundary[2] = coordinate[0] - x_direction * BOUNDARY_LENGTH;
+                cooBoundary[3] = coordinate[1] + x_direction * BOUNDARY_LENGTH;
+                cooBoundary[4] = coordinate[2] + x_direction * BOUNDARY_LENGTH;
+                cooBoundary[5] = coordinate[3] + x_direction * BOUNDARY_LENGTH;
+                cooBoundary[6] = coordinate[2] + x_direction * BOUNDARY_LENGTH;
+                cooBoundary[7] = coordinate[3] - x_direction * BOUNDARY_LENGTH;
                 mBoundaryMatix.invert(mBoundaryMatix);
                 mBoundaryMatix.mapPoints(cooBoundary);
 
