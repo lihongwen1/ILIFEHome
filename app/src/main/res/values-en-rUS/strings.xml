@@ -287,4 +287,5 @@
     <string name="adapter_error_gx">The cleaning brightness is insufficient,please open the light</string>
     <string name="taobao_authorization_succeeded">Authorization succeeded</string>
     <string name="taobao_authorization_failed">Authorization failed</string>
+    <string name="change_robot_name_suc">Nickname change completed</string>
 </resources>

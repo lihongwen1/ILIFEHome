@@ -84,7 +84,7 @@ public class BindSucActivity extends BaseActivity {
             } else {
                 IlifeAli.getInstance().reNameDevice(name, isSuccess -> {
                     if (isSuccess) {
-                        ToastUtils.showToast(context, context.getString(R.string.bind_aty_reName_suc));
+                        ToastUtils.showToast(context, context.getString(R.string.change_robot_name_suc));
                         Intent i = new Intent(context, MainActivity.class);
                         startActivity(i);
                         removeActivity();
