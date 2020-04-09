@@ -29,7 +29,6 @@ public class VirtualWallHelper {
     private PointF downPoint;
     private RectF curVw;//当前正在操作的虚拟墙
     private Path vwPath;
-    private int leftX, leftY;
     private int selectVwNum = -1;
     private final int ICON_RADIUS = 50;
     private VirtualWallBean curVwBean;//当前操作虚拟墙对象
@@ -216,9 +215,7 @@ public class VirtualWallHelper {
      *
      * @param vwStr 服务器电子墙数据集合
      */
-    public void drawVirtualWall(String vwStr, int leftX, int leftY) {
-        this.leftX = leftX;
-        this.leftY = leftY;
+    public void drawVirtualWall(String vwStr) {
         if (!TextUtils.isEmpty(vwStr)) {
             byte[] bytes = Base64.decode(vwStr, Base64.DEFAULT);
             int vwCounts = bytes.length / 12;//一条虚拟墙含12个字节，4个保留字节，加2个坐标（x,y）
@@ -226,10 +223,10 @@ public class VirtualWallHelper {
             int sx, sy, ex, ey;
             VirtualWallBean vwBean;
             for (int i = 0; i < vwCounts; i++) {
-                sx = DataUtils.bytesToInt(bytes[12 * i + 4], bytes[12 * i + 5]) - leftX;
-                sy = leftY - DataUtils.bytesToInt(bytes[12 * i + 6], bytes[12 * i + 7]);
-                ex = DataUtils.bytesToInt(bytes[12 * i + 8], bytes[12 * i + 9]) - leftX;
-                ey = leftY - DataUtils.bytesToInt(bytes[12 * i + 10], bytes[12 * i + 11]);
+                sx = DataUtils.bytesToInt(bytes[12 * i + 4], bytes[12 * i + 5]);
+                sy =- DataUtils.bytesToInt(bytes[12 * i + 6], bytes[12 * i + 7]);
+                ex = DataUtils.bytesToInt(bytes[12 * i + 8], bytes[12 * i + 9]) ;
+                ey =- DataUtils.bytesToInt(bytes[12 * i + 10], bytes[12 * i + 11]);
                 vwBean = new VirtualWallBean(i + 1, -1, new float[]{sx, sy, ex, ey}, 1);
                 makeLeftToRight(vwBean.getPointCoordinate());
                 vwBeans.add(vwBean);
@@ -360,9 +357,9 @@ public class VirtualWallHelper {
             index += 4;
             for (int i = 0; i < coordinate.length; i++) {
                 if (i % 2 == 0) {
-                    coor = Math.round(coordinate[i] + leftX);
+                    coor = Math.round(coordinate[i]);
                 } else {
-                    coor = Math.round(leftY - coordinate[i]);
+                    coor = Math.round(-coordinate[i]);
                 }
                 intToByte = DataUtils.intToBytes(coor);
                 bData[index] = intToByte[0];
@@ -389,6 +386,7 @@ public class VirtualWallHelper {
         return num;
     }
 
+
     public int getSelectVwNum() {
         return selectVwNum;
     }
@@ -405,5 +403,8 @@ public class VirtualWallHelper {
             coordinate[2] = sx;
             coordinate[3] = sy;
         }
+    }
+    public void resetSelectNum(){
+        selectVwNum=-1;
     }
 }

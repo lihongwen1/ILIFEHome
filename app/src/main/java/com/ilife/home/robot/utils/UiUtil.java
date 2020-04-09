@@ -20,6 +20,7 @@ public class UiUtil {
     public static int getColor(int srcId) {
         return MyApplication.getInstance().getResources().getColor(srcId);
     }
+
     public static int getColorByARGB(String argb) {
         return Color.parseColor(argb);
     }
@@ -27,4 +28,9 @@ public class UiUtil {
     public static int getColor(String srcName) {
         return MyApplication.getInstance().getResources().getIdentifier(srcName, "color", MyApplication.getInstance().getPackageName());
     }
+
+    public static String[] getStringArray(int arrayId) {
+        return MyApplication.getInstance().getResources().getStringArray(arrayId);
+    }
+
 }

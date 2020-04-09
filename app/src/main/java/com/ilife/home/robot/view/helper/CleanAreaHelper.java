@@ -29,7 +29,6 @@ public class CleanAreaHelper {
     private static final int MIN_FBD_LENGTH = 20;
     private VirtualWallBean curCleanAreaBean;//当前操作的禁区对象
     private CAOT caot = CAOT.ADD;
-    private int leftX, leftY;
     private final int ICON_RADIUS = 50;
     private Matrix mMatrix;
     private Matrix boundaryMatrix;
@@ -79,9 +78,9 @@ public class CleanAreaHelper {
             float[] coordinate = curCleanAreaBean.getPointCoordinate();
             for (int i = 0; i < coordinate.length; i++) {
                 if (i % 2 == 0) {
-                    coor = Math.round(coordinate[i]) + leftX;
+                    coor = Math.round(coordinate[i]) ;
                 } else {
-                    coor = leftY - Math.round(coordinate[i]);
+                    coor =  - Math.round(coordinate[i]);
                 }
                 MyLogger.d(TAG, "划区坐标 ：" + coor);
                 intToByte = DataUtils.intToBytes(coor);
@@ -98,19 +97,17 @@ public class CleanAreaHelper {
     /**
      * @param fbdStr
      */
-    public void setCleanArea(int leftX, int leftY, String fbdStr) {
-        this.leftX = leftX;
-        this.leftY = leftY;
+        public void setCleanArea(String fbdStr) {
         if (!TextUtils.isEmpty(fbdStr)) {
             byte[] bytes = Base64.decode(fbdStr, Base64.DEFAULT);
-            int tlx = DataUtils.bytesToInt(bytes[0], bytes[1]) - leftX;
-            int tly = leftY - DataUtils.bytesToInt(bytes[2], bytes[3]);
-            int trx = DataUtils.bytesToInt(bytes[4], bytes[5]) - leftX;
-            int try_ = leftY - DataUtils.bytesToInt(bytes[6], bytes[7]);
-            int blx = DataUtils.bytesToInt(bytes[8], bytes[9]) - leftX;
-            int bly = leftY - DataUtils.bytesToInt(bytes[10], bytes[11]);
-            int brx = DataUtils.bytesToInt(bytes[12], bytes[13]) - leftX;
-            int bry = leftY - DataUtils.bytesToInt(bytes[14], bytes[15]);
+            int tlx = DataUtils.bytesToInt(bytes[0], bytes[1]);
+            int tly =  - DataUtils.bytesToInt(bytes[2], bytes[3]);
+            int trx = DataUtils.bytesToInt(bytes[4], bytes[5]);
+            int try_ =  - DataUtils.bytesToInt(bytes[6], bytes[7]);
+            int blx = DataUtils.bytesToInt(bytes[8], bytes[9]) ;
+            int bly = - DataUtils.bytesToInt(bytes[10], bytes[11]);
+            int brx = DataUtils.bytesToInt(bytes[12], bytes[13]);
+            int bry =  - DataUtils.bytesToInt(bytes[14], bytes[15]);
             curCleanAreaBean = new VirtualWallBean(1, 3, new float[]{tlx, tly, trx, try_, blx, bly, brx, bry}, 1);
             MyLogger.d(TAG, "清扫区域坐标: " + Arrays.toString(curCleanAreaBean.getPointCoordinate()));
         }

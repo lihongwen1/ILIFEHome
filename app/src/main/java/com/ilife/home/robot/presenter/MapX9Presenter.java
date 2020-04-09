@@ -3,6 +3,8 @@ package com.ilife.home.robot.presenter;
 import android.text.TextUtils;
 import android.util.Base64;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.aliyun.iot.aep.sdk._interface.OnAliResponse;
 import com.aliyun.iot.aep.sdk._interface.OnAliSetPropertyResponse;
 import com.aliyun.iot.aep.sdk._interface.OnDevicePoropertyResponse;
@@ -14,6 +16,7 @@ import com.aliyun.iot.aep.sdk.contant.EnvConfigure;
 import com.aliyun.iot.aep.sdk.contant.IlifeAli;
 import com.aliyun.iot.aep.sdk.contant.MsgCodeUtils;
 import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import com.ilife.home.robot.R;
 import com.ilife.home.robot.able.DeviceUtils;
 import com.ilife.home.robot.activity.BaseMapActivity;
@@ -52,13 +55,12 @@ import io.reactivex.functions.Function;
 // TODO APP后台CPU消耗问题
 //TODO 处理x800系列绘制地图不全部绘制，只绘制新增的点
 //TODO 重点，延边，遥控模式下机器会清扫完成，此时可以清空地图数据(机器进入待机模式后，会从头开始清扫，此时可以清空地图数据)
+//TODO make save map data seprate with real time map data
 public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements MapX9Contract.Presenter {
     private final String TAG = "MapX9Presenter";
     private String robotType;
     private int curStatus, errorCode, batteryNo = -1, workTime = 0, cleanArea = 0, virtualStatus;
     private ArrayList<Integer> realTimePoints, historyRoadList;
-    private List<int[]> wallPointList = new ArrayList<>();
-    private List<int[]> existPointList = new ArrayList<>();
     private ExecutorService singleThread;
 
     private byte[] slamBytes, virtualContentBytes;
@@ -66,6 +68,7 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
      * x800实时地图数据
      */
     private ArrayList<Coordinate> pointList;// map集合
+    private ArrayList<Coordinate> slamPointList;// map集合
     private boolean isGainDevStatus, isGetHistory;
     private boolean haveMap = true;//标记机型是否有地图 V85机器没有地图，但是有地图清扫数据
     private boolean havMapData = true;//A7 无地图，也无地图清扫数据
@@ -84,6 +87,7 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
         realTimePoints = new ArrayList<>();
         historyRoadList = new ArrayList<>();
         pointList = new ArrayList<>();
+        slamPointList = new ArrayList<>();
         rBean = MyApplication.getInstance().readRobotConfig().getRobotBeanByPk(IlifeAli.getInstance().getWorkingDevice().getProductKey());
         robotType = rBean.getRobotType();
         adjustTime();
@@ -133,7 +137,6 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
             minY = coordinate.getY();
             maxX = coordinate.getX();
             maxY = coordinate.getY();
-            offset = 0;
             MyLogger.d(TAG, "data is  clear, and  need to reset all params");
         }
         int x, y;
@@ -181,7 +184,7 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
             pointList.addAll(cleaningDataX8.getCoordinates());
             updateSlamX8(pointList, 0);
             if (haveMap && isViewAttached() && isDrawMap()) {
-                mView.drawMapX8(pointList);
+                mView.drawMapX8(pointList, slamPointList);
             }
         });
     }
@@ -228,13 +231,14 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
                     pointCoor[1] = bytes[i - 1];
                     int y = DataUtils.bytesToInt(pointCoor, 0);
                     coordinate = new Coordinate(x, -y, type);
-                    index = pointList.indexOf(coordinate);
-                    if (index == -1) {
-                        pointList.add(coordinate);
-                    } else {
-                        pointList.remove(index);
-                        pointList.add(coordinate);
-                    }
+//                    index = pointList.indexOf(coordinate);
+//                    if (index == -1) {
+//                        pointList.add(coordinate);
+//                    } else if ( pointList.get(index).getType()!=){
+//                        pointList.remove(index);
+//                        pointList.add(coordinate);
+//                    }
+                    pointList.add(coordinate);
                 }
             }
         }
@@ -257,6 +261,7 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
         historyRoadList.clear();
         realTimePoints.clear();//X900 series
         pointList.clear();//X800 series
+        slamPointList.clear();//X900 系列
     }
 
 
@@ -332,7 +337,7 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
                         }
                         queryVirtualWall();
                     } else {//x800系列
-                        if (curStatus == MsgCodeUtils.STATUE_PLANNING || curStatus == MsgCodeUtils.STATUE_PAUSE) {
+                        if (curStatus == MsgCodeUtils.STATUE_CLEAN_ROOM || curStatus == MsgCodeUtils.STATUE_CLEAN_AREA || curStatus == MsgCodeUtils.STATUE_PLANNING || curStatus == MsgCodeUtils.STATUE_PAUSE) {
                             if (!isGetHistory && havMapData) {
                                 getHistoryDataX8();
                             }
@@ -340,36 +345,8 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
                         /**
                          * 处理保存地图
                          */
-                        if (propertyBean.isInitStatus()&&propertyBean.getSelectedMapId() != 0) {
-                            MyLogger.d(TAG, "查询保存的地图数据--" + propertyBean.getSelectedMapId());
-                            IlifeAli.getInstance().getSelectMap(propertyBean.getSelectedMapId(), new OnAliResponse<List<HistoryRecordBean>>() {
-                                @Override
-                                public void onSuccess(List<HistoryRecordBean> result) {
-                                    //只有一条记录才正确
-                                    if (result == null || result.size() == 0) {
-                                        MyLogger.e(TAG, "保存地图数据错误！！！！！！！！！！");
-                                        return;
-                                    }
-                                    parseSaveMapData(result.get(0).getMapDataArray());
-                                    /**
-                                     * 处理禁区数据
-                                     */
-                                    if (!TextUtils.isEmpty(propertyBean.getForbiddenArea()) && isViewAttached() && isDrawMap()) {
-                                        mView.drawForbiddenArea(propertyBean.getForbiddenArea());
-                                    }
-                                    /**
-                                     * 处理虚拟墙数据
-                                     */
-                                    if (!TextUtils.isEmpty(propertyBean.getVirtualWall()) && isViewAttached() && isDrawMap()) {
-                                        mView.drawVirtualWall(propertyBean.getVirtualWall());
-                                    }
-                                }
-
-                                @Override
-                                public void onFailed(int code, String message) {
-
-                                }
-                            });
+                        if (propertyBean.isInitStatus() && propertyBean.getSelectedMapId() != 0) {
+                            doAboutSlam(propertyBean);
                         }
                     }
                 }
@@ -411,11 +388,11 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
     }
 
     private void refreshMap() {
-        if (slamBytes != null && realTimePoints != null && historyRoadList != null && existPointList != null) {
+        if (slamBytes != null && realTimePoints != null && historyRoadList != null) {
             if (isX900Series()) {
                 mView.drawMapX9(realTimePoints, historyRoadList, slamBytes);
             } else {
-                mView.drawMapX8(pointList);
+                mView.drawMapX8(pointList, slamPointList);
             }
         }
     }
@@ -508,7 +485,7 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
     public boolean isWork(int curStatus) {
         return curStatus == MsgCodeUtils.STATUE_RANDOM || curStatus == MsgCodeUtils.STATUE_ALONG ||
                 curStatus == MsgCodeUtils.STATUE_POINT || curStatus == MsgCodeUtils.STATUE_TEMPORARY_POINT || curStatus == MsgCodeUtils.STATUE_PLANNING ||
-                curStatus == MsgCodeUtils.STATUE_RECHARGE;
+                curStatus == MsgCodeUtils.STATUE_RECHARGE || curStatus == MsgCodeUtils.STATUE_CLEAN_AREA || curStatus == MsgCodeUtils.STATUE_CLEAN_ROOM;
     }
 
     /**
@@ -571,7 +548,7 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
                 mView.updateCleanTime(getTimeValue());
                 mView.updateCleanArea(getAreaValue());
                 if (haveMap && pointList != null && isDrawMap()) {
-                    mView.drawMapX8(pointList);
+                    mView.drawMapX8(pointList, slamPointList);
                 }
             }
 
@@ -602,9 +579,143 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
                 mView.showErrorPopup(errorCode);
                 setStatus(curStatus, batteryNo);
             }
+
+            @Override
+            public void onCleanAreaChange(String data) {
+                MyLogger.d(TAG, "清扫区域改变:  " + data);
+                mView.drawCleanArea(data);
+            }
+
+            @Override
+            public void onForbiddenAreaChange(String fbdArea) {
+                MyLogger.d(TAG, "禁区改变:  " + fbdArea);
+                mView.drawForbiddenArea(fbdArea);
+            }
+
+            @Override
+            public void onVirtualWallChange(String virtualWall) {
+                MyLogger.d(TAG, "虚拟墙改变:  " + virtualWall);
+                mView.drawVirtualWall(virtualWall);
+            }
+
+            @Override
+            public void onCleanRoomChange(String cleanRoomData) {
+                if (!TextUtils.isEmpty(cleanRoomData)) {
+                    JSONObject json = JSON.parseObject(cleanRoomData);
+                    int times = json.getIntValue("CleanLoop");
+                    int cleanedTimes = times >> 4;
+                    int settingTimes = times & 0x0f;
+                    boolean enable = json.getIntValue("Enable") != 0;//0-无效/没有进行 1-开始 2-进行中
+                    mView.updateCleanTimes(enable, cleanedTimes, settingTimes);
+                }
+            }
+
+            @Override
+            public void onInitStatusChange(int initStatus) {
+                MyLogger.d(TAG, "初始化状态改变 init status：" + initStatus);
+                slamPointList.clear();
+                IlifeAli.getInstance().getProperties(new OnAliResponse<PropertyBean>() {
+                    @Override
+                    public void onSuccess(PropertyBean result) {
+                        doAboutSlam(result);
+                    }
+
+                    @Override
+                    public void onFailed(int code, String message) {
+
+                    }
+                });
+            }
         });
     }
 
+    /**
+     * 处理和slam一起显示的相关UI
+     * slam ,virtual wall , forbidden area, clean area etc.
+     */
+    private void doAboutSlam(PropertyBean result) {
+        long selectId = result.getSelectedMapId();
+        String virtual = result.getVirtualWall();
+        String fbd = result.getForbiddenArea();
+        String cleanAreaData = result.getCleanArea();
+        String cleanRoomData = result.getCleanRoomData();
+        String chargingPort = result.getChagePort();
+        IlifeAli.getInstance().getSelectMap(selectId, new OnAliResponse<List<HistoryRecordBean>>() {
+            @Override
+            public void onSuccess(List<HistoryRecordBean> result) {
+                //只有一条记录才正确
+                if (result == null || result.size() == 0) {
+                    MyLogger.e(TAG, "保存地图数据错误！！！！！！！！！！");
+                    return;
+                }
+                MapDataBean mapDataBean = DataUtils.parseSaveMapData(result.get(0).getMapDataArray());
+                if (mapDataBean != null) {
+                    minX = mapDataBean.getMinX();
+                    maxX = mapDataBean.getMaxX();
+                    minY = mapDataBean.getMinY();
+                    maxY = mapDataBean.getMaxY();
+                    mView.updateSlam(minX, maxX, minY, maxY);
+                    slamPointList.clear();
+                    slamPointList.addAll(mapDataBean.getCoordinates());
+                    mView.drawMapX8(pointList, slamPointList);
+                    if (!TextUtils.isEmpty(virtual)) {
+                        mView.drawVirtualWall(virtual);
+                    }
+                    if (!TextUtils.isEmpty(fbd)) {
+                        mView.drawForbiddenArea(fbd);
+                    }
+                    //处理清扫区域
+                    if (!TextUtils.isEmpty(cleanAreaData)) {
+                        JSONObject json = JSON.parseObject(cleanAreaData);
+                        int times = json.getIntValue("CleanLoop");
+                        int cleanedTimes = times >> 4;
+                        int settingTimes = times & 0x0f;
+                        boolean enable = json.getIntValue("Enable") != 0;//0-无效/没有进行 1-开始 2-进行中
+                        mView.updateCleanTimes(enable, cleanedTimes, settingTimes);
+                        String area = "";
+                        if (enable) {
+                            area = json.getString("AreaData");
+                            if (area.equals("AAAAAAAAAAAAAAAAAAAAAA==")) {
+                                area = "";
+                            }
+                        }
+                        mView.drawCleanArea(area);
+                    }
+                    /**
+                     * 处理选房数据
+                     */
+                    if (!TextUtils.isEmpty(cleanRoomData)) {
+                        JSONObject json = JSON.parseObject(cleanRoomData);
+                        int times = json.getIntValue("CleanLoop");
+                        int cleanedTimes = times >> 4;
+                        int settingTimes = times & 0x0f;
+                        boolean enable = json.getIntValue("Enable") != 0;//0-无效/没有进行 1-开始 2-进行中
+                        mView.updateCleanTimes(enable, cleanedTimes, settingTimes);
+                    }
+
+                    /**
+                     * 处理充电座
+                     */
+                    if (!TextUtils.isEmpty(chargingPort) && isViewAttached() && isDrawMap()) {
+                        JSONObject jsonObject = JSONObject.parseObject(chargingPort);
+                        boolean isDisplay = jsonObject.getIntValue("DisplaySwitch") == 1;
+                        if (isDisplay) {
+                            int xy = jsonObject.getIntValue("Piont");
+                            byte[] bytes = DataUtils.intToBytes4(xy);
+                            int x = DataUtils.bytesToInt(new byte[]{bytes[0], bytes[1]}, 0);
+                            int y = -DataUtils.bytesToInt(new byte[]{bytes[2], bytes[3]}, 0);
+                            mView.drawChargePort(x, y);
+                        }
+                    }
+                }
+            }
+
+            @Override
+            public void onFailed(int code, String message) {
+
+            }
+        });
+    }
 
     /**
      * 解析X800系列地图数据子线程
@@ -621,7 +732,6 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
         public void run() {
             Gson gson = new Gson();
             RealTimeMapBean mapBean = gson.fromJson(mapBeanData, RealTimeMapBean.class);
-            MyLogger.d(TAG, "onRealMap----:  " + mapBean.toString());
             int offset = pointList.size();
             parseRealTimeMapX8(mapBean.getMapData());
             updateSlamX8(pointList, offset);
@@ -630,7 +740,7 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
             mView.updateCleanTime(getTimeValue());
             mView.updateCleanArea(getAreaValue());
             if (haveMap && pointList != null && isDrawMap()) {
-                mView.drawMapX8(pointList);
+                mView.drawMapX8(pointList, slamPointList);
             }
         }
     }
@@ -670,7 +780,7 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
 
     @Override
     public void enterVirtualMode() {
-        setPropertiesWithParams(AliSkills.get().enterVirtualMode());
+//        setPropertiesWithParams(AliSkills.get().enterVirtualMode());
     }
 
 
@@ -780,56 +890,7 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
         return dataBean;
     }
 
-    private void parseSaveMapData(String[] mapArray) {
-        int lineCount = 0;
-        List<Byte> byteList = new ArrayList<>();
-        int leftX = 0, leftY = 0;
-        if (mapArray != null) {
-            if (mapArray.length > 0) {
-                for (String data : mapArray) {
-                    if (data == null) {
-                        continue;
-                    }
-                    byte[] bytes = Base64.decode(data, Base64.DEFAULT);
-                    int bj = bytes[0] & 0xff;
-                    if (bj == 1) {//map数据
-                        leftX = DataUtils.bytesToInt(new byte[]{bytes[1], bytes[2]}, 0);
-                        leftY = DataUtils.bytesToInt(new byte[]{bytes[3], bytes[4]}, 0);
-                        lineCount = DataUtils.bytesToInt(new byte[]{bytes[5], bytes[6]}, 0);
-                        for (int j = 7; j < bytes.length; j++) {
-                            byteList.add(bytes[j]);
-                        }
-                    }
-                }
-            }
-        }
-        Coordinate coordinate;
-        if (byteList.size() > 0) {
-            int x = 0, y = 0, type, length;
-            for (int i = 2; i < byteList.size(); i += 3) {
-                type = byteList.get(i - 1) & 0xff;
-                length = byteList.get(i) & 0xff;
-                for (int j = 0; j < length; j++) {
-                    if (type != 0) {
-                        coordinate = new Coordinate(x+leftX, y+leftY, type);
-                        pointList.add(coordinate);
-                    }
-                    if (x < lineCount - 1) {
-                        x++;
-                    } else {
-                        x = 0;
-                        y++;
-                    }
-
-                }
-            }
-
-            mView.setLeftTopCoordinate(leftX, leftY);
-            updateSlamX8(pointList,0);
-            mView.updateSlam(minX, maxX, minY, maxY);
-            mView.drawMapX8(pointList);
-        }
-    }
+    private int leftX = 0, leftY = 0;
 
 
     @Override

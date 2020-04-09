@@ -99,8 +99,9 @@ public class CleanAreaActivity extends BackBaseActivity {
                         if (!TextUtils.isEmpty(cleanAreaData)) {
                             JSONObject json = JSON.parseObject(cleanAreaData);
                             times = json.getIntValue("CleanLoop");
+                            times = times & 0x0f;
                             updateLoopImage();
-                            boolean enable = json.getIntValue("Enable")==1;
+                            boolean enable = json.getIntValue("Enable")!=0;
                             String area = "";
                             if (enable) {
                                 area = json.getString("AreaData");
@@ -163,6 +164,7 @@ public class CleanAreaActivity extends BackBaseActivity {
             IlifeAli.getInstance().setProperties(caJson, aBoolean -> {
                 if (aBoolean) {
                     ToastUtils.showToast("设置划区数据成功");
+                    removeActivity();
                 }
             });
         }

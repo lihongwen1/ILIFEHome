@@ -7,6 +7,7 @@ import android.graphics.Region;
 import android.util.Base64;
 import android.util.SparseIntArray;
 
+import com.ilife.home.robot.R;
 import com.ilife.home.robot.app.MyApplication;
 import com.ilife.home.robot.bean.PartitionBean;
 import com.ilife.home.robot.utils.DataUtils;
@@ -20,18 +21,20 @@ import java.util.List;
 /**
  * 选房清扫帮助类
  */
-public class PartitionHelper {
-    private static final String TAG = "PartitionHelper";
+public class RoomHelper {
+    private static final String TAG = "RoomHelper";
     private MapView mMapView;
     List<PartitionBean> rooms;
     private int radius;//房间标记半径
+    private int textSize;//房间标记半径
     private SparseIntArray selecRoom;
 
-    public PartitionHelper(MapView mapView) {
+    public RoomHelper(MapView mapView) {
         this.mMapView = mapView;
         rooms = new ArrayList<>();
         selecRoom = new SparseIntArray();
-        radius = Utils.dip2px(MyApplication.getInstance(), 24);
+        radius = MyApplication.getInstance().getResources().getDimensionPixelSize(R.dimen.dp_20);
+        textSize = MyApplication.getInstance().getResources().getDimensionPixelSize(R.dimen.dp_20);
     }
 
 
@@ -46,27 +49,27 @@ public class PartitionHelper {
     /**
      * 绘制房间标识
      *
-     * @param leftX
-     * @param leftY
      * @param data
      */
-    public void drawRoom(int leftX, int leftY, String data) {
+    public void drawRoom( String data) {
         byte[] bytes = Base64.decode(data, Base64.DEFAULT);
         int num = bytes.length / 8;
         int partionId, x, y;
-        for (int i = 0; i < num; i++) {
+        int tag=65;
+        for (int i = num-1; i>=0; i--) {
             partionId = DataUtils.bytesToInt(new byte[]{bytes[i * 8], bytes[i * 8 + 1], bytes[i * 8 + 2], bytes[i * 8 + 3]});
             x = DataUtils.bytesToInt(bytes[i * 8 + 4], bytes[i * 8 + 5]);
-            y = DataUtils.bytesToInt(bytes[i * 8 + 6], bytes[i * 8 + 7]);
-            rooms.add(new PartitionBean(partionId, x, y));
+            y =- DataUtils.bytesToInt(bytes[i * 8 + 6], bytes[i * 8 + 7]);
+            rooms.add(new PartitionBean(partionId, x, y,(char)tag));
+            tag++;
         }
         Path circle = new Path();
         Region region;
         int cx, cy;
         if (rooms != null && rooms.size() > 0) {
             for (PartitionBean pb : rooms) {
-                cx = (int) mMapView.matrixCoordinateX(pb.getX() - leftX);
-                cy = (int) mMapView.matrixCoordinateY(leftY - pb.getY());
+                cx = (int) mMapView.matrixCoordinateX(pb.getX());
+                cy = (int) mMapView.matrixCoordinateY(pb.getY());
                 circle.addCircle(cx, cy, radius, Path.Direction.CW);
                 region = new Region(cx - radius, cy - radius, cx + radius, cy + radius);
                 region.setPath(circle, region);
@@ -90,13 +93,16 @@ public class PartitionHelper {
         return radius;
     }
 
+    public int getTextSize() {
+        return textSize;
+    }
+
     public void clickRoomTag(float mapX, float mapY) {
         int id;
         for (PartitionBean room : rooms) {
             if (room.getRegion().contains((int) mapX, (int) mapY)) {
                 id = room.getPartitionId();
-                ToastUtils.showToast("选择房间："+id);
-                if (selecRoom.indexOfKey(id) > 0) {
+                if (selecRoom.indexOfKey(id) >= 0) {
                     selecRoom.delete(id);
                 } else {
                     selecRoom.put(id, id);
@@ -105,4 +111,9 @@ public class PartitionHelper {
         }
         mMapView.invalidateUI();
     }
+    public boolean isRoomSelected(int roomId){
+        return selecRoom.indexOfKey(roomId)>=0;
+
+    }
+
 }

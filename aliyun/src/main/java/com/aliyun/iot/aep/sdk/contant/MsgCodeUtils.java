@@ -44,6 +44,11 @@ public class MsgCodeUtils {
     public static final int STATUE_PAUSE = 0x0C;
     public static final int STATUE_TEMPORARY_POINT= 0x0D;
     public static final int STATUE_OTA= 0x0E;
+    public static final int STATUE_CLEAN_AREA_EDIT= 0x0F;//划区清扫编辑模式
+    public static final int STATUE_CHARING_BASE_SLEEP=0X10;//充电座休眠
+    public static final int STATUE_CHARING_ADAPTER_SLEEP=0X11;//适配器休眠
+    public static final int STATUE_CLEAN_AREA= 0x13;
+    public static final int STATUE_CLEAN_ROOM= 0x14;
     //遥控器
     public static final int PROCEED_NO_RESPONSE = 0x00;
     public static final int PROCEED_FORWARD = 0x01;

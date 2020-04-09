@@ -14,6 +14,8 @@ public class PropertyBean {
     private String virtualWall;
     private String partition;//分区（分房）
     private String cleanArea;//划区数据
+    private String chagePort;
+    private String cleanRoomData;//选房清扫数据
     private boolean initStatus;
     public PropertyBean(){}
 
@@ -123,6 +125,14 @@ public class PropertyBean {
         this.partition = partition;
     }
 
+    public String getChagePort() {
+        return chagePort;
+    }
+
+    public void setChagePort(String chagePort) {
+        this.chagePort = chagePort;
+    }
+
     public boolean isVoiceOpen() {
         return voiceOpen;
     }
@@ -137,6 +147,14 @@ public class PropertyBean {
 
     public void setInitStatus(boolean initStatus) {
         this.initStatus = initStatus;
+    }
+
+    public String getCleanRoomData() {
+        return cleanRoomData;
+    }
+
+    public void setCleanRoomData(String cleanRoomData) {
+        this.cleanRoomData = cleanRoomData;
     }
 
     @Override

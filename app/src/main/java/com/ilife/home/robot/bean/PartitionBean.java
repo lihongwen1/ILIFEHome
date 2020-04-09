@@ -8,12 +8,14 @@ public class PartitionBean {
     private int partitionId;
     private int x;
     private int y;
+    private String tag;
     private Region region;
     private RectF tagIcon;
-    public PartitionBean(int partitionId, int x, int y) {
+    public PartitionBean(int partitionId, int x, int y, char tag) {
         this.partitionId = partitionId;
         this.x = x;
         this.y = y;
+        this.tag=String.valueOf(tag);
     }
 
     public int getPartitionId() {
@@ -54,5 +56,13 @@ public class PartitionBean {
 
     public void setTagIcon(RectF tagIcon) {
         this.tagIcon = tagIcon;
+    }
+
+    public String getTag() {
+        return tag;
+    }
+
+    public void setTag(String tag) {
+        this.tag = tag;
     }
 }

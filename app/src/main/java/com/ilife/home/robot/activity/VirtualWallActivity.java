@@ -1,5 +1,6 @@
 package com.ilife.home.robot.activity;
 
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
@@ -44,7 +45,7 @@ public class VirtualWallActivity extends BackBaseActivity {
     RadioGroup rg_vw_fbd;
     private String str_virtual;
     private String str_mopArea;
-    private String str_globalArea;
+    private String charging_port;
 
     @Override
     public int getLayoutId() {
@@ -72,6 +73,7 @@ public class VirtualWallActivity extends BackBaseActivity {
                     mMapView.setmOT(MapView.OT.GLOBAL_FORBIDDEN_AREA);
                     break;
             }
+            mMapView.invalidateUI();
         });
         rg_vw_fbd.check(R.id.tv_move_map);
     }
@@ -86,6 +88,7 @@ public class VirtualWallActivity extends BackBaseActivity {
                 str_virtual = result.getVirtualWall();
                 MyLogger.d(TAG, "服务器虚拟墙数据：" + str_virtual);
                 str_mopArea = result.getForbiddenArea();
+                charging_port = result.getChagePort();
                 MyLogger.d(TAG, "服务器禁区数据：" + str_mopArea);
                 IlifeAli.getInstance().getSelectMap(selectId, new OnAliResponse<List<HistoryRecordBean>>() {
                     @Override
@@ -101,6 +104,20 @@ public class VirtualWallActivity extends BackBaseActivity {
                         }
                         mMapView.drawVirtualWall(str_virtual);
                         mMapView.drawForbiddenArea(str_mopArea);
+                        /**
+                         * 处理充电座
+                         */
+                        if (!TextUtils.isEmpty(charging_port)) {
+                            JSONObject jsonObject = JSONObject.parseObject(charging_port);
+                            boolean isDisplay = jsonObject.getIntValue("DisplaySwitch") == 1;
+                            if (isDisplay) {
+                                int xy = jsonObject.getIntValue("Piont");
+                                byte[] bytes = DataUtils.intToBytes4(xy);
+                                int x = DataUtils.bytesToInt(new byte[]{bytes[0], bytes[1]}, 0);
+                                int y = -DataUtils.bytesToInt(new byte[]{bytes[2], bytes[3]}, 0);
+                                mMapView.drawChargePort(x, y);
+                            }
+                        }
                     }
 
                     @Override
@@ -119,6 +136,7 @@ public class VirtualWallActivity extends BackBaseActivity {
 
     /**
      * //todo 虚拟墙和禁区保存时，虚拟墙大概率会失败
+     *
      * @param view
      */
     @OnClick({R.id.fl_top_menu})
@@ -134,7 +152,7 @@ public class VirtualWallActivity extends BackBaseActivity {
                     parJson.put(EnvConfigure.KEY_FORBIDDEN_AREA, mMapView.getForbiddenData());
                     IlifeAli.getInstance().setProperties(parJson, result -> {
                         if (result) {
-                            finish();
+                            removeActivity();
                         }
                     });
                 }
@@ -143,4 +161,15 @@ public class VirtualWallActivity extends BackBaseActivity {
         }
     }
 
+    @Override
+    protected void beforeFinish() {
+        super.beforeFinish();
+        if (str_virtual != null) {
+            String vrData = "{\"VirtualWallData\":\"\"}";
+            JSONObject vrJson = JSONObject.parseObject(vrData);
+            vrJson.put(EnvConfigure.VirtualWallData, str_virtual);
+            IlifeAli.getInstance().setProperties(vrJson, aBoolean -> {
+            });
+        }
+    }
 }

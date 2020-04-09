@@ -39,7 +39,6 @@ public class ForbiddenAreaHelper {
     public static final int TYPE_MOP = 1;
     private FAOT faot = FAOT.ADD;
     private int mFbdAreaType = TYPE_GLOBAL;
-    private int leftX, leftY;
     private final int ICON_RADIUS = 50;
     private int selectVwNum = -1;
     private Matrix mMatrix;
@@ -117,13 +116,11 @@ public class ForbiddenAreaHelper {
             index++;
             bData[index] = b_type[3];
             index++;
-            MyLogger.d(TAG, "禁区坐标： lx" + leftX + "  ly" + leftY);
-            MyLogger.d(TAG, "禁区坐标：" + Arrays.toString(coordinate));
             for (int i = 0; i < coordinate.length; i++) {
                 if (i % 2 == 0) {
-                    coor = Math.round(coordinate[i]) + leftX;
+                    coor = Math.round(coordinate[i]) ;
                 } else {
-                    coor = leftY - Math.round(coordinate[i]);
+                    coor =  - Math.round(coordinate[i]);
                 }
                 MyLogger.d(TAG, "禁区坐标 ：" + coor);
                 intToByte = DataUtils.intToBytes(coor);
@@ -140,9 +137,7 @@ public class ForbiddenAreaHelper {
     /**
      * @param fbdStr
      */
-    public void setForbiddenArea(int leftX, int leftY, String fbdStr) {
-        this.leftX = leftX;
-        this.leftY = leftY;
+    public void setForbiddenArea(String fbdStr) {
         if (!TextUtils.isEmpty(fbdStr)) {
             byte[] bytes = Base64.decode(fbdStr, Base64.DEFAULT);
             int vwCounts = bytes.length / LENGTH;//一条虚拟墙含12个字节，4个保留字节，加4个坐标（x,y）
@@ -153,14 +148,14 @@ public class ForbiddenAreaHelper {
             for (int i = 0; i < vwCounts; i++) {
                 bType = new byte[]{bytes[LENGTH * i], bytes[LENGTH * i + 1], bytes[LENGTH * i + 2], bytes[LENGTH * i + 3]};
                 type = DataUtils.bytesToInt(bType);
-                tlx = DataUtils.bytesToInt(bytes[LENGTH * i + 4], bytes[LENGTH * i + 5]) - leftX;
-                tly = leftY - DataUtils.bytesToInt(bytes[LENGTH * i + 6], bytes[LENGTH * i + 7]);
-                trx = DataUtils.bytesToInt(bytes[LENGTH * i + 8], bytes[LENGTH * i + 9]) - leftX;
-                try_ = leftY - DataUtils.bytesToInt(bytes[LENGTH * i + 10], bytes[LENGTH * i + 11]);
-                blx = DataUtils.bytesToInt(bytes[LENGTH * i + 12], bytes[LENGTH * i + 13]) - leftX;
-                bly = leftY - DataUtils.bytesToInt(bytes[LENGTH * i + 14], bytes[LENGTH * i + 15]);
-                brx = DataUtils.bytesToInt(bytes[LENGTH * i + 16], bytes[LENGTH * i + 17]) - leftX;
-                bry = leftY - DataUtils.bytesToInt(bytes[LENGTH * i + 18], bytes[LENGTH * i + 19]);
+                tlx = DataUtils.bytesToInt(bytes[LENGTH * i + 4], bytes[LENGTH * i + 5]) ;
+                tly =  - DataUtils.bytesToInt(bytes[LENGTH * i + 6], bytes[LENGTH * i + 7]);
+                trx = DataUtils.bytesToInt(bytes[LENGTH * i + 8], bytes[LENGTH * i + 9]);
+                try_ =  - DataUtils.bytesToInt(bytes[LENGTH * i + 10], bytes[LENGTH * i + 11]);
+                blx = DataUtils.bytesToInt(bytes[LENGTH * i + 12], bytes[LENGTH * i + 13]);
+                bly =  - DataUtils.bytesToInt(bytes[LENGTH * i + 14], bytes[LENGTH * i + 15]);
+                brx = DataUtils.bytesToInt(bytes[LENGTH * i + 16], bytes[LENGTH * i + 17]);
+                bry =  - DataUtils.bytesToInt(bytes[LENGTH * i + 18], bytes[LENGTH * i + 19]);
                 vwBean = new VirtualWallBean(i + 1, type, new float[]{tlx, tly, trx, try_, blx, bly, brx, bry}, 1);
                 fbdBeans.add(vwBean);
                 MyLogger.d(TAG, "禁区坐标: " + Arrays.toString(vwBean.getPointCoordinate()));
@@ -342,7 +337,7 @@ public class ForbiddenAreaHelper {
                 mMatrix.setTranslate(-matrixCoordinate[0], -matrixCoordinate[1]);
                 mMatrix.postRotate(-degree, 0, 0);
 
-                float[] touchCoordinate = new float[]{mapX,mapY};
+                float[] touchCoordinate =  new float[]{touchPoint.x, touchPoint.y};
                 mMatrix.mapPoints(touchCoordinate);
                 mMatrix.mapPoints(matrixCoordinate);
                 matrixCoordinate[2] = touchCoordinate[0];
@@ -400,7 +395,7 @@ public class ForbiddenAreaHelper {
             }
             matrixCoordinate = toMapCoordinate(fbd.getPointCoordinate());
             if (selectVwNum == fbd.getNumber()&&mMatrix!=null&&!mMatrix.isIdentity()) {
-                if (faot == FAOT.PULL) {
+                if (faot == FAOT.PULL&&!mMatrix.isIdentity()) {
                     float[] touchCoordinate = new float[]{touchPoint.x, touchPoint.y};
                     mMatrix.mapPoints(touchCoordinate);
                     mMatrix.mapPoints(matrixCoordinate);
@@ -486,7 +481,7 @@ public class ForbiddenAreaHelper {
         int index = 0;
         for (float coo : coordinate) {
             if (index % 2 == 0) {
-                robotCoor[index] = mMapView.reMatrixCoordinateY(coo);
+                robotCoor[index] = mMapView.reMatrixCoordinateX(coo);
             } else {
                 robotCoor[index] = mMapView.reMatrixCoordinateY(coo);
             }
@@ -516,5 +511,8 @@ public class ForbiddenAreaHelper {
 
     public int getSelectVwNum() {
         return selectVwNum;
+    }
+    public void reserSelectNum(){
+        selectVwNum=-1;
     }
 }

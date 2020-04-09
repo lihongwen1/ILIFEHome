@@ -32,4 +32,22 @@
         <!--        <item>@string/help_question_app</item>-->
         <item>@string/help_question_other</item>
     </string-array>
+    <array name="text_week">
+        <item>周日</item>
+        <item>周一</item>
+        <item>周二</item>
+        <item>周三</item>
+        <item>周四</item>
+        <item>周五</item>
+        <item>周六</item>
+    </array>
+    <array name="text_mode">
+        <item>规划清扫</item>
+        <item>随机清扫</item>
+    </array>
+    <array name="text_clean_times">
+        <item>1次</item>
+        <item>2次</item>
+        <item>3次</item>
+    </array>
 </resources>

@@ -21,19 +21,29 @@ public abstract class BaseQuickAdapter<T, K extends BaseViewHolder> extends Recy
     private OnItemLongClickListener mOnItemLongClickListener;
     private OnItemChildClickListener mOnItemChildClickListener;
     private OnItemChildLongClickListener mOnItemChildLongClickListener;
+    protected SparseIntArray selectPosition;
     private boolean isMultiType;
     /**
      * layouts indexed with their types
      */
     private SparseIntArray layouts;
+
     public BaseQuickAdapter(@LayoutRes int layoutId, @NonNull List<T> data) {
         this.layoutId = layoutId;
         this.data = data;
-        isMultiType=false;
+        isMultiType = false;
     }
+
+    public BaseQuickAdapter(@LayoutRes int layoutId, @NonNull List<T> data, SparseIntArray selectPosition) {
+        this.layoutId = layoutId;
+        this.data = data;
+        this.selectPosition = selectPosition;
+        isMultiType = false;
+    }
+
     public BaseQuickAdapter(@NonNull List<T> data) {
         this.data = data;
-        isMultiType=true;
+        isMultiType = true;
     }
 
     public void setNewData(@NonNull List<T> data) {
@@ -52,7 +62,7 @@ public abstract class BaseQuickAdapter<T, K extends BaseViewHolder> extends Recy
         K holder;
         Context context = parent.getContext();
         LayoutInflater inflater = LayoutInflater.from(context);
-        View view = inflater.inflate(isMultiType?getLayoutId(viewType):layoutId, parent, false);
+        View view = inflater.inflate(isMultiType ? getLayoutId(viewType) : layoutId, parent, false);
         holder = (K) new BaseViewHolder(view);
         bindItemViewClickListener(holder);
         holder.setAdapter(this);
@@ -65,6 +75,7 @@ public abstract class BaseQuickAdapter<T, K extends BaseViewHolder> extends Recy
     }
 
     public static final int TYPE_NOT_FOUND = -404;
+
     @Override
     public int getItemCount() {
         return data.size();
@@ -82,8 +93,10 @@ public abstract class BaseQuickAdapter<T, K extends BaseViewHolder> extends Recy
         }
         layouts.put(type, layoutResId);
     }
+
     /**
      * bind onclick and onLongClick event for item view
+     *
      * @param baseViewHolder
      */
     private void bindItemViewClickListener(final BaseViewHolder baseViewHolder) {
@@ -119,7 +132,15 @@ public abstract class BaseQuickAdapter<T, K extends BaseViewHolder> extends Recy
      */
     public void setOnItemClick(View v, int position) {
         getOnItemClickListener().onItemClick(BaseQuickAdapter.this, v, position);
+        if (selectPosition != null) {
+            if (selectPosition.indexOfKey(position) >= 0) {
+                selectPosition.delete(position);
+            } else {
+                selectPosition.put(position, position);
+            }
+        }
     }
+
 
     /**
      * override this method if you want to override longClick event logic

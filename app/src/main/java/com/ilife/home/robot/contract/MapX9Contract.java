@@ -57,6 +57,8 @@ public interface MapX9Contract {
 
         void drawVirtualWall(String vwStr);
 
+        void drawChargePort(int x,int y);
+
         void updateAlong(boolean isAlong);
 
         void updatePoint(boolean isPoint);
@@ -71,13 +73,15 @@ public interface MapX9Contract {
 
         void drawMapX9(ArrayList<Integer> roadList, ArrayList<Integer> historyRoadList, byte[] slamBytes);
 
-        void drawMapX8(ArrayList<Coordinate> dataList);
+        void drawMapX8(ArrayList<Coordinate> dataList,ArrayList<Coordinate> slamList);
 
         boolean isActivityInteraction();
 
         void setUnconditionalRecreate(boolean recreate);
         void drawForbiddenArea(String data);
-        void setLeftTopCoordinate(int x,int y);
+        void drawCleanArea(String data);
+        void setStandCoordinate(int x,int y);
+        void updateCleanTimes(boolean isDisplay,int cleanedTimes,int settingCleanTimes);
     }
 
     interface Presenter {

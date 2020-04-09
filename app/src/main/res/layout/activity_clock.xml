@@ -27,7 +27,7 @@
 
 
    <ImageButton
-       android:id="@+id/Ivb_add_clock"
+       android:id="@+id/ivb_add_clock"
        android:background="@drawable/n_btn_add"
        android:layout_width="@dimen/dp_60"
        android:layout_height="@dimen/dp_60"

@@ -39,7 +39,7 @@ public abstract class BaseActivity<T extends BasePresenter> extends AppCompatAct
     private MyApplication application;
     protected BaseActivity context;
     protected boolean isActivityInteraction;
-    private boolean isGrayTheme=true;//特殊日子黑白模式
+    private boolean isGrayTheme=false;//特殊日子黑白模式
     @Override
     public View onCreateView(String name, Context context, AttributeSet attrs) {
         if(isGrayTheme&&"FrameLayout".equals(name)){

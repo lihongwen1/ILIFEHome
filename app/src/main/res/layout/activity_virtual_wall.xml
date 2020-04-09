@@ -58,7 +58,7 @@
                 android:id="@+id/tv_mop_area"
                 style="@style/map_text_button"
                 android:drawableTop="@drawable/selector_mop_area"
-                android:text="抹地禁区" />
+                android:text="地毯区域" />
 
             <RadioButton
                 android:button="@null"

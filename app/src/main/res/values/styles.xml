@@ -265,6 +265,13 @@
         <item name="android:includeFontPadding">false</item>
     </style>
 
+    <style name="Text_16sp_text_selector">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textColor">@color/color_text_selector</item>
+        <item name="android:textSize">@dimen/sp_16</item>
+        <item name="android:includeFontPadding">false</item>
+    </style>
     <style name="map_text_button">
         <item name="android:drawablePadding">8dp</item>
         <item name="android:gravity">center</item>
@@ -273,9 +280,16 @@
         <item name="android:layout_height">wrap_content</item>
         <item name="android:textColor">@color/color_33</item>
         <item name="android:textSize">@dimen/sp_14</item>
-
     </style>
-
+    <style name="text_button_16">
+        <item name="android:drawablePadding">8dp</item>
+        <item name="android:gravity">center</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:textColor">@color/color_33</item>
+        <item name="android:textSize">@dimen/sp_16</item>
+    </style>
     <style name="universal_dialog" parent="Theme.AppCompat.DayNight.Dialog">
         <!-- 窗口背景色 -->
         <item name="android:windowBackground">@android:color/transparent</item>

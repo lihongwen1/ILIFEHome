@@ -138,7 +138,7 @@ public class EnvConfigure {
     public static String KEY_CLEAN_TIME = "CleanTime";
     public static final String KEY_BEEP_NO_DISTURB = "BeepNoDisturb";
     public static final String KEY_SAVE_MAP = "SaveMap";
-    public static final String KEY_INIT_STATUS  = "InitStatus ";
+    public static final String KEY_INIT_STATUS  = "InitStatus";
     public static final String KEY_SELECT_MAP_ID = "SelectedMapId";
     public static final String KEY_SAVE_MAP_ID = "SaveMapId";
     public static final String KEY_FORBIDDEN_AREA = "ForbiddenAreaData";

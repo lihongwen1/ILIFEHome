@@ -437,6 +437,21 @@ public class IlifeAli {
                                 } else if (items.containsKey(EnvConfigure.KEY_BATTERY_STATE)) {
                                     int battery = items.getJSONObject(EnvConfigure.KEY_BATTERY_STATE).getIntValue(EnvConfigure.KEY_VALUE);
                                     propertyResponse.onBatterState(battery);
+                                } else if (items.containsKey(EnvConfigure.VirtualWallData)) {
+                                    String virtual = items.getJSONObject(EnvConfigure.VirtualWallData).getString(EnvConfigure.KEY_VALUE);
+                                    propertyResponse.onVirtualWallChange(virtual);
+                                } else if (items.containsKey(EnvConfigure.KEY_FORBIDDEN_AREA)) {
+                                    String fbd = items.getJSONObject(EnvConfigure.KEY_FORBIDDEN_AREA).getString(EnvConfigure.KEY_VALUE);
+                                    propertyResponse.onForbiddenAreaChange(fbd);
+                                } else if (items.containsKey(EnvConfigure.CleanAreaData)) {
+                                    String clenaArea = items.getJSONObject(EnvConfigure.CleanAreaData).getString(EnvConfigure.KEY_VALUE);
+                                    propertyResponse.onCleanAreaChange(clenaArea);
+                                } else if (items.containsKey(EnvConfigure.CleanPartitionData)) {
+                                    String cleanRoom = items.getJSONObject(EnvConfigure.CleanPartitionData).getString(EnvConfigure.KEY_VALUE);
+                                    propertyResponse.onCleanRoomChange(cleanRoom);
+                                } else if (items.containsKey(EnvConfigure.KEY_INIT_STATUS)) {
+                                    int initStatus = items.getJSONObject(EnvConfigure.KEY_INIT_STATUS).getIntValue(EnvConfigure.KEY_VALUE);
+                                    propertyResponse.onInitStatusChange(initStatus);
                                 } else if (items.containsKey(EnvConfigure.KEY_MAX_MODE)) {
                                     boolean isMax = items.getJSONObject(EnvConfigure.KEY_MAX_MODE).getIntValue(EnvConfigure.KEY_VALUE) == 1;
                                     Log.d("LiveBus", "发送Live Bus 信息");
@@ -601,12 +616,20 @@ public class IlifeAli {
                         Log.d(TAG, "PartitionData: " + partitionData);
                     }
                     if (jsonObject.containsKey(EnvConfigure.ChargerPiont)) {
+                        //{"time":1586323952726,"value":{"Piont":65526,"DisplaySwitch":1}}
+                        String chargePort = jsonObject.getJSONObject(EnvConfigure.ChargerPiont).getString(EnvConfigure.KEY_VALUE);
+                        bean.setChagePort(chargePort);
                         Log.d(TAG, "ChargerPiont" + jsonObject.getString("ChargerPiont"));
                     }
                     if (jsonObject.containsKey(EnvConfigure.CleanAreaData)) {
                         String cleanAreaData = jsonObject.getJSONObject(EnvConfigure.CleanAreaData).getString(EnvConfigure.KEY_VALUE);
                         bean.setCleanArea(cleanAreaData);
                         Log.d(TAG, "cleanAreaData: " + cleanAreaData);
+                    }
+                    if (jsonObject.containsKey(EnvConfigure.CleanPartitionData)) {
+                        String cleanRoomData = jsonObject.getJSONObject(EnvConfigure.CleanPartitionData).getString(EnvConfigure.KEY_VALUE);
+                        bean.setCleanRoomData(cleanRoomData);
+                        Log.d(TAG, "cleanRoomData: " + cleanRoomData);
                     }
                     onAliResponse.onSuccess(bean);
                 } else {
@@ -895,12 +918,16 @@ public class IlifeAli {
         ioTAPIClient.send(buildRequest(EnvConfigure.PATH_SET_PROPERTIES, params), new IoTUIThreadCallback(new IoTCallback() {
             @Override
             public void onFailure(IoTRequest ioTRequest, Exception e) {
-                onResponse.onFailed(ioTRequest.getPath(), EnvConfigure.VALUE_FIND_ROBOT, 0, e.getLocalizedMessage());
+                if (onResponse != null) {
+                    onResponse.onFailed(ioTRequest.getPath(), EnvConfigure.VALUE_FIND_ROBOT, 0, e.getLocalizedMessage());
+                }
             }
 
             @Override
             public void onResponse(IoTRequest ioTRequest, IoTResponse ioTResponse) {
-                onResponse.onSuccess(ioTRequest.getPath(), EnvConfigure.VALUE_FIND_ROBOT, 1, ioTResponse.getCode());
+                if (onResponse != null) {
+                    onResponse.onSuccess(ioTRequest.getPath(), EnvConfigure.VALUE_FIND_ROBOT, 1, ioTResponse.getCode());
+                }
             }
         }));
 

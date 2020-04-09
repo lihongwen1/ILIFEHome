@@ -10,6 +10,7 @@ import android.graphics.Path;
 import android.graphics.PointF;
 import android.graphics.PorterDuff;
 import android.graphics.RectF;
+import android.graphics.Region;
 import android.os.Looper;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
@@ -28,7 +29,7 @@ import com.ilife.home.robot.utils.UiUtil;
 import com.ilife.home.robot.utils.Utils;
 import com.ilife.home.robot.view.helper.CleanAreaHelper;
 import com.ilife.home.robot.view.helper.ForbiddenAreaHelper;
-import com.ilife.home.robot.view.helper.PartitionHelper;
+import com.ilife.home.robot.view.helper.RoomHelper;
 import com.ilife.home.robot.view.helper.VirtualWallHelper;
 
 import java.math.BigDecimal;
@@ -57,8 +58,7 @@ public class MapView extends View {
     private float dragX, dragY;
     private int[] colors;
     private static final int MIN_WALL_LENGTH = 20;
-    private Bitmap deleteBitmap, rotateBitmap, pullBitmap;//删除电子墙的bitmap
-    private static final int deleteIconW = 100;
+    private Bitmap deleteBitmap, rotateBitmap, pullBitmap, standBitmap;//删除电子墙的bitmap
     private List<SlamLineBean> lastLineBeans = new ArrayList<>();
     private ArrayList<Coordinate> pointList = new ArrayList<>();
     private boolean isSetExtraDrag;
@@ -77,14 +77,13 @@ public class MapView extends View {
     private VirtualWallHelper mVirtualWallHelper;
     private ForbiddenAreaHelper mForbiddenHelper;//全局禁区
     private CleanAreaHelper mCleanHelper;
-    private PartitionHelper mPartitionHelper;
+    private RoomHelper mRoomHelper;
     private OT mOT = OT.NOON;//默认操作地图
     private int MAP_MODE;//标记操作地图的类型
     private final int ZOOM = 2;
     private final int DRAG = 3;
-    private int leftX = 0, leftY = 0;
-    private List<Float> roadPoints = new ArrayList<>();
     private PaintManager mPaintManager;
+    private PointF standPointF;
 
     /**
      * map operation type
@@ -105,6 +104,9 @@ public class MapView extends View {
         }
     }
 
+    public OT getmOT() {
+        return mOT;
+    }
 
     public void setmOT(OT mOT) {
         this.mOT = mOT;
@@ -155,7 +157,7 @@ public class MapView extends View {
         mVirtualWallHelper = new VirtualWallHelper(this);
         mForbiddenHelper = new ForbiddenAreaHelper(this);
         mCleanHelper = new CleanAreaHelper(this);
-        mPartitionHelper = new PartitionHelper(this);
+        mRoomHelper = new RoomHelper(this);
         colors = new int[]{getResources().getColor(R.color.obstacle_color), getResources().getColor(R.color.slam_color),
                 getResources().getColor(R.color.color_00ffffff)};
         MAP_MODE = MODE_NONE;
@@ -166,9 +168,11 @@ public class MapView extends View {
         roomGatePath = new Path();
         slamPath = new Path();
         obstaclePath = new Path();
-        deleteBitmap = BitmapUtils.decodeSampledBitmapFromResource(getResources(), R.drawable.operation_btn_closed, deleteIconW, deleteIconW);
-        rotateBitmap = BitmapUtils.decodeSampledBitmapFromResource(getResources(), R.drawable.operation_btn_angle, deleteIconW, deleteIconW);
-        pullBitmap = BitmapUtils.decodeSampledBitmapFromResource(getResources(), R.drawable.operation_btn_zoom, deleteIconW, deleteIconW);
+        int deleteIconW=getResources().getDimensionPixelSize(R.dimen.dp_48);
+        deleteBitmap = BitmapUtils.decodeBitmapFromResource(getResources(), R.drawable.operation_btn_closed, deleteIconW, deleteIconW);
+        rotateBitmap = BitmapUtils.decodeBitmapFromResource(getResources(), R.drawable.operation_btn_angle, deleteIconW, deleteIconW);
+        pullBitmap = BitmapUtils.decodeBitmapFromResource(getResources(), R.drawable.operation_btn_zoom, deleteIconW, deleteIconW);
+        standBitmap = BitmapUtils.decodeBitmapFromResource(getResources(), R.drawable.operation_icon_stand, deleteIconW, deleteIconW);
 
 
         boxPath = new Path();
@@ -186,8 +190,6 @@ public class MapView extends View {
     }
 
     public void setLeftTopCoordinate(int x, int y) {
-        this.leftX = x;
-        this.leftY = y;
     }
 
     /**
@@ -291,30 +293,26 @@ public class MapView extends View {
         MyLogger.d(TAG, "----------drawMapX8---------数据长度：   " + dataList.size());
         drawBoxMapX8(dataList);
         boxCanvas.drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR);
-        /**
-         * 绘制障碍物
-         */
-        boxCanvas.drawPath(obstaclePath, mPaintManager.changeColor(mPaintManager.getFillPaint(), PaintColor.OBSTACLE));
+
         /**
          * 绘制已清扫区域
          */
-        boxCanvas.drawPath(boxPath, mPaintManager.changeColor(mPaintManager.getFillPaint(), PaintColor.SLAM));
+        boxCanvas.drawPath(boxPath, mPaintManager.changeColor(mPaintManager.getMapPaint(), PaintColor.SLAM));
+        /**
+         * 绘制障碍物
+         */
+        boxCanvas.drawPath(obstaclePath, mPaintManager.changeColor(mPaintManager.getMapPaint(), PaintColor.OBSTACLE));
         /**
          * 绘制room区域
          */
-        boxCanvas.drawPath(roomGatePath, mPaintManager.changeColor(mPaintManager.getFillPaint(), PaintColor.ROOM));
+        boxCanvas.drawPath(roomGatePath, mPaintManager.changeColor(mPaintManager.getMapPaint(), PaintColor.ROOM_GATE));
         /**
          * 绘制路径
          */
-        boxCanvas.drawPath(roadPath, mPaintManager.changeColor(mPaintManager.getRoadPaint(), PaintColor.ROAD));
+        boxCanvas.drawPath(roadPath, mPaintManager.getRoadPaint());
         if (needEndPoint && endX != 0 && endY != 0) {
-            boxCanvas.drawCircle(endX, endY, Utils.dip2px(MyApplication.getInstance(), 12 * baseScare / 30f), mPaintManager.changeColor(mPaintManager.getFillPaint(), PaintColor.END_CIRCLE));
+            boxCanvas.drawCircle(endX, endY, Utils.dip2px(MyApplication.getInstance(), 12 * baseScare / 30f), mPaintManager.changeColor(mPaintManager.getMapPaint(), PaintColor.END_CIRCLE));
         }
-        float[] points = new float[roadPoints.size()];
-        for (int i = 0; i < roadPoints.size(); i++) {
-            points[i] = roadPoints.get(i);
-        }
-        boxCanvas.drawPoints(points, mPaintManager.changeColor(mPaintManager.getFillPaint(), PaintColor.OBSTACLE));
         invalidateUI();
     }
 
@@ -346,7 +344,7 @@ public class MapView extends View {
 
     public void drawForbiddenArea(String data) {
         if (mForbiddenHelper != null) {
-            mForbiddenHelper.setForbiddenArea(leftX, leftY, data);
+            mForbiddenHelper.setForbiddenArea(data);
         }
     }
 
@@ -359,33 +357,29 @@ public class MapView extends View {
     // TODO it should't be created ,when it's size is less than the old
     //the value of baseScare can affects the  sharpness of the map
     public void updateSlam(int xMin, int xMax, int yMin, int yMax) {
-//        MyLogger.e(TAG, "xM:" + xMin + "  xMax:  " + xMax + " yMin: " + yMin + "  yMax:   " + yMax);
+        MyLogger.e(TAG, "边界坐标" + "xM:" + xMin + "  xMax:  " + xMax + " yMin: " + yMin + "  yMax:   " + yMax);
         int xLength = xMax - xMin;
         int yLength = yMax - yMin;
         if (xLength <= 0 || yLength <= 0) {
             return;
         }
-        if (robotSeriesX9) {
-            baseScare = 10.0f;
-            if (xLength * baseScare > width || yLength * baseScare > sCenter.y * 2) {
-                MyLogger.d(TAG, "SYSTEM SCALE MAP -------------");
-                float systemW = (width * 0.9f) / ((xLength * baseScare));
-                float systemH = (sCenter.y * 2 * 0.9f) / ((yLength * baseScare));
-                systemScale = Math.min(systemH, systemW);
-                systemScale = new BigDecimal(systemScale).setScale(2, BigDecimal.ROUND_HALF_DOWN).floatValue();
-                if (systemScale < 0.3f) {
-                    baseScare = new BigDecimal(baseScare * systemScale / 0.3f).setScale(0, BigDecimal.ROUND_HALF_DOWN).floatValue();
-                    systemScale = 0.3f;
-                }
-            }
-        } else {
-            baseScare = 30;
-            if (xLength * baseScare > width * 1.6f || yLength * baseScare > height * 1.6f) {
-                systemScale = new BigDecimal(caculateSystemScale(xLength, yLength, 30)).setScale(1, BigDecimal.ROUND_DOWN).floatValue();
-            } else {
-                systemScale = 0.5f;
+        /**
+         * 计算坐标放大和缩放比例
+         */
+        baseScare = 20.0f;
+        if (xLength * baseScare > width || yLength * baseScare > sCenter.y * 2) {
+            MyLogger.d(TAG, "SYSTEM SCALE MAP -------------");
+            float systemW = (width * 0.9f) / ((xLength * baseScare));
+            float systemH = (sCenter.y * 2 * 0.9f) / ((yLength * baseScare));
+            systemScale = Math.min(systemH, systemW);
+            systemScale = new BigDecimal(systemScale).setScale(2, BigDecimal.ROUND_HALF_DOWN).floatValue();
+            if (systemScale < 0.3f) {
+                baseScare = new BigDecimal(baseScare * systemScale / 0.3f).setScale(0, BigDecimal.ROUND_HALF_DOWN).floatValue();
+                systemScale = 0.3f;
             }
         }
+
+
         MyLogger.d(TAG, "xLength----" + xLength + "----yLength-----" + yLength + "---------height" + height + "---------width--------" + width);
         MyLogger.d(TAG, "--systemScale--:" + systemScale + "------baseScare----:" + baseScare + "------userScale-------" + userScale);
         slamRect.set(xMin, yMin, xMax, yMax);
@@ -473,7 +467,7 @@ public class MapView extends View {
                 matrix.reset();
                 matrix.postTranslate(dragX + sCenter.x - boxBitmap.getWidth() / 2f, dragY + sCenter.y - boxBitmap.getHeight() / 2f);
                 matrix.postScale(getRealScare(), getRealScare(), sCenter.x, sCenter.y);
-                canvas.drawBitmap(boxBitmap, matrix, mPaintManager.getFillPaint());
+                canvas.drawBitmap(boxBitmap, matrix, mPaintManager.getMapPaint());
                 canvas.concat(matrix);//应用变换
 
                 /**
@@ -489,9 +483,9 @@ public class MapView extends View {
                         canvas.drawPath(fbd.getPath(), mPaintManager.changeColor(mPaintManager.getFillPaint(), fbd.getType() == ForbiddenAreaHelper.TYPE_GLOBAL ? PaintColor.GLOBAL_AREA : PaintColor.MOP_AREA));
                         canvas.drawPath(fbd.getPath(), mPaintManager.changeColor(mPaintManager.getStrokePaint(), fbd.getType() == ForbiddenAreaHelper.TYPE_GLOBAL ? PaintColor.GLOBAL_AREA_BOUNDARY : PaintColor.MOP_AREA_BOUNDARY));
                     }
-                    if (mForbiddenHelper.getSelectVwNum() == fbd.getNumber()) {//保存操作中的禁区
+                    if ((mOT==OT.MOP_FORBIDDEN_AREA||mOT==OT.GLOBAL_FORBIDDEN_AREA)&&mForbiddenHelper.getSelectVwNum() == fbd.getNumber()) {//保存操作中的禁区
                         if (fbd.getBoundaryPath() != null) {
-                            canvas.drawPath(fbd.getBoundaryPath(), mPaintManager.changeColor(mPaintManager.getStrokePaint(),PaintColor.RECTANGLE_BOUNDARY));
+                            canvas.drawPath(fbd.getBoundaryPath(), mPaintManager.changeColor(mPaintManager.getStrokePaint(), PaintColor.RECTANGLE_BOUNDARY));
                         }
                         if (fbd.getDeleteIcon() != null) {
                             canvas.drawBitmap(deleteBitmap, fbd.getDeleteIcon().left, fbd.getDeleteIcon().top, mPaintManager.getIconPaint());
@@ -514,27 +508,29 @@ public class MapView extends View {
                  *  draw clean area
                  *  绘制清扫区域/划区清扫
                  */
-                VirtualWallBean cleanArea = mCleanHelper.getCurCleanAreaBean();
-                if (cleanArea != null && cleanArea.getState() != 3) {
-                    if (cleanArea.getPath() != null) {
-                        canvas.drawPath(cleanArea.getPath(), mPaintManager.changeColor(mPaintManager.getFillPaint(), PaintColor.CLEAN_AREA));
-                        canvas.drawPath(cleanArea.getPath(), mPaintManager.changeColor(mPaintManager.getStrokePaint(), PaintColor.CLEAN_AREA_BOUNDARY));
+                if (mOT == OT.MAP || mOT == OT.CLEAN_AREA) {
+                    VirtualWallBean cleanArea = mCleanHelper.getCurCleanAreaBean();
+                    if (cleanArea != null && cleanArea.getState() != 3) {
+                        if (cleanArea.getPath() != null) {
+                            canvas.drawPath(cleanArea.getPath(), mPaintManager.changeColor(mPaintManager.getFillPaint(), PaintColor.CLEAN_AREA));
+                            canvas.drawPath(cleanArea.getPath(), mPaintManager.changeColor(mPaintManager.getStrokePaint(), PaintColor.CLEAN_AREA_BOUNDARY));
 
+                        }
+                        if (cleanArea.getBoundaryPath() != null) {
+                            canvas.drawPath(cleanArea.getBoundaryPath(), mPaintManager.changeColor(mPaintManager.getStrokePaint(), PaintColor.RECTANGLE_BOUNDARY));
+                        }
+                        if (cleanArea.getDeleteIcon() != null) {
+                            canvas.drawBitmap(deleteBitmap, cleanArea.getDeleteIcon().left, cleanArea.getDeleteIcon().top, mPaintManager.getIconPaint());
+                        }
+                        if (cleanArea.getPullIcon() != null) {
+                            canvas.drawBitmap(pullBitmap, cleanArea.getPullIcon().left, cleanArea.getPullIcon().top, mPaintManager.getIconPaint());
+                        }
+                        if (cleanArea.getRotateIcon() != null) {
+                            canvas.drawBitmap(rotateBitmap, cleanArea.getRotateIcon().left, cleanArea.getRotateIcon().top, mPaintManager.getIconPaint());
+                        }
                     }
-                    if (cleanArea.getBoundaryPath() != null) {
-                        canvas.drawPath(cleanArea.getBoundaryPath(), mPaintManager.changeColor(mPaintManager.getStrokePaint(),PaintColor.RECTANGLE_BOUNDARY));
-                    }
-                    if (cleanArea.getDeleteIcon() != null) {
-                        canvas.drawBitmap(deleteBitmap, cleanArea.getDeleteIcon().left, cleanArea.getDeleteIcon().top, mPaintManager.getIconPaint());
-                    }
-                    if (cleanArea.getPullIcon() != null) {
-                        canvas.drawBitmap(pullBitmap, cleanArea.getPullIcon().left, cleanArea.getPullIcon().top, mPaintManager.getIconPaint());
-                    }
-                    if (cleanArea.getRotateIcon() != null) {
-                        canvas.drawBitmap(rotateBitmap, cleanArea.getRotateIcon().left, cleanArea.getRotateIcon().top, mPaintManager.getIconPaint());
-                    }
+                    canvas.drawRect(mCleanHelper.getCurRectF(), mPaintManager.changeColor(mPaintManager.getFillPaint(), PaintColor.CLEAN_AREA));
                 }
-                canvas.drawRect(mCleanHelper.getCurRectF(), mPaintManager.changeColor(mPaintManager.getFillPaint(), PaintColor.CLEAN_AREA));
 
                 /**
                  * draw virtual wall
@@ -551,7 +547,7 @@ public class MapView extends View {
                     if (vw.getState() == 3) {
                         continue;
                     }
-                    if (mVirtualWallHelper.getSelectVwNum() == vw.getNumber()) {
+                    if (mOT==OT.VIRTUAL_WALL&&mVirtualWallHelper.getSelectVwNum() == vw.getNumber()) {
                         if (vw.getBoundaryPath() != null) {
                             canvas.drawPath(vw.getBoundaryPath(), mPaintManager.changeColor(mPaintManager.getStrokePaint(), PaintColor.RECTANGLE_BOUNDARY));
                         }
@@ -566,14 +562,28 @@ public class MapView extends View {
 
 
                 /**
-                 * draw room tag
+                 * draw room tag/绘制房间标记
                  */
-
-                for (PartitionBean room : mPartitionHelper.getRooms()) {
-                    PaintColor color = mPartitionHelper.getSelecRoom().indexOfKey(room.getPartitionId()) < 0 ? PaintColor.ROOM : PaintColor.ROOM_SELECT;
-                    int cx = (int) matrixCoordinateX(room.getX() - leftX);
-                    int cy = (int) matrixCoordinateY(leftY - room.getY());
-                    canvas.drawCircle(cx, cy, mPartitionHelper.getRadius(), mPaintManager.changeColor(mPaintManager.getFillPaint(), color));
+                if (mOT == OT.MAP || mOT == OT.SELECT_ROOM) {
+                    Paint paint = mPaintManager.getFillPaint();
+                    paint.setTextSize(mRoomHelper.getTextSize());
+                    for (PartitionBean room : mRoomHelper.getRooms()) {
+                        int cx = (int) matrixCoordinateX(room.getX());
+                        int cy = (int) matrixCoordinateY(room.getY());
+                        canvas.drawCircle(cx, cy, mRoomHelper.getRadius(), mPaintManager.changeColor(mPaintManager.getFillPaint(), PaintColor.ROOM));
+                        mPaintManager.changeColor(paint,mRoomHelper.isRoomSelected(room.getPartitionId())? PaintColor.ROOM_TEXT_SELECT : PaintColor.ROOM_TEXT);
+                        // 文字宽
+                        float textWidth = paint.measureText(room.getTag());
+                        // 文字baseline在y轴方向的位置
+                        float baseLineY = Math.abs(paint.ascent() + paint.descent()) / 2;
+                        canvas.drawText(room.getTag(), cx-textWidth / 2, cy+baseLineY, paint);
+                    }
+                }
+                /**
+                 * 绘制充电座
+                 */
+                if (standPointF != null) {
+                    canvas.drawBitmap(standBitmap, standPointF.x - 60, standPointF.y - 60, mPaintManager.getIconPaint());
                 }
             }
         } else {//x900 series
@@ -629,6 +639,7 @@ public class MapView extends View {
         float x = event.getX() / getRealScare() + getOffsetX();
         float y = event.getY() / getRealScare() + getOffsetY();
         switch (mOT) {
+            case NOON:
             case SELECT_ROOM:
             case MAP://操作地图
                 switch (me) {
@@ -659,7 +670,7 @@ public class MapView extends View {
                             MAP_MODE = MODE_NONE;
                             switch (mOT) {
                                 case SELECT_ROOM:
-                                    mPartitionHelper.clickRoomTag(x, y);
+                                    mRoomHelper.clickRoomTag(x, y);
                                     break;
                                 case PARTITION:
                                     break;
@@ -830,7 +841,7 @@ public class MapView extends View {
      * @return
      */
     public int getSelectRoom() {
-        return mPartitionHelper.getSelectRoomId();
+        return mRoomHelper.getSelectRoomId();
     }
 
 
@@ -840,7 +851,7 @@ public class MapView extends View {
      * @param vwData 服务器电子墙数据集合
      */
     public void drawVirtualWall(String vwData) {
-        mVirtualWallHelper.drawVirtualWall(vwData, leftX, leftY);
+        mVirtualWallHelper.drawVirtualWall(vwData);
         invalidateUI();
     }
 
@@ -850,11 +861,25 @@ public class MapView extends View {
      * @param roomData
      */
     public void drawRoomTag(String roomData) {
-        mPartitionHelper.drawRoom(leftX, leftY, roomData);
+        mRoomHelper.drawRoom(roomData);
     }
 
     public void drawCleanArea(String cleanArea) {
-        mCleanHelper.setCleanArea(leftX, leftY, cleanArea);
+        mCleanHelper.setCleanArea(cleanArea);
+    }
+
+    /**
+     * 主机坐标系，充电座坐标
+     *
+     * @param x
+     * @param y
+     */
+    public void drawChargePort(int x, int y) {
+        if (standPointF == null) {
+            standPointF = new PointF();
+        }
+        standPointF.set(matrixCoordinateX(x), matrixCoordinateY(y));
+        invalidateUI();
     }
 
     /**
@@ -954,7 +979,7 @@ public class MapView extends View {
         if (dataList.size() == 0) {
             boxPath.reset();
             obstaclePath.reset();
-            roadPath.reset();
+            roomGatePath.reset();
             roadPath.reset();
             boxCanvas.drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR);
             invalidateUI();
@@ -964,11 +989,9 @@ public class MapView extends View {
         pointList.addAll(dataList);
         boxPath.reset();
         roadPath.reset();
-        roadPath.reset();
+        roomGatePath.reset();
         obstaclePath.reset();
-        roadPoints.clear();
         int x, y, type;
-//        float space = new BigDecimal(baseScare * 0.1f).setScale(0, BigDecimal.ROUND_HALF_DOWN).floatValue();
         float space = 0;
         Coordinate coordinate;
         boolean isStartRoad = false;
@@ -984,8 +1007,6 @@ public class MapView extends View {
                         break;
                     case 1://已清扫
                         boxPath.addRect(matrixCoordinateX(x), matrixCoordinateY(y), matrixCoordinateX(x) + baseScare - space, matrixCoordinateY(y) + baseScare - space, Path.Direction.CCW);
-                        endX = matrixCoordinateX(x) + (baseScare - space) / 2f;
-                        endY = matrixCoordinateY(y) + (baseScare - space) / 2f;
                         break;
                     case 2://障碍物
                         obstaclePath.addRect(matrixCoordinateX(x), matrixCoordinateY(y), matrixCoordinateX(x) + baseScare - space, matrixCoordinateY(y) + baseScare - space, Path.Direction.CCW);
@@ -994,16 +1015,14 @@ public class MapView extends View {
                         roomGatePath.addRect(matrixCoordinateX(x), matrixCoordinateY(y), matrixCoordinateX(x) + baseScare - space, matrixCoordinateY(y) + baseScare - space, Path.Direction.CCW);
                         break;
                     case 4://路径
-                        roadPoints.add(matrixCoordinateX(x));
-                        roadPoints.add(matrixCoordinateY(y));
                         if (!isStartRoad) {
                             isStartRoad = true;
                             roadPath.moveTo(matrixCoordinateX(x), matrixCoordinateY(y));
                         } else {
-                            roadPoints.add(matrixCoordinateX(x));
-                            roadPoints.add(matrixCoordinateY(y));
                             roadPath.lineTo(matrixCoordinateX(x), matrixCoordinateY(y));
                         }
+                        endX = matrixCoordinateX(x) + (baseScare - space) / 2f;
+                        endY = matrixCoordinateY(y) + (baseScare - space) / 2f;
                         break;
                 }
             }
@@ -1054,7 +1073,7 @@ public class MapView extends View {
     }
 
     private class PaintManager {
-        private Paint slamPaint, linePaint,roadPaint, fillPaint, strokePaint, iconPaint;
+        private Paint slamPaint, linePaint, roadPaint,mapPaint, fillPaint, strokePaint, iconPaint, textPaint;
 
         public PaintManager() {
             initPaint();
@@ -1062,20 +1081,28 @@ public class MapView extends View {
 
         public void initPaint() {
             slamPaint = new Paint(Paint.ANTI_ALIAS_FLAG | Paint.DITHER_FLAG);
-            buildPaiit(slamPaint, getResources().getColor(R.color.slam_color), Paint.Style.FILL_AND_STROKE, 1);
+            buildPaint(slamPaint, getResources().getColor(R.color.slam_color), Paint.Style.FILL_AND_STROKE, 1);
 
             fillPaint = new Paint(Paint.ANTI_ALIAS_FLAG | Paint.DITHER_FLAG);
-            buildPaiit(fillPaint, getResources().getColor(R.color.slam_color), Paint.Style.FILL_AND_STROKE, 1, Paint.Join.ROUND);
+            buildPaint(fillPaint, getResources().getColor(R.color.slam_color), Paint.Style.FILL_AND_STROKE, 1, Paint.Join.ROUND);
+
+            mapPaint = new Paint(Paint.ANTI_ALIAS_FLAG | Paint.DITHER_FLAG);
+            buildPaint(mapPaint, getResources().getColor(R.color.slam_color), Paint.Style.FILL_AND_STROKE, 1, Paint.Join.ROUND);
 
             linePaint = new Paint(Paint.ANTI_ALIAS_FLAG | Paint.DITHER_FLAG);
-            buildPaiit(linePaint, getResources().getColor(R.color.color_theme), Paint.Style.FILL_AND_STROKE, 10, Paint.Join.ROUND);
+            buildPaint(linePaint, getResources().getColor(R.color.color_theme), Paint.Style.FILL_AND_STROKE, 10, Paint.Join.ROUND);
+
             roadPaint = new Paint(Paint.ANTI_ALIAS_FLAG | Paint.DITHER_FLAG);
-            buildPaiit(roadPaint, getResources().getColor(R.color.color_theme), Paint.Style.STROKE, 3, Paint.Join.ROUND);
+            buildPaint(roadPaint, getResources().getColor(R.color.white), Paint.Style.STROKE, 4, Paint.Join.ROUND);
+
+            textPaint = new Paint();
+            buildPaint(textPaint, getResources().getColor(R.color.color_theme), Paint.Style.FILL_AND_STROKE, 1, Paint.Join.ROUND);
+
 
             strokePaint = new Paint(Paint.ANTI_ALIAS_FLAG | Paint.DITHER_FLAG);
-            buildPaiit(strokePaint, getResources().getColor(R.color.color_1adb2d), Paint.Style.STROKE, 10, Paint.Join.ROUND);
+            buildPaint(strokePaint, getResources().getColor(R.color.color_1adb2d), Paint.Style.STROKE, 10, Paint.Join.ROUND);
             iconPaint = new Paint(Paint.ANTI_ALIAS_FLAG | Paint.DITHER_FLAG);
-            buildPaiit(iconPaint, getResources().getColor(R.color.color_theme), Paint.Style.FILL_AND_STROKE, 10);
+            buildPaint(iconPaint, getResources().getColor(R.color.color_theme), Paint.Style.FILL_AND_STROKE, 10);
         }
 
         /**
@@ -1086,7 +1113,7 @@ public class MapView extends View {
          * @param style
          * @param width
          */
-        private void buildPaiit(Paint paint, int color, Paint.Style style, float width) {
+        private void buildPaint(Paint paint, int color, Paint.Style style, float width) {
             paint.setStyle(style);
             paint.setFilterBitmap(true);
             paint.setColor(color);
@@ -1102,7 +1129,7 @@ public class MapView extends View {
          * @param width
          * @param join
          */
-        private void buildPaiit(Paint paint, int color, Paint.Style style, float width, Paint.Join join) {
+        private void buildPaint(Paint paint, int color, Paint.Style style, float width, Paint.Join join) {
             paint.setFilterBitmap(true);
             paint.setStyle(style);
             paint.setStrokeJoin(join);
@@ -1133,6 +1160,10 @@ public class MapView extends View {
         public Paint toFillStyle(Paint paint) {
             paint.setStyle(Paint.Style.FILL_AND_STROKE);
             return paint;
+        }
+
+        public Paint getTextPaint() {
+            return textPaint;
         }
 
         public Paint getSlamPaint() {
@@ -1182,24 +1213,29 @@ public class MapView extends View {
         public void setRoadPaint(Paint roadPaint) {
             this.roadPaint = roadPaint;
         }
+
+        public Paint getMapPaint() {
+            return mapPaint;
+        }
     }
 
     enum PaintColor {
         SLAM(1, UiUtil.getColorByARGB("#545358")),
         ROAD(2, UiUtil.getColorByARGB("#FFFFFF")),
-        OBSTACLE(3, UiUtil.getColorByARGB("#75767A")),
+        OBSTACLE(3, UiUtil.getColorByARGB("#FF75767A")),
         RECTANGLE_BOUNDARY(4, UiUtil.getColorByARGB("#FFFFFF")),
         VIRTUAL(5, UiUtil.getColorByARGB("#F31E1B")),
-        GLOBAL_AREA(6, UiUtil.getColorByARGB("#A0F91F1F")),
+        GLOBAL_AREA(6, UiUtil.getColorByARGB("#10F91F1F")),
         GLOBAL_AREA_BOUNDARY(7, UiUtil.getColorByARGB("#F91F1F")),
-        MOP_AREA(8, UiUtil.getColorByARGB("#A0EF7C00")),
+        MOP_AREA(8, UiUtil.getColorByARGB("#10EF7C00")),
         MOP_AREA_BOUNDARY(9, UiUtil.getColorByARGB("#EF7C00")),
-        CLEAN_AREA(10, UiUtil.getColorByARGB("#A01B92E2")),
+        CLEAN_AREA(10, UiUtil.getColorByARGB("#101B92E2")),
         CLEAN_AREA_BOUNDARY(11, UiUtil.getColorByARGB("#1B92E2")),
         END_CIRCLE(11, UiUtil.getColorByARGB("#FFF700")),
-        ROOM(12, UiUtil.getColorByARGB("#1ADB2D")),
-        ROOM_SELECT(13, UiUtil.getColorByARGB("#EF7C00")),
-        ROOM_GATE(14, UiUtil.getColorByARGB("#EF7C00"));
+        ROOM(12, UiUtil.getColorByARGB("#1A000000")),
+        ROOM_TEXT_SELECT(13, UiUtil.getColorByARGB("#EF7C00")),
+        ROOM_TEXT(14, UiUtil.getColorByARGB("#FFFFFF")),
+        ROOM_GATE(15, UiUtil.getColorByARGB("#EF7C00"));
         final int type;
         final int color;
 

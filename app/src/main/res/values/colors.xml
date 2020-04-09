@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="color_theme">#F0841A</color>
+    <color name="color_theme">#EF7C00</color>
     <color name="colorPrimary">#3F51B5</color>
     <color name="colorPrimaryDark">#ffffff</color>
     <color name="colorAccent">#ff4d00</color>
@@ -9,7 +9,7 @@
     <color name="clock_aty_tv_pressed">#cbcbcb</color>
     <color name="clock_aty_tv_unpressed">#00bdb5</color>
 
-    <color name="color_theme_66">#40ff4d00</color>
+    <color name="color_theme_66">#40EF7C00</color>
     <color name="color_ff1b92e2">#ff1b92e2</color>
     <color name="color_ff">#ffffff</color>
     <color name="color_33">#333333</color>

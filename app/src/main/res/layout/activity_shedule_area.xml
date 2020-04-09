@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <include layout="@layout/template_top_title" />
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/shape_gradient_map_bg">
+
+        <com.ilife.home.robot.view.MapView
+            android:id="@+id/map_schedule_area"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
+            android:orientation="vertical">
+
+            <RadioGroup
+                android:id="@+id/rg_schedule_area"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/dp_48"
+                android:layout_gravity="bottom"
+                android:layout_margin="@dimen/dp_12"
+                android:background="@drawable/bg_shape_radius_16_theme"
+                android:orientation="horizontal">
+
+                <RadioButton
+                    android:id="@+id/tv_schedule_area"
+                    style="@style/text_button_16"
+                    android:background="@drawable/selector_retangle_bg__theme"
+                    android:button="@null"
+                    android:text="默认"
+                    android:textColor="@color/color_white_33_selector" />
+
+                <RadioButton
+                    android:id="@+id/tv_schedule_area_room"
+                    style="@style/text_button_16"
+                    android:background="@drawable/selector_retangle_bg__theme"
+                    android:button="@null"
+                    android:text="选房"
+                    android:textColor="@color/color_white_33_selector" />
+
+                <RadioButton
+                    android:id="@+id/tv_schedule_area_clean_area"
+                    style="@style/text_button_16"
+                    android:background="@drawable/selector_retangle_bg__theme"
+                    android:button="@null"
+                    android:text="划区"
+                    android:textColor="@color/color_white_33_selector" />
+            </RadioGroup>
+        </LinearLayout>
+    </FrameLayout>
+
+</LinearLayout>

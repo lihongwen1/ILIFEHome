@@ -1,6 +1,7 @@
 package com.ilife.home.robot.activity;
 
 import android.app.Dialog;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -15,11 +16,13 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.TimePicker;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.aliyun.iot.aep.sdk._interface.OnAliResponse;
 import com.aliyun.iot.aep.sdk.bean.ScheduleBean;
 import com.aliyun.iot.aep.sdk.contant.EnvConfigure;
 import com.aliyun.iot.aep.sdk.contant.IlifeAli;
+import com.aliyun.iot.aep.sdk.contant.MsgCodeUtils;
 import com.badoo.mobile.util.WeakHandler;
 import com.ilife.home.robot.able.Constants;
 import com.ilife.home.robot.able.DeviceUtils;
@@ -43,6 +46,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;
+import butterknife.OnClick;
 
 
 /**
@@ -51,27 +55,17 @@ import butterknife.BindView;
 
 public class ClockingActivity extends BackBaseActivity {
     final String TAG = ClockingActivity.class.getSimpleName();
-    final String UNDER_LINE = "_";
-    TextView tv_confirm;
-    TextView tv_cancel;
     RecyclerView recyclerView;
     ClockAdapter adapter;
-    AlertDialog alertDialog;
     LayoutInflater inflater;
-    TimePicker timePicker;
     SmartRefreshLayout refreshLayout;
     ArrayList<NewClockInfo> clockInfos = new ArrayList<>();
-    int hour, minute, open;
-    String last;
     @BindView(R.id.tv_top_title)
     TextView tv_title;
-    private int selectPosition;
-    private UniversalDialog workTimeDialog;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        getClockInfo();
     }
 
     @Override
@@ -93,112 +87,53 @@ public class ClockingActivity extends BackBaseActivity {
         refreshLayout.setRefreshHeader(new ClassicsHeader(this));
         adapter = new ClockAdapter(R.layout.layout_clock_item, clockInfos);
         adapter.setOnItemClickListener((adapter, view, position) -> {
-            showSetClockDialog(position);
+            Intent intent = new Intent(ClockingActivity.this, ClockEditActivity.class);
+            intent.putExtra(ClockEditActivity.KEY_SCHEDULE_INFO, clockInfos.get(position));
+            startActivity(intent);
         });
         adapter.setOnItemChildClickListener((adapter, view, position) -> {
             if (view.getId() == R.id.image_status) {//开关按钮点击事件
                 NewClockInfo clockInfo = clockInfos.get(position);
-                hour = clockInfo.getHour();
-                minute = clockInfo.getMinute();
-                open = clockInfo.getOpen();
-                open = open == 1 ? 0 : 1;
-                setSchedule(position, open);
+                clockInfo.setOpen(clockInfo.getOpen() == 1 ? 0 : 1);
+                setSchedule(clockInfo);
             }
 
         });
-        recyclerView = (RecyclerView) findViewById(R.id.recyclerView);
+        recyclerView = findViewById(R.id.recyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(context));
         recyclerView.setAdapter(adapter);
     }
 
-    public void showSetClockDialog(int position) {
-        if (alertDialog == null) {
-            View contentView = inflater.inflate(R.layout.layout_timepick_dialog, null);
-            timePicker = (TimePicker) contentView.findViewById(R.id.timePicker);
-            TimePickerUIUtil.set_timepicker_text_colour(timePicker, context);
-            tv_confirm = (TextView) contentView.findViewById(R.id.tv_confirm);
-            tv_cancel = (TextView) contentView.findViewById(R.id.tv_cancel);
-            int width = (int) getResources().getDimension(R.dimen.dp_300);
-            int height = (int) getResources().getDimension(R.dimen.dp_300);
-            alertDialog = AlertDialogUtils.showDialog(context, contentView, width, height);//
-        } else {
-            if (!alertDialog.isShowing()) {
-                alertDialog.show();
-            }
-        }
-        tv_cancel.setOnClickListener(new MyListener(position));
-        tv_confirm.setOnClickListener(new MyListener(position));
-        byte hour = (byte) clockInfos.get(position).getHour();
-        byte minute = (byte) clockInfos.get(position).getMinute();
-        last = hour + UNDER_LINE + minute;
-        if (DateFormat.is24HourFormat(context)) {
-            timePicker.setIs24HourView(true);
-        } else {
-            timePicker.setIs24HourView(false);
-        }
-        timePicker.setCurrentHour((int) hour);
-        timePicker.setCurrentMinute((int) minute);
+
+    @OnClick(R.id.ivb_add_clock)
+    public void onClick(View view) {
+        Intent intent = new Intent(ClockingActivity.this, ClockEditActivity.class);
+        startActivity(intent);
     }
 
-    class MyListener implements View.OnClickListener {
-        int position;
-
-        public MyListener(int position) {
-            this.position = position;
-        }
-
-        @Override
-        public void onClick(View v) {
-            AlertDialogUtils.hidden(alertDialog);
-            switch (v.getId()) {
-                case R.id.tv_cancel:
-
-                    break;
-                case R.id.tv_confirm:
-                    hour = timePicker.getCurrentHour();
-                    minute = timePicker.getCurrentMinute();
-                    selectPosition = position;
-                    RobotConfigBean.RobotBean rBean = MyApplication.getInstance().readRobotConfig().getRobotBeanByPk(IlifeAli.getInstance().getWorkingDevice().getProductKey());
-                    if (rBean.isScheduleInDark()) {//V3x，X787没有黑暗环境限制
-                        setSchedule(selectPosition, 1);
-                    } else if ((hour > 5 && hour < 20) || (hour == 5 && minute > 0)) {//可用时间段(预约夜间时间提醒)
-                        setSchedule(selectPosition, 1);
-                    } else {//不可用时间
-                        if (workTimeDialog == null) {
-                            workTimeDialog = new UniversalDialog();
-                            workTimeDialog.setTitle(getString(R.string.clock_dialog_title)).setHintTip(getString(R.string.clock_dialog_content))
-                                    .setLeftText(getString(R.string.clock_dialog_cancel)).setRightText(getString(R.string.clock_dialog_finish))
-                                    .setOnRightButtonClck(() -> setSchedule(selectPosition, 1));
-                        }
-                        workTimeDialog.show(getSupportFragmentManager(), "work_time");
-                    }
-                    break;
-            }
-        }
-
+    @Override
+    protected void onResume() {
+        super.onResume();
+       getClockInfo();
     }
 
     /**
      * position 0-6《-----》schedule1-schedule7
-     *
-     * @param position
-     * @param open
+     * @param clockInfo
      */
-    private void setSchedule(int position, int open) {
-        RobotConfigBean.RobotBean rBean = MyApplication.getInstance().readRobotConfig().getRobotBeanByPk(IlifeAli.getInstance().getWorkingDevice().getProductKey());
-        IlifeAli.getInstance().setSchedule(rBean.isNewScheduleVersion(), position + 1, open, hour, minute, new OnAliResponse<ScheduleBean>() {
-            @Override
-            public void onSuccess(ScheduleBean scheduleBean) {
-                NewClockInfo clockInfo = clockInfos.get(position);
-                clockInfo.setOpen((byte) scheduleBean.getScheduleEnable());
-                clockInfo.setHour((byte) scheduleBean.getScheduleHour());
-                clockInfo.setMinute((byte) scheduleBean.getScheduleMinutes());
+    private void setSchedule(NewClockInfo clockInfo) {
+        String scheduleJson = JSON.toJSONString(clockInfo.toScheduleBean());
+        JSONObject jsoSchedule = JSONObject.parseObject(scheduleJson);
+        String json_str = "{\"Schedule\":\" \"}";
+        String schedule_ = json_str.replaceFirst(EnvConfigure.KEY_SCHEDULE, clockInfo.getScheduleKey());
+        JSONObject jso = JSONObject.parseObject(schedule_);
+        jso.put(clockInfo.getScheduleKey(), jsoSchedule);
+        IlifeAli.getInstance().setProperties(jso, aBoolean -> {
+            if (aBoolean) {
                 adapter.notifyDataSetChanged();
-            }
-
-            @Override
-            public void onFailed(int code, String message) {
-                MyLogger.d(TAG, "预约设置失败：" + message);
+                ToastUtils.showToast("设置预约数据成功");
+            } else {
+                clockInfo.setOpen(clockInfo.getOpen() == 1 ? 0 : 1);
             }
         });
     }
@@ -208,8 +143,13 @@ public class ClockingActivity extends BackBaseActivity {
             @Override
             public void onSuccess(List<ScheduleBean> scheduleBeans) {
                 clockInfos.clear();
+                int key_index = 1;
                 for (ScheduleBean bean : scheduleBeans) {
-                    clockInfos.add(new NewClockInfo(bean));
+                    NewClockInfo clockInfo = new NewClockInfo(bean);
+                    clockInfo.setMode(6);//预约模式默认规划
+                    clockInfo.setScheduleKey(EnvConfigure.KEY_SCHEDULE + key_index);
+                    key_index++;
+                    clockInfos.add(clockInfo);
                 }
                 adapter.notifyDataSetChanged();
                 if (refreshLayout != null) {

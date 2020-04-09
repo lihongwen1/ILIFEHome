@@ -142,7 +142,7 @@ public class DeviceUtils {
                 str = context.getString(R.string.map_aty_point_ing);
             } else if (b == MsgCodeUtils.STATUE_PLANNING) {
                 str = context.getString(R.string.map_aty_plan_mode);
-            } else if (b == MsgCodeUtils.STATUE_VIRTUAL_EDIT) {
+            } else if (b == MsgCodeUtils.STATUE_VIRTUAL_EDIT||b==MsgCodeUtils.STATUE_CLEAN_AREA_EDIT) {
                 str = context.getString(R.string.map_aty_edit_mode);
             } else if (b == MsgCodeUtils.STATUE_RECHARGE) {
                 str = context.getString(R.string.map_aty_recharging);
@@ -156,6 +156,10 @@ public class DeviceUtils {
                 str = context.getString(R.string.map_aty_pause);
             } else if (b == MsgCodeUtils.STATUE_TEMPORARY_POINT) {
                 str = context.getString(R.string.map_aty_temp_keypoint);
+            } else if (b == MsgCodeUtils.STATUE_CLEAN_AREA) {//区域清扫
+                str = "区域清扫";
+            }if (b == MsgCodeUtils.STATUE_CLEAN_ROOM) {//选房清扫
+                str = "选房清扫";
             }
         }
         return str;

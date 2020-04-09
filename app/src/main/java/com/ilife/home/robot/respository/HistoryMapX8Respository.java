@@ -145,7 +145,6 @@ public class HistoryMapX8Respository {
          * @param mapData
          */
         private void parseRealTimeMapX8(String mapData) {
-            MyLogger.e(TAG, "清扫数据:" + mapData);
             byte[] pointCoor = new byte[2];
             if (!TextUtils.isEmpty(mapData)) {
                 byte[] bytes = Base64.decode(mapData, Base64.DEFAULT);

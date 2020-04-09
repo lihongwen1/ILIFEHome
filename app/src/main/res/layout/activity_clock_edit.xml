@@ -1,0 +1,207 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <include layout="@layout/template_top_title" />
+
+    <LinearLayout
+        android:id="@+id/ll_schedule_time"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dp_60"
+        android:layout_marginStart="@dimen/dp_24"
+        android:layout_marginEnd="@dimen/dp_24"
+        android:gravity="center"
+        android:orientation="horizontal">
+
+        <TextView
+            style="@style/Text_16sp_33"
+            android:text="预约时间" />
+
+        <Space
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1" />
+
+        <TextView
+            android:id="@+id/tv_schedule_time"
+            style="@style/Text_14sp_66"
+            android:text="12:00" />
+
+        <ImageView
+            style="@style/Image_Style_Forward"
+            android:layout_marginStart="@dimen/dp_20" />
+
+
+    </LinearLayout>
+
+    <View
+        style="@style/View_Line_Style"
+        android:layout_alignParentBottom="true" />
+
+    <LinearLayout
+        android:id="@+id/ll_schedule_loop"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dp_60"
+        android:layout_marginStart="@dimen/dp_24"
+        android:layout_marginEnd="@dimen/dp_24"
+        android:gravity="center"
+        android:orientation="horizontal">
+
+        <TextView
+            style="@style/Text_16sp_33"
+            android:text="重复" />
+
+        <Space
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1" />
+
+        <TextView
+            android:id="@+id/tv_schedule_loop"
+            style="@style/Text_14sp_66"
+            android:text="周一" />
+
+        <ImageView
+            style="@style/Image_Style_Forward"
+            android:layout_marginStart="@dimen/dp_20" />
+
+
+    </LinearLayout>
+
+    <View
+        style="@style/View_Line_Style"
+        android:layout_alignParentBottom="true" />
+
+    <LinearLayout
+        android:visibility="gone"
+        android:id="@+id/ll_schedule_mode"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dp_60"
+        android:layout_marginStart="@dimen/dp_24"
+        android:layout_marginEnd="@dimen/dp_24"
+        android:gravity="center"
+        android:orientation="horizontal">
+
+        <TextView
+            style="@style/Text_16sp_33"
+            android:text="清扫模式" />
+
+        <Space
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1" />
+
+        <TextView
+            android:id="@+id/tv_schedule_mode"
+            style="@style/Text_14sp_66"
+            android:text="规划清扫" />
+
+        <ImageView
+            style="@style/Image_Style_Forward"
+            android:layout_marginStart="@dimen/dp_20" />
+
+
+    </LinearLayout>
+
+    <View
+        style="@style/View_Line_Style"
+        android:layout_alignParentBottom="true" />
+
+    <LinearLayout
+        android:id="@+id/ll_schedule_times"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dp_60"
+        android:layout_marginStart="@dimen/dp_24"
+        android:layout_marginEnd="@dimen/dp_24"
+        android:gravity="center"
+        android:orientation="horizontal">
+
+        <TextView
+            style="@style/Text_16sp_33"
+            android:text="清扫次数" />
+
+        <Space
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1" />
+
+        <TextView
+            android:id="@+id/tv_schedule_times"
+            style="@style/Text_14sp_66"
+            android:text="0次" />
+
+        <ImageView
+            style="@style/Image_Style_Forward"
+            android:layout_marginStart="@dimen/dp_20" />
+
+
+    </LinearLayout>
+
+    <View
+        style="@style/View_Line_Style"
+        android:layout_alignParentBottom="true" />
+
+    <LinearLayout
+        android:id="@+id/ll_schedule_area"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dp_60"
+        android:layout_marginStart="@dimen/dp_24"
+        android:layout_marginEnd="@dimen/dp_24"
+        android:gravity="center"
+        android:orientation="horizontal">
+
+        <TextView
+            style="@style/Text_16sp_33"
+            android:text="选择区域" />
+
+        <Space
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1" />
+
+        <TextView
+            android:id="@+id/tv_schedule_area"
+            style="@style/Text_14sp_66"
+            android:text="默认" />
+
+        <ImageView
+            style="@style/Image_Style_Forward"
+            android:layout_marginStart="@dimen/dp_20" />
+    </LinearLayout>
+
+    <Space
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dp_50"
+        android:layout_marginStart="@dimen/dp_24"
+        android:layout_marginEnd="@dimen/dp_24"
+        android:layout_marginBottom="@dimen/dp_24"
+        android:orientation="horizontal">
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/btn_cancel_schedule"
+            android:layout_width="0dp"
+            android:layout_height="@dimen/dp_48"
+            android:layout_weight="1"
+            android:background="@drawable/shape_bg_gray"
+            android:text="取消" />
+
+        <Space
+            android:layout_width="@dimen/dp_20"
+            android:layout_height="match_parent" />
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/btn_save_schedule"
+            android:layout_width="0dp"
+            android:layout_height="@dimen/dp_48"
+            android:layout_weight="1"
+            android:background="@drawable/shape_bg_color"
+            android:text="保存" />
+    </LinearLayout>
+</LinearLayout>

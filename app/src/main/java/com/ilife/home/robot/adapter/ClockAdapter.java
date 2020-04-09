@@ -2,7 +2,10 @@ package com.ilife.home.robot.adapter;
 
 import androidx.annotation.NonNull;
 
+import com.aliyun.iot.aep.sdk.contant.MsgCodeUtils;
 import com.ilife.home.robot.R;
+import com.ilife.home.robot.able.DeviceUtils;
+import com.ilife.home.robot.app.MyApplication;
 import com.ilife.home.robot.base.BaseQuickAdapter;
 import com.ilife.home.robot.base.BaseViewHolder;
 import com.ilife.home.robot.entity.NewClockInfo;
@@ -29,39 +32,34 @@ public class ClockAdapter extends BaseQuickAdapter<NewClockInfo, BaseViewHolder>
         String minute = info.getMinute() < 10 ? "0" + info.getMinute() : "" + info.getMinute();
         holder.setText(R.id.tv_time, hour + ":" + minute);
         holder.setSelect(R.id.tv_time, isOpen);
-        StringBuilder weekStr = new StringBuilder();
         int week = info.getWeek();
-        for (int i = 0; i < 7; i++) {
-            if (DataUtils.getBit((byte) week, i) == 1) {
-                switch (i) {
-                    case 0:
-                        weekStr.append("周一");
-                        break;
-                    case 1:
-                        weekStr.append("周二");
-                        break;
-                    case 2:
-                        weekStr.append("周三");
-                        break;
-                    case 3:
-                        weekStr.append("周四");
-                        break;
-                    case 4:
-                        weekStr.append("周五");
-                        break;
-                    case 5:
-                        weekStr.append("周六");
-                        break;
-                    case 6:
-                        weekStr.append("周日");
-                        break;
-                }
-            }
-        }
-        holder.setText(R.id.tv_week,weekStr);
+        holder.setText(R.id.tv_week, DataUtils.getScheduleWeek(week));
         holder.setSelect(R.id.tv_week, isOpen);
-
+        StringBuilder sb = new StringBuilder();
+        holder.setText(R.id.tv_mode_,getModeString(info));
         holder.setSelect(R.id.image_status, isOpen);
         holder.addOnClickListener(R.id.image_status);
+    }
+
+    private String getModeString(NewClockInfo info) {
+        StringBuilder sb = new StringBuilder();
+        String area = "";
+        switch (info.getType()) {
+            case 0:
+                area = "默认";
+                break;
+            case 1:
+                area = "划区";
+                break;
+            case 2:
+                area = "选房";
+                break;
+        }
+        if (info.getMode() == 0) {
+            info.setMode(MsgCodeUtils.STATUE_PLANNING);
+        }
+        sb.append(area).append("|")
+                .append(info.getTimes() + "次");
+    return sb.toString();
     }
 }

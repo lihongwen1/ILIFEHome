@@ -112,6 +112,7 @@ public class GetHistoryRecordDelegate {
                             }
                         }
                     }
+                    Log.d("HISTORY_RECORD", "SLAM TIME: " + timestamp + " ----:" + start + "-----:" + jsonArray.size());
                     if (dataSize>=200 && timestamp > start) {
                         end = timestamp;
                         Log.e("HISTORY_MAP", "开始下一次获取下一包历史记录");

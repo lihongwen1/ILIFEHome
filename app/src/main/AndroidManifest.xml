@@ -68,6 +68,10 @@
             android:launchMode="singleTop"
             android:screenOrientation="portrait" />
         <activity
+            android:name="com.ilife.home.robot.activity.ClockEditActivity"
+            android:launchMode="singleTop"
+            android:screenOrientation="portrait" />
+        <activity
             android:name="com.ilife.home.robot.activity.ConsumesActivity"
             android:launchMode="singleTop"
             android:screenOrientation="portrait" />
@@ -175,6 +179,10 @@
             android:screenOrientation="portrait" />
         <activity
             android:name=".activity.SelectSaveMapActivity"
+            android:launchMode="singleTop"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".activity.ScheduleAreaActivity"
             android:launchMode="singleTop"
             android:screenOrientation="portrait" />
 

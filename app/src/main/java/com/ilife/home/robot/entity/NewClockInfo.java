@@ -1,12 +1,15 @@
 package com.ilife.home.robot.entity;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import com.aliyun.iot.aep.sdk.bean.ScheduleBean;
 
 /**
  * Created by chengjiaping on 2018/9/11.
  */
 
-public class NewClockInfo {
+public class NewClockInfo implements Parcelable {
     private int week;
     private int hour;
     private int minute;
@@ -15,7 +18,10 @@ public class NewClockInfo {
     private int type;//0-默认 1-分区 2-分房
     private int times;//执行次数
     private String area;//划区坐标
-    private int room;//房间id
+    private int room;//
+    private String scheduleKey;
+    public NewClockInfo() {
+    }
 
     public NewClockInfo(ScheduleBean bean) {
         this.week = bean.getScheduleWeek();
@@ -24,10 +30,24 @@ public class NewClockInfo {
         this.open = bean.getScheduleEnable();
         this.mode = bean.getScheduleMode();
         this.type = bean.getScheduleType();
+        this.times = bean.getScheduleLoop();
         this.area = bean.getScheduleArea();
-        this.times=bean.getScheduleLoop();
-        this.area=bean.getScheduleArea();
-        this.room=bean.getScheduleRoom();
+        this.room = bean.getScheduleRoom();
+    }
+
+    public ScheduleBean toScheduleBean() {
+        ScheduleBean scheduleBean = new ScheduleBean();
+        scheduleBean.setScheduleWeek(this.week);
+        scheduleBean.setScheduleHour(this.hour);
+        scheduleBean.setScheduleMinutes(this.minute);
+        scheduleBean.setScheduleEnable(this.open);
+        scheduleBean.setScheduleMode(this.mode);
+        scheduleBean.setScheduleType(this.type);
+        scheduleBean.setScheduleLoop(this.times);
+        scheduleBean.setScheduleArea(this.area);
+        scheduleBean.setScheduleRoom(this.room);
+        scheduleBean.setScheduleEnd(300);
+       return scheduleBean;
     }
 
     public int getWeek() {
@@ -101,4 +121,57 @@ public class NewClockInfo {
     public void setRoom(int room) {
         this.room = room;
     }
+
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeInt(this.week);
+        dest.writeInt(this.hour);
+        dest.writeInt(this.minute);
+        dest.writeInt(this.open);
+        dest.writeInt(this.mode);
+        dest.writeInt(this.type);
+        dest.writeInt(this.times);
+        dest.writeString(this.area);
+        dest.writeInt(this.room);
+        dest.writeString(this.scheduleKey);
+    }
+
+    protected NewClockInfo(Parcel in) {
+        this.week = in.readInt();
+        this.hour = in.readInt();
+        this.minute = in.readInt();
+        this.open = in.readInt();
+        this.mode = in.readInt();
+        this.type = in.readInt();
+        this.times = in.readInt();
+        this.area = in.readString();
+        this.room = in.readInt();
+        this.scheduleKey=in.readString();
+    }
+
+    public String getScheduleKey() {
+        return scheduleKey;
+    }
+
+    public void setScheduleKey(String scheduleKey) {
+        this.scheduleKey = scheduleKey;
+    }
+
+    public static final Parcelable.Creator<NewClockInfo> CREATOR = new Parcelable.Creator<NewClockInfo>() {
+        @Override
+        public NewClockInfo createFromParcel(Parcel source) {
+            return new NewClockInfo(source);
+        }
+
+        @Override
+        public NewClockInfo[] newArray(int size) {
+            return new NewClockInfo[size];
+        }
+    };
 }

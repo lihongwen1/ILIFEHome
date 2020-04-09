@@ -50,7 +50,7 @@ public class SelectRoomActivity extends BackBaseActivity {
     ImageView iv_finish;
     @BindView(R.id.iv_clean_room_time)
     ImageView iv_clean_room_time;
-    private int times;//清扫次数
+    private int times=1;//清扫次数
 
     @Override
     public int getLayoutId() {

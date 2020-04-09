@@ -287,7 +287,7 @@ public class DataUtils {
                 length = byteList.get(i) & 0xff;
                 for (int j = 0; j < length; j++) {
                     if (type != 0) {
-                        coordinate = new Coordinate(x, y, type);
+                        coordinate = new Coordinate( x+leftX, y-leftY, type);
                         pointList.add(coordinate);
                     }
                     if (x < lineCount - 1) {
@@ -299,14 +299,33 @@ public class DataUtils {
 
                 }
             }
-            minX = 0;
-            maxX = lineCount;
-            minY = 0;
-            maxY = y;
+            minX = leftX;
+            maxX = lineCount+leftX;
+            minY = -leftY;
+            maxY = y-leftY;
             MapDataBean bean = new MapDataBean(pointList, leftX, leftY, minX, minY, maxX, maxY, "");
             return bean;
         }
         return null;
+    }
+
+    public static int judgedVirAndCharge(int sx, int sy, int ex, int ey,Point point) {//判断虚拟墙和圆的位置关系
+        double judDis = 0;
+        double k = (ey - sy) * 1.0 / (ex - sx);//虚拟墙斜率
+        double bn = ey - k * ex;//虚拟墙的截距b
+        //垂足坐标
+        double chuiX = (k * k * sx + k * (point.y - sy) + point.x) / (k * k + 1);
+        double chuiY = k * (chuiX - sx) + sy;
+        int cx = (int) chuiX;
+        int cy = (int) chuiY;
+        if ((Math.min(sx, ex) < cx && cx < Math.max(sx, ex)) || (Math.min(sy, ey) < cy && cy < Math.max(sy, ey))){
+            judDis = Math.sqrt((point.x - chuiX) * (point.x - chuiX) + (point.y - chuiY) * (point.y - chuiY));
+        }else{
+            double p1dis = Math.sqrt((point.x - sx) * (point.x - sx) + (point.y - sy) * (point.y - sy));
+            double p2dis = Math.sqrt((point.x - ex) * (point.x - ex) + (point.y - ey) * (point.y - ey));
+            judDis = p1dis > p2dis ? p2dis : p1dis;
+        }
+        return (int) judDis;
     }
 
     /**
@@ -321,4 +340,45 @@ public class DataUtils {
         return bit;
     }
 
+    /**
+     * 设置src中的第index位为1
+     * @param src
+     * @param index
+     */
+    public static int setBitTo1(int src, int index) {
+           int a=1<<index;
+           return src|a;
+    }
+
+    public static String getScheduleWeek(int week) {
+        StringBuilder weekStr = new StringBuilder();
+        for (int i = 0; i < 7; i++) {
+            if (DataUtils.getBit((byte) week, i) == 1) {
+                switch (i) {
+                    case 0:
+                        weekStr.append("周一");
+                        break;
+                    case 1:
+                        weekStr.append("周二");
+                        break;
+                    case 2:
+                        weekStr.append("周三");
+                        break;
+                    case 3:
+                        weekStr.append("周四");
+                        break;
+                    case 4:
+                        weekStr.append("周五");
+                        break;
+                    case 5:
+                        weekStr.append("周六");
+                        break;
+                    case 6:
+                        weekStr.append("周日");
+                        break;
+                }
+            }
+        }
+        return weekStr.toString();
+    }
 }

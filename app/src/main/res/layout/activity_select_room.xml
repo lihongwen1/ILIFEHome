@@ -46,8 +46,8 @@
                     android:id="@+id/tv_name_room"
                     style="@style/map_text_button"
                     android:button="@null"
-                    android:drawableTop="@drawable/selector_name_room"
-                    android:text="房间命名" />
+                    android:drawableTop="@drawable/selector_select_map"
+                    android:text="操作地图" />
 
                 <RadioButton
                     android:id="@+id/tv_select_room"
