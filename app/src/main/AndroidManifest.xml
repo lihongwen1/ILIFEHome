@@ -29,13 +29,13 @@
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_LOGS" /><!-- 获取日志-->
     <application
+        android:name=".app.MyApplication"
         android:allowBackup="true"
         android:icon="@mipmap/icon"
         android:label="@string/app_name"
         android:supportsRtl="true"
-        tools:replace="android:allowBackup,android:icon"
-        android:name=".app.MyApplication"
-        android:theme="@style/AppTheme">
+        android:theme="@style/AppTheme"
+        tools:replace="android:allowBackup,android:icon">
         <activity
             android:name="com.ilife.home.robot.activity.FirstActivity"
             android:screenOrientation="portrait"
@@ -65,6 +65,10 @@
             android:theme="@style/AppTheme" />
         <activity
             android:name="com.ilife.home.robot.activity.ClockingActivity"
+            android:launchMode="singleTop"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name="com.ilife.home.robot.activity.ClockEditActivity"
             android:launchMode="singleTop"
             android:screenOrientation="portrait" />
         <activity
@@ -154,10 +158,29 @@
             android:launchMode="singleTop"
             android:screenOrientation="portrait" />
         <activity
-            android:name="com.ilife.home.robot.activity.PersonalInformationActivity"
+            android:name=".activity.ConsumerDetailActivity"
             android:launchMode="singleTop"
             android:screenOrientation="portrait" />
-        <activity android:name=".activity.ConsumerDetailActivity" />
+        <activity
+            android:name=".activity.VirtualWallActivity"
+            android:launchMode="singleTop"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".activity.SelectRoomActivity"
+            android:launchMode="singleTop"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".activity.CleanAreaActivity"
+            android:launchMode="singleTop"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".activity.SelectSaveMapActivity"
+            android:launchMode="singleTop"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".activity.ScheduleAreaActivity"
+            android:launchMode="singleTop"
+            android:screenOrientation="portrait" />
 
         <provider
             android:name="androidx.core.content.FileProvider"

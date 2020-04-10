@@ -6,7 +6,6 @@ import android.os.Bundle;
 import android.view.View;
 
 import com.aliyun.iot.aep.sdk.contant.MsgCodeUtils;
-import com.ilife.home.robot.able.DeviceUtils;
 import com.ilife.home.robot.utils.ToastUtils;
 import com.ilife.home.robot.R;
 import com.ilife.home.robot.utils.UiUtil;
@@ -45,34 +44,22 @@ public class MapActivity_X9_ extends BaseMapActivity {
             tv_start.setText(R.string.map_aty_start);
             tv_start.setText(value);
             tv_start.setTextColor(getResources().getColor(R.color.color_33));
-            tv_wall.setTextColor(getResources().getColor(R.color.color_33));
             tv_bottom_recharge.setTextColor(getResources().getColor(R.color.color_33));
-            tv_bottom_recharge_x8.setTextColor(getResources().getColor(R.color.color_33));
             tv_control_x9.setTextColor(getResources().getColor(R.color.color_33));
             tv_control_x9.setVisibility(View.VISIBLE);
-            tv_bottom_recharge.setVisibility(View.GONE);
-            fl_bottom_x9.setBackground(new ColorDrawable(getResources().getColor(R.color.bg_color_f5f7fa)));
         } else if (isSelect) {
             tv_control_x9.setVisibility(View.GONE);
             tv_bottom_recharge.setTextColor(getResources().getColor(R.color.white));
-            tv_bottom_recharge.setVisibility(View.VISIBLE);
             tv_start.setText(R.string.map_aty_stop);
             tv_start.setTextColor(getResources().getColor(R.color.white));
-            tv_bottom_recharge_x8.setTextColor(getResources().getColor(R.color.white));
             tv_control_x9.setTextColor(getResources().getColor(R.color.white));
-            tv_wall.setTextColor(getResources().getColor(R.color.white));
-            fl_bottom_x9.setBackground(new ColorDrawable(Color.TRANSPARENT));
         } else {
             tv_start.setText(R.string.map_aty_start);
             tv_start.setText(value);
             tv_start.setTextColor(getResources().getColor(R.color.color_33));
-            tv_wall.setTextColor(getResources().getColor(R.color.color_33));
             tv_bottom_recharge.setTextColor(getResources().getColor(R.color.color_33));
-            tv_bottom_recharge_x8.setTextColor(getResources().getColor(R.color.color_33));
             tv_control_x9.setTextColor(getResources().getColor(R.color.color_33));
             tv_control_x9.setVisibility(View.VISIBLE);
-            tv_bottom_recharge.setVisibility(View.GONE);
-            fl_bottom_x9.setBackground(new ColorDrawable(getResources().getColor(R.color.bg_color_f5f7fa)));
         }
         if (mPresenter.getCurStatus() == MsgCodeUtils.STATUE_PLANNING) {
             setNavigationBarColor(R.color.color_ff1b92e2);
@@ -90,7 +77,6 @@ public class MapActivity_X9_ extends BaseMapActivity {
         }
         layout_remote_control.setVisibility(View.GONE);
         tv_bottom_recharge.setSelected(isRecharge);
-        tv_bottom_recharge_x8.setSelected(isRecharge);
         if (USE_MODE == USE_MODE_REMOTE_CONTROL) {
             layout_recharge.setVisibility(View.VISIBLE);
         }

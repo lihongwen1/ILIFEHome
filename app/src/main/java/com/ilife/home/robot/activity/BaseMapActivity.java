@@ -2,12 +2,9 @@ package com.ilife.home.robot.activity;
 
 import android.content.Intent;
 import android.graphics.Color;
-import android.graphics.drawable.AnimationDrawable;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
-import android.os.Handler;
 import android.os.Message;
-import android.text.method.ScrollingMovementMethod;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -22,19 +19,25 @@ import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
 import com.aliyun.iot.aep.sdk.contant.AliSkills;
 import com.aliyun.iot.aep.sdk.contant.IlifeAli;
 import com.aliyun.iot.aep.sdk.contant.MsgCodeUtils;
 import com.badoo.mobile.util.WeakHandler;
+import com.google.android.material.bottomsheet.BottomSheetBehavior;
+import com.ilife.home.robot.adapter.MapBottomSheetAdapter;
 import com.ilife.home.robot.bean.Coordinate;
 import com.ilife.home.robot.fragment.UniversalDialog;
 import com.ilife.home.robot.able.DeviceUtils;
 import com.ilife.home.robot.app.MyApplication;
 import com.ilife.home.robot.base.BackBaseActivity;
 import com.ilife.home.robot.contract.MapX9Contract;
+import com.ilife.home.robot.fragment.UseTipDialogFragment;
 import com.ilife.home.robot.presenter.MapX9Presenter;
 import com.ilife.home.robot.utils.MyLogger;
-import com.ilife.home.robot.utils.SpUtils;
 import com.ilife.home.robot.utils.ToastUtils;
 import com.ilife.home.robot.utils.Utils;
 import com.ilife.home.robot.view.CustomPopupWindow;
@@ -42,6 +45,7 @@ import com.ilife.home.robot.R;
 import com.ilife.home.robot.view.MapView;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -56,13 +60,6 @@ public abstract class BaseMapActivity extends BackBaseActivity<MapX9Presenter> i
     private long appPauseTime;//应用后台休眠时间
     final String TAG = BaseMapActivity.class.getSimpleName();
     public static final String NOT_FIRST_VIRTUAL_WALL = "virtual_wall";
-    public static final int TAG_CONTROL = 0x01;
-    public static final int TAG_NORMAL = 0x02;
-    public static final int TAG_RECHAGRGE = 0x03;
-    public static final int TAG_KEYPOINT = 0x04;
-    public static final int TAG_ALONG = 0x05;
-    public static final int TAG_RANDOM = 0x09;
-    public static final int TAG_KEY_TEMPORARY_POINT = 0x10;
     private CustomPopupWindow exitVirtualWallPop;
     private UniversalDialog virtualWallTipDialog;
     @BindView(R.id.ll_map_container)
@@ -85,14 +82,12 @@ public abstract class BaseMapActivity extends BackBaseActivity<MapX9Presenter> i
     TextView tv_point;
     @BindView(R.id.tv_along_x9)
     TextView tv_along;
-    @BindView(R.id.tv_appointment_x9)
-    TextView tv_appointment_x9;
+    @BindView(R.id.tv_set_max)
+    TextView tv_set_max;
     @BindView(R.id.image_ele)
     ImageView image_ele;//battery
     @BindView(R.id.tv_control_x9)
     TextView tv_control_x9;
-    @BindView(R.id.tv_bottom_recharge_x9)
-    TextView tv_bottom_recharge;
     @BindView(R.id.fl_top_menu)
     FrameLayout fl_setting;
     Animation animation, animation_alpha;
@@ -104,10 +99,6 @@ public abstract class BaseMapActivity extends BackBaseActivity<MapX9Presenter> i
     TextView tv_recharge_x9;
     @BindView(R.id.v_map)
     MapView mMapView;
-    @BindView(R.id.tv_virtual_wall_x9)
-    TextView tv_wall;
-    @BindView(R.id.fl_bottom_x9)
-    LinearLayout fl_bottom_x9;
     @BindView(R.id.fl_control_x9)
     FrameLayout fl_control_x9;
     @BindView(R.id.fl_virtual_wall)
@@ -119,8 +110,6 @@ public abstract class BaseMapActivity extends BackBaseActivity<MapX9Presenter> i
     TextView tv_add_virtual;
     @BindView(R.id.tv_delete_virtual_x9)
     TextView tv_delete_virtual;
-    @BindView(R.id.image_control_back)
-    ImageView image_max;
     @BindView(R.id.image_forward)
     ImageView image_forward;
     @BindView(R.id.image_left)
@@ -128,8 +117,10 @@ public abstract class BaseMapActivity extends BackBaseActivity<MapX9Presenter> i
     @BindView(R.id.image_right)
     ImageView image_right;
 
-    @BindView(R.id.tv_bottom_recharge_x8)
-    TextView tv_bottom_recharge_x8;
+    @BindView(R.id.iv_extension)
+    ImageView iv_extension;
+    @BindView(R.id.tv_bottom_recharge)
+    TextView tv_bottom_recharge;
     @BindView(R.id.iv_recharge_model)
     ImageView iv_recharge_model;
     @BindView(R.id.iv_recharge_stand)
@@ -142,19 +133,30 @@ public abstract class BaseMapActivity extends BackBaseActivity<MapX9Presenter> i
     View layout_along;
     @BindView(R.id.iv_along_robot)
     ImageView iv_along_robot;
+    @BindView(R.id.rv_bottom_sheet)
+    RecyclerView rv_bottom_sheet;
+    @BindView(R.id.map_bottom_sheet)
+    LinearLayout ll_bottom_sheet;
+    @BindView(R.id.fl_clean_times)
+    FrameLayout fl_clean_times;
+    @BindView(R.id.tv_cleaned_times)
+    TextView tv_cleaned_times;
+    @BindView(R.id.tv_setting_times)
+    TextView tv_setting_times;
     public static final int USE_MODE_NORMAL = 1;
     public static final int USE_MODE_REMOTE_CONTROL = 2;
     protected int USE_MODE = USE_MODE_NORMAL;
     private WeakHandler weakHandler;
+    private BottomSheetBehavior mBottomSheetBehavior;
+    private UseTipDialogFragment useTipDialogFragment;
 
     @Override
     public void attachPresenter() {
         super.attachPresenter();
         mPresenter = new MapX9Presenter();
         mPresenter.attachView(this);
-        weakHandler = new WeakHandler(new Handler.Callback() {
-            @Override
-            public boolean handleMessage(Message msg) {
+        weakHandler = new WeakHandler(msg -> {
+            if (!isDestroyed()) {
                 switch (msg.what) {
                     case 1://更新清扫面积
                         tv_area.setText((String) msg.obj);
@@ -166,9 +168,9 @@ public abstract class BaseMapActivity extends BackBaseActivity<MapX9Presenter> i
                         mMapView.drawMapX8((List<Coordinate>) msg.obj);
                         break;
                 }
-
-                return false;
             }
+
+            return false;
         });
     }
 
@@ -226,8 +228,80 @@ public abstract class BaseMapActivity extends BackBaseActivity<MapX9Presenter> i
         errorPopup = new PopupWindow();
         setDevName();
         fl_setting.setVisibility(View.VISIBLE);
+        mMapView.setmOT(MapView.OT.MAP);
         mMapView.setRobotSeriesX9(mPresenter.isX900Series());
+        initBottomSheet();
 
+    }
+
+    /**
+     * 初始化底部操作栏
+     */
+    private void initBottomSheet() {
+        String[] functions = getResources().getStringArray(R.array.text_map_sheet_function);
+        rv_bottom_sheet.setLayoutManager(new GridLayoutManager(this, 3));
+        MapBottomSheetAdapter adapter = new MapBottomSheetAdapter(R.layout.item_map_function, Arrays.asList(functions));
+        rv_bottom_sheet.setAdapter(adapter);
+        ll_bottom_sheet = findViewById(R.id.map_bottom_sheet);
+        mBottomSheetBehavior = BottomSheetBehavior.from(ll_bottom_sheet);
+        mBottomSheetBehavior.setBottomSheetCallback(new BottomSheetBehavior.BottomSheetCallback() {
+            @Override
+            public void onStateChanged(@NonNull View view, int state) {
+                switch (state) {
+                    case BottomSheetBehavior.STATE_HIDDEN://隐藏状态
+                        break;
+                    case BottomSheetBehavior.STATE_EXPANDED://展开状态
+                        iv_extension.setSelected(true);
+                        break;
+                    case BottomSheetBehavior.STATE_COLLAPSED://折叠状态
+                        iv_extension.setSelected(false);
+                        break;
+                    case BottomSheetBehavior.STATE_DRAGGING://拖拽状态
+                        iv_extension.setSelected(!iv_extension.isSelected());
+                        break;
+                }
+            }
+
+            @Override
+            public void onSlide(@NonNull View view, float v) {
+            }
+        });
+        adapter.setOnItemClickListener((adapter1, view, position) -> {
+            switch (position) {
+                case 0:
+                    mPresenter.setPropertiesWithParams(AliSkills.get().enterVirtualEditMode(IlifeAli.getInstance().getWorkingDevice().getIotId()));
+                    startActivity(new Intent(BaseMapActivity.this, VirtualWallActivity.class));
+                    break;
+                case 1://选房清扫
+                    if (mPresenter.getCurStatus() == MsgCodeUtils.STATUE_CHARGING || mPresenter.getCurStatus() == MsgCodeUtils.STATUE_CHARGING_BASE_SLEEP) {
+                        startActivity(new Intent(BaseMapActivity.this, SelectRoomActivity.class));
+                    } else {
+                        ToastUtils.showToast(MyApplication.getInstance(), Utils.getString(R.string.map_aty_can_not_execute));
+                    }
+                    break;
+                case 2://划区清扫
+                    if (mPresenter.getCurStatus() == MsgCodeUtils.STATUE_CHARGING || mPresenter.getCurStatus() == MsgCodeUtils.STATUE_CHARGING_BASE_SLEEP) {
+                        startActivity(new Intent(BaseMapActivity.this, CleanAreaActivity.class));
+                    } else {
+                        ToastUtils.showToast(MyApplication.getInstance(), Utils.getString(R.string.map_aty_can_not_execute));
+                    }
+                    break;
+                case 3://选择地图
+                    int status = mPresenter.getCurStatus();
+                    if (status == MsgCodeUtils.STATUE_CHARGING || status == MsgCodeUtils.STATUE_CHARGING_ || status == MsgCodeUtils.STATUE_SLEEPING ||
+                            status == MsgCodeUtils.STATUE_CHARGING_ADAPTER_SLEEP || status == MsgCodeUtils.STATUE_CHARGING_BASE_SLEEP
+                            || status == MsgCodeUtils.STATUE_WAIT) {
+                        startActivity(new Intent(BaseMapActivity.this, SelectSaveMapActivity.class));
+                    } else {
+                        ToastUtils.showToast(MyApplication.getInstance(), Utils.getString(R.string.map_aty_can_not_execute));
+                    }
+                    break;
+                case 4://寻找机器人
+                    IlifeAli.getInstance().findDevice(null);
+                    ToastUtils.showToast("寻找中。。。");
+                    break;
+            }
+        });
     }
 
     @Override
@@ -279,10 +353,33 @@ public abstract class BaseMapActivity extends BackBaseActivity<MapX9Presenter> i
     }
 
     @Override
-    public void drawVirtualWall(List<int[]> existPointList) {
-        mMapView.drawVirtualWall(existPointList);
+    public void drawVirtualWall(String vwStr) {
+        mMapView.drawVirtualWall(vwStr);
     }
 
+    @Override
+    public void drawForbiddenArea(String data) {
+        mMapView.drawForbiddenArea(data);
+    }
+
+    @Override
+    public void drawCleanArea(String data) {
+        mMapView.drawCleanArea(data);
+    }
+
+    @Override
+    public void drawChargePort(int x, int y) {
+        mMapView.drawChargePort(x, y);
+    }
+
+    @Override
+    public void updateCleanTimes(boolean isDisplay, int cleanedTimes, int settingCleanTimes) {
+        fl_clean_times.setVisibility(isDisplay ? View.VISIBLE : View.INVISIBLE);
+        if (isDisplay) {
+            tv_cleaned_times.setText(String.valueOf(cleanedTimes));
+            tv_setting_times.setText(String.valueOf(settingCleanTimes));
+        }
+    }
 
     /**
      * 显示组件异常
@@ -313,16 +410,7 @@ public abstract class BaseMapActivity extends BackBaseActivity<MapX9Presenter> i
 
     }
 
-    /**
-     * 选择进入电子墙编辑模式
-     * 显示电子墙操作UI
-     */
-    private void showSetWallDialog() {
-        UniversalDialog universalDialog = new UniversalDialog();
-        universalDialog.setDialogType(UniversalDialog.TYPE_NORMAL).setTitle(Utils.getString(R.string.map_aty_set_wall))
-                .setHintTip(Utils.getString(R.string.map_aty_will_stop)).setOnRightButtonClck(() ->
-                mPresenter.enterVirtualMode()).show(getSupportFragmentManager(), "add_wall");
-    }
+
 
 
     /**
@@ -357,15 +445,15 @@ public abstract class BaseMapActivity extends BackBaseActivity<MapX9Presenter> i
                 layout_remote_control.setVisibility(View.GONE);
                 fl_control_x9.setVisibility(View.GONE);
                 fl_virtual_wall.setVisibility(View.GONE);
-                fl_bottom_x9.setVisibility(View.VISIBLE);
                 setMapViewVisible(true);
+                ll_bottom_sheet.setVisibility(View.VISIBLE);
                 break;
             case USE_MODE_REMOTE_CONTROL:
                 fl_virtual_wall.setVisibility(View.GONE);
-                fl_bottom_x9.setVisibility(View.GONE);
+                ll_bottom_sheet.setVisibility(View.GONE);
                 fl_control_x9.setVisibility(View.VISIBLE);
                 layout_remote_control.setVisibility(View.VISIBLE);
-                image_max.setSelected(mPresenter.isMaxMode());
+                tv_set_max.setSelected(mPresenter.isMaxMode());
                 updateOperationViewStatue(mPresenter.getCurStatus());
                 setMapViewVisible(false);
                 break;
@@ -380,17 +468,21 @@ public abstract class BaseMapActivity extends BackBaseActivity<MapX9Presenter> i
     @Override
     public void clearAll(int curStatus) {
         if (curStatus != MsgCodeUtils.STATUE_VIRTUAL_EDIT) {
-            mMapView.setMODE(MapView.MODE_NONE);
-            mMapView.undoAllOperation();
+//            mMapView.setMAP_MODE(MapView.MODE_NONE);
+//            mMapView.undoAllOperation();
             hideVirtualEdit();
         }
         if (curStatus != MsgCodeUtils.STATUE_RECHARGE) {
             tv_bottom_recharge.setSelected(false);
-            tv_bottom_recharge_x8.setSelected(false);
             layout_recharge.setVisibility(View.GONE);
         }
     }
 
+
+    @Override
+    public void setStandCoordinate(int x, int y) {
+        mMapView.drawChargePort(x, y);
+    }
 
     @Override
     /**
@@ -423,9 +515,9 @@ public abstract class BaseMapActivity extends BackBaseActivity<MapX9Presenter> i
     }
 
     @OnClick({R.id.image_center, R.id.tv_start_x9, R.id.tv_control_x9, R.id.fl_top_menu, R.id.tv_recharge_x9, R.id.tv_along_x9,
-            R.id.tv_point_x9, R.id.tv_virtual_wall_x9, R.id.tv_close_virtual_x9, R.id.ib_virtual_wall_tip
-            , R.id.tv_add_virtual_x9, R.id.tv_delete_virtual_x9, R.id.iv_control_close_x9, R.id.tv_bottom_recharge_x9, R.id.tv_bottom_recharge_x8
-            , R.id.tv_appointment_x9
+            R.id.tv_point_x9, R.id.tv_close_virtual_x9, R.id.ib_virtual_wall_tip
+            , R.id.tv_add_virtual_x9, R.id.tv_delete_virtual_x9, R.id.iv_control_close_x9, R.id.tv_bottom_recharge
+            , R.id.tv_set_max, R.id.iv_operation_help
     })
     public void onViewClick(View v) {
         switch (v.getId()) {
@@ -458,8 +550,7 @@ public abstract class BaseMapActivity extends BackBaseActivity<MapX9Presenter> i
                     mPresenter.setPropertiesWithParams(mPresenter.isRandomMode() ? AliSkills.get().enterRandomMode(IlifeAli.getInstance().getWorkingDevice().getIotId()) : AliSkills.get().enterPlanningMode(IlifeAli.getInstance().getWorkingDevice().getIotId()));
                 }
                 break;
-            case R.id.tv_bottom_recharge_x8:
-            case R.id.tv_bottom_recharge_x9://会跳转到遥控界面
+            case R.id.tv_bottom_recharge:
                 mPresenter.enterRechargeMode();
                 break;
             case R.id.tv_control_x9://进入二级操作界面
@@ -504,42 +595,29 @@ public abstract class BaseMapActivity extends BackBaseActivity<MapX9Presenter> i
                 mPresenter.enterPointMode();
 
                 break;
-            case R.id.tv_appointment_x9://预约
-                Intent intent = new Intent(this, ClockingActivity.class);
-                startActivity(intent);
-                break;
-            case R.id.tv_virtual_wall_x9://电子墙编辑模式
-                if (mPresenter.isVirtualWallOpen() && (mPresenter.getCurStatus() == MsgCodeUtils.STATUE_PLANNING ||
-                        mPresenter.getCurStatus() == MsgCodeUtils.STATUE_PAUSE)) {
-                    showSetWallDialog();
-                } else {
-                    if (mPresenter.getCurStatus() == MsgCodeUtils.STATUE_CHARGING || mPresenter.getCurStatus() == MsgCodeUtils.STATUE_CHARGING_) {
-                        ToastUtils.showToast(MyApplication.getInstance(), Utils.getString(R.string.map_aty_charge));
-                    } else {
-                        ToastUtils.showToast(MyApplication.getInstance(), Utils.getString(R.string.map_aty_can_not_execute));
-                    }
-                }
+            case R.id.tv_set_max://预约
+                mPresenter.reverseMaxMode();
                 break;
             case R.id.tv_add_virtual_x9://增加电子墙模式
                 if (mMapView.isInMode(MapView.MODE_ADD_VIRTUAL)) {
                     tv_add_virtual.setSelected(false);
-                    mMapView.setMODE(MapView.MODE_NONE);
+                    mMapView.setMAP_MODE(MapView.MODE_NONE);
                 } else {
 //                    showAddWallDialog();
                     tv_add_virtual.setSelected(true);
                     tv_delete_virtual.setSelected(false);
-                    mMapView.setMODE(MapView.MODE_ADD_VIRTUAL);
+                    mMapView.setMAP_MODE(MapView.MODE_ADD_VIRTUAL);
                 }
                 break;
             case R.id.tv_delete_virtual_x9://删除电子墙模式
                 if (mMapView.isInMode(MapView.MODE_DELETE_VIRTUAL)) {
                     tv_delete_virtual.setSelected(false);
-                    mMapView.setMODE(MapView.MODE_NONE);
+                    mMapView.setMAP_MODE(MapView.MODE_NONE);
                 } else {
 //                    showDeleteWallDialog();
                     tv_delete_virtual.setSelected(true);
                     tv_add_virtual.setSelected(false);
-                    mMapView.setMODE(MapView.MODE_DELETE_VIRTUAL);
+                    mMapView.setMAP_MODE(MapView.MODE_DELETE_VIRTUAL);
                 }
                 break;
             case R.id.tv_close_virtual_x9://弹出退出电子墙的的pop
@@ -571,6 +649,9 @@ public abstract class BaseMapActivity extends BackBaseActivity<MapX9Presenter> i
                     exitVirtualWallPop.showAtLocation(findViewById(R.id.fl_map), Gravity.BOTTOM, 0, (int) getResources().getDimension(R.dimen.dp_10));
                 }
                 break;
+            case R.id.iv_operation_help://操作提示弹框
+                onOperationHelpClick();
+                break;
         }
     }
 
@@ -583,7 +664,7 @@ public abstract class BaseMapActivity extends BackBaseActivity<MapX9Presenter> i
      * @param v
      * @param event
      */
-    @OnTouch({R.id.image_right, R.id.image_left, R.id.image_control_back, R.id.image_forward})
+    @OnTouch({R.id.image_right, R.id.image_left, R.id.image_forward})
     public void onTouch(View v, MotionEvent event) {
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN: //手指按下
@@ -661,7 +742,7 @@ public abstract class BaseMapActivity extends BackBaseActivity<MapX9Presenter> i
     @Override
     public void updateMaxButton(boolean isMaXMode) {
         if (layout_remote_control.getVisibility() == View.VISIBLE) {
-            image_max.setSelected(isMaXMode);
+            tv_set_max.setSelected(isMaXMode);
         }
     }
 
@@ -678,26 +759,12 @@ public abstract class BaseMapActivity extends BackBaseActivity<MapX9Presenter> i
 
     @Override
     public void showVirtualWallTip() {
-        if (virtualWallTipDialog == null) {
-            virtualWallTipDialog = new UniversalDialog();
-            virtualWallTipDialog.setDialogType(UniversalDialog.TYPE_NORMAL_MID_BUTTON).setTitle(Utils.getString(R.string.virtual_tip_title))
-                    .setHintTip(Utils.getString(R.string.virtual_wall_use_tip), Gravity.LEFT, getResources().getColor(R.color.color_33));
-        }
-        virtualWallTipDialog.show(getSupportFragmentManager(), "virtual_wall_tip");
+
     }
 
     @Override
     public void showVirtualEdit() {
-        if (!SpUtils.getBoolean(this, NOT_FIRST_VIRTUAL_WALL)) {
-            showVirtualWallTip();
-            SpUtils.saveBoolean(this, NOT_FIRST_VIRTUAL_WALL, true);
-        }
-        tv_add_virtual.setSelected(true);
-        tv_delete_virtual.setSelected(false);
-        mMapView.setMODE(MapView.MODE_ADD_VIRTUAL);
-        fl_virtual_wall.setVisibility(View.VISIBLE);
-        fl_control_x9.setVisibility(View.GONE);
-        fl_bottom_x9.setVisibility(View.GONE);
+//        startActivity(new Intent(BaseMapActivity.this, VirtualWallActivity.class));
     }
 
     @Override
@@ -730,12 +797,24 @@ public abstract class BaseMapActivity extends BackBaseActivity<MapX9Presenter> i
     }
 
     @Override
-    public void drawMapX8(ArrayList<Coordinate> dataList) {
+    public void drawMapX8(ArrayList<Coordinate> dataList, ArrayList<Coordinate> slamList) {
         Message message = new Message();
         message.what = 3;
-        message.obj = dataList;
+        List<Coordinate> coordinates = new ArrayList<>();
+        coordinates.addAll(slamList);
+        coordinates.addAll(dataList);
+        message.obj = coordinates;
         weakHandler.removeMessages(3);//移除未执行完成的刷新操作
         weakHandler.sendMessage(message);
+    }
+
+    private void onOperationHelpClick() {
+        if (useTipDialogFragment == null) {
+            useTipDialogFragment = new UseTipDialogFragment();
+        }
+        if (!useTipDialogFragment.isAdded()) {
+            useTipDialogFragment.show(getSupportFragmentManager(), "use_tip");
+        }
     }
 
     @Override

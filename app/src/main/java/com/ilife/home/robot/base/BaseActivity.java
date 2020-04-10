@@ -1,11 +1,15 @@
 package com.ilife.home.robot.base;
 
+import android.content.Context;
 import android.graphics.Rect;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.AttributeSet;
 import android.view.View;
 import android.view.WindowManager;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.aliyun.iot.aep.sdk._interface.OnAliResponse;
@@ -19,6 +23,7 @@ import com.ilife.home.robot.utils.MyLogger;
 import com.ilife.home.robot.utils.StatusBarUtil;
 import com.ilife.home.robot.utils.ToastUtils;
 import com.ilife.home.robot.R;
+import com.ilife.home.robot.view.GrayFrameLayout;
 
 import butterknife.ButterKnife;
 import butterknife.Unbinder;
@@ -35,6 +40,26 @@ public abstract class BaseActivity<T extends BasePresenter> extends AActivity im
     private MyApplication application;
     protected BaseActivity context;
     protected boolean isActivityInteraction;
+    private boolean isGrayTheme=false;//特殊日子黑白模式
+    @Override
+    public View onCreateView(String name, Context context, AttributeSet attrs) {
+        if(isGrayTheme&&"FrameLayout".equals(name)){
+            int count = attrs.getAttributeCount();
+            for (int i = 0; i < count; i++) {
+                String attributeName = attrs.getAttributeName(i);
+                String attributeValue = attrs.getAttributeValue(i);
+                if (attributeName.equals("id")) {
+                    int id = Integer.parseInt(attributeValue.substring(1));
+                    String idVal = getResources().getResourceName(id);
+                    if ("android:id/content".equals(idVal)) {
+                        GrayFrameLayout grayFrameLayout = new GrayFrameLayout(context, attrs);
+                        return grayFrameLayout;
+                    }
+                }
+            }
+        }
+        return super.onCreateView(name, context, attrs);
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {

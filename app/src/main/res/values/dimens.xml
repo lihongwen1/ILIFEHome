@@ -56,6 +56,7 @@
     <dimen name="dp_160">160dp</dimen>
     <dimen name="dp_164">164dp</dimen>
     <dimen name="dp_165">165dp</dimen>
+    <dimen name="dp_170">170dp</dimen>
     <dimen name="dp_180">180dp</dimen>
     <dimen name="dp_188">188dp</dimen>
     <dimen name="dp_200">200dp</dimen>
@@ -69,6 +70,7 @@
     <dimen name="dp_315">315dp</dimen>
     <dimen name="dp_322">322dp</dimen>
     <dimen name="dp_335">335dp</dimen>
+    <dimen name="dp_500">500dp</dimen>
 
     <!-- font size,you can add if there is no one -->
     <dimen name="sp_10">10sp</dimen>

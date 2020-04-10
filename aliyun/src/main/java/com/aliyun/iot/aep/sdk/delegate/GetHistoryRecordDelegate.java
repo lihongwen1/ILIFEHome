@@ -72,6 +72,7 @@ public class GetHistoryRecordDelegate {
             public void onResponse(IoTRequest ioTRequest, IoTResponse ioTResponse) {
                 if (ioTResponse.getCode() == 200) {
                     String result = ioTResponse.getData().toString();
+                    Log.d("getHistoryRecord","data:  "+result);
                     JSONObject jsonObject = JSON.parseObject(result);
                     JSONArray jsonArray = jsonObject.getJSONArray(EnvConfigure.KEY_ITEMS);
                     Gson gson = new Gson();
@@ -97,7 +98,7 @@ public class GetHistoryRecordDelegate {
                                 continue;
                             }
                             exitBean = mapBeans.get(startTime);
-                            Log.e("HISTORY_MAP", "新历史记录---" + generateTime(bean.getStartTime(), "MM月dd日HH:mm:ss") + "---------" + bean.getPackId() + "------------" + bean.getPackNum());
+                            Log.d("HISTORY_MAP", "新历史记录---" + generateTime(bean.getStartTime(), "MM月dd日HH:mm:ss") + "---------" + bean.getPackId() + "------------" + bean.getPackNum());
                             if (exitBean == null) {
                                 if (IlifeAli.getInstance().getWorkingDevice().getProductKey().equals(EnvConfigure.PRODUCT_KEY_X787)||
                                         IlifeAli.getInstance().getWorkingDevice().getProductKey().equals(EnvConfigure.PRODUCT_KEY_X434)) {
@@ -111,6 +112,7 @@ public class GetHistoryRecordDelegate {
                             }
                         }
                     }
+                    Log.d("HISTORY_RECORD", "SLAM TIME: " + timestamp + " ----:" + start + "-----:" + jsonArray.size());
                     if (dataSize>=200 && timestamp > start) {
                         end = timestamp;
                         Log.e("HISTORY_MAP", "开始下一次获取下一包历史记录");

@@ -1,8 +1,5 @@
 package com.ilife.home.robot.adapter;
 
-import android.view.View;
-import android.widget.BaseAdapter;
-
 import androidx.annotation.NonNull;
 
 import com.ilife.home.robot.R;
@@ -22,7 +19,7 @@ public class TextSelectorAdapter extends BaseQuickAdapter<String, BaseViewHolder
 
     @Override
     protected void convert(@NonNull BaseViewHolder holder, int position) {
-        holder.setText(R.id.tv_text, data.get(position));
+        holder.setText(R.id.tv_text_selector, data.get(position));
         if (position == data.size() - 1) {
             holder.setVisible(R.id.v_divider, false);
 

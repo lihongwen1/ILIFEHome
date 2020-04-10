@@ -97,43 +97,28 @@ public class BitmapUtils {
         }
         return bitmap;
     }
-
-
-    public static Bitmap decodeSampledBitmapFromResource(Resources res, int resId,
-                                                         int reqWidth, int reqHeight) {
-
-        // 先把inJustDecodeBounds设置为true 取得原始图片的属性
-        final BitmapFactory.Options options = new BitmapFactory.Options();
-        options.inJustDecodeBounds = true;
-        BitmapFactory.decodeResource(res, resId, options);
-
-        // 然后算一下我们想要的最终的属性
-        options.inSampleSize = calculateInSampleSize(options, reqWidth, reqHeight);
-
-        // 在decode的时候 别忘记直接 把这个属性改为false 否则decode出来的是null
-        options.inJustDecodeBounds = false;
-        return BitmapFactory.decodeResource(res, resId, options);
+    public static Bitmap decodeBitmapFromResource(Resources res, int resId, int reqWidth, int reqHeight){
+        final BitmapFactory.Options options=new BitmapFactory.Options();
+        options.inJustDecodeBounds=true;
+        BitmapFactory.decodeResource(res,resId,options);
+        options.inSampleSize=1;
+        options.inSampleSize=setInSampleSize(options,reqWidth,reqHeight);
+        options.inPreferredConfig= Bitmap.Config.ARGB_4444;
+        options.inJustDecodeBounds=false;
+        return BitmapFactory.decodeResource(res,resId,options);
     }
-    public static int calculateInSampleSize(
-            BitmapFactory.Options options, int reqWidth, int reqHeight) {
-        // 先从options 取原始图片的 宽高
-        final int height = options.outHeight;
-        final int width = options.outWidth;
-        int inSampleSize = 1;
 
-        if (height > reqHeight || width > reqWidth) {
-
-            final int halfHeight = height / 2;
-            final int halfWidth = width / 2;
-
-            //一直对这个图片进行宽高 缩放，每次都是缩放1倍，然后这么叠加，当发现叠加以后 也就是缩放以后的宽或者高小于我们想要的宽高
-            //这个缩放就结束 跳出循环 然后就可以得到我们极限的inSampleSize值了。
-            while ((halfHeight / inSampleSize) > reqHeight
-                    && (halfWidth / inSampleSize) > reqWidth) {
-                inSampleSize *= 2;
+    public static int setInSampleSize(BitmapFactory.Options options,int reqWidth,int reqHeight){
+        final  int height=options.outHeight;
+        final int width=options.outWidth;
+        int inSampleSize=1;
+        if(height>reqHeight||width>reqHeight){
+            final int halfHeght=height/2;
+            final int halfWidht=width/2;
+            while ((halfHeght/inSampleSize>=reqHeight)&&(halfWidht/inSampleSize>=reqWidth)){
+                inSampleSize *=2;
             }
         }
-
         return inSampleSize;
     }
 }

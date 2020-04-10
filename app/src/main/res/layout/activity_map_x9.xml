@@ -44,7 +44,7 @@
                     android:layout_below="@+id/tv_2"
                     android:layout_centerHorizontal="true"
                     android:layout_marginTop="@dimen/dp_4"
-                    android:text="@string/map_aty_gang" />
+                    android:text="——" />
             </RelativeLayout>
 
             <View
@@ -70,7 +70,7 @@
                     android:layout_below="@+id/tv_3"
                     android:layout_centerHorizontal="true"
                     android:layout_marginTop="@dimen/dp_4"
-                    android:text="@string/map_aty_gang" />
+                    android:text="——" />
             </RelativeLayout>
 
             <View
@@ -160,53 +160,10 @@
             <!--            底部操作区域-->
             <FrameLayout
                 android:layout_width="match_parent"
-                android:layout_height="@dimen/dp_100"
+                android:layout_height="wrap_content"
                 android:layout_gravity="bottom">
                 <!--底部操作按钮布局-->
-                <LinearLayout
-                    android:id="@+id/fl_bottom_x9"
-                    android:layout_width="match_parent"
-                    android:layout_height="@dimen/dp_100"
-                    android:background="@drawable/bg_shape_top_radius"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal"
-                    android:paddingStart="@dimen/dp_30"
-                    android:paddingEnd="@dimen/dp_30"
-                    android:visibility="visible">
-
-                    <TextView
-                        android:id="@+id/tv_virtual_wall_x9"
-                        style="@style/map_text_button"
-                        android:drawableTop="@drawable/selector_virtual_wall"
-                        android:text="@string/map_virtual_wall" />
-
-                    <TextView
-                        android:id="@+id/tv_bottom_recharge_x8"
-                        style="@style/map_text_button"
-                        android:drawableTop="@drawable/selector_recharge"
-                        android:text="@string/map_aty_recharge"
-                        android:visibility="gone" />
-
-
-                    <TextView
-                        android:id="@+id/tv_start_x9"
-                        style="@style/map_text_button"
-                        android:drawableTop="@drawable/image_start_bg"
-                        android:text="@string/map_aty_start" />
-
-                    <TextView
-                        android:id="@+id/tv_control_x9"
-                        style="@style/map_text_button"
-                        android:drawableTop="@drawable/selector_control"
-                        android:text="@string/map_aty_remote" />
-
-                    <TextView
-                        android:id="@+id/tv_bottom_recharge_x9"
-                        style="@style/map_text_button"
-                        android:drawableTop="@drawable/selector_recharge"
-                        android:text="@string/map_aty_recharge"
-                        android:visibility="gone" />
-                </LinearLayout>
+                <include layout="@layout/layout_map_bottom_sheet" />
 
                 <!--底部沿边 重点 预约-->
                 <FrameLayout
@@ -239,11 +196,11 @@
                             />
 
                         <TextView
-                            android:id="@+id/tv_appointment_x9"
+                            android:id="@+id/tv_set_max"
                             style="@style/map_text_button"
-                            android:drawableTop="@drawable/selector_appointment"
-                            android:text="@string/map_aty_appoint"
-                            android:visibility="gone" />
+                            android:drawableTop="@drawable/selector_btn_max"
+                            android:text="MAX"
+                            android:visibility="visible" />
 
                         <TextView
                             android:id="@+id/tv_recharge_x9"
@@ -257,8 +214,8 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="end"
-                        android:layout_marginTop="@dimen/dp_14"
-                        android:layout_marginEnd="@dimen/dp_14"
+                        android:layout_marginTop="@dimen/dp_8"
+                        android:layout_marginEnd="@dimen/dp_8"
                         android:src="@drawable/opration_button_back" />
                 </FrameLayout>
                 <!--电子墙-->
@@ -285,8 +242,7 @@
                         android:layout_gravity="end"
                         android:layout_marginTop="@dimen/dp_16"
                         android:layout_marginEnd="@dimen/dp_16"
-                        android:text="@string/ota_aty_back"
-                        android:textColor="@color/color_ff4d00"
+                        android:textColor="@color/color_theme"
                         android:textSize="16sp" />
 
                     <TextView

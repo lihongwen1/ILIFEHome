@@ -3,21 +3,21 @@
 
     <item android:state_enabled="true" android:state_pressed="false">
         <shape>
-            <solid android:color="@color/color_FF4D00" />
+            <solid android:color="@color/color_theme" />
 
             <corners android:bottomLeftRadius="@dimen/net_step_corn" android:bottomRightRadius="@dimen/net_step_corn" android:topLeftRadius="@dimen/net_step_corn" android:topRightRadius="@dimen/net_step_corn" />
         </shape>
     </item>
     <item android:state_enabled="true" android:state_pressed="true">
         <shape>
-            <solid android:color="@color/color_FF4D00" />
+            <solid android:color="@color/color_theme" />
 
             <corners android:bottomLeftRadius="@dimen/net_step_corn" android:bottomRightRadius="@dimen/net_step_corn" android:topLeftRadius="@dimen/net_step_corn" android:topRightRadius="@dimen/net_step_corn" />
         </shape>
     </item>
     <item android:state_enabled="true" android:state_window_focused="true">
         <shape>
-            <solid android:color="@color/color_FF4D00" />
+            <solid android:color="@color/color_theme" />
             <corners android:bottomLeftRadius="@dimen/net_step_corn" android:bottomRightRadius="@dimen/net_step_corn" android:topLeftRadius="@dimen/net_step_corn" android:topRightRadius="@dimen/net_step_corn" />
         </shape>
     </item>

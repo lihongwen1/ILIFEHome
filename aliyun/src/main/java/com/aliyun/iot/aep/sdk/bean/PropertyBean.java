@@ -8,8 +8,16 @@ public class PropertyBean {
     private long realTimeMapTimeLine;
     private long historyMapTimeLine;
     private boolean voiceOpen;//0-代表开 1-代表关
-
-    public PropertyBean(){};
+    private long selectedMapId;
+    private String saveMapId;
+    private String forbiddenArea;//禁区
+    private String virtualWall;
+    private String partition;//分区（分房）
+    private String cleanArea;//划区数据
+    private String chagePort;
+    private String cleanRoomData;//选房清扫数据
+    private boolean initStatus;
+    public PropertyBean(){}
 
     public PropertyBean(boolean maxMode, int workMode, int battery, int waterLevel, long realTimeMapTimeLine, long historyMapTimeLine, boolean voiceOpen) {
         this.maxMode = maxMode;
@@ -61,6 +69,14 @@ public class PropertyBean {
         this.realTimeMapTimeLine = realTimeMapTimeLine;
     }
 
+    public String getCleanArea() {
+        return cleanArea;
+    }
+
+    public void setCleanArea(String cleanArea) {
+        this.cleanArea = cleanArea;
+    }
+
     public long getHistoryMapTimeLine() {
         return historyMapTimeLine;
     }
@@ -69,12 +85,76 @@ public class PropertyBean {
         this.historyMapTimeLine = historyMapTimeLine;
     }
 
+    public long getSelectedMapId() {
+        return selectedMapId;
+    }
+
+    public void setSelectedMapId(long selectedMapId) {
+        this.selectedMapId = selectedMapId;
+    }
+
+    public String getSaveMapId() {
+        return saveMapId;
+    }
+
+    public void setSaveMapId(String saveMapId) {
+        this.saveMapId = saveMapId;
+    }
+
+    public String getForbiddenArea() {
+        return forbiddenArea;
+    }
+
+    public void setForbiddenArea(String forbiddenArea) {
+        this.forbiddenArea = forbiddenArea;
+    }
+
+    public String getVirtualWall() {
+        return virtualWall;
+    }
+
+    public void setVirtualWall(String virtualWall) {
+        this.virtualWall = virtualWall;
+    }
+
+    public String getPartition() {
+        return partition;
+    }
+
+    public void setPartition(String partition) {
+        this.partition = partition;
+    }
+
+    public String getChagePort() {
+        return chagePort;
+    }
+
+    public void setChagePort(String chagePort) {
+        this.chagePort = chagePort;
+    }
+
     public boolean isVoiceOpen() {
         return voiceOpen;
     }
 
     public void setVoiceOpen(boolean voiceOpen) {
         this.voiceOpen = voiceOpen;
+    }
+
+    public boolean isInitStatus() {
+        return initStatus;
+    }
+
+    public void setInitStatus(boolean initStatus) {
+        this.initStatus = initStatus;
+    }
+
+    public String getCleanRoomData() {
+        return cleanRoomData;
+    }
+
+    public void setCleanRoomData(String cleanRoomData) {
+        this.cleanRoomData = cleanRoomData;
     }
 
     @Override

@@ -4,7 +4,7 @@
 
     <item>
         <shape android:shape="rectangle">
-            <solid android:color="@color/color_ff4d00_66" /> <!--主体颜色-->
+            <solid android:color="@color/color_theme_66" /> <!--主体颜色-->
             <!--<stroke android:width="1dp" android:color="#11beb8"/>&lt;!&ndash; 描边，边框宽度、颜色 &ndash;&gt;-->
             <corners android:radius="@dimen/dp_25"/> <!--边角弧度-->
         </shape>

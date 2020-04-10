@@ -1,42 +1,50 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout 
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
-    android:layout_gravity="center"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_marginTop="@dimen/dp_1"
+    android:id="@+id/rootView"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:id="@+id/rootView">
-    <View
-        style="@style/View_Line_Style"/>
-    <RelativeLayout
+    android:layout_gravity="center"
+    android:background="@color/white"
+    android:paddingStart="@dimen/dp_20"
+    android:paddingEnd="@dimen/dp_20"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:paddingTop="@dimen/dp_10"
+        android:paddingBottom="@dimen/dp_10"
         android:layout_width="match_parent"
-        android:layout_height="@dimen/dp_60"
-        android:background="@color/white">
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
         <TextView
-            style="@style/Text_16sp_33"
-            android:id="@+id/tv_week"
-            android:text="@string/clock_aty_sun"
-            android:layout_centerVertical="true"
-            android:layout_marginStart="@dimen/dp_30"
-            android:textColor="@drawable/clock_tv_color"/>
-        <TextView
-            style="@style/Text_16sp_ac"
             android:id="@+id/tv_time"
-            android:layout_centerVertical="true"
-            android:layout_toEndOf="@+id/tv_week"
-            android:layout_toStartOf="@+id/image_status"
-            android:layout_marginStart="@dimen/dp_25"
+            style="@style/Text_32sp_33"
             android:text="00:00"
-            android:textColor="@drawable/clock_tv_color"
-            android:gravity="end"/>
-        <ImageView
-            android:id="@+id/image_status"
-            android:layout_width="@dimen/dp_48"
-            android:layout_height="@dimen/dp_22"
-            android:layout_marginStart="@dimen/dp_25"
-            android:layout_centerVertical="true"
-            android:background="@drawable/image_max_bg"
-            android:layout_alignParentEnd="true"
-            android:layout_marginEnd="@dimen/dp_25"/>
-    </RelativeLayout>
-</LinearLayout>
+            />
+
+        <TextView
+            android:id="@+id/tv_week"
+            style="@style/Text_12sp_66"
+            android:text="@string/week_sunday_full"
+            android:includeFontPadding="false"
+            android:layout_marginTop="3dp"
+            />
+
+        <TextView
+            android:id="@+id/tv_mode_"
+            style="@style/Text_10sp_99"
+            android:includeFontPadding="false"
+            android:layout_marginTop="@dimen/dp_5"
+            android:text=""
+            />
+
+    </LinearLayout>
+
+    <ImageView
+        android:id="@+id/image_status"
+        android:layout_width="@dimen/dp_48"
+        android:layout_height="@dimen/dp_22"
+        android:layout_gravity="end|center"
+        android:background="@drawable/image_max_bg" />
+</FrameLayout>

@@ -145,7 +145,6 @@ public class HistoryMapX8Respository {
          * @param mapData
          */
         private void parseRealTimeMapX8(String mapData) {
-            MyLogger.e(TAG, "清扫数据:" + mapData);
             byte[] pointCoor = new byte[2];
             if (!TextUtils.isEmpty(mapData)) {
                 byte[] bytes = Base64.decode(mapData, Base64.DEFAULT);
@@ -166,9 +165,7 @@ public class HistoryMapX8Respository {
                             MyLogger.e(TAG, "the map data has been cleaned and reset");
                             dataX8.setHaveClearFlag(true);
                         } else {
-                            x += 750;
-                            y += 750;
-                            coordinate = new Coordinate(1500 - x, y, type);
+                            coordinate = new Coordinate(x, -y, type);
                             if (isStop) {
                                 MyLogger.e(TAG, "the page has been destroyed，the data processing will make no sense/the data processing is no longer meaningful!");
                                 break;

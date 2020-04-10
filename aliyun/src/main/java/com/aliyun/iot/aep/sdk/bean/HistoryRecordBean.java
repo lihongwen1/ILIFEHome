@@ -124,11 +124,11 @@ public class HistoryRecordBean implements Serializable {
      * @param cleanData
      * @param packNum   包总数
      */
-    private int usefulLength;
     public void addCleanData(int packNum, int pkgId, String cleanData) {
         if (mapDataArray == null) {
             mapDataArray = new String[packNum+1];
         }
+
         if (pkgId<mapDataArray.length&&mapDataArray[pkgId] == null) {
             mapDataArray[pkgId] = cleanData;
         }

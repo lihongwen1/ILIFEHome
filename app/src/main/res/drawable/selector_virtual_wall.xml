@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:drawable="@drawable/n_wall_enable" android:state_pressed="true" />
-    <item android:drawable="@drawable/n_wall_disable" />
+    <item android:state_checked="true" android:drawable="@drawable/operation_btn_virtual_wall_selected"/>
+    <item android:drawable="@drawable/operation_btn_virtual_wall_default" />
 </selector>

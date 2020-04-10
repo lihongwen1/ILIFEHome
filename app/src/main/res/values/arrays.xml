@@ -6,6 +6,7 @@
         <item>V3x</item>
         <item>X787</item>
         <item>X451</item>
+        <item>X801</item>
     </string-array>
 
     <string-array name="array_oversea_device_type">
@@ -13,21 +14,45 @@
     </string-array>
     <string-array name="array_zaco_device_type">
         <item>X800</item>
+        <item>X420</item>
     </string-array>
     <string-array name="array_week">
-        <item>@string/clock_aty_sun</item>
-        <item>@string/clock_aty_mon</item>
-        <item>@string/clock_aty_tues</item>
-        <item>@string/clock_aty_wed</item>
-        <item>@string/clock_aty_thur</item>
-        <item>@string/clock_aty_fri</item>
-        <item>@string/clock_aty_sat</item>
+        <item>@string/week_sunday_full</item>
+        <item>@string/week_monday_full</item>
+        <item>@string/week_tuesday_full</item>
+        <item>@string/week_wednesday_full</item>
+        <item>@string/week_thursday_full</item>
+        <item>@string/week_friday_full</item>
+        <item>@string/week_saturday_full</item>
     </string-array>
     <string-array name="array_question_type">
         <item>@string/help_question_device</item>
         <item>@string/help_question_binding</item>
-        <!--        <item>@string/help_question_advice</item>-->
-        <!--        <item>@string/help_question_app</item>-->
         <item>@string/help_question_other</item>
     </string-array>
+    <array name="text_week">
+        <item>@string/week_sunday_full</item>
+        <item>@string/week_monday_full</item>
+        <item>@string/week_tuesday_full</item>
+        <item>@string/week_wednesday_full</item>
+        <item>@string/week_thursday_full</item>
+        <item>@string/week_friday_full</item>
+        <item>@string/week_saturday_full</item>
+    </array>
+    <array name="text_mode">
+        <item>@string/setting_aty_nav_clean</item>
+        <item>@string/setting_aty_random_clean</item>
+    </array>
+    <array name="text_clean_times">
+        <item>@string/clean_times_1</item>
+        <item>@string/clean_times_2</item>
+        <item>@string/clean_times_3</item>
+    </array>
+    <array name="text_map_sheet_function">
+        <item>@string/map_bottom_sheet_vir_fbd</item>
+        <item>@string/map_bottom_sheet_select_room</item>
+        <item>@string/map_bottom_sheet_clean_area</item>
+        <item>@string/map_bottom_sheet_select_map</item>
+        <item>@string/map_bottom_sheet_find_robot</item>
+    </array>
 </resources>

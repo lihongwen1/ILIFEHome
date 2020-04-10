@@ -140,7 +140,7 @@
     <style name="Text_16sp_f08300">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
-        <item name="android:textColor">@color/color_ff4d00</item>
+        <item name="android:textColor">@color/color_theme</item>
         <item name="android:textSize">@dimen/sp_16</item>
         <item name="android:includeFontPadding">false</item>
     </style>
@@ -148,7 +148,7 @@
     <style name="Text_18sp_f08300">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
-        <item name="android:textColor">@color/color_ff4d00</item>
+        <item name="android:textColor">@color/color_theme</item>
         <item name="android:textSize">@dimen/sp_18</item>
         <item name="android:paddingBottom">2dp</item>
         <item name="android:includeFontPadding">false</item>
@@ -173,7 +173,24 @@
         <item name="android:includeFontPadding">false</item>
         <item name="android:paddingBottom">2dp</item>
     </style>
-
+    <style name="Text_12sp_66">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_centerVertical">true</item>
+        <item name="android:textColor">@color/color_666666</item>
+        <item name="android:textSize">@dimen/sp_12</item>
+        <item name="android:includeFontPadding">false</item>
+        <item name="android:paddingBottom">2dp</item>
+    </style>
+    <style name="Text_10sp_99">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_centerVertical">true</item>
+        <item name="android:textColor">@color/color_999999</item>
+        <item name="android:textSize">@dimen/sp_10</item>
+        <item name="android:includeFontPadding">false</item>
+        <item name="android:paddingBottom">2dp</item>
+    </style>
     <style name="Text_14sp_ac">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
@@ -195,7 +212,7 @@
     <style name="Text_14sp_them_color">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
-        <item name="android:textColor">@color/color_ff4d00</item>
+        <item name="android:textColor">@color/color_theme</item>
         <item name="android:textSize">@dimen/sp_14</item>
         <item name="android:includeFontPadding">false</item>
     </style>
@@ -209,7 +226,14 @@
         <item name="android:includeFontPadding">false</item>
         <item name="android:paddingBottom">@dimen/dp_2</item>
     </style>
-
+    <style name="Text_32sp_33">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textColor">@color/color_33</item>
+        <item name="android:textSize">@dimen/sp_32</item>
+        <item name="android:layout_centerVertical">true</item>
+        <item name="android:includeFontPadding">false</item>
+    </style>
     <style name="Text_14sp_33">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
@@ -225,7 +249,6 @@
         <item name="android:includeFontPadding">false</item>
         <item name="android:paddingBottom">@dimen/dp_2</item>
     </style>
-
     <style name="Text_14sp_ff">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
@@ -242,6 +265,13 @@
         <item name="android:includeFontPadding">false</item>
     </style>
 
+    <style name="Text_16sp_text_selector">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textColor">@color/color_text_selector</item>
+        <item name="android:textSize">@dimen/sp_16</item>
+        <item name="android:includeFontPadding">false</item>
+    </style>
     <style name="map_text_button">
         <item name="android:drawablePadding">8dp</item>
         <item name="android:gravity">center</item>
@@ -250,9 +280,16 @@
         <item name="android:layout_height">wrap_content</item>
         <item name="android:textColor">@color/color_33</item>
         <item name="android:textSize">@dimen/sp_14</item>
-
     </style>
-
+    <style name="text_button_16">
+        <item name="android:drawablePadding">8dp</item>
+        <item name="android:gravity">center</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:textColor">@color/color_33</item>
+        <item name="android:textSize">@dimen/sp_16</item>
+    </style>
     <style name="universal_dialog" parent="Theme.AppCompat.DayNight.Dialog">
         <!-- 窗口背景色 -->
         <item name="android:windowBackground">@android:color/transparent</item>
@@ -302,9 +339,9 @@
         <item name="android:backgroundDimAmount">0.7</item>
         <item name="android:windowIsFloating">true</item>
     </style>
-
+`
     <style name="Timer_Edit_Style">
-        <item name="android:textColor">@color/color_ff4d00</item>
+        <item name="android:textColor">@color/color_theme</item>
     </style>
 
     <style name="Theme.picker" parent="android:Theme.Holo.NoActionBar">
@@ -312,7 +349,7 @@
     </style>
 
     <style name="Widget.EditText.Yellow" parent="@android:style/Widget.EditText">
-        <item name="android:textColor">@color/color_ff4d00</item>
+        <item name="android:textColor">@color/color_theme</item>
         <item name="android:textSize">@dimen/sp_22</item>
     </style>
 

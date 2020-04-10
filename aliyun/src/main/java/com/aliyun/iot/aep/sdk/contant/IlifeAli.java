@@ -2,6 +2,7 @@ package com.aliyun.iot.aep.sdk.contant;
 
 import android.os.Build;
 import android.os.Process;
+import android.text.TextUtils;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -18,9 +19,6 @@ import com.aliyun.alink.linksdk.channel.mobile.api.IMobileConnectListener;
 import com.aliyun.alink.linksdk.channel.mobile.api.IMobileDownstreamListener;
 import com.aliyun.alink.linksdk.channel.mobile.api.IMobileSubscrbieListener;
 import com.aliyun.alink.linksdk.channel.mobile.api.MobileChannel;
-import com.aliyun.alink.linksdk.channel.mobile.api.MobileConnectState;
-import com.aliyun.alink.sdk.bone.plugins.config.BoneConfig;
-import com.aliyun.iot.aep.oa.OALanguageHelper;
 import com.aliyun.iot.aep.sdk.IoTSmart;
 import com.aliyun.iot.aep.sdk._interface.OnAliBindDeviceResponse;
 import com.aliyun.iot.aep.sdk._interface.OnAliResponse;
@@ -29,7 +27,6 @@ import com.aliyun.iot.aep.sdk._interface.OnAliSetPropertyResponse;
 import com.aliyun.iot.aep.sdk._interface.OnDevicePoropertyResponse;
 import com.aliyun.iot.aep.sdk.apiclient.IoTAPIClient;
 import com.aliyun.iot.aep.sdk.apiclient.IoTAPIClientFactory;
-import com.aliyun.iot.aep.sdk.apiclient.IoTAPIClientImpl;
 import com.aliyun.iot.aep.sdk.apiclient.callback.IoTCallback;
 import com.aliyun.iot.aep.sdk.apiclient.callback.IoTResponse;
 import com.aliyun.iot.aep.sdk.apiclient.callback.IoTUIThreadCallback;
@@ -59,15 +56,16 @@ import com.aliyun.iot.aep.sdk.login.LoginBusiness;
 import com.aliyun.iot.aep.sdk.login.data.UserInfo;
 import com.aliyun.iot.aep.sdk.threadpool.ThreadPool;
 import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import com.ilife.home.livebus.LiveEventBus;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.TimeZone;
 
@@ -281,37 +279,19 @@ public class IlifeAli {
             public void onSucess(List<IoTSmart.Country> list) {
                 IoTSmart.Country selectCountry = null;
                 for (IoTSmart.Country country : list) {
-                    if (country.isoCode.equals("SGP")) {
+                    if (country.code.equals("65")) {
                         selectCountry = country;
                         break;
                     }
                 }
                 if (selectCountry != null) {
                     final String selectCountryName = selectCountry.areaName;
-                    IoTSmart.setCountry(selectCountry, new IoTSmart.ICountrySetCallBack() {
-                        @Override
-                        public void onCountrySet(boolean needRestartApp) {
-                            if (needRestartApp) {
-                                onAliResponse.onFailed(-1, "set country success,and need restart app");
-                            } else {//重新初始化
-                                SDKInitHelper.init(AApplication.getInstance(), "");
-                                //设置语言需要SDK初始化成功才可以
-                                Locale locale = Locale.getDefault();
-                                String lan = locale.getLanguage();
-                                if (!lan.equals("zh")) {//
-                                    //初始化之后，可以改变显示语言,目前支持中文“zh-CN”, 英文"en-US"，法文"fr-FR",德文"de-DE",日文"ja-JP",韩文"ko-KR",西班牙文"es-ES",俄文"ru-RU"，八种语言
-                                    IoTAPIClientImpl.getInstance().setLanguage("en-US"); // 全局配置，设置后立即起效
-
-                                    // 容器更改语言
-                                    BoneConfig.set("language", "en-US");
-
-                                    // APIClient更改语言后，push通道重新绑定即可更改push语言
-                                    //        PushManager.getInstance().bindUser();
-                                    //修改OA多语言 目前支持Locale.US 英文、Locale.SIMPLIFIED_CHINESE 中文、Locale.FRANCE 法语、Locale.JAPAN 日语、Locale.GERMANY 德语、Locale.KOREA 韩语  、new Locale("ru","RU") 俄语、new Locale("es","ES") 西班牙语
-                                    OALanguageHelper.setLanguageCode(Locale.US);
-                                }
-                                onAliResponse.onSuccess(selectCountryName);
-                            }
+                    IoTSmart.setCountry(selectCountry, needRestartApp -> {
+                        if (needRestartApp) {
+                            onAliResponse.onFailed(-1, "set country success,and need restart app");
+                        } else {//重新初始化
+                            SDKInitHelper.init(AApplication.getInstance(), "");
+                            onAliResponse.onSuccess(selectCountryName);
                         }
                     });
                 }
@@ -457,6 +437,21 @@ public class IlifeAli {
                                 } else if (items.containsKey(EnvConfigure.KEY_BATTERY_STATE)) {
                                     int battery = items.getJSONObject(EnvConfigure.KEY_BATTERY_STATE).getIntValue(EnvConfigure.KEY_VALUE);
                                     propertyResponse.onBatterState(battery);
+                                } else if (items.containsKey(EnvConfigure.VirtualWallData)) {
+                                    String virtual = items.getJSONObject(EnvConfigure.VirtualWallData).getString(EnvConfigure.KEY_VALUE);
+                                    propertyResponse.onVirtualWallChange(virtual);
+                                } else if (items.containsKey(EnvConfigure.KEY_FORBIDDEN_AREA)) {
+                                    String fbd = items.getJSONObject(EnvConfigure.KEY_FORBIDDEN_AREA).getString(EnvConfigure.KEY_VALUE);
+                                    propertyResponse.onForbiddenAreaChange(fbd);
+                                } else if (items.containsKey(EnvConfigure.CleanAreaData)) {
+                                    String clenaArea = items.getJSONObject(EnvConfigure.CleanAreaData).getString(EnvConfigure.KEY_VALUE);
+                                    propertyResponse.onCleanAreaChange(clenaArea);
+                                } else if (items.containsKey(EnvConfigure.CleanPartitionData)) {
+                                    String cleanRoom = items.getJSONObject(EnvConfigure.CleanPartitionData).getString(EnvConfigure.KEY_VALUE);
+                                    propertyResponse.onCleanRoomChange(cleanRoom);
+                                } else if (items.containsKey(EnvConfigure.KEY_INIT_STATUS)) {
+                                    int initStatus = items.getJSONObject(EnvConfigure.KEY_INIT_STATUS).getIntValue(EnvConfigure.KEY_VALUE);
+                                    propertyResponse.onInitStatusChange(initStatus);
                                 } else if (items.containsKey(EnvConfigure.KEY_MAX_MODE)) {
                                     boolean isMax = items.getJSONObject(EnvConfigure.KEY_MAX_MODE).getIntValue(EnvConfigure.KEY_VALUE) == 1;
                                     Log.d("LiveBus", "发送Live Bus 信息");
@@ -466,8 +461,11 @@ public class IlifeAli {
                             }
                             break;
                         case EnvConfigure.METHOD_THING_EVENT:
-                            int errorCode = object.getJSONObject(EnvConfigure.KEY_VALUE).getIntValue(EnvConfigure.KEY_ERRORCODE);
-                            propertyResponse.onError(errorCode);
+                            //TODO 解析初始化状态
+                            if (object.containsKey(EnvConfigure.KEY_VALUE)) {
+                                int errorCode = object.getJSONObject(EnvConfigure.KEY_VALUE).getIntValue(EnvConfigure.KEY_ERRORCODE);
+                                propertyResponse.onError(errorCode);
+                            }
                             break;
                     }
                 }
@@ -508,7 +506,7 @@ public class IlifeAli {
                         value = "连接改变：已连接";
                         stateCode = 1;
                         if (topicListener != null) {//若topicListener为null，则页面为画图页面，需要重新订阅topic
-                            IlifeAli.this.registerSubscribeTopic();
+                            registerSubscribeTopic();
                         }
                         break;
                     case DISCONNECTED:
@@ -590,7 +588,53 @@ public class IlifeAli {
                     } else {
                         Log.d(TAG, "数据无语音开关字段");
                     }
-                    onAliResponse.onSuccess(new PropertyBean(max, workMode, battery, waterLevel, startTimeLine, historyTimeLine, voiceOpen));
+                    PropertyBean bean = new PropertyBean(max, workMode, battery, waterLevel, startTimeLine, historyTimeLine, voiceOpen);
+                    /**
+                     * 特殊字段
+                     */
+
+                    if (jsonObject.containsKey(EnvConfigure.KEY_INIT_STATUS)) {
+                        int initStatus = jsonObject.getJSONObject(EnvConfigure.KEY_INIT_STATUS).getIntValue(EnvConfigure.KEY_VALUE);
+                        bean.setInitStatus(initStatus == 1);
+                    }
+                    if (jsonObject.containsKey(EnvConfigure.KEY_SAVE_MAP)) {
+                        long selectMapId = jsonObject.getJSONObject(EnvConfigure.KEY_SAVE_MAP).getJSONObject(EnvConfigure.KEY_VALUE).getLongValue(EnvConfigure.KEY_SELECT_MAP_ID);
+                        String saveMapId = jsonObject.getJSONObject(EnvConfigure.KEY_SAVE_MAP).getJSONObject(EnvConfigure.KEY_VALUE).getString(EnvConfigure.KEY_SAVE_MAP_ID);
+                        bean.setSelectedMapId(selectMapId);
+                        bean.setSaveMapId(saveMapId);
+                    }
+                    if (jsonObject.containsKey(EnvConfigure.KEY_FORBIDDEN_AREA)) {
+                        String forbiddenArea = jsonObject.getJSONObject(EnvConfigure.KEY_FORBIDDEN_AREA).getString(EnvConfigure.KEY_VALUE);
+                        bean.setForbiddenArea(forbiddenArea);
+                        Log.d(TAG, "FORBIDDEN AREA DATA: " + forbiddenArea);
+                    }
+                    if (jsonObject.containsKey(EnvConfigure.VirtualWallData)) {
+                        String virtualWallData = jsonObject.getJSONObject(EnvConfigure.VirtualWallData).getString(EnvConfigure.KEY_VALUE);
+                        bean.setVirtualWall(virtualWallData);
+                        Log.d(TAG, "VirtualWallData: " + virtualWallData);
+                    }
+                    if (jsonObject.containsKey(EnvConfigure.PartitionData)) {
+                        String partitionData = jsonObject.getJSONObject(EnvConfigure.PartitionData).getString(EnvConfigure.KEY_VALUE);
+                        bean.setPartition(partitionData);
+                        Log.d(TAG, "PartitionData: " + partitionData);
+                    }
+                    if (jsonObject.containsKey(EnvConfigure.ChargerPiont)) {
+                        //{"time":1586323952726,"value":{"Piont":65526,"DisplaySwitch":1}}
+                        String chargePort = jsonObject.getJSONObject(EnvConfigure.ChargerPiont).getString(EnvConfigure.KEY_VALUE);
+                        bean.setChagePort(chargePort);
+                        Log.d(TAG, "ChargerPiont" + jsonObject.getString("ChargerPiont"));
+                    }
+                    if (jsonObject.containsKey(EnvConfigure.CleanAreaData)) {
+                        String cleanAreaData = jsonObject.getJSONObject(EnvConfigure.CleanAreaData).getString(EnvConfigure.KEY_VALUE);
+                        bean.setCleanArea(cleanAreaData);
+                        Log.d(TAG, "cleanAreaData: " + cleanAreaData);
+                    }
+                    if (jsonObject.containsKey(EnvConfigure.CleanPartitionData)) {
+                        String cleanRoomData = jsonObject.getJSONObject(EnvConfigure.CleanPartitionData).getString(EnvConfigure.KEY_VALUE);
+                        bean.setCleanRoomData(cleanRoomData);
+                        Log.d(TAG, "cleanRoomData: " + cleanRoomData);
+                    }
+                    onAliResponse.onSuccess(bean);
                 } else {
                     onAliResponse.onFailed(0, ioTResponse.getLocalizedMsg());
                 }
@@ -672,6 +716,7 @@ public class IlifeAli {
         ioTAPIClient.send(buildRequest(EnvConfigure.PATH_BIND_BY_SHARECODE, params), new IoTCallback() {
             @Override
             public void onFailure(IoTRequest ioTRequest, Exception e) {
+                Log.d(TAG, "绑定失败：" + e.toString());
                 onAliResponse.onResponse(false);
             }
 
@@ -821,6 +866,52 @@ public class IlifeAli {
         }));
     }
 
+    public void getSelectMap(long selectMapId, final OnAliResponse<List<HistoryRecordBean>> onAliResponse) {
+        HashMap<String, Object> params = new HashMap<>();
+        params.clear();
+        params.put(EnvConfigure.KEY_IOT_ID, iotId);
+        params.put("identifier", EnvConfigure.KEY_HISTORY_START_TIME);
+        params.put("start", selectMapId * 1000);
+        params.put("end", System.currentTimeMillis());
+        params.put("pageSize", 200);
+        params.put("ordered", false);
+        ioTAPIClient.send(buildRequest(EnvConfigure.PATH_GET_PROPERTY_TIMELINE, params), new IoTUIThreadCallback(new IoTCallback() {
+            @Override
+            public void onFailure(IoTRequest ioTRequest, Exception e) {
+
+            }
+
+            @Override
+            public void onResponse(IoTRequest ioTRequest, IoTResponse ioTResponse) {
+                if (ioTResponse.getCode() == 200) {
+                    JSONObject data = JSONObject.parseObject(ioTResponse.getData().toString());
+                    if (data.containsKey(EnvConfigure.KEY_ITEMS)) {
+                        JSONArray items = data.getJSONArray(EnvConfigure.KEY_ITEMS);
+                        ArrayList<Long> starts = new ArrayList<>();
+                        Log.e("select", items.size() + "");
+                        for (int i = 0; i < items.size(); i++) {
+                            JSONObject item = items.getJSONObject(i);
+                            int startTime = item.getIntValue(EnvConfigure.KEY_DATA);
+                            Log.e("startTime", startTime + "" + "=======" + "1584322065, 1584322583");
+                            if (selectMapId == startTime) {
+                                starts.add(item.getLongValue("timestamp"));
+
+                            }
+
+                        }
+
+                        Collections.sort(starts);
+                        if (starts.size() > 1) {
+                            getHistoryRecords(starts.get(0), starts.get(starts.size() - 1), onAliResponse);
+                        } else {
+                            getHistoryRecords(starts.get(0), starts.get(0), onAliResponse);
+                        }
+                    }
+                }
+            }
+        }));
+    }
+
     public void findDevice(final OnAliSetPropertyResponse onResponse) {
         JSONObject json_find = JSONObject.parseObject("{\"FindRobot\":1}");
         HashMap<String, Object> params = new HashMap<>();
@@ -830,12 +921,16 @@ public class IlifeAli {
         ioTAPIClient.send(buildRequest(EnvConfigure.PATH_SET_PROPERTIES, params), new IoTUIThreadCallback(new IoTCallback() {
             @Override
             public void onFailure(IoTRequest ioTRequest, Exception e) {
-                onResponse.onFailed(ioTRequest.getPath(), EnvConfigure.VALUE_FIND_ROBOT, 0, e.getLocalizedMessage());
+                if (onResponse != null) {
+                    onResponse.onFailed(ioTRequest.getPath(), EnvConfigure.VALUE_FIND_ROBOT, 0, e.getLocalizedMessage());
+                }
             }
 
             @Override
             public void onResponse(IoTRequest ioTRequest, IoTResponse ioTResponse) {
-                onResponse.onSuccess(ioTRequest.getPath(), EnvConfigure.VALUE_FIND_ROBOT, 1, ioTResponse.getCode());
+                if (onResponse != null) {
+                    onResponse.onSuccess(ioTRequest.getPath(), EnvConfigure.VALUE_FIND_ROBOT, 1, ioTResponse.getCode());
+                }
             }
         }));
 
@@ -941,6 +1036,68 @@ public class IlifeAli {
         }));
     }
 
+    /**
+     * 设置主机的某一属性
+     *
+     * @param json       需为json格式的字符串
+     * @param onResponse
+     */
+    public void setProperties(JSONObject json, OnAliResponseSingle<Boolean> onResponse) {
+        HashMap<String, Object> params = new HashMap<>();
+        params.put(EnvConfigure.KEY_IOT_ID, iotId);
+        params.put(EnvConfigure.KEY_ITEMS, json);
+        Log.d(TAG, "set properties data : " + json.toString());
+        ioTAPIClient.send(buildRequest(EnvConfigure.PATH_SET_PROPERTIES, params), new IoTUIThreadCallback(new IoTCallback() {
+            @Override
+            public void onFailure(IoTRequest ioTRequest, Exception e) {
+                onResponse.onResponse(false);
+            }
+
+            @Override
+            public void onResponse(IoTRequest ioTRequest, IoTResponse ioTResponse) {
+                if (ioTResponse.getCode() == 200) {
+                    onResponse.onResponse(true);
+                } else {
+                    onResponse.onResponse(false);
+                    Log.d(TAG, "请求失败，错误信息： " + ioTResponse.getLocalizedMsg());
+                }
+            }
+        }));
+    }
+
+    /**
+     * @param selectMapId
+     * @param saveMapId
+     * @param onResponse
+     */
+    public void setSelectMapId(long selectMapId, String saveMapId, OnAliResponseSingle<Boolean> onResponse) {
+        String data = "{\"SaveMap\":{\"SelectedMapId\":1584604330,\"SaveMapId\":\"XnMkql51jKI=\"}}";
+        JSONObject json = JSONObject.parseObject(data);
+        json.getJSONObject(EnvConfigure.KEY_SAVE_MAP).put(EnvConfigure.KEY_SELECT_MAP_ID, selectMapId);
+        json.getJSONObject(EnvConfigure.KEY_SAVE_MAP).put(EnvConfigure.KEY_SAVE_MAP_ID, saveMapId);
+
+        HashMap<String, Object> params = new HashMap<>();
+        params.put(EnvConfigure.KEY_IOT_ID, iotId);
+        params.put(EnvConfigure.KEY_ITEMS, json);
+        Log.d(TAG, "Save map data: " + json.toString());
+        ioTAPIClient.send(buildRequest(EnvConfigure.PATH_SET_PROPERTIES, params), new IoTUIThreadCallback(new IoTCallback() {
+            @Override
+            public void onFailure(IoTRequest ioTRequest, Exception e) {
+                onResponse.onResponse(false);
+            }
+
+            @Override
+            public void onResponse(IoTRequest ioTRequest, IoTResponse ioTResponse) {
+                if (ioTResponse.getCode() == 200) {
+                    onResponse.onResponse(true);
+                } else {
+                    onResponse.onResponse(false);
+                    Log.d(TAG, "请求失败，错误信息： " + ioTResponse.getLocalizedMsg());
+                }
+            }
+        }));
+    }
+
 
     public void setVoiceOpen(boolean isOpen, final OnAliSetPropertyResponse onResponse) {
         final int isDisturbOpen = isOpen ? 0 : 1;
@@ -977,7 +1134,6 @@ public class IlifeAli {
         } else {
             schedule = "{\"Schedule\":{\"ScheduleHour\":0,\"ScheduleEnd\":300,\"ScheduleEnable\":0,\"ScheduleMode\":3,\"ScheduleWeek\":1,\"ScheduleArea\":1,\"ScheduleMinutes\":0}}";
         }
-        position = position == 0 ? 7 : position;
         String str = EnvConfigure.KEY_SCHEDULE + position;
         String schedule_ = schedule.replaceFirst(EnvConfigure.KEY_SCHEDULE, str);
         final JSONObject json = JSONObject.parseObject(schedule_);
@@ -1012,7 +1168,7 @@ public class IlifeAli {
         }));
     }
 
-    public void getScheduleInfo(final OnAliResponse<String> onAliResponse) {
+    public void getScheduleInfo(final OnAliResponse<List<ScheduleBean>> onAliResponse) {
         HashMap<String, Object> params = new HashMap<>();
         params.put(EnvConfigure.KEY_TAG, EnvConfigure.VALUE_GET_PROPERTY);
         params.put(EnvConfigure.KEY_IOT_ID, iotId);
@@ -1026,7 +1182,25 @@ public class IlifeAli {
             public void onResponse(IoTRequest ioTRequest, IoTResponse ioTResponse) {
                 if (ioTResponse.getCode() == 200) {
                     String content = ioTResponse.getData().toString();
-                    onAliResponse.onSuccess(content);
+                    if (TextUtils.isEmpty(content)) {
+                        return;
+                    }
+                    JSONObject jsonObject = JSONObject.parseObject(content);
+                    List<ScheduleBean> scheduleBeans = new ArrayList<>();
+                    ScheduleBean bean;
+                    String key;
+                    String value;
+                    Gson gson = new Gson();
+                    //TODO 解析预约数据
+                    for (int i = 1; i <= 7; i++) {
+                        key = EnvConfigure.KEY_SCHEDULE + i;
+                        if (content.contains(key)) {
+                            value = jsonObject.getJSONObject(key).getString(EnvConfigure.KEY_VALUE);
+                            bean = gson.fromJson(value, ScheduleBean.class);
+                            scheduleBeans.add(bean);
+                        }
+                    }
+                    onAliResponse.onSuccess(scheduleBeans);
                 }
             }
         }));

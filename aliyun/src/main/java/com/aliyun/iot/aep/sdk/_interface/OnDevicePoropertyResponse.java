@@ -28,6 +28,11 @@ public interface OnDevicePoropertyResponse {
 
     void onMaxChange(boolean isMax);
 
+    void onVirtualWallChange(String virtualWall);
+    void onForbiddenAreaChange(String fbdArea);
+    void onCleanAreaChange(String clanArea);
+    void onCleanRoomChange(String cleanRoom);
+    void onInitStatusChange(int initStatus);
     /**
      *错误码 为0时不用处理
      */

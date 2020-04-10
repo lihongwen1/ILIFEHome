@@ -1,6 +1,9 @@
 package com.aliyun.iot.aep.sdk.bean;
 
+import com.alibaba.fastjson.annotation.JSONField;
+
 public class ScheduleBean {
+
 
     /**
      * ScheduleHour : 0
@@ -8,20 +11,24 @@ public class ScheduleBean {
      * ScheduleEnd : 300
      * ScheduleEnable : 0
      * ScheduleMode : 6
+     * ScheduleLoop : 0
      * ScheduleWeek : 1
-     * ScheduleArea : AAAAAAAAAAAAAAAA
+     * ScheduleArea : AAAAAAAAAAAAAAAAAAAAAA==
+     * ScheduleRoom : 0
      * ScheduleMinutes : 0
      */
-
     private int ScheduleHour;
     private int ScheduleType;
     private int ScheduleEnd;
     private int ScheduleEnable;
     private int ScheduleMode;
+    private int ScheduleLoop;
     private int ScheduleWeek;
     private String ScheduleArea;
+    private int ScheduleRoom;
     private int ScheduleMinutes;
 
+    @JSONField(name = "ScheduleHour")
     public int getScheduleHour() {
         return ScheduleHour;
     }
@@ -30,6 +37,7 @@ public class ScheduleBean {
         this.ScheduleHour = ScheduleHour;
     }
 
+    @JSONField(name = "ScheduleType")
     public int getScheduleType() {
         return ScheduleType;
     }
@@ -38,6 +46,7 @@ public class ScheduleBean {
         this.ScheduleType = ScheduleType;
     }
 
+    @JSONField(name = "ScheduleEnd")
     public int getScheduleEnd() {
         return ScheduleEnd;
     }
@@ -46,6 +55,7 @@ public class ScheduleBean {
         this.ScheduleEnd = ScheduleEnd;
     }
 
+    @JSONField(name = "ScheduleEnable")
     public int getScheduleEnable() {
         return ScheduleEnable;
     }
@@ -54,6 +64,7 @@ public class ScheduleBean {
         this.ScheduleEnable = ScheduleEnable;
     }
 
+    @JSONField(name = "ScheduleMode")
     public int getScheduleMode() {
         return ScheduleMode;
     }
@@ -62,6 +73,16 @@ public class ScheduleBean {
         this.ScheduleMode = ScheduleMode;
     }
 
+    @JSONField(name = "ScheduleLoop")
+    public int getScheduleLoop() {
+        return ScheduleLoop;
+    }
+
+    public void setScheduleLoop(int ScheduleLoop) {
+        this.ScheduleLoop = ScheduleLoop;
+    }
+
+    @JSONField(name = "ScheduleWeek")
     public int getScheduleWeek() {
         return ScheduleWeek;
     }
@@ -70,6 +91,7 @@ public class ScheduleBean {
         this.ScheduleWeek = ScheduleWeek;
     }
 
+    @JSONField(name = "ScheduleArea")
     public String getScheduleArea() {
         return ScheduleArea;
     }
@@ -78,6 +100,16 @@ public class ScheduleBean {
         this.ScheduleArea = ScheduleArea;
     }
 
+    @JSONField(name = "ScheduleRoom")
+    public int getScheduleRoom() {
+        return ScheduleRoom;
+    }
+
+    public void setScheduleRoom(int ScheduleRoom) {
+        this.ScheduleRoom = ScheduleRoom;
+    }
+
+    @JSONField(name = "ScheduleMinutes")
     public int getScheduleMinutes() {
         return ScheduleMinutes;
     }

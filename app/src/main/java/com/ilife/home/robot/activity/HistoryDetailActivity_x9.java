@@ -182,6 +182,8 @@ public class HistoryDetailActivity_x9 extends BackBaseActivity {
             int lineCount = 0;
             List<Byte> byteList = new ArrayList<>();
             List<Coordinate> pointList = new ArrayList<>();
+            List<Coordinate> roadList = new ArrayList<>();
+            int lx = 0, ly = 0;
             if (mapArray != null) {
                 if (mapArray.length > 0) {
                     for (String data : mapArray) {
@@ -189,20 +191,25 @@ public class HistoryDetailActivity_x9 extends BackBaseActivity {
                             continue;
                         }
                         byte[] bytes = Base64.decode(data, Base64.DEFAULT);
-                        if (bytes.length < 7) {
-                            MyLogger.e(TAG, "数据异常。。。。。。。");
-                            continue;
-                        }
                         int bj = bytes[0] & 0xff;
-                        if (bj != 1) {
-                            MyLogger.e(TAG, "包含路径数据。。。。。。。。");
-                            continue;
+                        MyLogger.e(TAG, "数据类型。。。。。。：" + bj);
+                        if (bj == 1) {//map数据
+                            lx = DataUtils.bytesToInt(new byte[]{bytes[1], bytes[2]}, 0);
+                            ly = DataUtils.bytesToInt(new byte[]{bytes[3], bytes[4]}, 0);
+                            MyLogger.d(TAG, "左上角坐标为：" + lx + "   " + ly);
+                            lineCount = DataUtils.bytesToInt(new byte[]{bytes[5], bytes[6]}, 0);
+                            for (int j = 7; j < bytes.length; j++) {
+                                byteList.add(bytes[j]);
+                            }
                         }
-                        int lx = DataUtils.bytesToInt(new byte[]{bytes[1], bytes[2]}, 0);
-                        int ly = DataUtils.bytesToInt(new byte[]{bytes[3], bytes[4]}, 0);
-                        lineCount = DataUtils.bytesToInt2(new byte[]{bytes[5], bytes[6]}, 0);
-                        for (int j = 7; j < bytes.length; j++) {
-                            byteList.add(bytes[j]);
+                        if (bj == 2) {
+                            int x, y;
+                            for (int i = 1; i < bytes.length; i += 4) {
+                                x = DataUtils.bytesToInt(new byte[]{bytes[i], bytes[i + 1]}, 0);
+                                y = DataUtils.bytesToInt(new byte[]{bytes[i + 2], bytes[i + 3]}, 0);
+                                MyLogger.d(TAG,"路径坐标："+x+"   "+y);
+                                roadList.add(new Coordinate(x - lx, -y + ly, 4));
+                            }
                         }
                     }
                 }
@@ -218,6 +225,7 @@ public class HistoryDetailActivity_x9 extends BackBaseActivity {
 
                     for (int j = 0; j < length; j++) {
                         if (type != 0) {
+                            MyLogger.d(TAG, "type: " + type);
                             coordinate = new Coordinate(x, y, type);
                             pointList.add(coordinate);
                         }
@@ -236,6 +244,7 @@ public class HistoryDetailActivity_x9 extends BackBaseActivity {
                 yMax = y;
             }
             MyLogger.e(TAG, "字节数：   " + byteList.size() + "-----总点数：  " + totalLength);
+            pointList.addAll(roadList);
             emitter.onSuccess(pointList);
         }).subscribeOn(Schedulers.computation()).observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new SingleObserver<List<Coordinate>>() {
@@ -314,6 +323,6 @@ public class HistoryDetailActivity_x9 extends BackBaseActivity {
     }
 
     public void initView() {
-
+        mapView.setmOT(MapView.OT.MAP);
     }
 }

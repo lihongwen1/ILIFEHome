@@ -3,31 +3,28 @@ package com.ilife.home.robot.presenter;
 import android.text.TextUtils;
 import android.util.Base64;
 
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.lifecycle.Observer;
-
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.aliyun.iot.aep.sdk._interface.OnAliResponse;
-import com.aliyun.iot.aep.sdk._interface.OnAliResponseSingle;
 import com.aliyun.iot.aep.sdk._interface.OnAliSetPropertyResponse;
 import com.aliyun.iot.aep.sdk._interface.OnDevicePoropertyResponse;
+import com.aliyun.iot.aep.sdk.bean.HistoryRecordBean;
 import com.aliyun.iot.aep.sdk.bean.PropertyBean;
 import com.aliyun.iot.aep.sdk.bean.RealTimeMapBean;
 import com.aliyun.iot.aep.sdk.contant.AliSkills;
 import com.aliyun.iot.aep.sdk.contant.EnvConfigure;
 import com.aliyun.iot.aep.sdk.contant.IlifeAli;
-import com.aliyun.iot.aep.sdk.contant.LiveBusKey;
 import com.aliyun.iot.aep.sdk.contant.MsgCodeUtils;
 import com.google.gson.Gson;
-import com.ilife.home.livebus.LiveEventBus;
+import com.google.gson.JsonObject;
 import com.ilife.home.robot.R;
-import com.ilife.home.robot.able.Constants;
 import com.ilife.home.robot.able.DeviceUtils;
 import com.ilife.home.robot.activity.BaseMapActivity;
 import com.ilife.home.robot.activity.SettingActivity;
 import com.ilife.home.robot.app.MyApplication;
 import com.ilife.home.robot.base.BasePresenter;
-import com.ilife.home.robot.bean.CleaningDataX8;
 import com.ilife.home.robot.bean.Coordinate;
+import com.ilife.home.robot.bean.MapDataBean;
 import com.ilife.home.robot.bean.RobotConfigBean;
 import com.ilife.home.robot.contract.MapX9Contract;
 import com.ilife.home.robot.model.MapX9Model;
@@ -58,13 +55,12 @@ import io.reactivex.functions.Function;
 // TODO APP后台CPU消耗问题
 //TODO 处理x800系列绘制地图不全部绘制，只绘制新增的点
 //TODO 重点，延边，遥控模式下机器会清扫完成，此时可以清空地图数据(机器进入待机模式后，会从头开始清扫，此时可以清空地图数据)
+//TODO make save map data seprate with real time map data
 public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements MapX9Contract.Presenter {
     private final String TAG = "MapX9Presenter";
     private String robotType;
     private int curStatus, errorCode, batteryNo = -1, workTime = 0, cleanArea = 0, virtualStatus;
     private ArrayList<Integer> realTimePoints, historyRoadList;
-    private List<int[]> wallPointList = new ArrayList<>();
-    private List<int[]> existPointList = new ArrayList<>();
     private ExecutorService singleThread;
 
     private byte[] slamBytes, virtualContentBytes;
@@ -72,6 +68,7 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
      * x800实时地图数据
      */
     private ArrayList<Coordinate> pointList;// map集合
+    private ArrayList<Coordinate> slamPointList;// map集合
     private boolean isGainDevStatus, isGetHistory;
     private boolean haveMap = true;//标记机型是否有地图 V85机器没有地图，但是有地图清扫数据
     private boolean havMapData = true;//A7 无地图，也无地图清扫数据
@@ -90,6 +87,7 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
         realTimePoints = new ArrayList<>();
         historyRoadList = new ArrayList<>();
         pointList = new ArrayList<>();
+        slamPointList = new ArrayList<>();
         rBean = MyApplication.getInstance().readRobotConfig().getRobotBeanByPk(IlifeAli.getInstance().getWorkingDevice().getProductKey());
         robotType = rBean.getRobotType();
         adjustTime();
@@ -139,7 +137,6 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
             minY = coordinate.getY();
             maxX = coordinate.getX();
             maxY = coordinate.getY();
-            offset = 0;
             MyLogger.d(TAG, "data is  clear, and  need to reset all params");
         }
         int x, y;
@@ -187,7 +184,7 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
             pointList.addAll(cleaningDataX8.getCoordinates());
             updateSlamX8(pointList, 0);
             if (haveMap && isViewAttached() && isDrawMap()) {
-                mView.drawMapX8(pointList);
+                mView.drawMapX8(pointList, slamPointList);
             }
         });
     }
@@ -206,6 +203,7 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
      * 查询电子墙
      */
     public void queryVirtualWall() {
+
     }
 
 
@@ -228,21 +226,19 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
                     }
                     pointCoor[0] = bytes[i - 4];
                     pointCoor[1] = bytes[i - 3];
-                    int x = DataUtils.bytesToInt(pointCoor, 0) + 750;
+                    int x = DataUtils.bytesToInt(pointCoor, 0);
                     pointCoor[0] = bytes[i - 2];
                     pointCoor[1] = bytes[i - 1];
-                    int y = DataUtils.bytesToInt(pointCoor, 0) + 750;
-                    coordinate = new Coordinate(1500 - x, y, type);
-                    index = pointList.indexOf(coordinate);
-                    if (index == -1) {
-                        MyLogger.d("清扫数据", type + "-(" + (x - 750) + "," + (y - 750) + ")");
-                        pointList.add(coordinate);
-                    } else {
-                        MyLogger.d("清扫数据-重复点", type + "-(" + (x - 750) + "," + (y - 750) + ")");
-                        pointList.remove(index);
-                        pointList.add(coordinate);
-//                        pointList.get(index).setType(type);
-                    }
+                    int y = DataUtils.bytesToInt(pointCoor, 0);
+                    coordinate = new Coordinate(x, -y, type);
+//                    index = pointList.indexOf(coordinate);
+//                    if (index == -1) {
+//                        pointList.add(coordinate);
+//                    } else if ( pointList.get(index).getType()!=){
+//                        pointList.remove(index);
+//                        pointList.add(coordinate);
+//                    }
+                    pointList.add(coordinate);
                 }
             }
         }
@@ -265,6 +261,7 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
         historyRoadList.clear();
         realTimePoints.clear();//X900 series
         pointList.clear();//X800 series
+        slamPointList.clear();//X900 系列
     }
 
 
@@ -340,10 +337,16 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
                         }
                         queryVirtualWall();
                     } else {//x800系列
-                        if (curStatus == MsgCodeUtils.STATUE_PLANNING || curStatus == MsgCodeUtils.STATUE_PAUSE) {
+                        if (curStatus == MsgCodeUtils.STATUE_CLEAN_ROOM || curStatus == MsgCodeUtils.STATUE_CLEAN_AREA || curStatus == MsgCodeUtils.STATUE_PLANNING || curStatus == MsgCodeUtils.STATUE_PAUSE) {
                             if (!isGetHistory && havMapData) {
                                 getHistoryDataX8();
                             }
+                        }
+                        /**
+                         * 处理保存地图
+                         */
+                        if (propertyBean.isInitStatus() && propertyBean.getSelectedMapId() != 0) {
+                            doAboutSlam(propertyBean);
                         }
                     }
                 }
@@ -385,11 +388,11 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
     }
 
     private void refreshMap() {
-        if (slamBytes != null && realTimePoints != null && historyRoadList != null && existPointList != null) {
+        if (slamBytes != null && realTimePoints != null && historyRoadList != null) {
             if (isX900Series()) {
                 mView.drawMapX9(realTimePoints, historyRoadList, slamBytes);
             } else {
-                mView.drawMapX8(pointList);
+                mView.drawMapX8(pointList, slamPointList);
             }
         }
     }
@@ -466,14 +469,15 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
 
     /**
      * 判断设备状态是否需要绘制地图
+     * //TODO 根据状态判断是否需要绘制地图
      *
      * @return
      */
     @Override
     public boolean isDrawMap() {
-        return (curStatus == MsgCodeUtils.STATUE_TEMPORARY_POINT || curStatus == MsgCodeUtils.STATUE_PLANNING
+        return true;/*(curStatus == MsgCodeUtils.STATUE_TEMPORARY_POINT || curStatus == MsgCodeUtils.STATUE_PLANNING
                 || curStatus == MsgCodeUtils.STATUE_PAUSE || curStatus == MsgCodeUtils.STATUE_VIRTUAL_EDIT
-                || (curStatus == MsgCodeUtils.STATUE_RECHARGE && isX900Series())) && mView.isActivityInteraction();
+                || (curStatus == MsgCodeUtils.STATUE_RECHARGE && isX900Series())) && mView.isActivityInteraction();*/
     }
 
 
@@ -481,7 +485,7 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
     public boolean isWork(int curStatus) {
         return curStatus == MsgCodeUtils.STATUE_RANDOM || curStatus == MsgCodeUtils.STATUE_ALONG ||
                 curStatus == MsgCodeUtils.STATUE_POINT || curStatus == MsgCodeUtils.STATUE_TEMPORARY_POINT || curStatus == MsgCodeUtils.STATUE_PLANNING ||
-                curStatus == MsgCodeUtils.STATUE_RECHARGE;
+                curStatus == MsgCodeUtils.STATUE_RECHARGE || curStatus == MsgCodeUtils.STATUE_CLEAN_AREA || curStatus == MsgCodeUtils.STATUE_CLEAN_ROOM;
     }
 
     /**
@@ -502,7 +506,7 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
         BigDecimal bg = new BigDecimal(cleanArea / 100.0f);
         double area = bg.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue();
         if (curStatus == MsgCodeUtils.STATUE_RECHARGE || !havMapData || (!isDrawMap() && curStatus != MsgCodeUtils.STATUE_RANDOM && curStatus != MsgCodeUtils.STATUE_TEMPORARY_POINT)) {
-            return Utils.getString(R.string.map_aty_gang);
+            return "——";
         } else {
             String areaStr = area + "㎡";
             if (areaStr.equals("0.0㎡")) {
@@ -515,7 +519,7 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
     private String getTimeValue() {
         int min = (int) (workTime / 60f);
         if (curStatus == MsgCodeUtils.STATUE_RECHARGE || !havMapData || (!isDrawMap() && curStatus != MsgCodeUtils.STATUE_RANDOM && curStatus != MsgCodeUtils.STATUE_TEMPORARY_POINT)) {
-            return Utils.getString(R.string.map_aty_gang);
+            return "——";
         } else {
             return min + "min";
         }
@@ -544,7 +548,7 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
                 mView.updateCleanTime(getTimeValue());
                 mView.updateCleanArea(getAreaValue());
                 if (haveMap && pointList != null && isDrawMap()) {
-                    mView.drawMapX8(pointList);
+                    mView.drawMapX8(pointList, slamPointList);
                 }
             }
 
@@ -575,9 +579,144 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
                 mView.showErrorPopup(errorCode);
                 setStatus(curStatus, batteryNo);
             }
+
+            @Override
+            public void onCleanAreaChange(String data) {
+                MyLogger.d(TAG, "清扫区域改变:  " + data);
+                mView.drawCleanArea(data);
+            }
+
+            @Override
+            public void onForbiddenAreaChange(String fbdArea) {
+                MyLogger.d(TAG, "禁区改变:  " + fbdArea);
+                mView.drawForbiddenArea(fbdArea);
+            }
+
+            @Override
+            public void onVirtualWallChange(String virtualWall) {
+                MyLogger.d(TAG, "虚拟墙改变:  " + virtualWall);
+                mView.drawVirtualWall(virtualWall);
+            }
+
+            @Override
+            public void onCleanRoomChange(String cleanRoomData) {
+                if (!TextUtils.isEmpty(cleanRoomData)) {
+                    JSONObject json = JSON.parseObject(cleanRoomData);
+                    int times = json.getIntValue("CleanLoop");
+                    int cleanedTimes = times >> 4;
+                    int settingTimes = times & 0x0f;
+                    boolean enable = json.getIntValue("Enable") != 0;//0-无效/没有进行 1-开始 2-进行中
+                    mView.updateCleanTimes(enable, cleanedTimes, settingTimes);
+                }
+            }
+
+            @Override
+            public void onInitStatusChange(int initStatus) {
+                MyLogger.d(TAG, "初始化状态改变 init status：" + initStatus);
+                slamPointList.clear();
+                IlifeAli.getInstance().getProperties(new OnAliResponse<PropertyBean>() {
+                    @Override
+                    public void onSuccess(PropertyBean result) {
+                        doAboutSlam(result);
+                    }
+
+                    @Override
+                    public void onFailed(int code, String message) {
+
+                    }
+                });
+            }
         });
     }
 
+    /**
+     * 处理和slam一起显示的相关UI
+     * slam ,virtual wall , forbidden area, clean area etc.
+     */
+    private void doAboutSlam(PropertyBean result) {
+        long selectId = result.getSelectedMapId();
+        String virtual = result.getVirtualWall();
+        String fbd = result.getForbiddenArea();
+        String cleanAreaData = result.getCleanArea();
+        String cleanRoomData = result.getCleanRoomData();
+        String chargingPort = result.getChagePort();
+        IlifeAli.getInstance().getSelectMap(selectId, new OnAliResponse<List<HistoryRecordBean>>() {
+            @Override
+            public void onSuccess(List<HistoryRecordBean> result) {
+                //只有一条记录才正确
+                if (result == null || result.size() == 0) {
+                    MyLogger.e(TAG, "保存地图数据错误！！！！！！！！！！");
+                    return;
+                }
+                MapDataBean mapDataBean = DataUtils.parseSaveMapData(result.get(0).getMapDataArray());
+                if (mapDataBean != null) {
+                    minX = mapDataBean.getMinX();
+                    maxX = mapDataBean.getMaxX();
+                    minY = mapDataBean.getMinY();
+                    maxY = mapDataBean.getMaxY();
+                    mView.updateSlam(minX, maxX, minY, maxY);
+                    slamPointList.clear();
+                    slamPointList.addAll(mapDataBean.getCoordinates());
+                    mView.drawMapX8(pointList, slamPointList);
+                    if (!TextUtils.isEmpty(virtual)) {
+                        mView.drawVirtualWall(virtual);
+                    }
+                    if (!TextUtils.isEmpty(fbd)) {
+                        mView.drawForbiddenArea(fbd);
+                    }
+                    //处理清扫区域
+                    if ((curStatus == MsgCodeUtils.STATUE_CLEAN_AREA || curStatus == MsgCodeUtils.STATUE_CLEAN_ROOM) &&
+                            !TextUtils.isEmpty(cleanAreaData)) {
+                        JSONObject json = JSON.parseObject(cleanAreaData);
+                        int times = json.getIntValue("CleanLoop");
+                        int cleanedTimes = times >> 4;
+                        int settingTimes = times & 0x0f;
+                        boolean enable = json.getIntValue("Enable") != 0;//0-无效/没有进行 1-开始 2-进行中
+                        mView.updateCleanTimes(enable, cleanedTimes, settingTimes);
+                        String area = "";
+                        if (enable) {
+                            area = json.getString("AreaData");
+                            if (area.equals("AAAAAAAAAAAAAAAAAAAAAA==")) {
+                                area = "";
+                            }
+                        }
+                        mView.drawCleanArea(area);
+                    }
+                    /**
+                     * 处理选房数据
+                     */
+                    if (!TextUtils.isEmpty(cleanRoomData)) {
+                        JSONObject json = JSON.parseObject(cleanRoomData);
+                        int times = json.getIntValue("CleanLoop");
+                        int cleanedTimes = times >> 4;
+                        int settingTimes = times & 0x0f;
+                        boolean enable = json.getIntValue("Enable") != 0;//0-无效/没有进行 1-开始 2-进行中
+                        mView.updateCleanTimes(enable, cleanedTimes, settingTimes);
+                    }
+
+                    /**
+                     * 处理充电座
+                     */
+                    if (!TextUtils.isEmpty(chargingPort) && isViewAttached() && isDrawMap()) {
+                        JSONObject jsonObject = JSONObject.parseObject(chargingPort);
+                        boolean isDisplay = jsonObject.getIntValue("DisplaySwitch") == 1;
+                        if (isDisplay) {
+                            int xy = jsonObject.getIntValue("Piont");
+                            byte[] bytes = DataUtils.intToBytes4(xy);
+                            int x = DataUtils.bytesToInt(new byte[]{bytes[0], bytes[1]}, 0);
+                            int y = -DataUtils.bytesToInt(new byte[]{bytes[2], bytes[3]}, 0);
+                            mView.drawChargePort(x, y);
+                        }
+                    }
+                }
+            }
+
+            @Override
+            public void onFailed(int code, String message) {
+
+            }
+        });
+    }
 
     /**
      * 解析X800系列地图数据子线程
@@ -594,7 +733,6 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
         public void run() {
             Gson gson = new Gson();
             RealTimeMapBean mapBean = gson.fromJson(mapBeanData, RealTimeMapBean.class);
-            MyLogger.d(TAG, "onRealMap----:  " + mapBean.toString());
             int offset = pointList.size();
             parseRealTimeMapX8(mapBean.getMapData());
             updateSlamX8(pointList, offset);
@@ -603,7 +741,7 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
             mView.updateCleanTime(getTimeValue());
             mView.updateCleanArea(getAreaValue());
             if (haveMap && pointList != null && isDrawMap()) {
-                mView.drawMapX8(pointList);
+                mView.drawMapX8(pointList, slamPointList);
             }
         }
     }
@@ -643,51 +781,15 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
 
     @Override
     public void enterVirtualMode() {
-        setPropertiesWithParams(AliSkills.get().enterVirtualMode());
+//        setPropertiesWithParams(AliSkills.get().enterVirtualMode());
     }
 
 
     /**
-     * @param list SEND_VIR添加电子墙时为新增电子墙集合，EXIT_VIR 时，为null
+     * @param vwStr SEND_VIR添加电子墙时为新增电子墙集合，EXIT_VIR 时，为null
      */
-    public void sendVirtualWallData(final List<int[]> list) {
-        wallPointList.clear();
-        wallPointList.addAll(list);
-        new Thread(() -> {
-            virtualContentBytes = new byte[82];
-//                if (sendLists != null && sendLists.size() > 0) {
-            if (wallPointList != null && wallPointList.size() > 0) {
-//                    int size = sendLists.size();
-                int size = wallPointList.size();
-                byte open = (byte) 0x01;
-                byte counts = (byte) size;
-                virtualContentBytes[0] = open;
-                virtualContentBytes[1] = counts;
-                for (int t = 1; t < size + 1; t++) {
-//                        int[] floats = sendLists.get(t - 1);
-                    int[] floats = wallPointList.get(t - 1);
-                    int x1 = (int) floats[0] - 750;
-                    int y1 = (int) 1500 - floats[1] - 750;
-                    int x2 = (int) floats[2] - 750;
-                    int y2 = (int) 1500 - floats[3] - 750;
-                    byte[] startxBytes = DataUtils.intToBytes(x1);
-                    byte[] startyBytes = DataUtils.intToBytes(y1);
-                    byte[] endxBytes = DataUtils.intToBytes(x2);
-                    byte[] endyBytes = DataUtils.intToBytes(y2);
-                    virtualContentBytes[(t - 1) * 8 + 2] = startxBytes[0];
-                    virtualContentBytes[(t - 1) * 8 + 3] = startxBytes[1];
-                    virtualContentBytes[(t - 1) * 8 + 4] = startyBytes[0];
-                    virtualContentBytes[(t - 1) * 8 + 5] = startyBytes[1];
-                    virtualContentBytes[(t - 1) * 8 + 6] = endxBytes[0];
-                    virtualContentBytes[(t - 1) * 8 + 7] = endxBytes[1];
-                    virtualContentBytes[(t - 1) * 8 + 8] = endyBytes[0];
-                    virtualContentBytes[(t - 1) * 8 + 9] = endyBytes[1];
-                }
-            } else {
-                MyLogger.e(TAG, "sendLists is null");
-            }
-//            sendToDeviceWithOptionVirtualWall(AliSkills.get().setVirtualWall(virtualContentBytes), physicalId);
-        }).start();
+    public void sendVirtualWallData(String vwStr) {
+        //TODO send virtual wall data to ali server
     }
 
 
@@ -761,7 +863,7 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
     public void enterRechargeMode() {
         if (curStatus == MsgCodeUtils.STATUE_CHARGING || curStatus == MsgCodeUtils.STATUE_CHARGING_) {
             ToastUtils.showToast(MyApplication.getInstance(), Utils.getString(R.string.map_aty_charge));
-        } else if ((curStatus == MsgCodeUtils.STATUE_POINT || curStatus == MsgCodeUtils.STATUE_ALONG)&&!rBean.isPointAlongToRecharge()) {
+        } else if ((curStatus == MsgCodeUtils.STATUE_POINT || curStatus == MsgCodeUtils.STATUE_ALONG) && !rBean.isPointAlongToRecharge()) {
             ToastUtils.showToast(MyApplication.getInstance(), Utils.getString(R.string.map_aty_can_not_execute));
         } else {
             if (curStatus == MsgCodeUtils.STATUE_RECHARGE) {
@@ -781,6 +883,15 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
     public boolean isRandomMode() {
         return SpUtils.getInt(MyApplication.getInstance(), IlifeAli.getInstance().getWorkingDevice().getProductKey() + SettingActivity.KEY_MODE) == MsgCodeUtils.STATUE_RANDOM;
     }
+
+    @Override
+    public MapDataBean getMapDataBean() {
+        MapDataBean dataBean = new MapDataBean(pointList, "", "", 0, 0
+                , minX, minY, maxX, maxY);
+        return dataBean;
+    }
+
+    private int leftX = 0, leftY = 0;
 
 
     @Override

@@ -30,9 +30,28 @@ public class AliSkills {
         return params;
     }
 
-    public HashMap<String,Object> enterVirtualMode() {
+    public HashMap<String,Object> enterVirtualEditMode(String iotId) {
+        params.clear();
+        params.put(EnvConfigure.KEY_IOT_ID, iotId);
+        HashMap<String,Integer> workMode=new HashMap<>();
+        workMode.put(EnvConfigure.KEY_WORK_MODE,MsgCodeUtils.STATUE_VIRTUAL_EDIT);
+        params.put(EnvConfigure.KEY_PATH,EnvConfigure.KEY_WORK_MODE);
+        params.put(EnvConfigure.KEY_ITEMS,workMode);
+        params.put(EnvConfigure.KEY_TAG,MsgCodeUtils.STATUE_VIRTUAL_EDIT+"");
         return params;
     }
+
+    public HashMap<String,Object> enterCleanAreaEditMode(String iotId) {
+        params.clear();
+        params.put(EnvConfigure.KEY_IOT_ID, iotId);
+        HashMap<String,Integer> workMode=new HashMap<>();
+        workMode.put(EnvConfigure.KEY_WORK_MODE,MsgCodeUtils.STATUE_CLEAN_AREA_EDIT);
+        params.put(EnvConfigure.KEY_PATH,EnvConfigure.KEY_WORK_MODE);
+        params.put(EnvConfigure.KEY_ITEMS,workMode);
+        params.put(EnvConfigure.KEY_TAG,MsgCodeUtils.STATUE_CLEAN_AREA_EDIT+"");
+        return params;
+    }
+
 
     public HashMap<String,Object> setVirtualWall(byte[] virtualContentBytes) {
         return params;
@@ -215,6 +234,7 @@ public class AliSkills {
         params.put(EnvConfigure.KEY_TAG,EnvConfigure.VALUE_SET_MAX+"");
         return params;
     }
+
 
 
 }

@@ -24,7 +24,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/dp_64"
                 android:text="@string/robot_connected"
-                android:textColor="@color/color_ff4d00"
+                android:textColor="@color/color_theme"
                 android:textSize="34sp" />
 
             <ImageView
@@ -55,7 +55,7 @@
                 android:layout_marginTop="@dimen/dp_40"
                 app:containerCornerRadius="@dimen/dp_25"
                 app:containerDeltaLength="@dimen/dp_8"
-                app:containerShadowColor="@color/color_ff4d00_66"
+                app:containerShadowColor="@color/color_theme_66"
                 app:containerShadowRadius="@dimen/dp_6"
                 app:deltaY="@dimen/dp_2"
                 app:enable="true">
