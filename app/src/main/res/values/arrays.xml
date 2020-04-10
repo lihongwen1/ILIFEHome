@@ -17,13 +17,13 @@
         <item>X420</item>
     </string-array>
     <string-array name="array_week">
-        <item>@string/clock_aty_sun</item>
-        <item>@string/clock_aty_mon</item>
-        <item>@string/clock_aty_tues</item>
-        <item>@string/clock_aty_wed</item>
-        <item>@string/clock_aty_thur</item>
-        <item>@string/clock_aty_fri</item>
-        <item>@string/clock_aty_sat</item>
+        <item>@string/week_sunday_full</item>
+        <item>@string/week_monday_full</item>
+        <item>@string/week_tuesday_full</item>
+        <item>@string/week_wednesday_full</item>
+        <item>@string/week_thursday_full</item>
+        <item>@string/week_friday_full</item>
+        <item>@string/week_saturday_full</item>
     </string-array>
     <string-array name="array_question_type">
         <item>@string/help_question_device</item>
@@ -31,14 +31,13 @@
         <item>@string/help_question_other</item>
     </string-array>
     <array name="text_week">
-        <item></item>
-        <item>@string/week_monday</item>
-        <item>@string/week_tuesday</item>
-        <item>@string/week_wednesday</item>
-        <item>@string/week_thursday</item>
-        <item>@string/week_friday</item>
-        <item>@string/week_saturday</item>
-        <item>@string/week_sunday</item>
+        <item>@string/week_sunday_full</item>
+        <item>@string/week_monday_full</item>
+        <item>@string/week_tuesday_full</item>
+        <item>@string/week_wednesday_full</item>
+        <item>@string/week_thursday_full</item>
+        <item>@string/week_friday_full</item>
+        <item>@string/week_saturday_full</item>
     </array>
     <array name="text_mode">
         <item>@string/setting_aty_nav_clean</item>

@@ -3,6 +3,7 @@ package com.ilife.home.robot.adapter;
 import androidx.annotation.NonNull;
 
 import com.aliyun.iot.aep.sdk.contant.MsgCodeUtils;
+import com.huawei.android.hms.agent.common.UIUtils;
 import com.ilife.home.robot.R;
 import com.ilife.home.robot.able.DeviceUtils;
 import com.ilife.home.robot.app.MyApplication;
@@ -10,6 +11,7 @@ import com.ilife.home.robot.base.BaseQuickAdapter;
 import com.ilife.home.robot.base.BaseViewHolder;
 import com.ilife.home.robot.entity.NewClockInfo;
 import com.ilife.home.robot.utils.DataUtils;
+import com.ilife.home.robot.utils.UiUtil;
 
 import java.util.List;
 
@@ -46,20 +48,20 @@ public class ClockAdapter extends BaseQuickAdapter<NewClockInfo, BaseViewHolder>
         String area = "";
         switch (info.getType()) {
             case 0:
-                area = "默认";
+                area = UiUtil.getString(R.string.clock_area_default);
                 break;
             case 1:
-                area = "划区";
+                area = UiUtil.getString(R.string.clock_area_clean_area);
                 break;
             case 2:
-                area = "选房";
+                area =UiUtil.getString(R.string.clock_area_choose_room);
                 break;
         }
         if (info.getMode() == 0) {
             info.setMode(MsgCodeUtils.STATUE_PLANNING);
         }
         sb.append(area).append("|")
-                .append(info.getTimes() + "次");
+                .append(DataUtils.getScheduleTimes(info.getTimes()));
     return sb.toString();
     }
 }

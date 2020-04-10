@@ -37,6 +37,7 @@ import com.ilife.home.robot.utils.TimePickerUIUtil;
 import com.ilife.home.robot.R;
 import com.ilife.home.robot.adapter.ClockAdapter;
 import com.ilife.home.robot.entity.NewClockInfo;
+import com.ilife.home.robot.utils.UiUtil;
 import com.ilife.home.robot.utils.Utils;
 import com.ilife.home.robot.view.SpaceItemDecoration;
 import com.scwang.smartrefresh.layout.SmartRefreshLayout;
@@ -107,8 +108,7 @@ public class ClockingActivity extends BackBaseActivity {
 
     @OnClick(R.id.ivb_add_clock)
     public void onClick(View view) {
-        Intent intent = new Intent(ClockingActivity.this, ClockEditActivity.class);
-        startActivity(intent);
+        ToastUtils.showToast(UiUtil.getString(R.string.schedule_max_num_tip));
     }
 
     @Override

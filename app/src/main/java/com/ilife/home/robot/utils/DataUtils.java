@@ -7,6 +7,7 @@ import android.graphics.RectF;
 import android.util.Base64;
 import android.view.MotionEvent;
 
+import com.ilife.home.robot.R;
 import com.ilife.home.robot.bean.Coordinate;
 import com.ilife.home.robot.bean.MapDataBean;
 import com.ilife.home.robot.bean.PartitionBean;
@@ -364,29 +365,46 @@ public class DataUtils {
             if (DataUtils.getBit((byte) week, i) == 1) {
                 switch (i) {
                     case 0:
-                        weekStr.append("周一");
+                        weekStr.append(UiUtil.getString(R.string.week_monday));
                         break;
                     case 1:
-                        weekStr.append("周二");
+                        weekStr.append(UiUtil.getString(R.string.week_tuesday));
                         break;
                     case 2:
-                        weekStr.append("周三");
+                        weekStr.append(UiUtil.getString(R.string.week_wednesday));
                         break;
                     case 3:
-                        weekStr.append("周四");
+                        weekStr.append(UiUtil.getString(R.string.week_thursday));
                         break;
                     case 4:
-                        weekStr.append("周五");
+                        weekStr.append(UiUtil.getString(R.string.week_friday));
                         break;
                     case 5:
-                        weekStr.append("周六");
+                        weekStr.append(UiUtil.getString(R.string.week_saturday));
                         break;
                     case 6:
-                        weekStr.append("周日");
+                        weekStr.append(UiUtil.getString(R.string.week_sunday));
                         break;
                 }
             }
         }
         return weekStr.toString();
+    }
+
+    public static String getScheduleTimes(int times) {
+        String value="";
+        switch (times) {
+            case 0:
+            case 1:
+                value=UiUtil.getString(R.string.schedule_onece);
+                break;
+            case 2:
+                value=UiUtil.getString(R.string.schedule_twice);
+                break;
+            case 3:
+                value=UiUtil.getString(R.string.schedule_third);
+                break;
+        }
+        return value;
     }
 }

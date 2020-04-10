@@ -63,12 +63,9 @@ public class ClockEditActivity extends BackBaseActivity {
             mClockInfo = new NewClockInfo();
         }
         LiveEventBus.get(ScheduleAreaActivity.LIVE_BUS_SCHEDULE_AREA_TYPE, Integer.class)
-                .observe(this, new Observer<Integer>() {
-                    @Override
-                    public void onChanged(Integer type) {
-                        mClockInfo.setType(type);
-                        setScheduleArea(mClockInfo.getType());
-                    }
+                .observe(this, type -> {
+                    mClockInfo.setType(type);
+                    setScheduleArea(mClockInfo.getType());
                 });
         LiveEventBus.get(ScheduleAreaActivity.LIVE_BUS_SCHEDULE_AREA_DATA, String.class)
                 .observe(this, s -> {
@@ -88,7 +85,7 @@ public class ClockEditActivity extends BackBaseActivity {
 
     @Override
     public void initView() {
-        tv_title.setText("定时预约");
+        tv_title.setText(R.string.clock_aty_appoint);
         setScheduleTime(mClockInfo.getHour(), mClockInfo.getMinute());
         setScheduleLoop(mClockInfo.getWeek());
         setScheduleMode(mClockInfo.getMode());
@@ -114,20 +111,20 @@ public class ClockEditActivity extends BackBaseActivity {
     }
 
     private void setScheduleTimes(int times) {
-        tv_schedule_times.setText(times + "次");
+        tv_schedule_times.setText(DataUtils.getScheduleTimes(times));
     }
 
     private void setScheduleArea(int type) {
         String area = "";
         switch (type) {
             case 0:
-                area = "默认";
+                area = UiUtil.getString(R.string.clock_area_default);
                 break;
             case 1:
-                area = "划区";
+                area = UiUtil.getString(R.string.clock_area_clean_area);
                 break;
             case 2:
-                area = "选房";
+                area =UiUtil.getString(R.string.clock_area_choose_room);
                 break;
         }
         tv_schedule_area.setText(area);
@@ -141,15 +138,15 @@ public class ClockEditActivity extends BackBaseActivity {
                 break;
             case R.id.ll_schedule_loop://预约重复时间
                 mTextSelectorType = 1;
-                showTextSelectorDialog(true, "重复", R.array.text_week, tv_schedule_loop.getText().toString().trim());
+                showTextSelectorDialog(true, UiUtil.getString(R.string.clock_repeat), R.array.text_week, tv_schedule_loop.getText().toString().trim());
                 break;
             case R.id.ll_schedule_mode://预约清扫模式
                 mTextSelectorType = 2;
-                showTextSelectorDialog(false, "清扫模式", R.array.text_mode, tv_schedule_mode.getText().toString().trim());
+                showTextSelectorDialog(false, "", R.array.text_mode, tv_schedule_mode.getText().toString().trim());
                 break;
             case R.id.ll_schedule_times://预约清扫次数
                 mTextSelectorType = 3;
-                showTextSelectorDialog(false, "清扫次数", R.array.text_clean_times, tv_schedule_times.getText().toString().trim());
+                showTextSelectorDialog(false, UiUtil.getString(R.string.clock_clean_times), R.array.text_clean_times, tv_schedule_times.getText().toString().trim());
                 break;
             case R.id.ll_schedule_area://预约清扫区域
                 Intent intent = new Intent(ClockEditActivity.this, ScheduleAreaActivity.class);

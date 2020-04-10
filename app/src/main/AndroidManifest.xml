@@ -158,10 +158,6 @@
             android:launchMode="singleTop"
             android:screenOrientation="portrait" />
         <activity
-            android:name="com.ilife.home.robot.activity.PersonalInformationActivity"
-            android:launchMode="singleTop"
-            android:screenOrientation="portrait" />
-        <activity
             android:name=".activity.ConsumerDetailActivity"
             android:launchMode="singleTop"
             android:screenOrientation="portrait" />

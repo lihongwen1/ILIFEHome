@@ -4,9 +4,9 @@
   "robot": [
     {
       "productKey": "a2n0QiJDnzc",
-      "factoryType": "X800",
-      "robotType": "X800",
-      "settingRobot": "X800",
+      "factoryType": "X801",
+      "robotType": "X801",
+      "settingRobot": "X801",
       "faceImg": "n_x800",
       "openPowerImg": "pic_open_power",
       "readyWifiImg": "pic_start",

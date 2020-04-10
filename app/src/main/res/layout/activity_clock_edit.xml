@@ -202,6 +202,6 @@
             android:layout_height="@dimen/dp_48"
             android:layout_weight="1"
             android:background="@drawable/shape_bg_color"
-            android:text="@string/save_and_back" />
+            android:text="@string/btn_save" />
     </LinearLayout>
 </LinearLayout>

@@ -21,7 +21,7 @@ public class DeviceUtils {
         String strError = "";
         switch (code) {
             case 0:
-                strError ="";
+                strError = "";
                 break;
             case 1:
                 strError = context.getString(R.string.adapter_error_bxg);
@@ -142,7 +142,7 @@ public class DeviceUtils {
                 str = context.getString(R.string.map_aty_point_ing);
             } else if (b == MsgCodeUtils.STATUE_PLANNING) {
                 str = context.getString(R.string.map_aty_plan_mode);
-            } else if (b == MsgCodeUtils.STATUE_VIRTUAL_EDIT||b==MsgCodeUtils.STATUE_CLEAN_AREA_EDIT) {
+            } else if (b == MsgCodeUtils.STATUE_VIRTUAL_EDIT || b == MsgCodeUtils.STATUE_CLEAN_AREA_EDIT) {
                 str = context.getString(R.string.map_aty_edit_mode);
             } else if (b == MsgCodeUtils.STATUE_RECHARGE) {
                 str = context.getString(R.string.map_aty_recharging);
@@ -158,7 +158,14 @@ public class DeviceUtils {
                 str = context.getString(R.string.map_aty_temp_keypoint);
             } else if (b == MsgCodeUtils.STATUE_CLEAN_AREA) {//区域清扫
                 str = context.getString(R.string.map_status_clean_area);
-            }if (b == MsgCodeUtils.STATUE_CLEAN_ROOM) {//选房清扫
+            }
+            if (b == MsgCodeUtils.STATUE_CLEAN_ROOM) {//选房清扫
+                str = context.getString(R.string.map_status_select_room);
+            }
+            if (b == MsgCodeUtils.STATUE_CHARGING_BASE_SLEEP) {//充电座休眠
+                str = context.getString(R.string.map_status_select_room);
+            }
+            if (b == MsgCodeUtils.STATUE_CHARGING_ADAPTER_SLEEP) {//适配器充电休眠
                 str = context.getString(R.string.map_status_select_room);
             }
         }

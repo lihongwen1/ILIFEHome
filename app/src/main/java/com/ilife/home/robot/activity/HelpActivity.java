@@ -258,25 +258,6 @@ public class HelpActivity extends BackBaseActivity implements View.OnClickListen
                     questionTypeDialog.show(getSupportFragmentManager(), "text_question");
                 }
                 break;
-            case R.id.rl_photo:
-                AlertDialogUtils.hidden(alertDialog);
-                Intent intent_capture = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                    takePicUri = FileProvider.getUriForFile(context, getApplication().getPackageName() + ".provider", captureFile);
-                    intent_capture.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-                    intent_capture.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
-                } else {
-                    takePicUri = Uri.fromFile(captureFile);
-                }
-                intent_capture.putExtra(MediaStore.EXTRA_OUTPUT, takePicUri);
-                startActivityForResult(intent_capture, CAPTURE);
-                break;
-            case R.id.rl_album:
-                AlertDialogUtils.hidden(alertDialog);
-                Intent intent = new Intent(Intent.ACTION_PICK, null);
-                intent.setDataAndType(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, "image/*");
-                startActivityForResult(intent, ALBUM);
-                break;
             case R.id.bt_confirm:
 
                 String robotType = tv_type.getText().toString().trim();

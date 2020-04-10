@@ -273,15 +273,14 @@ public abstract class BaseMapActivity extends BackBaseActivity<MapX9Presenter> i
                     startActivity(new Intent(BaseMapActivity.this, VirtualWallActivity.class));
                     break;
                 case 1://选房清扫
-                    if (mPresenter.getCurStatus() == MsgCodeUtils.STATUE_CHARGING || mPresenter.getCurStatus() == MsgCodeUtils.STATUE_CHARING_BASE_SLEEP) {
+                    if (mPresenter.getCurStatus() == MsgCodeUtils.STATUE_CHARGING || mPresenter.getCurStatus() == MsgCodeUtils.STATUE_CHARGING_BASE_SLEEP) {
                         startActivity(new Intent(BaseMapActivity.this, SelectRoomActivity.class));
                     } else {
-                        startActivity(new Intent(BaseMapActivity.this, SelectRoomActivity.class));
                         ToastUtils.showToast(MyApplication.getInstance(), Utils.getString(R.string.map_aty_can_not_execute));
                     }
                     break;
                 case 2://划区清扫
-                    if (mPresenter.getCurStatus() == MsgCodeUtils.STATUE_CHARGING || mPresenter.getCurStatus() == MsgCodeUtils.STATUE_CHARING_BASE_SLEEP) {
+                    if (mPresenter.getCurStatus() == MsgCodeUtils.STATUE_CHARGING || mPresenter.getCurStatus() == MsgCodeUtils.STATUE_CHARGING_BASE_SLEEP) {
                         startActivity(new Intent(BaseMapActivity.this, CleanAreaActivity.class));
                     } else {
                         ToastUtils.showToast(MyApplication.getInstance(), Utils.getString(R.string.map_aty_can_not_execute));
@@ -290,7 +289,7 @@ public abstract class BaseMapActivity extends BackBaseActivity<MapX9Presenter> i
                 case 3://选择地图
                     int status = mPresenter.getCurStatus();
                     if (status == MsgCodeUtils.STATUE_CHARGING || status == MsgCodeUtils.STATUE_CHARGING_ || status == MsgCodeUtils.STATUE_SLEEPING ||
-                            status == MsgCodeUtils.STATUE_CHARING_ADAPTER_SLEEP || status == MsgCodeUtils.STATUE_CHARING_BASE_SLEEP
+                            status == MsgCodeUtils.STATUE_CHARGING_ADAPTER_SLEEP || status == MsgCodeUtils.STATUE_CHARGING_BASE_SLEEP
                             || status == MsgCodeUtils.STATUE_WAIT) {
                         startActivity(new Intent(BaseMapActivity.this, SelectSaveMapActivity.class));
                     } else {

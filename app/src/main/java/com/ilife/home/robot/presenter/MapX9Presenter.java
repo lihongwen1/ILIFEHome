@@ -519,7 +519,7 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
     private String getTimeValue() {
         int min = (int) (workTime / 60f);
         if (curStatus == MsgCodeUtils.STATUE_RECHARGE || !havMapData || (!isDrawMap() && curStatus != MsgCodeUtils.STATUE_RANDOM && curStatus != MsgCodeUtils.STATUE_TEMPORARY_POINT)) {
-            return Utils.getString(R.string.map_aty_gang);
+            return "——";
         } else {
             return min + "min";
         }
