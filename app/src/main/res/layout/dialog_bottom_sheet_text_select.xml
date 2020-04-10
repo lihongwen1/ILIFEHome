@@ -10,7 +10,7 @@
         android:id="@+id/tv_text_selector_title"
         style="@style/Text_18sp_33"
         android:layout_marginTop="@dimen/dp_30"
-        android:text="重复" />
+        android:text="@string/clock_repeat" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rv_text_selector"
@@ -34,7 +34,7 @@
             android:layout_height="@dimen/dp_48"
             android:layout_weight="1"
             android:background="@drawable/shape_bg_gray"
-            android:text="取消" />
+            android:text="@string/cancel_" />
 
         <Space
             android:layout_width="@dimen/dp_20"
@@ -46,6 +46,6 @@
             android:layout_height="@dimen/dp_48"
             android:layout_weight="1"
             android:background="@drawable/shape_bg_color"
-            android:text="保存" />
+            android:text="@string/btn_save" />
     </LinearLayout>
 </LinearLayout>

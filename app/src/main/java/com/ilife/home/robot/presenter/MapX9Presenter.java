@@ -506,7 +506,7 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
         BigDecimal bg = new BigDecimal(cleanArea / 100.0f);
         double area = bg.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue();
         if (curStatus == MsgCodeUtils.STATUE_RECHARGE || !havMapData || (!isDrawMap() && curStatus != MsgCodeUtils.STATUE_RANDOM && curStatus != MsgCodeUtils.STATUE_TEMPORARY_POINT)) {
-            return Utils.getString(R.string.map_aty_gang);
+            return "——";
         } else {
             String areaStr = area + "㎡";
             if (areaStr.equals("0.0㎡")) {
@@ -665,7 +665,8 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
                         mView.drawForbiddenArea(fbd);
                     }
                     //处理清扫区域
-                    if (!TextUtils.isEmpty(cleanAreaData)) {
+                    if ((curStatus == MsgCodeUtils.STATUE_CLEAN_AREA || curStatus == MsgCodeUtils.STATUE_CLEAN_ROOM) &&
+                            !TextUtils.isEmpty(cleanAreaData)) {
                         JSONObject json = JSON.parseObject(cleanAreaData);
                         int times = json.getIntValue("CleanLoop");
                         int cleanedTimes = times >> 4;

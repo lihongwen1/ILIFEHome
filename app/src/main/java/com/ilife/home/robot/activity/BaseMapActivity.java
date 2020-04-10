@@ -238,7 +238,7 @@ public abstract class BaseMapActivity extends BackBaseActivity<MapX9Presenter> i
      * 初始化底部操作栏
      */
     private void initBottomSheet() {
-        String[] functions = new String[]{"虚拟墙/禁区", "选房清扫", "划区清扫", "选择地图", "寻找机器"};
+        String[] functions = getResources().getStringArray(R.array.text_map_sheet_function);
         rv_bottom_sheet.setLayoutManager(new GridLayoutManager(this, 3));
         MapBottomSheetAdapter adapter = new MapBottomSheetAdapter(R.layout.item_map_function, Arrays.asList(functions));
         rv_bottom_sheet.setAdapter(adapter);
@@ -276,6 +276,7 @@ public abstract class BaseMapActivity extends BackBaseActivity<MapX9Presenter> i
                     if (mPresenter.getCurStatus() == MsgCodeUtils.STATUE_CHARGING || mPresenter.getCurStatus() == MsgCodeUtils.STATUE_CHARING_BASE_SLEEP) {
                         startActivity(new Intent(BaseMapActivity.this, SelectRoomActivity.class));
                     } else {
+                        startActivity(new Intent(BaseMapActivity.this, SelectRoomActivity.class));
                         ToastUtils.showToast(MyApplication.getInstance(), Utils.getString(R.string.map_aty_can_not_execute));
                     }
                     break;
@@ -410,16 +411,7 @@ public abstract class BaseMapActivity extends BackBaseActivity<MapX9Presenter> i
 
     }
 
-    /**
-     * 选择进入电子墙编辑模式
-     * 显示电子墙操作UI
-     */
-    private void showSetWallDialog() {
-        UniversalDialog universalDialog = new UniversalDialog();
-        universalDialog.setDialogType(UniversalDialog.TYPE_NORMAL).setTitle(Utils.getString(R.string.map_aty_set_wall))
-                .setHintTip(Utils.getString(R.string.map_aty_will_stop)).setOnRightButtonClck(() ->
-                mPresenter.enterVirtualMode()).show(getSupportFragmentManager(), "add_wall");
-    }
+
 
 
     /**
@@ -768,12 +760,7 @@ public abstract class BaseMapActivity extends BackBaseActivity<MapX9Presenter> i
 
     @Override
     public void showVirtualWallTip() {
-        if (virtualWallTipDialog == null) {
-            virtualWallTipDialog = new UniversalDialog();
-            virtualWallTipDialog.setDialogType(UniversalDialog.TYPE_NORMAL_MID_BUTTON).setTitle(Utils.getString(R.string.virtual_tip_title))
-                    .setHintTip(Utils.getString(R.string.virtual_wall_use_tip), Gravity.LEFT, getResources().getColor(R.color.color_33));
-        }
-        virtualWallTipDialog.show(getSupportFragmentManager(), "virtual_wall_tip");
+
     }
 
     @Override

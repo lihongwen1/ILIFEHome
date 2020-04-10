@@ -6,7 +6,7 @@
         <item>V3x</item>
         <item>X787</item>
         <item>X451</item>
-        <item>X800分房</item>
+        <item>X801</item>
     </string-array>
 
     <string-array name="array_oversea_device_type">
@@ -28,26 +28,32 @@
     <string-array name="array_question_type">
         <item>@string/help_question_device</item>
         <item>@string/help_question_binding</item>
-        <!--        <item>@string/help_question_advice</item>-->
-        <!--        <item>@string/help_question_app</item>-->
         <item>@string/help_question_other</item>
     </string-array>
     <array name="text_week">
-        <item>周日</item>
-        <item>周一</item>
-        <item>周二</item>
-        <item>周三</item>
-        <item>周四</item>
-        <item>周五</item>
-        <item>周六</item>
+        <item></item>
+        <item>@string/week_monday</item>
+        <item>@string/week_tuesday</item>
+        <item>@string/week_wednesday</item>
+        <item>@string/week_thursday</item>
+        <item>@string/week_friday</item>
+        <item>@string/week_saturday</item>
+        <item>@string/week_sunday</item>
     </array>
     <array name="text_mode">
-        <item>规划清扫</item>
-        <item>随机清扫</item>
+        <item>@string/setting_aty_nav_clean</item>
+        <item>@string/setting_aty_random_clean</item>
     </array>
     <array name="text_clean_times">
-        <item>1次</item>
-        <item>2次</item>
-        <item>3次</item>
+        <item>@string/clean_times_1</item>
+        <item>@string/clean_times_2</item>
+        <item>@string/clean_times_3</item>
+    </array>
+    <array name="text_map_sheet_function">
+        <item>@string/map_bottom_sheet_vir_fbd</item>
+        <item>@string/map_bottom_sheet_select_room</item>
+        <item>@string/map_bottom_sheet_clean_area</item>
+        <item>@string/map_bottom_sheet_select_map</item>
+        <item>@string/map_bottom_sheet_find_robot</item>
     </array>
 </resources>

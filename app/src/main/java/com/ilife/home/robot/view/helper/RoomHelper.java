@@ -16,6 +16,7 @@ import com.ilife.home.robot.utils.Utils;
 import com.ilife.home.robot.view.MapView;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -51,16 +52,22 @@ public class RoomHelper {
      *
      * @param data
      */
-    public void drawRoom( String data) {
+    public void drawRoom(String data) {
         byte[] bytes = Base64.decode(data, Base64.DEFAULT);
         int num = bytes.length / 8;
         int partionId, x, y;
-        int tag=65;
-        for (int i = num-1; i>=0; i--) {
+
+        for (int i = 0; i < num; i++) {
             partionId = DataUtils.bytesToInt(new byte[]{bytes[i * 8], bytes[i * 8 + 1], bytes[i * 8 + 2], bytes[i * 8 + 3]});
             x = DataUtils.bytesToInt(bytes[i * 8 + 4], bytes[i * 8 + 5]);
-            y =- DataUtils.bytesToInt(bytes[i * 8 + 6], bytes[i * 8 + 7]);
-            rooms.add(new PartitionBean(partionId, x, y,(char)tag));
+            y = -DataUtils.bytesToInt(bytes[i * 8 + 6], bytes[i * 8 + 7]);
+            rooms.add(new PartitionBean(partionId, x, y));
+
+        }
+        Collections.sort(rooms);
+        int tag = 65;
+        for (PartitionBean room : rooms) {
+            room.setTag(String.valueOf((char)tag));
             tag++;
         }
         Path circle = new Path();
@@ -111,8 +118,9 @@ public class RoomHelper {
         }
         mMapView.invalidateUI();
     }
-    public boolean isRoomSelected(int roomId){
-        return selecRoom.indexOfKey(roomId)>=0;
+
+    public boolean isRoomSelected(int roomId) {
+        return selecRoom.indexOfKey(roomId) >= 0;
 
     }
 

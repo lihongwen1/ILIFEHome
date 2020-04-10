@@ -68,9 +68,9 @@
     },
     {
       "productKey": "a1EBXRXFnvx",
-      "factoryType": "X800分房",
-      "robotType": "X800分房",
-      "settingRobot": "X800分房",
+      "factoryType": "X801",
+      "robotType": "X801",
+      "settingRobot": "X801",
       "faceImg": "n_x800",
       "openPowerImg": "pic_open_power",
       "readyWifiImg": "pic_start",

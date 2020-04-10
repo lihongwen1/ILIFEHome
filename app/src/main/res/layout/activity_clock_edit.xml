@@ -17,7 +17,7 @@
 
         <TextView
             style="@style/Text_16sp_33"
-            android:text="预约时间" />
+            android:text="@string/clock_schedule_time" />
 
         <Space
             android:layout_width="0dp"
@@ -51,7 +51,7 @@
 
         <TextView
             style="@style/Text_16sp_33"
-            android:text="重复" />
+            android:text="@string/clock_repeat" />
 
         <Space
             android:layout_width="0dp"
@@ -61,7 +61,7 @@
         <TextView
             android:id="@+id/tv_schedule_loop"
             style="@style/Text_14sp_66"
-            android:text="周一" />
+            android:text="@string/week_monday" />
 
         <ImageView
             style="@style/Image_Style_Forward"
@@ -86,7 +86,7 @@
 
         <TextView
             style="@style/Text_16sp_33"
-            android:text="清扫模式" />
+            android:text="@string/setting_aty_clean_mode1" />
 
         <Space
             android:layout_width="0dp"
@@ -96,7 +96,7 @@
         <TextView
             android:id="@+id/tv_schedule_mode"
             style="@style/Text_14sp_66"
-            android:text="规划清扫" />
+            android:text="@string/setting_aty_nav_clean" />
 
         <ImageView
             style="@style/Image_Style_Forward"
@@ -120,7 +120,7 @@
 
         <TextView
             style="@style/Text_16sp_33"
-            android:text="清扫次数" />
+            android:text="@string/clock_clean_times" />
 
         <Space
             android:layout_width="0dp"
@@ -154,7 +154,7 @@
 
         <TextView
             style="@style/Text_16sp_33"
-            android:text="选择区域" />
+            android:text="@string/clock_edit_choose_area" />
 
         <Space
             android:layout_width="0dp"
@@ -164,7 +164,7 @@
         <TextView
             android:id="@+id/tv_schedule_area"
             style="@style/Text_14sp_66"
-            android:text="默认" />
+            android:text="@string/clock_area_default" />
 
         <ImageView
             style="@style/Image_Style_Forward"
@@ -190,7 +190,7 @@
             android:layout_height="@dimen/dp_48"
             android:layout_weight="1"
             android:background="@drawable/shape_bg_gray"
-            android:text="取消" />
+            android:text="@string/cancel_" />
 
         <Space
             android:layout_width="@dimen/dp_20"
@@ -202,6 +202,6 @@
             android:layout_height="@dimen/dp_48"
             android:layout_weight="1"
             android:background="@drawable/shape_bg_color"
-            android:text="保存" />
+            android:text="@string/save_and_back" />
     </LinearLayout>
 </LinearLayout>

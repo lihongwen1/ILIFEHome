@@ -36,7 +36,7 @@
             style="@style/Text_10sp_99"
             android:includeFontPadding="false"
             android:layout_marginTop="@dimen/dp_5"
-            android:text="默认|规划清扫|0次"
+            android:text=""
             />
 
     </LinearLayout>

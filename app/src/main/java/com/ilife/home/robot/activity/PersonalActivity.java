@@ -178,8 +178,6 @@ public class PersonalActivity extends BackBaseActivity implements View.OnClickLi
                     } else {
                         ToastUtils.showToast(context, getString(R.string.personal_aty_no_shareable));
                     }
-                } else {
-                    ToastUtils.showToast(context, getString(R.string.personal_aty_login_first));
                 }
                 break;
         }

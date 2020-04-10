@@ -11,7 +11,7 @@
     <TextView
         android:id="@+id/tv_text_selector"
         style="@style/Text_16sp_text_selector"
-        android:text="周一" />
+        android:text="@string/week_monday" />
 
     <Space
         android:layout_width="0dp"

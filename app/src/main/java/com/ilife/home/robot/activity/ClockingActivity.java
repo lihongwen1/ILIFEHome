@@ -131,7 +131,6 @@ public class ClockingActivity extends BackBaseActivity {
         IlifeAli.getInstance().setProperties(jso, aBoolean -> {
             if (aBoolean) {
                 adapter.notifyDataSetChanged();
-                ToastUtils.showToast("设置预约数据成功");
             } else {
                 clockInfo.setOpen(clockInfo.getOpen() == 1 ? 0 : 1);
             }

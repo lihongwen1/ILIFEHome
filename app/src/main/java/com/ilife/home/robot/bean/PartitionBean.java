@@ -4,18 +4,17 @@ import android.graphics.PointF;
 import android.graphics.RectF;
 import android.graphics.Region;
 
-public class PartitionBean {
+public class PartitionBean implements Comparable<PartitionBean>{
     private int partitionId;
     private int x;
     private int y;
     private String tag;
     private Region region;
     private RectF tagIcon;
-    public PartitionBean(int partitionId, int x, int y, char tag) {
+    public PartitionBean(int partitionId, int x, int y) {
         this.partitionId = partitionId;
         this.x = x;
         this.y = y;
-        this.tag=String.valueOf(tag);
     }
 
     public int getPartitionId() {
@@ -64,5 +63,10 @@ public class PartitionBean {
 
     public void setTag(String tag) {
         this.tag = tag;
+    }
+
+    @Override
+    public int compareTo(PartitionBean o) {
+        return partitionId-o.getPartitionId();
     }
 }

@@ -18,7 +18,7 @@
         android:id="@+id/tv_use_tip_title"
         style="@style/Text_16sp_33"
         android:layout_marginTop="@dimen/dp_24"
-        android:text="整理清扫环境"
+        android:text="@string/use_tip_lean_environment"
         android:textStyle="bold" />
 
     <LinearLayout
@@ -78,7 +78,7 @@
         android:layout_marginBottom="@dimen/dp_30"
         android:background="@drawable/n_all_bt_bg"
         android:gravity="center"
-        android:text="知道了"
+        android:text="@string/tip_i_know"
         android:textColor="@color/white"
         android:textSize="@dimen/sp_16" />
 </LinearLayout>

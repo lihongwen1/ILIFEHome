@@ -293,7 +293,6 @@ public class MapView extends View {
         MyLogger.d(TAG, "----------drawMapX8---------数据长度：   " + dataList.size());
         drawBoxMapX8(dataList);
         slamCanvas.drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR);
-        slamCanvas.drawColor(getResources().getColor(R.color.color_theme));
         /**
          * 绘制已清扫区域
          */

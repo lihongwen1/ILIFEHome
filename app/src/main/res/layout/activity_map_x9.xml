@@ -44,7 +44,7 @@
                     android:layout_below="@+id/tv_2"
                     android:layout_centerHorizontal="true"
                     android:layout_marginTop="@dimen/dp_4"
-                    android:text="@string/map_aty_gang" />
+                    android:text="——" />
             </RelativeLayout>
 
             <View
@@ -70,7 +70,7 @@
                     android:layout_below="@+id/tv_3"
                     android:layout_centerHorizontal="true"
                     android:layout_marginTop="@dimen/dp_4"
-                    android:text="@string/map_aty_gang" />
+                    android:text="——" />
             </RelativeLayout>
 
             <View
@@ -242,7 +242,6 @@
                         android:layout_gravity="end"
                         android:layout_marginTop="@dimen/dp_16"
                         android:layout_marginEnd="@dimen/dp_16"
-                        android:text="@string/ota_aty_back"
                         android:textColor="@color/color_theme"
                         android:textSize="16sp" />
 

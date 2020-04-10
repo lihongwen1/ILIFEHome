@@ -36,7 +36,7 @@
                     style="@style/text_button_16"
                     android:background="@drawable/selector_retangle_bg__theme"
                     android:button="@null"
-                    android:text="默认"
+                    android:text="@string/clock_area_default"
                     android:textColor="@color/color_white_33_selector" />
 
                 <RadioButton
@@ -44,7 +44,7 @@
                     style="@style/text_button_16"
                     android:background="@drawable/selector_retangle_bg__theme"
                     android:button="@null"
-                    android:text="选房"
+                    android:text="@string/clock_area_choose_room"
                     android:textColor="@color/color_white_33_selector" />
 
                 <RadioButton
@@ -52,7 +52,7 @@
                     style="@style/text_button_16"
                     android:background="@drawable/selector_retangle_bg__theme"
                     android:button="@null"
-                    android:text="划区"
+                    android:text="@string/clock_area_clean_area"
                     android:textColor="@color/color_white_33_selector" />
             </RadioGroup>
         </LinearLayout>

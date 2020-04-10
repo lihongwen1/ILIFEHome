@@ -21,7 +21,7 @@ public class DeviceUtils {
         String strError = "";
         switch (code) {
             case 0:
-                strError = context.getString(R.string.adapter_error_no_error);
+                strError ="";
                 break;
             case 1:
                 strError = context.getString(R.string.adapter_error_bxg);
@@ -157,9 +157,9 @@ public class DeviceUtils {
             } else if (b == MsgCodeUtils.STATUE_TEMPORARY_POINT) {
                 str = context.getString(R.string.map_aty_temp_keypoint);
             } else if (b == MsgCodeUtils.STATUE_CLEAN_AREA) {//区域清扫
-                str = "区域清扫";
+                str = context.getString(R.string.map_status_clean_area);
             }if (b == MsgCodeUtils.STATUE_CLEAN_ROOM) {//选房清扫
-                str = "选房清扫";
+                str = context.getString(R.string.map_status_select_room);
             }
         }
         return str;
