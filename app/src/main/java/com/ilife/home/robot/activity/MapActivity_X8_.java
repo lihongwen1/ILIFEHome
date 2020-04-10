@@ -27,7 +27,6 @@ public class MapActivity_X8_ extends BaseMapActivity {
         iv_recharge_model.setImageResource(robotPic);
         iv_point_robot.setImageResource(robotPic);
         iv_along_robot.setImageResource(robotPic);
-        tv_appointment_x9.setVisibility(View.VISIBLE);
         tv_recharge_x9.setVisibility(View.GONE);
     }
 

@@ -30,7 +30,7 @@
             android:layout_width="@dimen/dp_110"
             android:layout_height="@dimen/dp_110"
             android:layout_below="@+id/image_left"
-            android:background="@drawable/may_max_bg"
+            android:background="@drawable/btn_control_max_bottom_default"
             android:scaleType="fitXY" />
 
         <ImageView

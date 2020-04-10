@@ -1,19 +1,25 @@
 package com.ilife.home.robot.activity;
 
 import android.content.Intent;
+import android.os.Handler;
+import android.os.Message;
 import android.text.TextUtils;
 import android.util.Base64;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.aliyun.iot.aep.sdk._interface.OnAliResponse;
+import com.aliyun.iot.aep.sdk.bean.HistoryRecordBean;
 import com.aliyun.iot.aep.sdk.bean.PropertyBean;
 import com.aliyun.iot.aep.sdk.contant.IlifeAli;
+import com.badoo.mobile.util.WeakHandler;
 import com.ilife.home.robot.R;
 import com.ilife.home.robot.adapter.SelectMapAdapter;
 import com.ilife.home.robot.base.BackBaseActivity;
+import com.ilife.home.robot.fragment.UniversalDialog;
 import com.ilife.home.robot.utils.MyLogger;
 import com.ilife.home.robot.utils.ToastUtils;
 import com.ilife.home.robot.utils.Utils;
@@ -38,45 +44,86 @@ public class SelectSaveMapActivity extends BackBaseActivity {
     private SelectMapAdapter mAdapter;
     private List<Integer> ids = new ArrayList<>();
     private long selectMapId;
+    private UniversalDialog mDeleteMapDialog;
+    private List<HistoryRecordBean> saveMapBeans = new ArrayList<>();
+    private int selectPosition;
 
     @Override
     public int getLayoutId() {
         return R.layout.activity_select_save_map;
     }
 
+    private WeakHandler weakHandler;
+
     @Override
     public void initView() {
         tv_title.setText("选择地图");
-        mAdapter = new SelectMapAdapter(R.layout.item_save_map, ids);
+        mAdapter = new SelectMapAdapter(R.layout.item_save_map, saveMapBeans);
         rv_save_map.setLayoutManager(new LinearLayoutManager(this));
         rv_save_map.addItemDecoration(new SpaceItemDecoration(Utils.dip2px(this, 20)));
-        rv_save_map.setAdapter(mAdapter);
         mAdapter.setOnItemChildClickListener((adapter, view, position) -> {
+            selectPosition = position;
             switch (view.getId()) {
                 case R.id.tv_apply_this_map:
-                    String str_id = encodeSaveMap(ids);
-                    if (selectMapId == ids.get(position)) {
+                    if (selectMapId == ids.get(selectPosition)) {
                         ToastUtils.showToast("已应用此地图");
                     } else {
-                        IlifeAli.getInstance().setSelectMapId(ids.get(position), str_id, aBoolean -> {
+                        String str_id = encodeSaveMap(ids);
+                        IlifeAli.getInstance().setSelectMapId(ids.get(selectPosition), str_id, aBoolean -> {
                             MyLogger.d(TAG, "选择地图成功：" + aBoolean);
-                            mAdapter.setSelectMapId(ids.get(position));
-                            mAdapter.notifyDataSetChanged();
+                            selectMapId = ids.get(selectPosition);
+                            HistoryRecordBean bean = saveMapBeans.get(selectPosition);
+                            saveMapBeans.remove(bean);
+                            saveMapBeans.add(0, bean);
+                            weakHandler.sendEmptyMessage(1);
                         });
                     }
                     break;
                 case R.id.iv_delete_map:
-                    if (selectMapId == ids.get(position)) {
-                        ToastUtils.showToast("不能删除当前地图");
-                    } else {
-                        ids.remove(position);
-                        IlifeAli.getInstance().setSelectMapId(selectMapId, encodeSaveMap(ids), aBoolean -> {
-                            MyLogger.d(TAG, "选择地图成功：" + aBoolean);
-                            mAdapter.setSelectMapId(ids.get(position));
-                            mAdapter.notifyDataSetChanged();
+                    onDeleteMap();
+                    break;
+            }
+        });
+        rv_save_map.setAdapter(mAdapter);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        IlifeAli.getInstance().getProperties(new OnAliResponse<PropertyBean>() {
+            @Override
+            public void onSuccess(PropertyBean result) {
+                selectMapId = result.getSelectedMapId();
+                String saveMapId = result.getSaveMapId();
+                if (!TextUtils.isEmpty(saveMapId)) {
+                    ids.clear();
+                    ids.addAll(decodeSaveMapId(saveMapId));
+                    for (int id : ids) {
+                        IlifeAli.getInstance().getSelectMap(id, new OnAliResponse<List<HistoryRecordBean>>() {
+                            @Override
+                            public void onSuccess(List<HistoryRecordBean> result) {
+                                if (result != null && result.size() > 0) {
+                                    if (id == selectMapId) {
+                                        saveMapBeans.add(0, result.get(0));
+                                    } else {
+                                        saveMapBeans.add(result.get(0));
+                                    }
+                                }
+                                weakHandler.sendEmptyMessageDelayed(1, 200);
+                            }
+
+                            @Override
+                            public void onFailed(int code, String message) {
+
+                            }
                         });
                     }
-                    break;
+                }
+            }
+
+            @Override
+            public void onFailed(int code, String message) {
+
             }
         });
     }
@@ -84,29 +131,10 @@ public class SelectSaveMapActivity extends BackBaseActivity {
     @Override
     public void initData() {
         super.initData();
-        Intent intent = getIntent();
-        if (intent != null) {
-            IlifeAli.getInstance().getProperties(new OnAliResponse<PropertyBean>() {
-                @Override
-                public void onSuccess(PropertyBean result) {
-                    selectMapId = result.getSelectedMapId();
-                    String saveMapId = result.getSaveMapId();
-                    if (!TextUtils.isEmpty(saveMapId)) {
-                        ids.clear();
-                        ids.addAll(decodeSaveMapId(saveMapId));
-                        runOnUiThread(() -> {
-                            mAdapter.setSelectMapId(selectMapId);
-                            mAdapter.notifyDataSetChanged();
-                        });
-                    }
-                }
-
-                @Override
-                public void onFailed(int code, String message) {
-
-                }
-            });
-        }
+        weakHandler = new WeakHandler(msg -> {
+            mAdapter.notifyDataSetChanged();
+            return false;
+        });
     }
 
     /**
@@ -158,6 +186,27 @@ public class SelectSaveMapActivity extends BackBaseActivity {
         }
         result = Base64.encodeToString(bt, Base64.DEFAULT);
         return result.trim();
+    }
 
+    private void onDeleteMap() {
+        if (mDeleteMapDialog == null) {
+            mDeleteMapDialog = new UniversalDialog();
+            mDeleteMapDialog.setTitle("删除地图").setHintTip("删除后将不再保存该地图记录")
+                    .setOnRightButtonClck(() -> {
+                        if (selectMapId == ids.get(selectPosition)) {
+                            ToastUtils.showToast("不能删除当前地图");
+                        } else {
+                            ids.remove(selectPosition);
+                            saveMapBeans.remove(selectPosition);
+                            IlifeAli.getInstance().setSelectMapId(selectMapId, encodeSaveMap(ids), aBoolean -> {
+                                MyLogger.d(TAG, "删除地图成功：" + aBoolean);
+                                weakHandler.sendEmptyMessage(1);
+                            });
+                        }
+                    });
+        }
+        if (!mDeleteMapDialog.isAdded()) {
+            mDeleteMapDialog.show(getSupportFragmentManager(), "delete_map");
+        }
     }
 }

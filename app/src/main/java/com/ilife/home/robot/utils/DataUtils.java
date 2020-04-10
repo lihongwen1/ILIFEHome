@@ -281,13 +281,20 @@ public class DataUtils {
         }
         Coordinate coordinate;
         if (byteList.size() > 0) {
+            int xMax = 0, yMax = 0;
             int x = 0, y = 0, type = 0, length = 0;
             for (int i = 2; i < byteList.size(); i += 3) {
                 type = byteList.get(i - 1) & 0xff;
                 length = byteList.get(i) & 0xff;
                 for (int j = 0; j < length; j++) {
                     if (type != 0) {
-                        coordinate = new Coordinate( x+leftX, y-leftY, type);
+                        if (x > xMax) {
+                            xMax = x;
+                        }
+                        if (y > yMax) {
+                            yMax = y;
+                        }
+                        coordinate = new Coordinate(x + leftX, y - leftY, type);
                         pointList.add(coordinate);
                     }
                     if (x < lineCount - 1) {
@@ -300,16 +307,16 @@ public class DataUtils {
                 }
             }
             minX = leftX;
-            maxX = lineCount+leftX;
+            maxX = xMax + leftX;
             minY = -leftY;
-            maxY = y-leftY;
+            maxY = yMax - leftY;
             MapDataBean bean = new MapDataBean(pointList, leftX, leftY, minX, minY, maxX, maxY, "");
             return bean;
         }
         return null;
     }
 
-    public static int judgedVirAndCharge(int sx, int sy, int ex, int ey,Point point) {//判断虚拟墙和圆的位置关系
+    public static int judgedVirAndCharge(int sx, int sy, int ex, int ey, Point point) {//判断虚拟墙和圆的位置关系
         double judDis = 0;
         double k = (ey - sy) * 1.0 / (ex - sx);//虚拟墙斜率
         double bn = ey - k * ex;//虚拟墙的截距b
@@ -318,9 +325,9 @@ public class DataUtils {
         double chuiY = k * (chuiX - sx) + sy;
         int cx = (int) chuiX;
         int cy = (int) chuiY;
-        if ((Math.min(sx, ex) < cx && cx < Math.max(sx, ex)) || (Math.min(sy, ey) < cy && cy < Math.max(sy, ey))){
+        if ((Math.min(sx, ex) < cx && cx < Math.max(sx, ex)) || (Math.min(sy, ey) < cy && cy < Math.max(sy, ey))) {
             judDis = Math.sqrt((point.x - chuiX) * (point.x - chuiX) + (point.y - chuiY) * (point.y - chuiY));
-        }else{
+        } else {
             double p1dis = Math.sqrt((point.x - sx) * (point.x - sx) + (point.y - sy) * (point.y - sy));
             double p2dis = Math.sqrt((point.x - ex) * (point.x - ex) + (point.y - ey) * (point.y - ey));
             judDis = p1dis > p2dis ? p2dis : p1dis;
@@ -342,12 +349,13 @@ public class DataUtils {
 
     /**
      * 设置src中的第index位为1
+     *
      * @param src
      * @param index
      */
     public static int setBitTo1(int src, int index) {
-           int a=1<<index;
-           return src|a;
+        int a = 1 << index;
+        return src | a;
     }
 
     public static String getScheduleWeek(int week) {

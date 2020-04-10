@@ -46,7 +46,7 @@ public class UseTipDialogFragment extends DialogFragment {
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         Window window = getDialog().getWindow();
-        getDialog().setCanceledOnTouchOutside(false);
+        getDialog().setCanceledOnTouchOutside(true);
         WindowManager.LayoutParams wlp = window.getAttributes();
         wlp.width = (int) getResources().getDimension(R.dimen.dp_315);
         wlp.height = WindowManager.LayoutParams.WRAP_CONTENT;

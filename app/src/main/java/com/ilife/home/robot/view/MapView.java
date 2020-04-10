@@ -63,8 +63,8 @@ public class MapView extends View {
     private ArrayList<Coordinate> pointList = new ArrayList<>();
     private boolean isSetExtraDrag;
     private float startX = 0, startY = 0, endX = 0, endY = 0;
-    private Canvas boxCanvas, slamCanvas;
-    private Bitmap boxBitmap, slamBitmap;
+    private Canvas slamCanvas;
+    private Bitmap slamBitmap;
     private RectF slamRect = new RectF();
     private boolean robotSeriesX9;
     private boolean unconditionalRecreate;
@@ -168,7 +168,7 @@ public class MapView extends View {
         roomGatePath = new Path();
         slamPath = new Path();
         obstaclePath = new Path();
-        int deleteIconW=getResources().getDimensionPixelSize(R.dimen.dp_48);
+        int deleteIconW = getResources().getDimensionPixelSize(R.dimen.dp_48);
         deleteBitmap = BitmapUtils.decodeBitmapFromResource(getResources(), R.drawable.operation_btn_closed, deleteIconW, deleteIconW);
         rotateBitmap = BitmapUtils.decodeBitmapFromResource(getResources(), R.drawable.operation_btn_angle, deleteIconW, deleteIconW);
         pullBitmap = BitmapUtils.decodeBitmapFromResource(getResources(), R.drawable.operation_btn_zoom, deleteIconW, deleteIconW);
@@ -292,26 +292,26 @@ public class MapView extends View {
     public void drawMapX8(List<Coordinate> dataList) {
         MyLogger.d(TAG, "----------drawMapX8---------数据长度：   " + dataList.size());
         drawBoxMapX8(dataList);
-        boxCanvas.drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR);
-
+        slamCanvas.drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR);
+        slamCanvas.drawColor(getResources().getColor(R.color.color_theme));
         /**
          * 绘制已清扫区域
          */
-        boxCanvas.drawPath(boxPath, mPaintManager.changeColor(mPaintManager.getMapPaint(), PaintColor.SLAM));
+        slamCanvas.drawPath(boxPath, mPaintManager.changeColor(mPaintManager.getMapPaint(), PaintColor.SLAM));
         /**
          * 绘制障碍物
          */
-        boxCanvas.drawPath(obstaclePath, mPaintManager.changeColor(mPaintManager.getMapPaint(), PaintColor.OBSTACLE));
+        slamCanvas.drawPath(obstaclePath, mPaintManager.changeColor(mPaintManager.getMapPaint(), PaintColor.OBSTACLE));
         /**
          * 绘制room区域
          */
-        boxCanvas.drawPath(roomGatePath, mPaintManager.changeColor(mPaintManager.getMapPaint(), PaintColor.ROOM_GATE));
+        slamCanvas.drawPath(roomGatePath, mPaintManager.changeColor(mPaintManager.getMapPaint(), PaintColor.ROOM_GATE));
         /**
          * 绘制路径
          */
-        boxCanvas.drawPath(roadPath, mPaintManager.getRoadPaint());
+        slamCanvas.drawPath(roadPath, mPaintManager.getRoadPaint());
         if (needEndPoint && endX != 0 && endY != 0) {
-            boxCanvas.drawCircle(endX, endY, Utils.dip2px(MyApplication.getInstance(), 12 * baseScare / 30f), mPaintManager.changeColor(mPaintManager.getMapPaint(), PaintColor.END_CIRCLE));
+            slamCanvas.drawCircle(endX, endY, Utils.dip2px(MyApplication.getInstance(), 12 * baseScare / 30f), mPaintManager.changeColor(mPaintManager.getMapPaint(), PaintColor.END_CIRCLE));
         }
         invalidateUI();
     }
@@ -325,11 +325,10 @@ public class MapView extends View {
         roadPath.reset();
         slamPath.reset();
         boxPath.reset();
+        obstaclePath.reset();
+        roomGatePath.reset();
         if (slamCanvas != null) {
             slamCanvas.drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR);
-        }
-        if (boxCanvas != null) {
-            boxCanvas.drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR);
         }
         invalidateUI();
     }
@@ -369,8 +368,8 @@ public class MapView extends View {
         baseScare = 20.0f;
         if (xLength * baseScare > width || yLength * baseScare > sCenter.y * 2) {
             MyLogger.d(TAG, "SYSTEM SCALE MAP -------------");
-            float systemW = (width * 0.9f) / ((xLength * baseScare));
-            float systemH = (sCenter.y * 2 * 0.9f) / ((yLength * baseScare));
+            float systemW = (width * 0.75f) / ((xLength * baseScare));
+            float systemH = (sCenter.y * 2 * 0.75f) / ((yLength * baseScare));
             systemScale = Math.min(systemH, systemW);
             systemScale = new BigDecimal(systemScale).setScale(2, BigDecimal.ROUND_HALF_DOWN).floatValue();
             if (systemScale < 0.3f) {
@@ -383,32 +382,17 @@ public class MapView extends View {
         MyLogger.d(TAG, "xLength----" + xLength + "----yLength-----" + yLength + "---------height" + height + "---------width--------" + width);
         MyLogger.d(TAG, "--systemScale--:" + systemScale + "------baseScare----:" + baseScare + "------userScale-------" + userScale);
         slamRect.set(xMin, yMin, xMax, yMax);
-        if (robotSeriesX9) {
-            int needWidth = (int) ((xMax - xMin) * baseScare) + extraWH;
-            int needHeight = (int) ((yMax - yMin) * baseScare) + extraWH;
-            if (slamCanvas == null && slamBitmap == null) {
-                slamBitmap = Bitmap.createBitmap(needWidth, needHeight, Bitmap.Config.ARGB_8888);
-                slamCanvas = new Canvas(slamBitmap);
-            } else if (slamBitmap != null && ((needWidth != slamBitmap.getWidth() || needHeight != slamBitmap.getHeight()) || unconditionalRecreate)) {
-                MyLogger.d(TAG, "reCreate the bitmap................");
-                slamBitmap.recycle();
-                slamBitmap = Bitmap.createBitmap(needWidth, needHeight, Bitmap.Config.ARGB_8888);
-                slamCanvas.setBitmap(slamBitmap);
-                unconditionalRecreate = false;
-            }
-        } else {
-            int needWidth = (int) ((xMax - xMin + 1) * baseScare) + extraWH;
-            int needHeight = (int) ((yMax - yMin + 1) * baseScare) + extraWH;
-            if (boxCanvas == null && boxBitmap == null) {
-                boxBitmap = Bitmap.createBitmap(needWidth, needHeight, Bitmap.Config.ARGB_8888);
-                boxCanvas = new Canvas(boxBitmap);
-            } else if (boxBitmap != null && ((needWidth != boxBitmap.getWidth() || needHeight != boxBitmap.getHeight()) || unconditionalRecreate)) {
-                MyLogger.d(TAG, "reCreate the bitmap................");
-                boxBitmap.recycle();
-                boxBitmap = Bitmap.createBitmap(needWidth, needHeight, Bitmap.Config.ARGB_8888);
-                boxCanvas.setBitmap(boxBitmap);
-                unconditionalRecreate = false;
-            }
+        int needWidth = (int) ((xMax - xMin) * baseScare) + extraWH;
+        int needHeight = (int) ((yMax - yMin) * baseScare) + extraWH;
+        if (slamCanvas == null && slamBitmap == null) {
+            slamBitmap = Bitmap.createBitmap(needWidth, needHeight, Bitmap.Config.ARGB_8888);
+            slamCanvas = new Canvas(slamBitmap);
+        } else if (slamBitmap != null && ((needWidth != slamBitmap.getWidth() || needHeight != slamBitmap.getHeight()) || unconditionalRecreate)) {
+            MyLogger.d(TAG, "reCreate the bitmap................");
+            slamBitmap.recycle();
+            slamBitmap = Bitmap.createBitmap(needWidth, needHeight, Bitmap.Config.ARGB_8888);
+            slamCanvas.setBitmap(slamBitmap);
+            unconditionalRecreate = false;
         }
         mVirtualWallHelper.drawVirtualWall();//刷新虚拟墙
     }
@@ -462,60 +446,60 @@ public class MapView extends View {
     // TODO 手势缩放移动的时候延迟刷新实时地图数据/或者生成刷新队列
     @Override
     protected void onDraw(Canvas canvas) {
-        if (!robotSeriesX9) {//X800 series
-            if (boxCanvas != null && boxBitmap != null) {
-                matrix.reset();
-                matrix.postTranslate(dragX + sCenter.x - boxBitmap.getWidth() / 2f, dragY + sCenter.y - boxBitmap.getHeight() / 2f);
-                matrix.postScale(getRealScare(), getRealScare(), sCenter.x, sCenter.y);
-                canvas.drawBitmap(boxBitmap, matrix, mPaintManager.getMapPaint());
-                canvas.concat(matrix);//应用变换
+        if (slamCanvas != null && slamBitmap != null) {
+            matrix.reset();
+            matrix.postTranslate(dragX + sCenter.x - slamBitmap.getWidth() / 2f, dragY + sCenter.y - slamBitmap.getHeight() / 2f);
+            matrix.postScale(getRealScare(), getRealScare(), sCenter.x, sCenter.y);
+            canvas.drawBitmap(slamBitmap, matrix, mPaintManager.getMapPaint());
+            canvas.concat(matrix);//应用变换
 
-                /**
-                 * draw  forbidden area,which contains global area and mop area
-                 */
-                VirtualWallBean fbd;
-                for (int i = mForbiddenHelper.getFbdBeans().size() - 1; i >= 0; i--) {
-                    fbd = mForbiddenHelper.getFbdBeans().get(i);
-                    if (fbd.getState() == 3) {
-                        continue;
+            /**
+             * draw  forbidden area,which contains global area and mop area
+             */
+            VirtualWallBean fbd;
+            for (int i = mForbiddenHelper.getFbdBeans().size() - 1; i >= 0; i--) {
+                fbd = mForbiddenHelper.getFbdBeans().get(i);
+                if (fbd.getState() == 3) {
+                    continue;
+                }
+                if (fbd.getPath() != null) {
+                    canvas.drawPath(fbd.getPath(), mPaintManager.changeColor(mPaintManager.getFillPaint(), fbd.getType() == ForbiddenAreaHelper.TYPE_GLOBAL ? PaintColor.GLOBAL_AREA : PaintColor.MOP_AREA));
+                    canvas.drawPath(fbd.getPath(), mPaintManager.changeColor(mPaintManager.getStrokePaint(), fbd.getType() == ForbiddenAreaHelper.TYPE_GLOBAL ? PaintColor.GLOBAL_AREA_BOUNDARY : PaintColor.MOP_AREA_BOUNDARY));
+                }
+                if ((mOT == OT.MOP_FORBIDDEN_AREA || mOT == OT.GLOBAL_FORBIDDEN_AREA) && mForbiddenHelper.getSelectVwNum() == fbd.getNumber()) {//保存操作中的禁区
+                    if (fbd.getBoundaryPath() != null) {
+                        canvas.drawPath(fbd.getBoundaryPath(), mPaintManager.changeColor(mPaintManager.getStrokePaint(), PaintColor.RECTANGLE_BOUNDARY));
                     }
-                    if (fbd.getPath() != null) {
-                        canvas.drawPath(fbd.getPath(), mPaintManager.changeColor(mPaintManager.getFillPaint(), fbd.getType() == ForbiddenAreaHelper.TYPE_GLOBAL ? PaintColor.GLOBAL_AREA : PaintColor.MOP_AREA));
-                        canvas.drawPath(fbd.getPath(), mPaintManager.changeColor(mPaintManager.getStrokePaint(), fbd.getType() == ForbiddenAreaHelper.TYPE_GLOBAL ? PaintColor.GLOBAL_AREA_BOUNDARY : PaintColor.MOP_AREA_BOUNDARY));
+                    if (fbd.getDeleteIcon() != null) {
+                        canvas.drawBitmap(deleteBitmap, fbd.getDeleteIcon().left, fbd.getDeleteIcon().top, mPaintManager.getIconPaint());
                     }
-                    if ((mOT==OT.MOP_FORBIDDEN_AREA||mOT==OT.GLOBAL_FORBIDDEN_AREA)&&mForbiddenHelper.getSelectVwNum() == fbd.getNumber()) {//保存操作中的禁区
-                        if (fbd.getBoundaryPath() != null) {
-                            canvas.drawPath(fbd.getBoundaryPath(), mPaintManager.changeColor(mPaintManager.getStrokePaint(), PaintColor.RECTANGLE_BOUNDARY));
-                        }
-                        if (fbd.getDeleteIcon() != null) {
-                            canvas.drawBitmap(deleteBitmap, fbd.getDeleteIcon().left, fbd.getDeleteIcon().top, mPaintManager.getIconPaint());
-                        }
-                        if (fbd.getPullIcon() != null) {
-                            canvas.drawBitmap(pullBitmap, fbd.getPullIcon().left, fbd.getPullIcon().top, mPaintManager.getIconPaint());
-                        }
-                        if (fbd.getRotateIcon() != null) {
-                            canvas.drawBitmap(rotateBitmap, fbd.getRotateIcon().left, fbd.getRotateIcon().top, mPaintManager.getIconPaint());
-                        }
+                    if (fbd.getPullIcon() != null) {
+                        canvas.drawBitmap(pullBitmap, fbd.getPullIcon().left, fbd.getPullIcon().top, mPaintManager.getIconPaint());
+                    }
+                    if (fbd.getRotateIcon() != null) {
+                        canvas.drawBitmap(rotateBitmap, fbd.getRotateIcon().left, fbd.getRotateIcon().top, mPaintManager.getIconPaint());
                     }
                 }
-                /**
-                 * 预览禁区
-                 */
-                canvas.drawRect(mForbiddenHelper.getCurRectF(), mPaintManager.changeColor(mPaintManager.getFillPaint(), mOT == OT.GLOBAL_FORBIDDEN_AREA ? PaintColor.GLOBAL_AREA : PaintColor.MOP_AREA));
+            }
+            /**
+             * 预览禁区
+             */
+            canvas.drawRect(mForbiddenHelper.getCurRectF(), mPaintManager.changeColor(mPaintManager.getFillPaint(), mOT == OT.GLOBAL_FORBIDDEN_AREA ? PaintColor.GLOBAL_AREA : PaintColor.MOP_AREA));
 
-                /**
-                 *
-                 *  draw clean area
-                 *  绘制清扫区域/划区清扫
-                 */
-                if (mOT == OT.MAP || mOT == OT.CLEAN_AREA) {
-                    VirtualWallBean cleanArea = mCleanHelper.getCurCleanAreaBean();
-                    if (cleanArea != null && cleanArea.getState() != 3) {
-                        if (cleanArea.getPath() != null) {
-                            canvas.drawPath(cleanArea.getPath(), mPaintManager.changeColor(mPaintManager.getFillPaint(), PaintColor.CLEAN_AREA));
-                            canvas.drawPath(cleanArea.getPath(), mPaintManager.changeColor(mPaintManager.getStrokePaint(), PaintColor.CLEAN_AREA_BOUNDARY));
+            /**
+             *
+             *  draw clean area
+             *  绘制清扫区域/划区清扫
+             */
+            if (mOT == OT.MAP || mOT == OT.CLEAN_AREA) {
+                VirtualWallBean cleanArea = mCleanHelper.getCurCleanAreaBean();
+                if (cleanArea != null && cleanArea.getState() != 3) {
+                    if (cleanArea.getPath() != null) {
+                        canvas.drawPath(cleanArea.getPath(), mPaintManager.changeColor(mPaintManager.getFillPaint(), PaintColor.CLEAN_AREA));
+                        canvas.drawPath(cleanArea.getPath(), mPaintManager.changeColor(mPaintManager.getStrokePaint(), PaintColor.CLEAN_AREA_BOUNDARY));
 
-                        }
+                    }
+                    if (mOT == OT.CLEAN_AREA) {
                         if (cleanArea.getBoundaryPath() != null) {
                             canvas.drawPath(cleanArea.getBoundaryPath(), mPaintManager.changeColor(mPaintManager.getStrokePaint(), PaintColor.RECTANGLE_BOUNDARY));
                         }
@@ -529,71 +513,65 @@ public class MapView extends View {
                             canvas.drawBitmap(rotateBitmap, cleanArea.getRotateIcon().left, cleanArea.getRotateIcon().top, mPaintManager.getIconPaint());
                         }
                     }
-                    canvas.drawRect(mCleanHelper.getCurRectF(), mPaintManager.changeColor(mPaintManager.getFillPaint(), PaintColor.CLEAN_AREA));
                 }
+                canvas.drawRect(mCleanHelper.getCurRectF(), mPaintManager.changeColor(mPaintManager.getFillPaint(), PaintColor.CLEAN_AREA));
+            }
 
-                /**
-                 * draw virtual wall
-                 */
-                canvas.drawPath(mVirtualWallHelper.getVwPath(), mPaintManager.changeColor(mPaintManager.getLinePaint(), PaintColor.VIRTUAL));
-                /**
-                 * 正在操作虚拟墙的预览
-                 */
-                RectF curVw = mVirtualWallHelper.getCurVw();
-                if (curVw.left != 0) {
-                    canvas.drawLine(curVw.left, curVw.top, curVw.right, curVw.bottom, mPaintManager.changeColor(mPaintManager.getLinePaint(), PaintColor.VIRTUAL));
+            /**
+             * draw virtual wall
+             */
+            canvas.drawPath(mVirtualWallHelper.getVwPath(), mPaintManager.changeColor(mPaintManager.getLinePaint(), PaintColor.VIRTUAL));
+            /**
+             * 正在操作虚拟墙的预览
+             */
+            RectF curVw = mVirtualWallHelper.getCurVw();
+            if (curVw.left != 0) {
+                canvas.drawLine(curVw.left, curVw.top, curVw.right, curVw.bottom, mPaintManager.changeColor(mPaintManager.getLinePaint(), PaintColor.VIRTUAL));
+            }
+            for (VirtualWallBean vw : mVirtualWallHelper.getVwBeans()) {
+                if (vw.getState() == 3) {
+                    continue;
                 }
-                for (VirtualWallBean vw : mVirtualWallHelper.getVwBeans()) {
-                    if (vw.getState() == 3) {
-                        continue;
+                if (mOT == OT.VIRTUAL_WALL && mVirtualWallHelper.getSelectVwNum() == vw.getNumber()) {
+                    if (vw.getBoundaryPath() != null) {
+                        canvas.drawPath(vw.getBoundaryPath(), mPaintManager.changeColor(mPaintManager.getStrokePaint(), PaintColor.RECTANGLE_BOUNDARY));
                     }
-                    if (mOT==OT.VIRTUAL_WALL&&mVirtualWallHelper.getSelectVwNum() == vw.getNumber()) {
-                        if (vw.getBoundaryPath() != null) {
-                            canvas.drawPath(vw.getBoundaryPath(), mPaintManager.changeColor(mPaintManager.getStrokePaint(), PaintColor.RECTANGLE_BOUNDARY));
-                        }
-                        if (vw.getDeleteIcon() != null) {
-                            canvas.drawBitmap(deleteBitmap, vw.getDeleteIcon().left, vw.getDeleteIcon().top, mPaintManager.getIconPaint());
-                        }
-                        if (vw.getPullIcon() != null) {
-                            canvas.drawBitmap(pullBitmap, vw.getPullIcon().left, vw.getPullIcon().top, mPaintManager.getIconPaint());
-                        }
+                    if (vw.getDeleteIcon() != null) {
+                        canvas.drawBitmap(deleteBitmap, vw.getDeleteIcon().left, vw.getDeleteIcon().top, mPaintManager.getIconPaint());
                     }
-                }
-
-
-                /**
-                 * draw room tag/绘制房间标记
-                 */
-                if (mOT == OT.MAP || mOT == OT.SELECT_ROOM) {
-                    Paint paint = mPaintManager.getFillPaint();
-                    paint.setTextSize(mRoomHelper.getTextSize());
-                    for (PartitionBean room : mRoomHelper.getRooms()) {
-                        int cx = (int) matrixCoordinateX(room.getX());
-                        int cy = (int) matrixCoordinateY(room.getY());
-                        canvas.drawCircle(cx, cy, mRoomHelper.getRadius(), mPaintManager.changeColor(mPaintManager.getFillPaint(), PaintColor.ROOM));
-                        mPaintManager.changeColor(paint,mRoomHelper.isRoomSelected(room.getPartitionId())? PaintColor.ROOM_TEXT_SELECT : PaintColor.ROOM_TEXT);
-                        // 文字宽
-                        float textWidth = paint.measureText(room.getTag());
-                        // 文字baseline在y轴方向的位置
-                        float baseLineY = Math.abs(paint.ascent() + paint.descent()) / 2;
-                        canvas.drawText(room.getTag(), cx-textWidth / 2, cy+baseLineY, paint);
+                    if (vw.getPullIcon() != null) {
+                        canvas.drawBitmap(pullBitmap, vw.getPullIcon().left, vw.getPullIcon().top, mPaintManager.getIconPaint());
                     }
-                }
-                /**
-                 * 绘制充电座
-                 */
-                if (standPointF != null) {
-                    canvas.drawBitmap(standBitmap, standPointF.x - 60, standPointF.y - 60, mPaintManager.getIconPaint());
                 }
             }
-        } else {//x900 series
-            if (slamCanvas != null && slamBitmap != null) {
-                matrix.reset();
-                matrix.postTranslate(dragX + sCenter.x - slamBitmap.getWidth() / 2f, dragY + sCenter.y - slamBitmap.getHeight() / 2f);
-                matrix.postScale(getRealScare(), getRealScare(), sCenter.x, sCenter.y);
-                canvas.drawBitmap(slamBitmap, matrix, null);
+
+
+            /**
+             * draw room tag/绘制房间标记
+             */
+            if (mOT == OT.MAP || mOT == OT.SELECT_ROOM) {
+                Paint paint = mPaintManager.getFillPaint();
+                paint.setTextSize(mRoomHelper.getTextSize());
+                for (PartitionBean room : mRoomHelper.getRooms()) {
+                    int cx = (int) matrixCoordinateX(room.getX());
+                    int cy = (int) matrixCoordinateY(room.getY());
+                    canvas.drawCircle(cx, cy, mRoomHelper.getRadius(), mPaintManager.changeColor(mPaintManager.getFillPaint(), PaintColor.ROOM));
+                    mPaintManager.changeColor(paint, mRoomHelper.isRoomSelected(room.getPartitionId()) ? PaintColor.ROOM_TEXT_SELECT : PaintColor.ROOM_TEXT);
+                    // 文字宽
+                    float textWidth = paint.measureText(room.getTag());
+                    // 文字baseline在y轴方向的位置
+                    float baseLineY = Math.abs(paint.ascent() + paint.descent()) / 2;
+                    canvas.drawText(room.getTag(), cx - textWidth / 2, cy + baseLineY, paint);
+                }
+            }
+            /**
+             * 绘制充电座
+             */
+            if (standPointF != null) {
+                canvas.drawBitmap(standBitmap, standPointF.x - 60, standPointF.y - 60, mPaintManager.getIconPaint());
             }
         }
+
 
         super.onDraw(canvas);
     }
@@ -611,22 +589,12 @@ public class MapView extends View {
     }
 
     private float getOffsetX() {
-        float actualDragX;
-        if (robotSeriesX9) {
-            actualDragX = dragX + sCenter.x - (slamBitmap == null ? 0 : slamBitmap.getWidth() / 2f);
-        } else {
-            actualDragX = dragX + sCenter.x - (boxBitmap == null ? 0 : boxBitmap.getWidth() / 2f);
-        }
+        float actualDragX = dragX + sCenter.x - (slamBitmap == null ? 0 : slamBitmap.getWidth() / 2f);
         return sCenter.x * (getRealScare() - 1) / getRealScare() - actualDragX;
     }
 
     private float getOffsetY() {
-        float actualDragY;
-        if (robotSeriesX9) {
-            actualDragY = dragY + sCenter.y - (slamBitmap == null ? 0 : slamBitmap.getHeight() / 2f);
-        } else {
-            actualDragY = dragY + sCenter.y - (boxBitmap == null ? 0 : boxBitmap.getHeight() / 2f);
-        }
+        float actualDragY = dragY + sCenter.y - (slamBitmap == null ? 0 : slamBitmap.getHeight() / 2f);
         return sCenter.y * (getRealScare() - 1) / getRealScare() - actualDragY;
     }
 
@@ -776,8 +744,6 @@ public class MapView extends View {
         final int width = getMySize(widthMeasureSpec);
         final int height = getMySize(heightMeasureSpec);
         setMeasuredDimension(width, height);
-//        final int min = Math.min(width, height);//保证控件为方形
-//        setMeasuredDimension(min, min);
     }
 
     /**
@@ -971,17 +937,17 @@ public class MapView extends View {
         endX = 0;
         endY = 0;
         MyLogger.d(TAG, "drawBoxMapX8-------数据长度：   " + dataList.size());
-        if (boxCanvas == null && boxBitmap == null) {
-            boxCanvas = new Canvas();
-            boxBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
-            boxCanvas.setBitmap(boxBitmap);
+        if (slamCanvas == null) {
+            slamCanvas = new Canvas();
+            slamBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+            slamCanvas.setBitmap(slamBitmap);
         }
         if (dataList.size() == 0) {
             boxPath.reset();
             obstaclePath.reset();
             roomGatePath.reset();
             roadPath.reset();
-            boxCanvas.drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR);
+            slamCanvas.drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR);
             invalidateUI();
             return;
         }
@@ -1051,13 +1017,6 @@ public class MapView extends View {
             slamBitmap.recycle();
             slamBitmap = null;
         }
-        if (boxBitmap != null) {
-            boxBitmap.recycle();
-            boxBitmap = null;
-        }
-        if (boxCanvas != null) {
-            boxCanvas = null;
-        }
         if (slamCanvas != null) {
             slamCanvas = null;
         }
@@ -1073,7 +1032,7 @@ public class MapView extends View {
     }
 
     private class PaintManager {
-        private Paint slamPaint, linePaint, roadPaint,mapPaint, fillPaint, strokePaint, iconPaint, textPaint;
+        private Paint slamPaint, linePaint, roadPaint, mapPaint, fillPaint, strokePaint, iconPaint, textPaint;
 
         public PaintManager() {
             initPaint();

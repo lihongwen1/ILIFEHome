@@ -196,11 +196,11 @@
                             />
 
                         <TextView
-                            android:id="@+id/tv_appointment_x9"
+                            android:id="@+id/tv_set_max"
                             style="@style/map_text_button"
-                            android:drawableTop="@drawable/selector_appointment"
-                            android:text="@string/map_aty_appoint"
-                            android:visibility="gone" />
+                            android:drawableTop="@drawable/selector_btn_max"
+                            android:text="MAX"
+                            android:visibility="visible" />
 
                         <TextView
                             android:id="@+id/tv_recharge_x9"
@@ -214,8 +214,8 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="end"
-                        android:layout_marginTop="@dimen/dp_14"
-                        android:layout_marginEnd="@dimen/dp_14"
+                        android:layout_marginTop="@dimen/dp_8"
+                        android:layout_marginEnd="@dimen/dp_8"
                         android:src="@drawable/opration_button_back" />
                 </FrameLayout>
                 <!--电子墙-->

@@ -461,8 +461,11 @@ public class IlifeAli {
                             }
                             break;
                         case EnvConfigure.METHOD_THING_EVENT:
-                            int errorCode = object.getJSONObject(EnvConfigure.KEY_VALUE).getIntValue(EnvConfigure.KEY_ERRORCODE);
-                            propertyResponse.onError(errorCode);
+                            //TODO 解析初始化状态
+                            if (object.containsKey(EnvConfigure.KEY_VALUE)) {
+                                int errorCode = object.getJSONObject(EnvConfigure.KEY_VALUE).getIntValue(EnvConfigure.KEY_ERRORCODE);
+                                propertyResponse.onError(errorCode);
+                            }
                             break;
                     }
                 }

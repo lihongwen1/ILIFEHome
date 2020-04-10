@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
-import android.os.Handler;
 import android.os.Message;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -30,7 +29,6 @@ import com.aliyun.iot.aep.sdk.contant.MsgCodeUtils;
 import com.badoo.mobile.util.WeakHandler;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.ilife.home.robot.adapter.MapBottomSheetAdapter;
-import com.ilife.home.robot.base.BaseActivity;
 import com.ilife.home.robot.bean.Coordinate;
 import com.ilife.home.robot.fragment.UniversalDialog;
 import com.ilife.home.robot.able.DeviceUtils;
@@ -40,7 +38,6 @@ import com.ilife.home.robot.contract.MapX9Contract;
 import com.ilife.home.robot.fragment.UseTipDialogFragment;
 import com.ilife.home.robot.presenter.MapX9Presenter;
 import com.ilife.home.robot.utils.MyLogger;
-import com.ilife.home.robot.utils.SpUtils;
 import com.ilife.home.robot.utils.ToastUtils;
 import com.ilife.home.robot.utils.Utils;
 import com.ilife.home.robot.view.CustomPopupWindow;
@@ -85,8 +82,8 @@ public abstract class BaseMapActivity extends BackBaseActivity<MapX9Presenter> i
     TextView tv_point;
     @BindView(R.id.tv_along_x9)
     TextView tv_along;
-    @BindView(R.id.tv_appointment_x9)
-    TextView tv_appointment_x9;
+    @BindView(R.id.tv_set_max)
+    TextView tv_set_max;
     @BindView(R.id.image_ele)
     ImageView image_ele;//battery
     @BindView(R.id.tv_control_x9)
@@ -113,8 +110,6 @@ public abstract class BaseMapActivity extends BackBaseActivity<MapX9Presenter> i
     TextView tv_add_virtual;
     @BindView(R.id.tv_delete_virtual_x9)
     TextView tv_delete_virtual;
-    @BindView(R.id.image_control_back)
-    ImageView image_max;
     @BindView(R.id.image_forward)
     ImageView image_forward;
     @BindView(R.id.image_left)
@@ -161,16 +156,18 @@ public abstract class BaseMapActivity extends BackBaseActivity<MapX9Presenter> i
         mPresenter = new MapX9Presenter();
         mPresenter.attachView(this);
         weakHandler = new WeakHandler(msg -> {
-            switch (msg.what) {
-                case 1://更新清扫面积
-                    tv_area.setText((String) msg.obj);
-                    break;
-                case 2://清扫时长
-                    tv_time.setText((String) msg.obj);
-                    break;
-                case 3:
-                    mMapView.drawMapX8((List<Coordinate>) msg.obj);
-                    break;
+            if (!isDestroyed()) {
+                switch (msg.what) {
+                    case 1://更新清扫面积
+                        tv_area.setText((String) msg.obj);
+                        break;
+                    case 2://清扫时长
+                        tv_time.setText((String) msg.obj);
+                        break;
+                    case 3:
+                        mMapView.drawMapX8((List<Coordinate>) msg.obj);
+                        break;
+                }
             }
 
             return false;
@@ -276,12 +273,11 @@ public abstract class BaseMapActivity extends BackBaseActivity<MapX9Presenter> i
                     startActivity(new Intent(BaseMapActivity.this, VirtualWallActivity.class));
                     break;
                 case 1://选房清扫
-//                    if (mPresenter.getCurStatus() == MsgCodeUtils.STATUE_CHARGING || mPresenter.getCurStatus() == MsgCodeUtils.STATUE_CHARING_BASE_SLEEP) {
-//                        startActivity(new Intent(BaseMapActivity.this, SelectRoomActivity.class));
-//                    } else {
-//                        ToastUtils.showToast(MyApplication.getInstance(), Utils.getString(R.string.map_aty_can_not_execute));
-//                    }
-                    startActivity(new Intent(BaseMapActivity.this, SelectRoomActivity.class));
+                    if (mPresenter.getCurStatus() == MsgCodeUtils.STATUE_CHARGING || mPresenter.getCurStatus() == MsgCodeUtils.STATUE_CHARING_BASE_SLEEP) {
+                        startActivity(new Intent(BaseMapActivity.this, SelectRoomActivity.class));
+                    } else {
+                        ToastUtils.showToast(MyApplication.getInstance(), Utils.getString(R.string.map_aty_can_not_execute));
+                    }
                     break;
                 case 2://划区清扫
                     if (mPresenter.getCurStatus() == MsgCodeUtils.STATUE_CHARGING || mPresenter.getCurStatus() == MsgCodeUtils.STATUE_CHARING_BASE_SLEEP) {
@@ -466,7 +462,7 @@ public abstract class BaseMapActivity extends BackBaseActivity<MapX9Presenter> i
                 ll_bottom_sheet.setVisibility(View.GONE);
                 fl_control_x9.setVisibility(View.VISIBLE);
                 layout_remote_control.setVisibility(View.VISIBLE);
-                image_max.setSelected(mPresenter.isMaxMode());
+                tv_set_max.setSelected(mPresenter.isMaxMode());
                 updateOperationViewStatue(mPresenter.getCurStatus());
                 setMapViewVisible(false);
                 break;
@@ -530,7 +526,7 @@ public abstract class BaseMapActivity extends BackBaseActivity<MapX9Presenter> i
     @OnClick({R.id.image_center, R.id.tv_start_x9, R.id.tv_control_x9, R.id.fl_top_menu, R.id.tv_recharge_x9, R.id.tv_along_x9,
             R.id.tv_point_x9, R.id.tv_close_virtual_x9, R.id.ib_virtual_wall_tip
             , R.id.tv_add_virtual_x9, R.id.tv_delete_virtual_x9, R.id.iv_control_close_x9, R.id.tv_bottom_recharge
-            , R.id.tv_appointment_x9, R.id.iv_operation_help
+            , R.id.tv_set_max, R.id.iv_operation_help
     })
     public void onViewClick(View v) {
         switch (v.getId()) {
@@ -608,23 +604,9 @@ public abstract class BaseMapActivity extends BackBaseActivity<MapX9Presenter> i
                 mPresenter.enterPointMode();
 
                 break;
-            case R.id.tv_appointment_x9://预约
-                Intent intent = new Intent(this, ClockingActivity.class);
-                startActivity(intent);
+            case R.id.tv_set_max://预约
+                mPresenter.reverseMaxMode();
                 break;
-            //TODO 实现电子墙编辑功能
-//            case R.id.tv_virtual_wall_x9://电子墙编辑模式
-//                if (mPresenter.isVirtualWallOpen() && (mPresenter.getCurStatus() == MsgCodeUtils.STATUE_PLANNING ||
-//                        mPresenter.getCurStatus() == MsgCodeUtils.STATUE_PAUSE)) {
-//                    showSetWallDialog();
-//                } else {
-//                    if (mPresenter.getCurStatus() == MsgCodeUtils.STATUE_CHARGING || mPresenter.getCurStatus() == MsgCodeUtils.STATUE_CHARGING_) {
-//                        ToastUtils.showToast(MyApplication.getInstance(), Utils.getString(R.string.map_aty_charge));
-//                    } else {
-//                        ToastUtils.showToast(MyApplication.getInstance(), Utils.getString(R.string.map_aty_can_not_execute));
-//                    }
-//                }
-//                break;
             case R.id.tv_add_virtual_x9://增加电子墙模式
                 if (mMapView.isInMode(MapView.MODE_ADD_VIRTUAL)) {
                     tv_add_virtual.setSelected(false);
@@ -691,7 +673,7 @@ public abstract class BaseMapActivity extends BackBaseActivity<MapX9Presenter> i
      * @param v
      * @param event
      */
-    @OnTouch({R.id.image_right, R.id.image_left, R.id.image_control_back, R.id.image_forward})
+    @OnTouch({R.id.image_right, R.id.image_left, R.id.image_forward})
     public void onTouch(View v, MotionEvent event) {
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN: //手指按下
@@ -769,7 +751,7 @@ public abstract class BaseMapActivity extends BackBaseActivity<MapX9Presenter> i
     @Override
     public void updateMaxButton(boolean isMaXMode) {
         if (layout_remote_control.getVisibility() == View.VISIBLE) {
-            image_max.setSelected(isMaXMode);
+            tv_set_max.setSelected(isMaXMode);
         }
     }
 
