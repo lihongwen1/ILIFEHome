@@ -28,10 +28,8 @@ import com.aliyun.iot.aep.sdk.util.WifiUtils;
 import org.reactivestreams.Publisher;
 
 import java.math.BigInteger;
-import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -44,9 +42,7 @@ import io.reactivex.SingleObserver;
 import io.reactivex.SingleOnSubscribe;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
-import io.reactivex.functions.Action;
 import io.reactivex.functions.Function;
-import io.reactivex.schedulers.Schedulers;
 
 import static android.content.Context.WIFI_SERVICE;
 

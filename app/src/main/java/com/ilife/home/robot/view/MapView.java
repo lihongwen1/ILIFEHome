@@ -355,7 +355,7 @@ public class MapView extends View {
     // TODO it should't be created ,when it's size is less than the old
     //the value of baseScare can affects the  sharpness of the map
     public void updateSlam(int xMin, int xMax, int yMin, int yMax) {
-        MyLogger.e(TAG, "边界坐标" + "xM:" + xMin + "  xMax:  " + xMax + " yMin: " + yMin + "  yMax:   " + yMax);
+        MyLogger.e(TAG, "mapmap边界坐标" + "xM:" + xMin + "  xMax:  " + xMax + " yMin: " + yMin + "  yMax:   " + yMax);
         int xLength = xMax - xMin;
         int yLength = yMax - yMin;
         if (xLength <= 0 || yLength <= 0) {
@@ -365,7 +365,7 @@ public class MapView extends View {
          * 计算坐标放大和缩放比例
          */
         baseScare = 20.0f;
-        if (xLength * baseScare > width || yLength * baseScare > sCenter.y * 2) {
+        if (xLength * baseScare > width*0.75 || yLength * baseScare > sCenter.y * 2*0.75) {
             MyLogger.d(TAG, "SYSTEM SCALE MAP -------------");
             float systemW = (width * 0.75f) / ((xLength * baseScare));
             float systemH = (sCenter.y * 2 * 0.75f) / ((yLength * baseScare));
@@ -394,6 +394,8 @@ public class MapView extends View {
             unconditionalRecreate = false;
         }
         mVirtualWallHelper.drawVirtualWall();//刷新虚拟墙
+        mForbiddenHelper.setForbiddenArea("");
+        mCleanHelper.setCleanArea("");
     }
 
     private float caculateSystemScale(int xLength, int yLength, int scale) {
@@ -567,11 +569,10 @@ public class MapView extends View {
              * 绘制充电座
              */
             if (standPointF != null) {
-                canvas.drawBitmap(standBitmap, standPointF.x - 60, standPointF.y - 60, mPaintManager.getIconPaint());
+                float width=standBitmap.getWidth()/2f;
+                canvas.drawBitmap(standBitmap, matrixCoordinateX(standPointF.x )- width, matrixCoordinateY(standPointF.y) - width, mPaintManager.getIconPaint());
             }
         }
-
-
         super.onDraw(canvas);
     }
 
@@ -843,7 +844,7 @@ public class MapView extends View {
         if (standPointF == null) {
             standPointF = new PointF();
         }
-        standPointF.set(matrixCoordinateX(x), matrixCoordinateY(y));
+        standPointF.set(x,y);
         invalidateUI();
     }
 
@@ -957,7 +958,6 @@ public class MapView extends View {
         roomGatePath.reset();
         obstaclePath.reset();
         int x, y, type;
-        float space = 0;
         Coordinate coordinate;
         boolean isStartRoad = false;
         if (pointList.size() > 0) {
@@ -971,13 +971,16 @@ public class MapView extends View {
                         //未清扫区域
                         break;
                     case 1://已清扫
-                        boxPath.addRect(matrixCoordinateX(x), matrixCoordinateY(y), matrixCoordinateX(x) + baseScare - space, matrixCoordinateY(y) + baseScare - space, Path.Direction.CCW);
+                        boxPath.addRect(matrixCoordinateX(x), matrixCoordinateY(y), matrixCoordinateX(x) + baseScare, matrixCoordinateY(y) + baseScare, Path.Direction.CCW);
                         break;
                     case 2://障碍物
-                        obstaclePath.addRect(matrixCoordinateX(x), matrixCoordinateY(y), matrixCoordinateX(x) + baseScare - space, matrixCoordinateY(y) + baseScare - space, Path.Direction.CCW);
+                        obstaclePath.addRect(matrixCoordinateX(x), matrixCoordinateY(y), matrixCoordinateX(x) + baseScare, matrixCoordinateY(y) + baseScare, Path.Direction.CCW);
                         break;
                     case 3://房间门
-                        roomGatePath.addRect(matrixCoordinateX(x), matrixCoordinateY(y), matrixCoordinateX(x) + baseScare - space, matrixCoordinateY(y) + baseScare - space, Path.Direction.CCW);
+                        roomGatePath.addRect(matrixCoordinateX(x), matrixCoordinateY(y), matrixCoordinateX(x) + baseScare, matrixCoordinateY(y) + baseScare, Path.Direction.CCW);
+                        break;
+                    case -1://单包路径起点
+                        roadPath.moveTo(matrixCoordinateX(x), matrixCoordinateY(y));
                         break;
                     case 4://路径
                         if (!isStartRoad) {
@@ -986,8 +989,8 @@ public class MapView extends View {
                         } else {
                             roadPath.lineTo(matrixCoordinateX(x), matrixCoordinateY(y));
                         }
-                        endX = matrixCoordinateX(x) + (baseScare - space) / 2f;
-                        endY = matrixCoordinateY(y) + (baseScare - space) / 2f;
+                        endX = matrixCoordinateX(x) + (baseScare) / 2f;
+                        endY = matrixCoordinateY(y) + (baseScare) / 2f;
                         break;
                 }
             }
@@ -1012,13 +1015,13 @@ public class MapView extends View {
     @Override
     protected void onDetachedFromWindow() {
         super.onDetachedFromWindow();
-        if (slamBitmap != null) {
-            slamBitmap.recycle();
-            slamBitmap = null;
-        }
-        if (slamCanvas != null) {
-            slamCanvas = null;
-        }
+//        if (slamBitmap != null) {
+//            slamBitmap.recycle();
+//            slamBitmap = null;
+//        }
+//        if (slamCanvas != null) {
+//            slamCanvas = null;
+//        }
         if (deleteBitmap != null) {
             deleteBitmap.recycle();
         }
@@ -1183,11 +1186,11 @@ public class MapView extends View {
         OBSTACLE(3, UiUtil.getColorByARGB("#FF75767A")),
         RECTANGLE_BOUNDARY(4, UiUtil.getColorByARGB("#FFFFFF")),
         VIRTUAL(5, UiUtil.getColorByARGB("#F31E1B")),
-        GLOBAL_AREA(6, UiUtil.getColorByARGB("#10F91F1F")),
+        GLOBAL_AREA(6, UiUtil.getColorByARGB("#4DF91F1F")),
         GLOBAL_AREA_BOUNDARY(7, UiUtil.getColorByARGB("#F91F1F")),
-        MOP_AREA(8, UiUtil.getColorByARGB("#10EF7C00")),
+        MOP_AREA(8, UiUtil.getColorByARGB("#4DEF7C00")),
         MOP_AREA_BOUNDARY(9, UiUtil.getColorByARGB("#EF7C00")),
-        CLEAN_AREA(10, UiUtil.getColorByARGB("#101B92E2")),
+        CLEAN_AREA(10, UiUtil.getColorByARGB("#4D1B92E2")),
         CLEAN_AREA_BOUNDARY(11, UiUtil.getColorByARGB("#1B92E2")),
         END_CIRCLE(11, UiUtil.getColorByARGB("#FFF700")),
         ROOM(12, UiUtil.getColorByARGB("#1A000000")),

@@ -8,6 +8,7 @@ import android.util.Base64;
 import android.view.MotionEvent;
 
 import com.ilife.home.robot.R;
+import com.ilife.home.robot.app.MyApplication;
 import com.ilife.home.robot.bean.Coordinate;
 import com.ilife.home.robot.bean.MapDataBean;
 import com.ilife.home.robot.bean.PartitionBean;
@@ -282,19 +283,12 @@ public class DataUtils {
         }
         Coordinate coordinate;
         if (byteList.size() > 0) {
-            int xMax = 0, yMax = 0;
             int x = 0, y = 0, type = 0, length = 0;
             for (int i = 2; i < byteList.size(); i += 3) {
                 type = byteList.get(i - 1) & 0xff;
                 length = byteList.get(i) & 0xff;
                 for (int j = 0; j < length; j++) {
                     if (type != 0) {
-                        if (x > xMax) {
-                            xMax = x;
-                        }
-                        if (y > yMax) {
-                            yMax = y;
-                        }
                         coordinate = new Coordinate(x + leftX, y - leftY, type);
                         pointList.add(coordinate);
                     }
@@ -307,10 +301,31 @@ public class DataUtils {
 
                 }
             }
-            minX = leftX;
-            maxX = xMax + leftX;
-            minY = -leftY;
-            maxY = yMax - leftY;
+            /**
+             * 计算坐标边界
+             */
+            coordinate = pointList.get(0);
+            minX = coordinate.getX();
+            minY = coordinate.getY();
+            maxX = coordinate.getX();
+            maxY = coordinate.getY();
+            for (int i = 0; i < pointList.size(); i++) {
+                coordinate = pointList.get(i);
+                x = coordinate.getX();
+                y = coordinate.getY();
+                if (minX > x) {
+                    minX = x;
+                }
+                if (maxX < x) {
+                    maxX = x;
+                }
+                if (minY > y) {
+                    minY = y;
+                }
+                if (maxY < y) {
+                    maxY = y;
+                }
+            }
             MapDataBean bean = new MapDataBean(pointList, leftX, leftY, minX, minY, maxX, maxY, "");
             return bean;
         }
@@ -392,19 +407,26 @@ public class DataUtils {
     }
 
     public static String getScheduleTimes(int times) {
-        String value="";
+        String value = "";
         switch (times) {
             case 0:
             case 1:
-                value=UiUtil.getString(R.string.schedule_onece);
+                value = UiUtil.getString(R.string.schedule_onece);
                 break;
             case 2:
-                value=UiUtil.getString(R.string.schedule_twice);
+                value = UiUtil.getString(R.string.schedule_twice);
                 break;
             case 3:
-                value=UiUtil.getString(R.string.schedule_third);
+                value = UiUtil.getString(R.string.schedule_third);
                 break;
         }
         return value;
     }
+
+    public static String getLanguageByCode(int language) {
+        language = language - 1;
+        String[] languages = MyApplication.getInstance().getResources().getStringArray(R.array.array_voice_language);
+        return languages[language];
+    }
+
 }

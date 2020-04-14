@@ -44,7 +44,7 @@
     <ImageView
         android:id="@+id/image_status"
         android:layout_width="@dimen/dp_48"
-        android:layout_height="@dimen/dp_22"
+        android:layout_height="wrap_content"
         android:layout_gravity="end|center"
         android:background="@drawable/image_max_bg" />
 </FrameLayout>

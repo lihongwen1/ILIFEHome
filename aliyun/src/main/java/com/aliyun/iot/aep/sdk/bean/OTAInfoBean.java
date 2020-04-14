@@ -5,7 +5,8 @@ public class OTAInfoBean {
     private int UpdateProgess;
     private int CurrentVer;
     private int TargetVer;
-   private String wholeTargetVer;
+    private String wholeTargetVer;
+
     public int getUpdateState() {
         return UpdateState;
     }

@@ -12,7 +12,6 @@ import android.os.Bundle;
 import com.aliyun.alink.linksdk.tools.ThreadTools;
 import com.aliyun.alink.sdk.bone.plugins.config.BoneConfig;
 import com.aliyun.iot.aep.component.router.IUrlHandler;
-import com.aliyun.iot.aep.oa.OALanguageHelper;
 import com.aliyun.iot.aep.routerexternal.RouterExternal;
 import com.aliyun.iot.aep.sdk.apiclient.IoTAPIClientImpl;
 import com.aliyun.iot.aep.sdk.contant.IlifeAli;
@@ -23,7 +22,6 @@ import com.aliyun.iot.aep.sdk.helper.SDKInitHelper;
 import com.aliyun.iot.aep.sdk.log.ALog;
 
 import java.util.ArrayList;
-import java.util.Locale;
 
 public abstract class SdkApplication extends AApplication {
     @Override

@@ -54,6 +54,7 @@
 
 
         </LinearLayout>
+
         <com.aliyun.iot.aep.sdk.page.view.NextStepButton
             android:layout_width="match_parent"
             android:text="@string/ali_sdk_openaccount_text_login"
@@ -84,12 +85,14 @@
                 android:text="@string/ali_sdk_openaccount_text_forget_password"
                 android:textSize="16sp" />
         </LinearLayout>
+
         <Space
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1" />
 
         <LinearLayout
+            android:visibility="gone"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"

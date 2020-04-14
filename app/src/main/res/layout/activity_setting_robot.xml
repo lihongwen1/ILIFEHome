@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <include layout="@layout/template_top_title" />
+
+    <TextView
+        android:id="@+id/tv_subtitle"
+        style="@style/Text_16sp_33"
+        android:layout_marginStart="@dimen/dp_24"
+        android:layout_marginTop="@dimen/dp_20"
+        android:text="@string/setting_brush_speed" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
+        android:layout_marginTop="@dimen/dp_30"
+        android:layout_marginEnd="@dimen/dp_30"
+        android:orientation="horizontal">
+
+        <androidx.appcompat.widget.AppCompatSeekBar
+            android:id="@+id/sk_robot_set"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/dp_10"
+            android:layout_weight="1"
+            android:maxHeight="2dp"
+            android:progress="0"
+            android:min="1"
+            android:progressDrawable="@drawable/seek_bar_progress_drawable"
+            android:thumb="@drawable/seek_bar_thumb" />
+
+        <TextView
+            android:id="@+id/tv_robot_set"
+            style="@style/Text_18sp_33"
+            android:text="1"
+            android:textColor="@color/selector_text_color_gray" />
+    </LinearLayout>
+
+    <Space
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1" />
+
+    <com.ilife.home.robot.view.ShadowContainer
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="@dimen/dp_30"
+        app:containerCornerRadius="@dimen/dp_25"
+        app:containerDeltaLength="@dimen/dp_8"
+        app:containerShadowColor="@color/color_theme_66"
+        app:containerShadowRadius="@dimen/dp_6"
+        app:deltaY="@dimen/dp_2"
+        app:enable="true">
+
+        <Button
+            android:id="@+id/bt_save_robot_set"
+            style="@style/Button_Style"
+            android:text="@string/btn_save" />
+    </com.ilife.home.robot.view.ShadowContainer>
+</LinearLayout>

@@ -28,7 +28,7 @@ public class SpUtIiAli {
                 context = AApplication.getInstance();
             }
 
-            a = ((Context)context).getSharedPreferences("GlobalConfigFW", 0);
+            a = ((Context) context).getSharedPreferences("GlobalConfigFW", 0);
         }
 
         return a;
@@ -94,7 +94,7 @@ public class SpUtIiAli {
 
     public static <E extends Serializable> List<E> getList(Context context, String key) {
         try {
-            return (List)a(context, key);
+            return (List) a(context, key);
         } catch (Exception var3) {
             var3.printStackTrace();
             return null;
@@ -112,7 +112,7 @@ public class SpUtIiAli {
 
     public static <K extends String, V extends String> Map<K, V> getMap(Context context, String key) {
         try {
-            return (Map)a(context, key);
+            return (Map) a(context, key);
         } catch (Exception var3) {
             var3.printStackTrace();
             return null;
@@ -152,7 +152,7 @@ public class SpUtIiAli {
             if (object instanceof Boolean) {
                 putBoolean(context, tag, false);
             } else if (!(object instanceof Integer) && !(object instanceof Float)) {
-                a(context, tag, (Object)null);
+                a(context, tag, (Object) null);
             } else {
                 putInt(context, tag, -1);
             }

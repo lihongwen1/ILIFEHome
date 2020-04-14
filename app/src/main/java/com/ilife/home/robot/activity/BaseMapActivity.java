@@ -26,22 +26,24 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.aliyun.iot.aep.sdk.contant.AliSkills;
 import com.aliyun.iot.aep.sdk.contant.IlifeAli;
 import com.aliyun.iot.aep.sdk.contant.MsgCodeUtils;
+import com.app.hubert.guide.NewbieGuide;
+import com.app.hubert.guide.model.GuidePage;
 import com.badoo.mobile.util.WeakHandler;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
-import com.ilife.home.robot.adapter.MapBottomSheetAdapter;
-import com.ilife.home.robot.bean.Coordinate;
-import com.ilife.home.robot.fragment.UniversalDialog;
+import com.ilife.home.robot.R;
 import com.ilife.home.robot.able.DeviceUtils;
+import com.ilife.home.robot.adapter.MapBottomSheetAdapter;
 import com.ilife.home.robot.app.MyApplication;
 import com.ilife.home.robot.base.BackBaseActivity;
+import com.ilife.home.robot.bean.Coordinate;
 import com.ilife.home.robot.contract.MapX9Contract;
+import com.ilife.home.robot.fragment.UniversalDialog;
 import com.ilife.home.robot.fragment.UseTipDialogFragment;
 import com.ilife.home.robot.presenter.MapX9Presenter;
 import com.ilife.home.robot.utils.MyLogger;
 import com.ilife.home.robot.utils.ToastUtils;
 import com.ilife.home.robot.utils.Utils;
 import com.ilife.home.robot.view.CustomPopupWindow;
-import com.ilife.home.robot.R;
 import com.ilife.home.robot.view.MapView;
 
 import java.util.ArrayList;
@@ -231,8 +233,19 @@ public abstract class BaseMapActivity extends BackBaseActivity<MapX9Presenter> i
         mMapView.setmOT(MapView.OT.MAP);
         mMapView.setRobotSeriesX9(mPresenter.isX900Series());
         initBottomSheet();
-
+//        showGuide();
     }
+    private void showGuide() {
+        NewbieGuide.with(BaseMapActivity.this)
+                .setLabel("guide3")
+                .addGuidePage(GuidePage.newInstance()
+                        .addHighLight(fl_setting)
+
+                        .addHighLight(findViewById(R.id.tv_start_x9))
+                )
+                .alwaysShow(true).show();
+    }
+
 
     /**
      * 初始化底部操作栏
@@ -293,6 +306,7 @@ public abstract class BaseMapActivity extends BackBaseActivity<MapX9Presenter> i
                             || status == MsgCodeUtils.STATUE_WAIT) {
                         startActivity(new Intent(BaseMapActivity.this, SelectSaveMapActivity.class));
                     } else {
+                        startActivity(new Intent(BaseMapActivity.this, SelectSaveMapActivity.class));
                         ToastUtils.showToast(MyApplication.getInstance(), Utils.getString(R.string.map_aty_can_not_execute));
                     }
                     break;
@@ -411,8 +425,6 @@ public abstract class BaseMapActivity extends BackBaseActivity<MapX9Presenter> i
     }
 
 
-
-
     /**
      * 组件异常
      *
@@ -498,7 +510,7 @@ public abstract class BaseMapActivity extends BackBaseActivity<MapX9Presenter> i
             } else if (batteryNo < 75) {
                 image_ele.setImageResource(R.drawable.battery_ing_2);   //两格
             } else {
-                image_ele.setImageResource(R.drawable.battery_ing_3);   //满格
+                image_ele.setImageResource(R.drawable.battery_ing_full);   //满格
             }
         } else {
             if (batteryNo <= 6) {

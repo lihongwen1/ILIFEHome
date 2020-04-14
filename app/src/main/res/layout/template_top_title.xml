@@ -21,10 +21,11 @@
             android:layout_weight="1" />
 
         <FrameLayout
+            android:paddingStart="@dimen/dp_30"
             android:id="@+id/fl_top_menu"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:layout_marginEnd="@dimen/dp_30"
+           android:paddingEnd="@dimen/dp_30"
             android:visibility="gone">
 
             <ImageView

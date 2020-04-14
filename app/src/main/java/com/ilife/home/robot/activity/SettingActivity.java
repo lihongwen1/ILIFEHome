@@ -2,9 +2,6 @@ package com.ilife.home.robot.activity;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
-import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.animation.Animation;
@@ -15,25 +12,20 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import androidx.lifecycle.Observer;
-
-import com.aliyun.iot.aep.sdk._interface.OnAliResponseSingle;
+import com.alibaba.fastjson.JSONObject;
 import com.aliyun.iot.aep.sdk._interface.OnAliSetPropertyResponse;
 import com.aliyun.iot.aep.sdk.bean.DeviceInfoBean;
 import com.aliyun.iot.aep.sdk.contant.EnvConfigure;
 import com.aliyun.iot.aep.sdk.contant.IlifeAli;
-import com.aliyun.iot.aep.sdk.contant.LiveBusKey;
 import com.aliyun.iot.aep.sdk.contant.MsgCodeUtils;
-import com.badoo.mobile.util.WeakHandler;
 import com.ilife.home.livebus.LiveEventBus;
 import com.ilife.home.robot.BuildConfig;
 import com.ilife.home.robot.R;
-import com.ilife.home.robot.able.Constants;
-import com.ilife.home.robot.able.DeviceUtils;
 import com.ilife.home.robot.app.MyApplication;
 import com.ilife.home.robot.base.BackBaseActivity;
 import com.ilife.home.robot.bean.RobotConfigBean;
 import com.ilife.home.robot.fragment.UniversalDialog;
+import com.ilife.home.robot.utils.DataUtils;
 import com.ilife.home.robot.utils.MyLogger;
 import com.ilife.home.robot.utils.SpUtils;
 import com.ilife.home.robot.utils.ToastUtils;
@@ -48,7 +40,6 @@ import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
-import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
 
 
@@ -141,6 +132,20 @@ public class SettingActivity extends BackBaseActivity implements OnAliSetPropert
     LinearLayout ll_mode;
     @BindView(R.id.iv_find_device)
     ImageView iv_find_device;
+
+    @BindView(R.id.tv_language)
+    TextView tv_language;//语言
+    @BindView(R.id.tv_brush_speed_number)
+    TextView tv_brush_speed_number;//边刷速度
+
+    @BindView(R.id.tv_max_number)
+    TextView tv_max_number;//吸力强度
+
+    @BindView(R.id.tv_volume_number)
+    TextView tv_volume_number;
+
+    @BindView(R.id.image_carpet)
+    ImageView image_carpet;//地毯增压
     LayoutInflater inflater;
     Animation animation;
     private CompositeDisposable mDisposable;
@@ -148,21 +153,6 @@ public class SettingActivity extends BackBaseActivity implements OnAliSetPropert
     private UniversalDialog resetDialog;
     private String robotType;
     private RobotConfigBean.RobotBean rBean;
-
-    WeakHandler handler = new WeakHandler(new Handler.Callback() {
-        @Override
-        public boolean handleMessage(Message msg) {
-            if (msg.what == TAG_FIND_DONE) {
-                if (rl_find != null) {
-                    rl_find.setClickable(true);
-                    iv_find_device.setSelected(false);
-                    iv_find_device.clearAnimation();
-                }
-
-            }
-            return false;
-        }
-    });
 
 
     @Override
@@ -183,16 +173,38 @@ public class SettingActivity extends BackBaseActivity implements OnAliSetPropert
         inflater = LayoutInflater.from(context);
         tv_top_title.setText(R.string.ap_aty_setting);
         LiveEventBus.get(EnvConfigure.KEY_MAX_MODE, Boolean.class).observeSticky(this, max -> {
-            MyLogger.d("LiveBus","收到Live Bus 信息");
+            MyLogger.d("LiveBus", "收到Live Bus 信息");
             isMaxMode = max;
             setStatus(waterLevel, isMaxMode, voiceOpen);
         });
+        LiveEventBus.get(EnvConfigure.KEY_BeepVolume, Integer.class).observeSticky(this, value -> {
+            MyLogger.d("LiveBus", "收到Live Bus 信息");
+            tv_volume_number.setText(String.valueOf(value));
+        });
+        LiveEventBus.get(EnvConfigure.KEY_SideBrushPower, Integer.class).observeSticky(this, value -> {
+            MyLogger.d("LiveBus", "收到Live Bus 信息");
+            tv_brush_speed_number.setText(String.valueOf(value));
+        });
+        LiveEventBus.get(EnvConfigure.KEY_BeepType, Integer.class).observeSticky(this, value -> {
+            MyLogger.d("LiveBus", "收到Live Bus 信息");
+            tv_language.setText(String.valueOf(DataUtils.getLanguageByCode(value)));
+        });
+        LiveEventBus.get(EnvConfigure.KEY_CarpetControl, Integer.class).observeSticky(this, value -> {
+            MyLogger.d("LiveBus", "收到Live Bus 信息");
+            image_carpet.setSelected(value == 1);
+        });
+        LiveEventBus.get(EnvConfigure.KEY_FanPower, Integer.class).observeSticky(this, value -> {
+            MyLogger.d("LiveBus", "收到Live Bus 信息");
+            tv_max_number.setText(String.valueOf(value));
+        });
+
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        name = IlifeAli.getInstance().getWorkingDevice().getNickName();
+        DeviceInfoBean infoBean = IlifeAli.getInstance().getWorkingDevice();
+        name = infoBean.getNickName();
         if (name == null || name.isEmpty()) {
             devName = IlifeAli.getInstance().getWorkingDevice().getDeviceName();
             tv_name.setText(devName);
@@ -213,6 +225,11 @@ public class SettingActivity extends BackBaseActivity implements OnAliSetPropert
         isMaxMode = infoBean.getDeviceInfo().isMaxMode();
         voiceOpen = infoBean.getDeviceInfo().isVoiceOpen();
         setMode(mode);
+        tv_brush_speed_number.setText(String.valueOf(infoBean.getDeviceInfo().getBrushSpeed()));
+        tv_language.setText(DataUtils.getLanguageByCode(infoBean.getDeviceInfo().getLanguageCode()));
+        tv_max_number.setText(String.valueOf(infoBean.getDeviceInfo().getSuctionNumber()));
+        tv_volume_number.setText(String.valueOf(infoBean.getDeviceInfo().getVoiceVolume()));
+        image_carpet.setSelected(infoBean.getDeviceInfo().getCarpetControl() == 1);
         robotType = rBean.getRobotType();
         setStatus(waterLevel, isMaxMode, voiceOpen);
         int product = UiUtil.getDrawable(rBean.getFaceImg());
@@ -292,7 +309,7 @@ public class SettingActivity extends BackBaseActivity implements OnAliSetPropert
 
     @OnClick({R.id.rl_robot_head, R.id.rl_water, R.id.rl_clock, R.id.rl_record, R.id.rl_consume, R.id.rl_mode, R.id.rl_find,
             R.id.rl_plan, R.id.rl_random, R.id.rl_facReset, R.id.rl_voice, R.id.rl_update, R.id.rl_suction, R.id.rl_soft
-            , R.id.rl_standard, R.id.rl_strong})
+            , R.id.rl_standard, R.id.rl_strong, R.id.rl_set_language, R.id.rl_set_volume, R.id.rl_set_brush_speed, R.id.rl_set_max, R.id.rl_set_carpet})
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.rl_robot_head:
@@ -312,6 +329,31 @@ public class SettingActivity extends BackBaseActivity implements OnAliSetPropert
             case R.id.rl_clock:
                 intent = new Intent(context, ClockingActivity.class);
                 startActivity(intent);
+                break;
+            case R.id.rl_set_language:
+                intent = new Intent(context, VoiceLanguageActivity.class);
+                startActivity(intent);
+                break;
+            case R.id.rl_set_volume:
+                intent = new Intent(context, VoiceVolumeActivity.class);
+                startActivity(intent);
+                break;
+            case R.id.rl_set_brush_speed:
+                intent = new Intent(context, SettingBrushSpeedActivity.class);
+                startActivity(intent);
+                break;
+            case R.id.rl_set_max:
+                intent = new Intent(context, SettingSuctionActivity.class);
+                startActivity(intent);
+                break;
+            case R.id.rl_set_carpet:
+                String jsonStr = "{\"CarpetControl\":1}";
+                JSONObject jo = JSONObject.parseObject(jsonStr);
+                jo.put(EnvConfigure.KEY_CarpetControl, image_carpet.isSelected() ? 0 : 1);
+                showLoadingDialog();
+                IlifeAli.getInstance().setProperties(jo, aBoolean -> {
+                    hideLoadingDialog();
+                });
                 break;
             case R.id.rl_record:
                 intent = new Intent(context, HistoryActivity_x9.class);

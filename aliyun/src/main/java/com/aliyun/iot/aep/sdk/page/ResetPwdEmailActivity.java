@@ -14,6 +14,6 @@ public class ResetPwdEmailActivity extends EmailResetPasswordActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        OpenAccountUIConfigs.EmailResetPasswordLoginFlow.resetPasswordActivityClazz=EmailResetFillActivity.class;
+        OpenAccountUIConfigs.EmailResetPasswordLoginFlow.resetPasswordActivityClazz = EmailResetFillActivity.class;
     }
 }

@@ -22,7 +22,6 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
@@ -64,14 +63,14 @@ public class AliInterfaceDelegate {
                         onAliResponse.onFailed(0, ioTResponse.getMessage());
                         return;
                     }
-                    Log.d("ListDeviceByAccount","data: "+data);
+                    Log.d("ListDeviceByAccount", "data: " + data);
                     JSONObject jsonObject = (JSONObject) data;
                     JSONArray jsonArray;
                     try {
                         jsonArray = jsonObject.getJSONArray("data");
                         List<DeviceInfoBean> deviceInfoBeanList = JSON.parseArray(jsonArray.toString(), DeviceInfoBean.class);
-                        if (deviceInfoBeanList == null ) {
-                            deviceInfoBeanList=new ArrayList<>();
+                        if (deviceInfoBeanList == null) {
+                            deviceInfoBeanList = new ArrayList<>();
                         }
                         onAliResponse.onSuccess(deviceInfoBeanList);
                     } catch (JSONException e) {
@@ -225,7 +224,7 @@ public class AliInterfaceDelegate {
             @Override
             public void onFailure(IoTRequest ioTRequest, Exception e) {
                 //Alert the user that the request failed because of the network error
-                Log.e("ILIFE_ALI_","设置属性错误:"+e.getLocalizedMessage());
+                Log.e("ILIFE_ALI_", "设置属性错误:" + e.getLocalizedMessage());
                 onAliResponse.onFailed(ioTRequest.getPath(), 0, 0, e.getMessage());
             }
 
@@ -233,7 +232,7 @@ public class AliInterfaceDelegate {
             public void onResponse(IoTRequest ioTRequest, IoTResponse ioTResponse) {
                 int responseCode = ioTResponse.getCode();
                 if (ioTRequest == null || 200 != responseCode) {
-                    onAliResponse.onFailed(ioTRequest.getPath(), 0, 0,ioTResponse.getLocalizedMsg());
+                    onAliResponse.onFailed(ioTRequest.getPath(), 0, 0, ioTResponse.getLocalizedMsg());
                     //Alert the user that the request failed because of the network error
                 } else {
                     HashMap<String, Object> params = (HashMap<String, Object>) ioTRequest.getParams();

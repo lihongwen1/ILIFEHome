@@ -9,13 +9,13 @@ import com.aliyun.iot.aep.sdk._interface.OnAliResponse;
 import com.aliyun.iot.aep.sdk.apiclient.IoTAPIClient;
 import com.aliyun.iot.aep.sdk.apiclient.callback.IoTCallback;
 import com.aliyun.iot.aep.sdk.apiclient.callback.IoTResponse;
-import com.aliyun.iot.aep.sdk.apiclient.callback.IoTUIThreadCallback;
 import com.aliyun.iot.aep.sdk.apiclient.emuns.Scheme;
 import com.aliyun.iot.aep.sdk.apiclient.request.IoTRequest;
 import com.aliyun.iot.aep.sdk.apiclient.request.IoTRequestBuilder;
 import com.aliyun.iot.aep.sdk.bean.RealTimeMapBean;
 import com.aliyun.iot.aep.sdk.contant.EnvConfigure;
 import com.google.gson.Gson;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -46,7 +46,7 @@ public class GetHistoryMapDelegate {
         params.put(EnvConfigure.KEY_IOT_ID, iotId);
         params.put("identifier", EnvConfigure.KEY_REALTIMEMAP);
         params.put("start", start);
-        Log.d(TAG,"历史数据结束时间："+end);
+        Log.d(TAG, "历史数据结束时间：" + end);
         params.put("end", end);
         params.put("pageSize", 200);
         params.put("ordered", false);
@@ -57,7 +57,7 @@ public class GetHistoryMapDelegate {
                 .setApiVersion(EnvConfigure.API_VER)          // 参考业务API文档，设置apiVersion
                 .setParams(params)
                 .build();
-        ioTAPIClient.send(request,new IoTCallback() {
+        ioTAPIClient.send(request, new IoTCallback() {
             @Override
             public void onFailure(IoTRequest ioTRequest, Exception e) {
                 Log.e(TAG, "getCleaningHistory onFailure e = " + e.toString());
@@ -83,7 +83,7 @@ public class GetHistoryMapDelegate {
                         long timeStamp = jsonArray.getJSONObject(jsonArray.size() - 1).getLong("timestamp");
                         Log.d(TAG, "SLAM TIME: " + timeStamp + " ----:" + start + "-----:" + jsonArray.size());
                         if (jsonArray.size() == 200 && timeStamp > start) {//地图数据未完全获取，需进一步获取
-                            Log.d(TAG,"进一步获取数据..........");
+                            Log.d(TAG, "进一步获取数据..........");
                             end = timeStamp;
                             getRealHistoryMap();
                         } else {

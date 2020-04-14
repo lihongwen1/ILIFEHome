@@ -7,7 +7,7 @@ import java.util.Objects;
 public class Coordinate {
     private int x;
     private int y;
-    private int type;//4路径
+    private int type;//4路径  -1-分包标记
 
     public Coordinate(int x, int y, int type) {
         this.x = x;

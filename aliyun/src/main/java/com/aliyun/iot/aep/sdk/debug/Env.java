@@ -26,6 +26,7 @@ public class Env implements Serializable {
     private Env() {
         getEnv();
     }
+
     public static Env getInstance() {
         return Env.SingletonHolder.INSTANCE;
     }

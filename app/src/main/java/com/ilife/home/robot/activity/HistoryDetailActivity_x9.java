@@ -2,17 +2,13 @@ package com.ilife.home.robot.activity;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.text.TextUtils;
 import android.util.Base64;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.aliyun.iot.aep.sdk.bean.HistoryRecordBean;
-import com.aliyun.iot.aep.sdk.contant.EnvConfigure;
 import com.aliyun.iot.aep.sdk.contant.IlifeAli;
 import com.ilife.home.robot.R;
-import com.ilife.home.robot.able.Constants;
-import com.ilife.home.robot.able.DeviceUtils;
 import com.ilife.home.robot.app.MyApplication;
 import com.ilife.home.robot.base.BackBaseActivity;
 import com.ilife.home.robot.bean.Coordinate;
@@ -43,10 +39,10 @@ public class HistoryDetailActivity_x9 extends BackBaseActivity {
     private byte[] roadBytes;
     private String[] mapArray;
     private List<Integer> historyPointsList;
-    private int xMin;
-    private int xMax;
-    private int yMin;
-    private int yMax;
+    private int minX;
+    private int maxX;
+    private int minY;
+    private int maxY;
     @BindView(R.id.tv_top_title)
     TextView tv_title;
     @BindView(R.id.mv_history_detail)
@@ -149,12 +145,12 @@ public class HistoryDetailActivity_x9 extends BackBaseActivity {
 
                 }
             }
-            xMin = -y;
-            xMax = 0;
-            yMin = 0;
-            yMax = lineCount;
+            minX = -y;
+            maxX = 0;
+            minY = 0;
+            maxY = lineCount;
         }
-        mapView.updateSlam(xMin, xMax, yMin, yMax);
+        mapView.updateSlam(minX, maxX, minY, maxY);
         mapView.setNeedEndPoint(false);
         mapView.drawMapX8(pointList);
         MyLogger.e(TAG, "字节数：   " + byteList.size() + "-----总点数：  ");
@@ -207,8 +203,8 @@ public class HistoryDetailActivity_x9 extends BackBaseActivity {
                             for (int i = 1; i < bytes.length; i += 4) {
                                 x = DataUtils.bytesToInt(new byte[]{bytes[i], bytes[i + 1]}, 0);
                                 y = DataUtils.bytesToInt(new byte[]{bytes[i + 2], bytes[i + 3]}, 0);
-                                MyLogger.d(TAG,"路径坐标："+x+"   "+y);
-                                roadList.add(new Coordinate(x - lx, -y + ly, 4));
+                                MyLogger.d(TAG, "路径坐标：" + x + "   " + y);
+                                roadList.add(new Coordinate(x, -y, 4));
                             }
                         }
                     }
@@ -221,12 +217,9 @@ public class HistoryDetailActivity_x9 extends BackBaseActivity {
                 for (int i = 2; i < byteList.size(); i += 3) {
                     type = byteList.get(i - 1) & 0xff;
                     length = byteList.get(i) & 0xff;
-                    totalLength += length;
-
                     for (int j = 0; j < length; j++) {
                         if (type != 0) {
-                            MyLogger.d(TAG, "type: " + type);
-                            coordinate = new Coordinate(x, y, type);
+                            coordinate = new Coordinate(x + lx, y - ly, type);
                             pointList.add(coordinate);
                         }
                         if (x < lineCount - 1) {
@@ -238,10 +231,6 @@ public class HistoryDetailActivity_x9 extends BackBaseActivity {
 
                     }
                 }
-                xMin = 0;
-                xMax = lineCount;
-                yMin = 0;
-                yMax = y;
             }
             MyLogger.e(TAG, "字节数：   " + byteList.size() + "-----总点数：  " + totalLength);
             pointList.addAll(roadList);
@@ -254,7 +243,7 @@ public class HistoryDetailActivity_x9 extends BackBaseActivity {
 
                     @Override
                     public void onSuccess(List<Coordinate> pointList) {
-                        mapView.updateSlam(xMin, xMax, yMin, yMax);
+                        updateSlamX8(pointList, 0);
                         mapView.setNeedEndPoint(false);
                         mapView.drawMapX8(pointList);
                     }
@@ -266,6 +255,42 @@ public class HistoryDetailActivity_x9 extends BackBaseActivity {
                 });
     }
 
+
+    public void updateSlamX8(List<Coordinate> src, int offset) {
+        if (src == null || src.size() < 2) {
+            return;
+        }
+        Coordinate coordinate;
+        if (minX == 0 && minY == 0 && maxX == 0 && maxY == 0) {
+            coordinate = src.get(0);
+            minX = coordinate.getX();
+            minY = coordinate.getY();
+            maxX = coordinate.getX();
+            maxY = coordinate.getY();
+            MyLogger.d(TAG, "data is  clear, and  need to reset all params");
+        }
+        int x, y;
+        for (int i = 0; i < src.size(); i++) {
+            coordinate = src.get(i);
+            x = coordinate.getX();
+            y = coordinate.getY();
+            if (minX > x) {
+                minX = x;
+            }
+            if (maxX < x) {
+                maxX = x;
+            }
+            if (minY > y) {
+                minY = y;
+            }
+            if (maxY < y) {
+                maxY = y;
+            }
+        }
+        mapView.updateSlam(minX, maxX, minY, maxY);
+    }
+
+
     public void initData() {//取出传递过来的集合
         historyPointsList = new ArrayList<>();
         //TODO 适配X900系列机器时需要设置改值为true,a way is setting it by the result whether robot type  start with "x9"
@@ -275,7 +300,7 @@ public class HistoryDetailActivity_x9 extends BackBaseActivity {
         if (intent != null) {
             HistoryRecordBean record = (HistoryRecordBean) intent.getSerializableExtra("Record");
             mapArray = record != null ? record.getMapDataArray() : new String[0];
-            MyLogger.e(TAG, "getDate===:" + xMin + "<--->" + xMax + "<--->" + yMin + "<--->" + yMax + "<--->");
+            MyLogger.e(TAG, "getDate===:" + minX + "<--->" + maxX + "<--->" + minY + "<--->" + maxY + "<--->");
             long time_ = record.getStartTime();
             String date = generateTime(time_, "yyyy/MM/dd HH:mm");
             tv_title.setText(R.string.history_detail_title);

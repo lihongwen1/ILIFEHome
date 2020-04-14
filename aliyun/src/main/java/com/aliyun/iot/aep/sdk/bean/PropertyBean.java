@@ -17,7 +17,14 @@ public class PropertyBean {
     private String chagePort;
     private String cleanRoomData;//选房清扫数据
     private boolean initStatus;
-    public PropertyBean(){}
+    private int voiceVolume;//音量
+    private int suctionNumber;//吸力
+    private int brushSpeed;//边刷速度
+    private int languageCode;
+    private int carpetControl;//地毯增压
+
+    public PropertyBean() {
+    }
 
     public PropertyBean(boolean maxMode, int workMode, int battery, int waterLevel, long realTimeMapTimeLine, long historyMapTimeLine, boolean voiceOpen) {
         this.maxMode = maxMode;
@@ -155,6 +162,46 @@ public class PropertyBean {
 
     public void setCleanRoomData(String cleanRoomData) {
         this.cleanRoomData = cleanRoomData;
+    }
+
+    public int getVoiceVolume() {
+        return voiceVolume;
+    }
+
+    public void setVoiceVolume(int voiceVolume) {
+        this.voiceVolume = voiceVolume;
+    }
+
+    public int getSuctionNumber() {
+        return suctionNumber;
+    }
+
+    public void setSuctionNumber(int suctionNumber) {
+        this.suctionNumber = suctionNumber;
+    }
+
+    public int getBrushSpeed() {
+        return brushSpeed;
+    }
+
+    public void setBrushSpeed(int brushSpeed) {
+        this.brushSpeed = brushSpeed;
+    }
+
+    public int getLanguageCode() {
+        return languageCode;
+    }
+
+    public void setLanguageCode(int languageCode) {
+        this.languageCode = languageCode;
+    }
+
+    public int getCarpetControl() {
+        return carpetControl;
+    }
+
+    public void setCarpetControl(int carpetControl) {
+        this.carpetControl = carpetControl;
     }
 
     @Override

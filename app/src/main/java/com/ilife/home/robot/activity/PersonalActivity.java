@@ -23,6 +23,8 @@ import com.aliyun.iot.aep.sdk._interface.OnAliResponse;
 import com.aliyun.iot.aep.sdk.bean.DeviceInfoBean;
 import com.aliyun.iot.aep.sdk.contant.EnvConfigure;
 import com.aliyun.iot.aep.sdk.contant.IlifeAli;
+import com.app.hubert.guide.NewbieGuide;
+import com.app.hubert.guide.model.GuidePage;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.EncodeHintType;
 import com.google.zxing.MultiFormatWriter;
@@ -90,6 +92,7 @@ public class PersonalActivity extends BackBaseActivity implements View.OnClickLi
         ((TextView) findViewById(R.id.tv_top_title)).setText(R.string.personal_aty_personal_center);
         findViewById(R.id.ll_title).setBackgroundColor(getResources().getColor(R.color.zxing_transparent));
     }
+
 
     public void initData() {
         File dir = new File(Environment.getExternalStorageDirectory().getPath() + "/pic");

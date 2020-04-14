@@ -72,11 +72,15 @@ public class ClockEditActivity extends BackBaseActivity {
                     /**
                      * 选房清扫数据和划区清扫数据只能二选一
                      */
-                    if (mClockInfo.getType() == 1) {
+                    if (mClockInfo.getType()==0){
+                        mClockInfo.setArea("AAAAAAAAAAAAAAAAAAAAAA==");
+                        mClockInfo.setRoom(0);
+                    }
+                    if (mClockInfo.getType() == 1) {//分区
                         mClockInfo.setArea(s);
                         mClockInfo.setRoom(0);
                     }
-                    if (mClockInfo.getType() == 2) {
+                    if (mClockInfo.getType() == 2) {//分房
                         mClockInfo.setRoom(Integer.valueOf(s));
                         mClockInfo.setArea("AAAAAAAAAAAAAAAAAAAAAA==");
                     }

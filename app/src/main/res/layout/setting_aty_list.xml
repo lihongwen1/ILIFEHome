@@ -66,6 +66,66 @@
 
 
     <RelativeLayout
+        android:id="@+id/rl_set_max"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dp_60"
+        android:layout_marginStart="@dimen/dp_24">
+
+        <TextView
+            android:id="@+id/tv_set_max"
+            style="@style/Text_16sp_33"
+            android:text="@string/setting_set_max" />
+
+        <TextView
+            android:id="@+id/tv_max_number"
+            style="@style/Text_14sp_66"
+            android:layout_marginStart="@dimen/dp_20"
+            android:gravity="end"
+            android:layout_toStartOf="@id/iv_forward_max"
+            android:text="0" />
+
+        <ImageView
+            android:id="@+id/iv_forward_max"
+            style="@style/Image_Style_Forward"
+            android:layout_marginEnd="@dimen/dp_24" />
+
+        <View
+            style="@style/View_Line_Style"
+            android:layout_alignParentBottom="true" />
+    </RelativeLayout>
+
+
+
+    <RelativeLayout
+        android:id="@+id/rl_set_brush_speed"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dp_60"
+        android:layout_marginStart="@dimen/dp_24">
+
+        <TextView
+            android:id="@+id/tv_set_brush_speed"
+            style="@style/Text_16sp_33"
+            android:text="@string/setting_brush_speed" />
+
+        <TextView
+            android:id="@+id/tv_brush_speed_number"
+            style="@style/Text_14sp_66"
+            android:gravity="end"
+            android:layout_toStartOf="@id/iv_forward_brush"
+            android:text="0" />
+
+        <ImageView
+            android:id="@+id/iv_forward_brush"
+            style="@style/Image_Style_Forward"
+            android:layout_marginEnd="@dimen/dp_24" />
+
+        <View
+            style="@style/View_Line_Style"
+            android:layout_alignParentBottom="true" />
+    </RelativeLayout>
+
+
+    <RelativeLayout
         android:id="@+id/rl_water"
         android:layout_width="match_parent"
         android:layout_height="@dimen/dp_60"
@@ -78,7 +138,7 @@
 
         <TextView
             android:id="@+id/tv_water"
-            style="@style/Text_14sp_ac"
+            style="@style/Text_14sp_66"
             android:layout_marginStart="@dimen/dp_20"
             android:layout_toStartOf="@+id/image_down_1"
             android:layout_toEndOf="@+id/tv_control"
@@ -113,7 +173,7 @@
 
             <TextView
                 android:id="@+id/tv_soft"
-                style="@style/Text_14sp_ac"
+                style="@style/Text_14sp_66"
                 android:text="@string/setting_aty_soft"
                 android:textColor="@drawable/tv_water_color" />
 
@@ -134,7 +194,7 @@
 
             <TextView
                 android:id="@+id/tv_standard"
-                style="@style/Text_14sp_ac"
+                style="@style/Text_14sp_66"
                 android:text="@string/setting_aty_standard"
                 android:textColor="@drawable/tv_water_color" />
 
@@ -154,7 +214,7 @@
 
             <TextView
                 android:id="@+id/tv_strong"
-                style="@style/Text_14sp_ac"
+                style="@style/Text_14sp_66"
                 android:text="@string/setting_aty_strong"
                 android:textColor="@drawable/tv_water_color" />
 
@@ -181,7 +241,7 @@
 
         <TextView
             android:id="@+id/tv_mode"
-            style="@style/Text_14sp_ac"
+            style="@style/Text_14sp_66"
             android:layout_marginStart="@dimen/dp_20"
             android:layout_toStartOf="@+id/image_down_2"
             android:layout_toEndOf="@+id/tv_mode_"
@@ -216,7 +276,7 @@
 
             <TextView
                 android:id="@+id/tv_plan"
-                style="@style/Text_14sp_ac"
+                style="@style/Text_14sp_66"
                 android:layout_marginStart="@dimen/dp_30"
                 android:text="@string/setting_aty_nav_clean"
                 android:textColor="@drawable/tv_water_color" />
@@ -237,7 +297,7 @@
 
             <TextView
                 android:id="@+id/tv_random"
-                style="@style/Text_14sp_ac"
+                style="@style/Text_14sp_66"
                 android:layout_marginStart="@dimen/dp_30"
                 android:text="@string/setting_aty_random_clean"
                 android:textColor="@drawable/tv_water_color" />
@@ -257,7 +317,95 @@
             android:background="@color/color_e2" />
     </LinearLayout>
 
+
+
     <RelativeLayout
+        android:id="@+id/rl_set_carpet"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dp_60"
+        android:layout_marginStart="@dimen/dp_24">
+
+        <TextView
+            style="@style/Text_16sp_33"
+            android:text="@string/setting_carpet" />
+
+        <ImageView
+            android:id="@+id/image_carpet"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            android:layout_marginEnd="@dimen/dp_24"
+            android:background="@drawable/image_max_bg" />
+
+        <View
+            style="@style/View_Line_Style"
+            android:layout_alignParentBottom="true" />
+    </RelativeLayout>
+
+
+    <RelativeLayout
+        android:id="@+id/rl_set_volume"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dp_60"
+        android:layout_marginStart="@dimen/dp_24">
+
+        <TextView
+            android:id="@+id/tv_set_volume"
+            style="@style/Text_16sp_33"
+            android:text="@string/setting_set_volumn" />
+
+        <TextView
+            android:id="@+id/tv_volume_number"
+            style="@style/Text_14sp_66"
+            android:layout_toStartOf="@id/iv_forward_volume"
+            android:text="0"
+            android:gravity="end" />
+
+        <ImageView
+            android:id="@+id/iv_forward_volume"
+            style="@style/Image_Style_Forward"
+            android:layout_marginEnd="@dimen/dp_24" />
+
+        <View
+            style="@style/View_Line_Style"
+            android:layout_alignParentBottom="true" />
+    </RelativeLayout>
+
+
+    <RelativeLayout
+        android:id="@+id/rl_set_language"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dp_60"
+        android:layout_marginStart="@dimen/dp_24">
+
+        <TextView
+            android:id="@+id/tv_set_language"
+            style="@style/Text_16sp_33"
+            android:text="@string/setting_set_language" />
+
+        <TextView
+            android:id="@+id/tv_language"
+            style="@style/Text_14sp_66"
+            android:gravity="end"
+            android:layout_toStartOf="@id/iv_forward_language"
+            android:text="0" />
+
+        <ImageView
+            android:id="@+id/iv_forward_language"
+            style="@style/Image_Style_Forward"
+            android:layout_marginEnd="@dimen/dp_24" />
+
+        <View
+            style="@style/View_Line_Style"
+            android:layout_alignParentBottom="true" />
+    </RelativeLayout>
+
+
+
+
+    <RelativeLayout
+        android:visibility="gone"
         android:id="@+id/rl_voice"
         android:layout_width="match_parent"
         android:layout_height="@dimen/dp_60"
@@ -283,6 +431,7 @@
 
 
     <RelativeLayout
+        android:visibility="gone"
         android:id="@+id/rl_suction"
         android:layout_width="match_parent"
         android:layout_height="@dimen/dp_60"

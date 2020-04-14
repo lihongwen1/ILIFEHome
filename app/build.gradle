@@ -1,8 +1,8 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 29
-    buildToolsVersion "29.0.3"
+    compileSdkVersion 28
+    buildToolsVersion "28.0.3"
     defaultConfig {
         applicationId "com.ilife.home.robot"
         minSdkVersion 21
@@ -67,7 +67,7 @@ android {
             dimension "default"
             applicationId "com.ilife.home.robot_test"
             versionCode = 5
-            versionName = 'V1.0.2'
+            versionName = '1.0.2.1'
             signingConfig signingConfigs.ilife_home
             resValue "string", "app_name", "ILIFEHome"
             buildConfigField("String", "environment", "\"product\"")
@@ -80,10 +80,10 @@ android {
         zaco {
             dimension "default"
             applicationId "com.zaco.home.robot"
-            versionCode = 2
-            versionName = '1.0.0.2'
-            signingConfig signingConfigs.ilife
-            resValue "string", "app_name", "ZACO"
+            versionCode = 3
+            versionName = '1.0.2.1'
+            signingConfig signingConfigs.ilife_home
+            resValue "string", "app_name", "ZACOHome"
             buildConfigField("String", "environment", "\"product\"")
             buildConfigField("String", "BRAND", "\"ZACO\"")
             buildConfigField("String", "BUGKY_KEY", "\"2b09f20d-6fca-47de-9e45-3d14223e6731\"")
@@ -142,4 +142,5 @@ dependencies {
     implementation project(path: ':aliyun')
     implementation 'androidx.lifecycle:lifecycle-extensions:2.2.0'
     implementation 'com.romandanylyk:pageindicatorview:1.0.3'
+    implementation 'com.github.huburt-Hu:NewbieGuide:v2.4.0'
 }

@@ -40,7 +40,7 @@ public class HistoryRecordBean implements Serializable {
     }
 
     public int getCleanTotalTime() {
-        return CleanTotalTime/60;
+        return CleanTotalTime / 60;
     }
 
     public void setCleanTotalTime(int CleanTotalTime) {
@@ -126,10 +126,10 @@ public class HistoryRecordBean implements Serializable {
      */
     public void addCleanData(int packNum, int pkgId, String cleanData) {
         if (mapDataArray == null) {
-            mapDataArray = new String[packNum+1];
+            mapDataArray = new String[packNum + 1];
         }
 
-        if (pkgId<mapDataArray.length&&mapDataArray[pkgId] == null) {
+        if (pkgId < mapDataArray.length && mapDataArray[pkgId] == null) {
             mapDataArray[pkgId] = cleanData;
         }
     }

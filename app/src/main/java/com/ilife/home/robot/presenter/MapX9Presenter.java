@@ -3,11 +3,12 @@ package com.ilife.home.robot.presenter;
 import android.text.TextUtils;
 import android.util.Base64;
 
+import androidx.lifecycle.Observer;
+
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.aliyun.iot.aep.sdk._interface.OnAliResponse;
 import com.aliyun.iot.aep.sdk._interface.OnAliSetPropertyResponse;
-import com.aliyun.iot.aep.sdk._interface.OnDevicePoropertyResponse;
 import com.aliyun.iot.aep.sdk.bean.HistoryRecordBean;
 import com.aliyun.iot.aep.sdk.bean.PropertyBean;
 import com.aliyun.iot.aep.sdk.bean.RealTimeMapBean;
@@ -16,12 +17,13 @@ import com.aliyun.iot.aep.sdk.contant.EnvConfigure;
 import com.aliyun.iot.aep.sdk.contant.IlifeAli;
 import com.aliyun.iot.aep.sdk.contant.MsgCodeUtils;
 import com.google.gson.Gson;
-import com.google.gson.JsonObject;
+import com.ilife.home.livebus.LiveEventBus;
 import com.ilife.home.robot.R;
 import com.ilife.home.robot.able.DeviceUtils;
 import com.ilife.home.robot.activity.BaseMapActivity;
 import com.ilife.home.robot.activity.SettingActivity;
 import com.ilife.home.robot.app.MyApplication;
+import com.ilife.home.robot.base.BaseActivity;
 import com.ilife.home.robot.base.BasePresenter;
 import com.ilife.home.robot.bean.Coordinate;
 import com.ilife.home.robot.bean.MapDataBean;
@@ -217,7 +219,7 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
         if (!TextUtils.isEmpty(mapData)) {
             byte[] bytes = Base64.decode(mapData, Base64.DEFAULT);
             Coordinate coordinate;
-            int index;
+            boolean isFirstRoadPoint=true;//第一个路径点
             if (bytes != null && bytes.length > 0) {
                 for (int i = 4; i < bytes.length; i += 5) {
                     int type = bytes[i];
@@ -230,14 +232,12 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
                     pointCoor[0] = bytes[i - 2];
                     pointCoor[1] = bytes[i - 1];
                     int y = DataUtils.bytesToInt(pointCoor, 0);
-                    coordinate = new Coordinate(x, -y, type);
-//                    index = pointList.indexOf(coordinate);
-//                    if (index == -1) {
-//                        pointList.add(coordinate);
-//                    } else if ( pointList.get(index).getType()!=){
-//                        pointList.remove(index);
-//                        pointList.add(coordinate);
-//                    }
+                    if (isFirstRoadPoint&&type==4) {
+                        isFirstRoadPoint=false;
+                        coordinate = new Coordinate(x,-y , -1);
+                    } else {
+                        coordinate = new Coordinate(x, -y, type);
+                    }
                     pointList.add(coordinate);
                 }
             }
@@ -348,6 +348,11 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
                         if (propertyBean.isInitStatus() && propertyBean.getSelectedMapId() != 0) {
                             doAboutSlam(propertyBean);
                         }
+                        LiveEventBus.get(EnvConfigure.VirtualWallData, String.class).post(propertyBean.getVirtualWall());
+                        LiveEventBus.get(EnvConfigure.KEY_FORBIDDEN_AREA, String.class).post(propertyBean.getForbiddenArea());
+                        LiveEventBus.get(EnvConfigure.CleanAreaData, String.class).post(propertyBean.getCleanArea());
+                        LiveEventBus.get(EnvConfigure.CleanPartitionData, String.class).post(propertyBean.getCleanRoomData());
+                        LiveEventBus.get(EnvConfigure.ChargerPiont, String.class).post(propertyBean.getChagePort());
                     }
                 }
             }
@@ -526,21 +531,24 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
     }
 
 
+    /**
+     * 注册实时地图数据监听
+     */
     @Override
     public void registerPropReceiver() {
-        IlifeAli.getInstance().registerDownStream(new OnDevicePoropertyResponse() {
-            @Override
-            public void onStatusChange(int workmode) {
-                if (workmode == curStatus) {
-                    return;
-                }
-                MyLogger.e(TAG, "registerPropReceiver----onStatusChange" + workmode);
-                curStatus = workmode;
-                setStatus(curStatus, batteryNo);
+        IlifeAli.getInstance().registerDownStream();
+        LiveEventBus.get(EnvConfigure.KEY_WORK_MODE, Integer.class).observe((BaseActivity) mView, workMode -> {
+            if (workMode == curStatus) {
+                return;
             }
+            MyLogger.e(TAG, "registerPropReceiver----onStatusChange" + workMode);
+            curStatus = workMode;
+            setStatus(curStatus, batteryNo);
+        });
 
+        LiveEventBus.get(EnvConfigure.KEY_REAL_TIME_MAP_START, Long.class).observe((BaseActivity) mView, new Observer<Long>() {
             @Override
-            public void onRealTimeMapStart(long startTime) {
+            public void onChanged(Long startTime) {
                 MyLogger.d(TAG, "registerPropReceiver----onRealTimeMapStart");
                 //TODO 清空地图相关数据
                 mapStartTime = startTime;
@@ -551,67 +559,101 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
                     mView.drawMapX8(pointList, slamPointList);
                 }
             }
+        });
 
+        LiveEventBus.get(EnvConfigure.KEY_BATTERY_STATE, Integer.class).observe((BaseActivity) mView, new Observer<Integer>() {
             @Override
-            public void onBatterState(int batteryLevel) {
+            public void onChanged(Integer batteryLevel) {
                 batteryNo = batteryLevel;
                 IlifeAli.getInstance().getWorkingDevice().setBattery(batteryNo);
                 setStatus(curStatus, batteryNo);
             }
-
-            @Override
-            public void onRealMap(String mapBeanData) {
-                if (mapBeanData == null) {
-                    return;
-                }
-                singleThread.execute(new ParseDataRunnable(mapBeanData));
+        });
+        LiveEventBus.get(EnvConfigure.KEY_REALTIMEMAP, String.class).observe((BaseActivity) mView, mapBeanData -> {
+            if (mapBeanData == null) {
+                return;
             }
-
-            @Override
-            public void onMaxChange(boolean isMax) {
-                IlifeAli.getInstance().getWorkingDevice().getDeviceInfo().setMaxMode(isMax);
+            singleThread.execute(new ParseDataRunnable(mapBeanData));
+        });
+        LiveEventBus.get(EnvConfigure.KEY_REALTIMEMAP, String.class).observe((BaseActivity) mView, mapBeanData -> {
+            if (mapBeanData == null) {
+                return;
             }
+            singleThread.execute(new ParseDataRunnable(mapBeanData));
+        });
 
+        LiveEventBus.get(EnvConfigure.KEY_ERRORCODE, Integer.class).observe((BaseActivity) mView, new Observer<Integer>() {
             @Override
-            public void onError(int code) {
+            public void onChanged(Integer code) {
                 MyLogger.d(TAG, "ERRORCODE-----" + code);
                 errorCode = code;
                 mView.showErrorPopup(errorCode);
                 setStatus(curStatus, batteryNo);
             }
+        });
 
-            @Override
-            public void onCleanAreaChange(String data) {
-                MyLogger.d(TAG, "清扫区域改变:  " + data);
-                mView.drawCleanArea(data);
+        LiveEventBus.get(EnvConfigure.CleanAreaData, String.class).observe((BaseActivity) mView, cleanAreaData -> {
+            MyLogger.d(TAG, "清扫区域改变:  " + cleanAreaData);
+            //处理清扫区域
+            if ((curStatus == MsgCodeUtils.STATUE_CLEAN_AREA || curStatus == MsgCodeUtils.STATUE_CLEAN_ROOM) &&
+                    !TextUtils.isEmpty(cleanAreaData)) {
+                JSONObject json = JSON.parseObject(cleanAreaData);
+                int times = json.getIntValue("CleanLoop");
+                int cleanedTimes = times >> 4;
+                int settingTimes = times & 0x0f;
+                boolean enable = json.getIntValue("Enable") != 0;//0-无效/没有进行 1-开始 2-进行中
+                mView.updateCleanTimes(enable, cleanedTimes, settingTimes);
+                String area = "";
+                if (enable) {
+                    area = json.getString("AreaData");
+                    if (area.equals("AAAAAAAAAAAAAAAAAAAAAA==")) {
+                        area = "";
+                    }
+                }
+                mView.drawCleanArea(area);
             }
-
-            @Override
-            public void onForbiddenAreaChange(String fbdArea) {
-                MyLogger.d(TAG, "禁区改变:  " + fbdArea);
+        });
+        LiveEventBus.get(EnvConfigure.KEY_FORBIDDEN_AREA, String.class).observe((BaseActivity) mView, fbdArea -> {
+            MyLogger.d(TAG, "禁区改变:  " + fbdArea);
+            if (!TextUtils.isEmpty(fbdArea)) {
                 mView.drawForbiddenArea(fbdArea);
             }
-
-            @Override
-            public void onVirtualWallChange(String virtualWall) {
-                MyLogger.d(TAG, "虚拟墙改变:  " + virtualWall);
+        });
+        LiveEventBus.get(EnvConfigure.VirtualWallData, String.class).observe((BaseActivity) mView, virtualWall -> {
+            MyLogger.d(TAG, "虚拟墙改变:  " + virtualWall);
+            if (!TextUtils.isEmpty(virtualWall)) {
                 mView.drawVirtualWall(virtualWall);
             }
+        });
+        LiveEventBus.get(EnvConfigure.CleanPartitionData, String.class).observe((BaseActivity) mView, cleanRoomData -> {
+            if (!TextUtils.isEmpty(cleanRoomData)) {
+                JSONObject json = JSON.parseObject(cleanRoomData);
+                int times = json.getIntValue("CleanLoop");
+                int cleanedTimes = times >> 4;
+                int settingTimes = times & 0x0f;
+                boolean enable = json.getIntValue("Enable") != 0;//0-无效/没有进行 1-开始 2-进行中
+                mView.updateCleanTimes(enable, cleanedTimes, settingTimes);
+            }
+        });
 
-            @Override
-            public void onCleanRoomChange(String cleanRoomData) {
-                if (!TextUtils.isEmpty(cleanRoomData)) {
-                    JSONObject json = JSON.parseObject(cleanRoomData);
-                    int times = json.getIntValue("CleanLoop");
-                    int cleanedTimes = times >> 4;
-                    int settingTimes = times & 0x0f;
-                    boolean enable = json.getIntValue("Enable") != 0;//0-无效/没有进行 1-开始 2-进行中
-                    mView.updateCleanTimes(enable, cleanedTimes, settingTimes);
+        LiveEventBus.get(EnvConfigure.ChargerPiont, String.class).observe((BaseActivity) mView, chargingPort -> {
+            if (!TextUtils.isEmpty(chargingPort) && isViewAttached() && isDrawMap()) {
+                JSONObject jsonObject = JSONObject.parseObject(chargingPort);
+                boolean isDisplay = jsonObject.getIntValue("DisplaySwitch") == 1;
+                if (isDisplay) {
+                    int xy = jsonObject.getIntValue("Piont");
+                    byte[] bytes = DataUtils.intToBytes4(xy);
+                    int x = DataUtils.bytesToInt(new byte[]{bytes[0], bytes[1]}, 0);
+                    int y = -DataUtils.bytesToInt(new byte[]{bytes[2], bytes[3]}, 0);
+                    mView.drawChargePort(x, y);
                 }
             }
+        });
 
+
+        LiveEventBus.get(EnvConfigure.KEY_INIT_STATUS, Integer.class).observe((BaseActivity) mView, new Observer<Integer>() {
             @Override
-            public void onInitStatusChange(int initStatus) {
+            public void onChanged(Integer initStatus) {
                 MyLogger.d(TAG, "初始化状态改变 init status：" + initStatus);
                 slamPointList.clear();
                 IlifeAli.getInstance().getProperties(new OnAliResponse<PropertyBean>() {
@@ -630,19 +672,16 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
     }
 
     /**
-     * 处理和slam一起显示的相关UI
-     * slam ,virtual wall , forbidden area, clean area etc.
+     * 处理SLAM
      */
     private void doAboutSlam(PropertyBean result) {
         long selectId = result.getSelectedMapId();
-        String virtual = result.getVirtualWall();
-        String fbd = result.getForbiddenArea();
-        String cleanAreaData = result.getCleanArea();
-        String cleanRoomData = result.getCleanRoomData();
-        String chargingPort = result.getChagePort();
         IlifeAli.getInstance().getSelectMap(selectId, new OnAliResponse<List<HistoryRecordBean>>() {
             @Override
             public void onSuccess(List<HistoryRecordBean> result) {
+                if (!isViewAttached()) {
+                    return;
+                }
                 //只有一条记录才正确
                 if (result == null || result.size() == 0) {
                     MyLogger.e(TAG, "保存地图数据错误！！！！！！！！！！");
@@ -658,56 +697,6 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
                     slamPointList.clear();
                     slamPointList.addAll(mapDataBean.getCoordinates());
                     mView.drawMapX8(pointList, slamPointList);
-                    if (!TextUtils.isEmpty(virtual)) {
-                        mView.drawVirtualWall(virtual);
-                    }
-                    if (!TextUtils.isEmpty(fbd)) {
-                        mView.drawForbiddenArea(fbd);
-                    }
-                    //处理清扫区域
-                    if ((curStatus == MsgCodeUtils.STATUE_CLEAN_AREA || curStatus == MsgCodeUtils.STATUE_CLEAN_ROOM) &&
-                            !TextUtils.isEmpty(cleanAreaData)) {
-                        JSONObject json = JSON.parseObject(cleanAreaData);
-                        int times = json.getIntValue("CleanLoop");
-                        int cleanedTimes = times >> 4;
-                        int settingTimes = times & 0x0f;
-                        boolean enable = json.getIntValue("Enable") != 0;//0-无效/没有进行 1-开始 2-进行中
-                        mView.updateCleanTimes(enable, cleanedTimes, settingTimes);
-                        String area = "";
-                        if (enable) {
-                            area = json.getString("AreaData");
-                            if (area.equals("AAAAAAAAAAAAAAAAAAAAAA==")) {
-                                area = "";
-                            }
-                        }
-                        mView.drawCleanArea(area);
-                    }
-                    /**
-                     * 处理选房数据
-                     */
-                    if (!TextUtils.isEmpty(cleanRoomData)) {
-                        JSONObject json = JSON.parseObject(cleanRoomData);
-                        int times = json.getIntValue("CleanLoop");
-                        int cleanedTimes = times >> 4;
-                        int settingTimes = times & 0x0f;
-                        boolean enable = json.getIntValue("Enable") != 0;//0-无效/没有进行 1-开始 2-进行中
-                        mView.updateCleanTimes(enable, cleanedTimes, settingTimes);
-                    }
-
-                    /**
-                     * 处理充电座
-                     */
-                    if (!TextUtils.isEmpty(chargingPort) && isViewAttached() && isDrawMap()) {
-                        JSONObject jsonObject = JSONObject.parseObject(chargingPort);
-                        boolean isDisplay = jsonObject.getIntValue("DisplaySwitch") == 1;
-                        if (isDisplay) {
-                            int xy = jsonObject.getIntValue("Piont");
-                            byte[] bytes = DataUtils.intToBytes4(xy);
-                            int x = DataUtils.bytesToInt(new byte[]{bytes[0], bytes[1]}, 0);
-                            int y = -DataUtils.bytesToInt(new byte[]{bytes[2], bytes[3]}, 0);
-                            mView.drawChargePort(x, y);
-                        }
-                    }
                 }
             }
 

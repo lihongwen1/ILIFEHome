@@ -200,7 +200,7 @@
                             style="@style/map_text_button"
                             android:drawableTop="@drawable/selector_btn_max"
                             android:text="MAX"
-                            android:visibility="visible" />
+                            android:visibility="gone" />
 
                         <TextView
                             android:id="@+id/tv_recharge_x9"

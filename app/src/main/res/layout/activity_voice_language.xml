@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/bg_color_f5f7fa"
+    android:orientation="vertical">
+
+
+    <include layout="@layout/template_top_title" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rv_voice_language"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginTop="1dp"
+        android:paddingStart="@dimen/dp_30"
+        android:paddingEnd="@dimen/dp_30"
+        android:background="@color/white"
+        android:layout_weight="1" />
+
+    <com.ilife.home.robot.view.ShadowContainer
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|center"
+        android:layout_marginTop="@dimen/dp_20"
+        android:layout_marginBottom="@dimen/dp_30"
+        app:containerCornerRadius="@dimen/dp_25"
+        app:containerDeltaLength="@dimen/dp_8"
+        app:containerShadowColor="@color/color_theme_66"
+        app:containerShadowRadius="@dimen/dp_6"
+        app:deltaY="@dimen/dp_2"
+        app:enable="true">
+
+        <Button
+            android:id="@+id/bt_save_volume"
+            style="@style/Button_Style"
+            android:text="@string/btn_save" />
+    </com.ilife.home.robot.view.ShadowContainer>
+</LinearLayout>

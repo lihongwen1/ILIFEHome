@@ -13,8 +13,7 @@
         <item>X800</item>
     </string-array>
     <string-array name="array_zaco_device_type">
-        <item>X800</item>
-        <item>X420</item>
+        <item>X801</item>
     </string-array>
     <string-array name="array_week">
         <item>@string/week_sunday_full</item>
@@ -55,4 +54,25 @@
         <item>@string/map_bottom_sheet_select_map</item>
         <item>@string/map_bottom_sheet_find_robot</item>
     </array>
+    <string-array name="array_voice_language">
+        <item>汉语</item>
+        <item>英语</item>
+        <item>日语</item>
+        <item>韩语</item>
+        <item>英语</item>
+        <item>Czech</item>
+        <item>Danish</item>
+        <item>Dutch</item>
+        <item>English</item>
+        <item>Finnis</item>
+        <item>French </item>
+        <item>German </item>
+        <item>Greek</item>
+        <item>Italian</item>
+        <item>Norwegian</item>
+        <item>Polish</item>
+        <item>Portuguese</item>
+        <item>Spanish</item>
+        <item>Swedish</item>
+    </string-array>
 </resources>

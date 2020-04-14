@@ -163,10 +163,10 @@ public class DeviceUtils {
                 str = context.getString(R.string.map_status_select_room);
             }
             if (b == MsgCodeUtils.STATUE_CHARGING_BASE_SLEEP) {//充电座休眠
-                str = context.getString(R.string.map_status_select_room);
+                str = context.getString(R.string.map_status_charging_base_sleep);
             }
             if (b == MsgCodeUtils.STATUE_CHARGING_ADAPTER_SLEEP) {//适配器充电休眠
-                str = context.getString(R.string.map_status_select_room);
+                str = context.getString(R.string.map_status_charging_dot_sleep);
             }
         }
         return str;

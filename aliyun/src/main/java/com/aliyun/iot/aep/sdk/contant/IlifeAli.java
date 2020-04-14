@@ -1,10 +1,8 @@
 package com.aliyun.iot.aep.sdk.contant;
 
 import android.os.Build;
-import android.os.Process;
 import android.text.TextUtils;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
@@ -24,7 +22,6 @@ import com.aliyun.iot.aep.sdk._interface.OnAliBindDeviceResponse;
 import com.aliyun.iot.aep.sdk._interface.OnAliResponse;
 import com.aliyun.iot.aep.sdk._interface.OnAliResponseSingle;
 import com.aliyun.iot.aep.sdk._interface.OnAliSetPropertyResponse;
-import com.aliyun.iot.aep.sdk._interface.OnDevicePoropertyResponse;
 import com.aliyun.iot.aep.sdk.apiclient.IoTAPIClient;
 import com.aliyun.iot.aep.sdk.apiclient.IoTAPIClientFactory;
 import com.aliyun.iot.aep.sdk.apiclient.callback.IoTCallback;
@@ -40,23 +37,19 @@ import com.aliyun.iot.aep.sdk.bean.OTAUpgradeBean;
 import com.aliyun.iot.aep.sdk.bean.PropertyBean;
 import com.aliyun.iot.aep.sdk.bean.RealTimeMapBean;
 import com.aliyun.iot.aep.sdk.bean.ScheduleBean;
-import com.aliyun.iot.aep.sdk.credential.IotCredentialManager.IoTCredentialManage;
 import com.aliyun.iot.aep.sdk.credential.IotCredentialManager.IoTCredentialManageImpl;
 import com.aliyun.iot.aep.sdk.delegate.AliInterfaceDelegate;
 import com.aliyun.iot.aep.sdk.delegate.BindDeviceDelagate;
 import com.aliyun.iot.aep.sdk.delegate.GetHistoryMapDelegate;
 import com.aliyun.iot.aep.sdk.delegate.GetHistoryRecordDelegate;
 import com.aliyun.iot.aep.sdk.framework.AApplication;
-import com.aliyun.iot.aep.sdk.framework.sdk.SDKManager;
 import com.aliyun.iot.aep.sdk.framework.utils.SpUtil;
 import com.aliyun.iot.aep.sdk.helper.SDKInitHelper;
 import com.aliyun.iot.aep.sdk.login.ILoginCallback;
 import com.aliyun.iot.aep.sdk.login.ILogoutCallback;
 import com.aliyun.iot.aep.sdk.login.LoginBusiness;
 import com.aliyun.iot.aep.sdk.login.data.UserInfo;
-import com.aliyun.iot.aep.sdk.threadpool.ThreadPool;
 import com.google.gson.Gson;
-import com.google.gson.JsonObject;
 import com.ilife.home.livebus.LiveEventBus;
 
 import java.util.ArrayList;
@@ -409,7 +402,7 @@ public class IlifeAli {
     }
 
 
-    public void registerDownStream(OnDevicePoropertyResponse propertyResponse) {
+    public void registerDownStream() {
         if (downListener == null) {
             downListener = new IMobileDownstreamListener() {
                 @Override
@@ -417,7 +410,7 @@ public class IlifeAli {
                     Log.d(TAG, "method:      " + method + "---      data:" + data);
                     JSONObject object = JSONObject.parseObject(data);
                     String iot = object.getString(EnvConfigure.KEY_IOT_ID);
-                    if (!iot.equals(iotId) || propertyResponse == null) {//
+                    if (!iot.equals(iotId)) {//
                         return;
                     }
                     switch (method) {
@@ -427,44 +420,55 @@ public class IlifeAli {
                                 if (items.containsKey(EnvConfigure.KEY_POWER_SWITCH)) {
                                     ToastUtils.toast(aApplication, items.getJSONObject(EnvConfigure.KEY_POWER_SWITCH).getString(EnvConfigure.KEY_VALUE));
                                 } else if (items.containsKey(EnvConfigure.KEY_WORK_MODE)) {//工作状态
-                                    propertyResponse.onStatusChange(items.getJSONObject(EnvConfigure.KEY_WORK_MODE).getIntValue(EnvConfigure.KEY_VALUE));
+                                    LiveEventBus.get(EnvConfigure.KEY_WORK_MODE,Integer.class).post(items.getJSONObject(EnvConfigure.KEY_WORK_MODE).getIntValue(EnvConfigure.KEY_VALUE));
                                 } else if (items.containsKey(EnvConfigure.KEY_REALTIMEMAP)) {//实时地图数据
-                                    Log.e(TAG, "时间数据：" + items.getJSONObject(EnvConfigure.KEY_REALTIMEMAP).getLong(EnvConfigure.KEY_TIME));
-                                    propertyResponse.onRealMap(items.getJSONObject(EnvConfigure.KEY_REALTIMEMAP).getString(EnvConfigure.KEY_VALUE));
+                                    LiveEventBus.get(EnvConfigure.KEY_REALTIMEMAP,String.class).post(items.getJSONObject(EnvConfigure.KEY_REALTIMEMAP).getString(EnvConfigure.KEY_VALUE));
                                 } else if (items.containsKey(EnvConfigure.KEY_REAL_TIME_MAP_START)) {
-                                    long marStartTime = items.getJSONObject(EnvConfigure.KEY_REAL_TIME_MAP_START).getLongValue(EnvConfigure.KEY_TIME);
-                                    propertyResponse.onRealTimeMapStart(marStartTime);
+                                    LiveEventBus.get(EnvConfigure.KEY_REAL_TIME_MAP_START,Long.class).post(items.getJSONObject(EnvConfigure.KEY_REAL_TIME_MAP_START).getLongValue(EnvConfigure.KEY_TIME));
                                 } else if (items.containsKey(EnvConfigure.KEY_BATTERY_STATE)) {
-                                    int battery = items.getJSONObject(EnvConfigure.KEY_BATTERY_STATE).getIntValue(EnvConfigure.KEY_VALUE);
-                                    propertyResponse.onBatterState(battery);
+                                    LiveEventBus.get(EnvConfigure.KEY_BATTERY_STATE,Integer.class).post(items.getJSONObject(EnvConfigure.KEY_BATTERY_STATE).getIntValue(EnvConfigure.KEY_VALUE));
                                 } else if (items.containsKey(EnvConfigure.VirtualWallData)) {
-                                    String virtual = items.getJSONObject(EnvConfigure.VirtualWallData).getString(EnvConfigure.KEY_VALUE);
-                                    propertyResponse.onVirtualWallChange(virtual);
+                                    LiveEventBus.get(EnvConfigure.VirtualWallData,String.class).post(items.getJSONObject(EnvConfigure.VirtualWallData).getString(EnvConfigure.KEY_VALUE));
                                 } else if (items.containsKey(EnvConfigure.KEY_FORBIDDEN_AREA)) {
-                                    String fbd = items.getJSONObject(EnvConfigure.KEY_FORBIDDEN_AREA).getString(EnvConfigure.KEY_VALUE);
-                                    propertyResponse.onForbiddenAreaChange(fbd);
+                                    LiveEventBus.get(EnvConfigure.KEY_FORBIDDEN_AREA,String.class).post(items.getJSONObject(EnvConfigure.KEY_FORBIDDEN_AREA).getString(EnvConfigure.KEY_VALUE));
                                 } else if (items.containsKey(EnvConfigure.CleanAreaData)) {
-                                    String clenaArea = items.getJSONObject(EnvConfigure.CleanAreaData).getString(EnvConfigure.KEY_VALUE);
-                                    propertyResponse.onCleanAreaChange(clenaArea);
+                                    LiveEventBus.get(EnvConfigure.CleanAreaData,String.class).post(items.getJSONObject(EnvConfigure.CleanAreaData).getString(EnvConfigure.KEY_VALUE));
                                 } else if (items.containsKey(EnvConfigure.CleanPartitionData)) {
-                                    String cleanRoom = items.getJSONObject(EnvConfigure.CleanPartitionData).getString(EnvConfigure.KEY_VALUE);
-                                    propertyResponse.onCleanRoomChange(cleanRoom);
+                                    LiveEventBus.get(EnvConfigure.CleanPartitionData,String.class).post(items.getJSONObject(EnvConfigure.CleanPartitionData).getString(EnvConfigure.KEY_VALUE));
                                 } else if (items.containsKey(EnvConfigure.KEY_INIT_STATUS)) {
-                                    int initStatus = items.getJSONObject(EnvConfigure.KEY_INIT_STATUS).getIntValue(EnvConfigure.KEY_VALUE);
-                                    propertyResponse.onInitStatusChange(initStatus);
+                                    LiveEventBus.get(EnvConfigure.KEY_INIT_STATUS,Integer.class).post(items.getJSONObject(EnvConfigure.KEY_INIT_STATUS).getIntValue(EnvConfigure.KEY_VALUE));
+                                } else if (items.containsKey(EnvConfigure.KEY_BeepType)) {
+                                    int beepType = items.getJSONObject(EnvConfigure.KEY_BeepType).getIntValue(EnvConfigure.KEY_VALUE);
+                                    getWorkingDevice().getDeviceInfo().setLanguageCode(beepType);
+                                    LiveEventBus.get(EnvConfigure.KEY_BeepType, Integer.class).post(beepType);
+                                } else if (items.containsKey(EnvConfigure.KEY_BeepVolume)) {
+                                    int beepVolume = items.getJSONObject(EnvConfigure.KEY_BeepVolume).getIntValue(EnvConfigure.KEY_VALUE);
+                                    getWorkingDevice().getDeviceInfo().setVoiceVolume(beepVolume);
+                                    LiveEventBus.get(EnvConfigure.KEY_BeepVolume, Integer.class).post(beepVolume);
+                                } else if (items.containsKey(EnvConfigure.KEY_SideBrushPower)) {
+                                    int brushSpeed = items.getJSONObject(EnvConfigure.KEY_SideBrushPower).getIntValue(EnvConfigure.KEY_VALUE);
+                                    getWorkingDevice().getDeviceInfo().setBrushSpeed(brushSpeed);
+                                    LiveEventBus.get(EnvConfigure.KEY_SideBrushPower, Integer.class).post(brushSpeed);
+                                } else if (items.containsKey(EnvConfigure.KEY_CarpetControl)) {
+                                    int carpet = items.getJSONObject(EnvConfigure.KEY_CarpetControl).getIntValue(EnvConfigure.KEY_VALUE);
+                                    getWorkingDevice().getDeviceInfo().setCarpetControl(carpet);
+                                    LiveEventBus.get(EnvConfigure.KEY_CarpetControl, Integer.class).post(carpet);
+                                } else if (items.containsKey(EnvConfigure.KEY_FanPower)) {
+                                    int carpet = items.getJSONObject(EnvConfigure.KEY_FanPower).getIntValue(EnvConfigure.KEY_VALUE);
+                                    getWorkingDevice().getDeviceInfo().setSuctionNumber(carpet);
+                                    LiveEventBus.get(EnvConfigure.KEY_FanPower, Integer.class).post(carpet);
                                 } else if (items.containsKey(EnvConfigure.KEY_MAX_MODE)) {
                                     boolean isMax = items.getJSONObject(EnvConfigure.KEY_MAX_MODE).getIntValue(EnvConfigure.KEY_VALUE) == 1;
                                     Log.d("LiveBus", "发送Live Bus 信息");
                                     LiveEventBus.get(EnvConfigure.KEY_MAX_MODE, Boolean.class).post(isMax);
-                                    propertyResponse.onMaxChange(isMax);
+                                    getWorkingDevice().getDeviceInfo().setMaxMode(isMax);
                                 }
                             }
                             break;
                         case EnvConfigure.METHOD_THING_EVENT:
                             //TODO 解析初始化状态
                             if (object.containsKey(EnvConfigure.KEY_VALUE)) {
-                                int errorCode = object.getJSONObject(EnvConfigure.KEY_VALUE).getIntValue(EnvConfigure.KEY_ERRORCODE);
-                                propertyResponse.onError(errorCode);
+                              LiveEventBus.get(EnvConfigure.KEY_ERRORCODE,Integer.class).post(object.getJSONObject(EnvConfigure.KEY_VALUE).getIntValue(EnvConfigure.KEY_ERRORCODE));
                             }
                             break;
                     }
@@ -570,7 +574,10 @@ public class IlifeAli {
                 if (ioTResponse.getCode() == 200) {
                     Log.d(TAG, "get propertied data:    " + ioTResponse.getData().toString());
                     JSONObject jsonObject = JSON.parseObject(ioTResponse.getData().toString());
-                    boolean max = jsonObject.getJSONObject(EnvConfigure.KEY_MAX_MODE).getIntValue(EnvConfigure.KEY_VALUE) == 1;
+                    boolean max = false;
+                    if (jsonObject.containsKey(EnvConfigure.KEY_MAX_MODE)) {
+                        max = jsonObject.getJSONObject(EnvConfigure.KEY_MAX_MODE).getIntValue(EnvConfigure.KEY_VALUE) == 1;
+                    }
                     int battery = jsonObject.getJSONObject(EnvConfigure.KEY_BATTERY_STATE).getIntValue(EnvConfigure.KEY_VALUE);
                     int workMode = jsonObject.getJSONObject(EnvConfigure.KEY_WORK_MODE).getIntValue(EnvConfigure.KEY_VALUE);
                     int waterLevel = jsonObject.getJSONObject(EnvConfigure.KEY_WATER_CONTROL).getIntValue(EnvConfigure.KEY_VALUE);
@@ -589,6 +596,34 @@ public class IlifeAli {
                         Log.d(TAG, "数据无语音开关字段");
                     }
                     PropertyBean bean = new PropertyBean(max, workMode, battery, waterLevel, startTimeLine, historyTimeLine, voiceOpen);
+                    /**
+                     * setting页面属性字段
+                     */
+
+//                    if (jsonObject.containsKey(EnvConfigure.)){//吸力
+//
+//                    }
+                    if (jsonObject.containsKey(EnvConfigure.KEY_SideBrushPower)) {//边刷速率
+                        int brushSpeed = jsonObject.getJSONObject(EnvConfigure.KEY_SideBrushPower).getIntValue(EnvConfigure.KEY_VALUE);
+                        bean.setBrushSpeed(brushSpeed);
+                    }
+
+                    if (jsonObject.containsKey(EnvConfigure.KEY_CarpetControl)) {//提示音音量
+                        int carpet = jsonObject.getJSONObject(EnvConfigure.KEY_CarpetControl).getIntValue(EnvConfigure.KEY_VALUE);
+                        bean.setCarpetControl(carpet);
+                    }
+                    if (jsonObject.containsKey(EnvConfigure.KEY_BeepVolume)) {//提示音音量
+                        int beepVolume = jsonObject.getJSONObject(EnvConfigure.KEY_BeepVolume).getIntValue(EnvConfigure.KEY_VALUE);
+                        bean.setVoiceVolume(beepVolume);
+                    }
+                    if (jsonObject.containsKey(EnvConfigure.KEY_BeepType)) {//提示音音量
+                        int language = jsonObject.getJSONObject(EnvConfigure.KEY_BeepType).getIntValue(EnvConfigure.KEY_VALUE);
+                        bean.setLanguageCode(language);
+                    }
+                    if (jsonObject.containsKey(EnvConfigure.KEY_FanPower)) {//提示音音量
+                        int fanPower = jsonObject.getJSONObject(EnvConfigure.KEY_FanPower).getIntValue(EnvConfigure.KEY_VALUE);
+                        bean.setSuctionNumber(fanPower);
+                    }
                     /**
                      * 特殊字段
                      */
@@ -901,6 +936,10 @@ public class IlifeAli {
                         }
 
                         Collections.sort(starts);
+                        if (starts.size() == 0) {
+                            onAliResponse.onFailed(0, "没有选择地图数据");
+                            return;
+                        }
                         if (starts.size() > 1) {
                             getHistoryRecords(starts.get(0), starts.get(starts.size() - 1), onAliResponse);
                         } else {
@@ -1197,6 +1236,9 @@ public class IlifeAli {
                         if (content.contains(key)) {
                             value = jsonObject.getJSONObject(key).getString(EnvConfigure.KEY_VALUE);
                             bean = gson.fromJson(value, ScheduleBean.class);
+                            if (TextUtils.isEmpty(bean.getScheduleArea())) {
+                                bean.setScheduleArea("AAAAAAAAAAAAAAAAAAAAAA==");
+                            }
                             scheduleBeans.add(bean);
                         }
                     }

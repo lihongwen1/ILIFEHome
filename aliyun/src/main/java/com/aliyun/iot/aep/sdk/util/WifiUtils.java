@@ -1,12 +1,6 @@
 package com.aliyun.iot.aep.sdk.util;
 
-import android.app.PendingIntent;
 import android.content.Context;
-import android.content.Intent;
-import android.location.LocationManager;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
-import android.net.Uri;
 import android.net.wifi.ScanResult;
 import android.net.wifi.WifiConfiguration;
 import android.net.wifi.WifiInfo;
@@ -119,6 +113,7 @@ public class WifiUtils {
 
     /**
      * 断开之前的wifi，连接到指定的wifi
+     *
      * @param wifiManager
      * @param ssid
      * @param pass

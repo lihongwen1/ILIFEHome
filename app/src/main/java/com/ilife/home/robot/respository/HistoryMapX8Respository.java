@@ -3,8 +3,6 @@ package com.ilife.home.robot.respository;
 import android.text.TextUtils;
 import android.util.Base64;
 
-import androidx.lifecycle.MutableLiveData;
-
 import com.aliyun.iot.aep.sdk._interface.OnAliResponse;
 import com.aliyun.iot.aep.sdk._interface.OnAliResponseSingle;
 import com.aliyun.iot.aep.sdk.bean.RealTimeMapBean;
@@ -38,11 +36,12 @@ public class HistoryMapX8Respository {
 
     /**
      * 时间加一分钟，避免由于时间误差导致丢包
+     *
      * @param onResponse
      * @param mapStartTime
      */
     public void getHistoryData(OnAliResponseSingle<CleaningDataX8> onResponse, long mapStartTime) {
-        IlifeAli.getInstance().getCleaningHistory(mapStartTime, System.currentTimeMillis()+ 60 * 1000, new OnAliResponse<List<RealTimeMapBean>>() {
+        IlifeAli.getInstance().getCleaningHistory(mapStartTime, System.currentTimeMillis() + 60 * 1000, new OnAliResponse<List<RealTimeMapBean>>() {
             @Override
             public void onSuccess(List<RealTimeMapBean> historyData) {
 
@@ -94,6 +93,7 @@ public class HistoryMapX8Respository {
 
             @Override
             public void onFailed(int code, String message) {
+                MyLogger.e(TAG, "获取历史路径数据失败：" + message);
             }
         });
     }
@@ -146,6 +146,7 @@ public class HistoryMapX8Respository {
          */
         private void parseRealTimeMapX8(String mapData) {
             byte[] pointCoor = new byte[2];
+            boolean isFirstPoint = true;
             if (!TextUtils.isEmpty(mapData)) {
                 byte[] bytes = Base64.decode(mapData, Base64.DEFAULT);
                 Coordinate coordinate;
@@ -165,7 +166,12 @@ public class HistoryMapX8Respository {
                             MyLogger.e(TAG, "the map data has been cleaned and reset");
                             dataX8.setHaveClearFlag(true);
                         } else {
-                            coordinate = new Coordinate(x, -y, type);
+                            if (isFirstPoint && type == 4) {
+                                isFirstPoint = false;
+                                coordinate = new Coordinate(x, -y, -1);
+                            } else {
+                                coordinate = new Coordinate(x, -y, type);
+                            }
                             if (isStop) {
                                 MyLogger.e(TAG, "the page has been destroyed，the data processing will make no sense/the data processing is no longer meaningful!");
                                 break;

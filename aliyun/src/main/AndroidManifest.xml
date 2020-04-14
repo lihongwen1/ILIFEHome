@@ -7,8 +7,7 @@
         android:networkSecurityConfig="@xml/network_security_config"
         android:icon="@mipmap/ic_launcher"
         android:supportsRtl="true"
-        tools:ignore="GoogleAppIndexingWarning"
-        >
+        tools:ignore="GoogleAppIndexingWarning">
         <!-- 自定义OA登录页面 -->
         <!--locale|layoutDirection|keyboard  防止切换语言界面重启-->
         <activity

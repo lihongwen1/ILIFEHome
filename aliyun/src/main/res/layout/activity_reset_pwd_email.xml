@@ -4,14 +4,13 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical" >
-
+    android:orientation="vertical">
 
 
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:fillViewport="true" >
+        android:fillViewport="true">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -19,13 +18,13 @@
             android:orientation="vertical"
             android:paddingLeft="10dp"
             android:paddingRight="10dp"
-            android:paddingTop="15dp" >
+            android:paddingTop="15dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="@drawable/ali_sdk_openaccount_bg_corners_white"
-                android:orientation="vertical" >
+                android:orientation="vertical">
 
                 <com.alibaba.sdk.android.openaccount.ui.widget.InputBoxWithClear
                     android:id="@+id/mail_input_box"
@@ -44,8 +43,9 @@
                     android:layout_height="50dp"
                     android:gravity="center_vertical"
                     android:orientation="horizontal"
-                    inputBox:ali_sdk_openaccount_attrs_hint="@string/ali_sdk_openaccount_text_check_code"/>
+                    inputBox:ali_sdk_openaccount_attrs_hint="@string/ali_sdk_openaccount_text_check_code" />
             </LinearLayout>
+
             <TextView
                 android:id="@+id/ali_oa_send_email_success_tip"
                 android:layout_width="wrap_content"
@@ -55,8 +55,8 @@
                 android:gravity="center_vertical"
                 android:text="@string/ali_sdk_openaccount_email_code_success_hint"
                 android:textSize="14sp"
-                android:visibility="invisible"
-                />
+                android:visibility="invisible" />
+
             <com.aliyun.iot.aep.sdk.page.view.NextStepButton
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

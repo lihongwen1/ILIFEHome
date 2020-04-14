@@ -137,8 +137,14 @@ public class EnvConfigure {
     public static String KEY_CLEAN_AREA = "CleanArea";
     public static String KEY_CLEAN_TIME = "CleanTime";
     public static final String KEY_BEEP_NO_DISTURB = "BeepNoDisturb";
+    public static final String KEY_SideBrushPower = "SideBrushPower";//边刷功率
+    public static final String KEY_CarpetControl = "CarpetControl";//地毯增压
+    public static final String KEY_FanPower = "FanPower";//地毯增压
+    public static final String KEY_BeepType = "BeepType";//语音包
+    public static final String KEY_BeepVolume = "BeepVolume";//提示音音量
+
     public static final String KEY_SAVE_MAP = "SaveMap";
-    public static final String KEY_INIT_STATUS  = "InitStatus";
+    public static final String KEY_INIT_STATUS = "InitStatus";
     public static final String KEY_SELECT_MAP_ID = "SelectedMapId";
     public static final String KEY_SAVE_MAP_ID = "SaveMapId";
     public static final String KEY_FORBIDDEN_AREA = "ForbiddenAreaData";

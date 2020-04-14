@@ -14,6 +14,6 @@ public class ResetPwdPhoneActivity extends ResetPasswordActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        OpenAccountUIConfigs.MobileResetPasswordLoginFlow.resetPasswordPasswordActivityClazz=ResetPWDFillActivity.class;
+        OpenAccountUIConfigs.MobileResetPasswordLoginFlow.resetPasswordPasswordActivityClazz = ResetPWDFillActivity.class;
     }
 }

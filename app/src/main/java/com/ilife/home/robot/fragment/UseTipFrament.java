@@ -14,6 +14,7 @@ import androidx.fragment.app.Fragment;
 
 import com.ilife.home.livebus.LiveEventBus;
 import com.ilife.home.robot.R;
+import com.ilife.home.robot.utils.UiUtil;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -51,14 +52,14 @@ public class UseTipFrament extends Fragment {
             String title, tip1, tip2;
             int tipImage;
             if (pageNumber == 1) {
-                title = "整理清扫环境";
-                tip1 = "清扫前请清理好地面上的玩具、电线、抹布、鞋子等小物品，避免被扫地机卷入。";
+                title = UiUtil.getString(R.string.use_tip_lean_environment);
+                tip1 = UiUtil.getString(R.string.use_tip_clean_environment_content);
                 tipImage = R.drawable.pic_arrange;
                 tip2 = "";
             } else {
-                title = "建立完整家居地图";
-                tip1 = "请从充电座启动自动清扫，开始建图。";
-                tip2 = "扫地机清扫完成后，自动返回充电座，将会生成完整家居地图。(手动搬回充电座、未完成清扫手动触发回充等无法生成完整家居地图)";
+                title =UiUtil.getString(R.string.use_tip_build_map);
+                tip1 = UiUtil.getString(R.string.use_tip_build_map_content1);
+                tip2 = UiUtil.getString(R.string.use_tip_build_map_content2);
                 tipImage = R.drawable.pic_build_map;
             }
             tv_tip_title.setText(title);

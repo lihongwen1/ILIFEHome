@@ -10,7 +10,7 @@ import com.alibaba.sdk.android.openaccount.ui.util.AttributeUtils;
 import com.alibaba.sdk.android.openaccount.ui.widget.LinearLayoutTemplate;
 
 public class NextStepButton extends LinearLayoutTemplate {
-    protected Button button = (Button)this.findViewById("next");
+    protected Button button = (Button) this.findViewById("next");
 
     public NextStepButton(Context context, AttributeSet attrs) {
         super(context, attrs);
