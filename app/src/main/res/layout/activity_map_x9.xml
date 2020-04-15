@@ -268,7 +268,7 @@
                         android:drawableTop="@drawable/n_image_delete"
                         android:drawablePadding="@dimen/dp_8"
                         android:gravity="center"
-                        android:text="@string/delete_virtual_wall"
+                        android:text="@string/delete"
                         android:textColor="#ff333333"
                         android:textSize="16sp" />
                 </FrameLayout>

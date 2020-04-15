@@ -74,11 +74,7 @@ public class HistoryMapX8Respository {
                             wholeData.setWorkTime(dataX8.getWorkTime());
                             wholeData.setCleanArea(dataX8.getCleanArea());
                             if (dataX8.getCoordinates() != null) {
-                                for (Coordinate coor : dataX8.getCoordinates()) {//去重
-                                    if (!pointList.contains(coor)) {
-                                        pointList.add(coor);
-                                    }
-                                }
+                                pointList.addAll(dataX8.getCoordinates());
                             }
                         }
                         onResponse.onResponse(wholeData);
@@ -118,7 +114,7 @@ public class HistoryMapX8Respository {
             this.subData = subData;
             this.index = index;
             this.dataX8 = new CleaningDataX8();
-            dataX8s[index] = dataX8;
+            dataX8s[this.index] = dataX8;
         }
 
         @Override
@@ -133,7 +129,7 @@ public class HistoryMapX8Respository {
                     data = subData.get(i);
                     dataX8.setCleanArea(data.getCleanArea());
                     dataX8.setWorkTime(data.getCleanTime());
-                    parseRealTimeMapX8(subData.get(i).getMapData());
+                    parseRealTimeMapX8(data.getMapData());
                 }
             }
             countDownLatch.countDown();//当前线程执行完毕需要-1；

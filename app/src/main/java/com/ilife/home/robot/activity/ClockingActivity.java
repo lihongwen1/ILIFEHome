@@ -1,20 +1,12 @@
 package com.ilife.home.robot.activity;
 
-import android.app.Dialog;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
-
-import androidx.appcompat.app.AlertDialog;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-
-import android.text.format.DateFormat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.TextView;
-import android.widget.TimePicker;
+
+import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
@@ -23,23 +15,13 @@ import com.aliyun.iot.aep.sdk.bean.ScheduleBean;
 import com.aliyun.iot.aep.sdk.contant.EnvConfigure;
 import com.aliyun.iot.aep.sdk.contant.IlifeAli;
 import com.aliyun.iot.aep.sdk.contant.MsgCodeUtils;
-import com.badoo.mobile.util.WeakHandler;
-import com.ilife.home.robot.able.Constants;
-import com.ilife.home.robot.able.DeviceUtils;
-import com.ilife.home.robot.app.MyApplication;
-import com.ilife.home.robot.base.BackBaseActivity;
-import com.ilife.home.robot.bean.RobotConfigBean;
-import com.ilife.home.robot.fragment.UniversalDialog;
-import com.ilife.home.robot.utils.AlertDialogUtils;
-import com.ilife.home.robot.utils.MyLogger;
-import com.ilife.home.robot.utils.ToastUtils;
-import com.ilife.home.robot.utils.TimePickerUIUtil;
+import com.ilife.home.livebus.LiveEventBus;
 import com.ilife.home.robot.R;
 import com.ilife.home.robot.adapter.ClockAdapter;
-import com.ilife.home.robot.entity.NewClockInfo;
+import com.ilife.home.robot.base.BackBaseActivity;
+import com.ilife.home.robot.utils.ToastUtils;
 import com.ilife.home.robot.utils.UiUtil;
-import com.ilife.home.robot.utils.Utils;
-import com.ilife.home.robot.view.SpaceItemDecoration;
+import com.ilife.home.robot.view.SlideRecyclerView;
 import com.scwang.smartrefresh.layout.SmartRefreshLayout;
 import com.scwang.smartrefresh.layout.header.ClassicsHeader;
 
@@ -56,11 +38,11 @@ import butterknife.OnClick;
 
 public class ClockingActivity extends BackBaseActivity {
     final String TAG = ClockingActivity.class.getSimpleName();
-    RecyclerView recyclerView;
+    SlideRecyclerView recyclerView;
     ClockAdapter adapter;
     LayoutInflater inflater;
     SmartRefreshLayout refreshLayout;
-    ArrayList<NewClockInfo> clockInfos = new ArrayList<>();
+    List<ScheduleBean> scheduleBeans = new ArrayList<>();
     @BindView(R.id.tv_top_title)
     TextView tv_title;
 
@@ -86,17 +68,23 @@ public class ClockingActivity extends BackBaseActivity {
         refreshLayout = findViewById(R.id.refreshLayout);
         refreshLayout.setOnRefreshListener(refreshLayout -> getClockInfo());
         refreshLayout.setRefreshHeader(new ClassicsHeader(this));
-        adapter = new ClockAdapter(R.layout.layout_clock_item, clockInfos);
+        adapter = new ClockAdapter(R.layout.layout_clock_item, scheduleBeans);
         adapter.setOnItemClickListener((adapter, view, position) -> {
             Intent intent = new Intent(ClockingActivity.this, ClockEditActivity.class);
-            intent.putExtra(ClockEditActivity.KEY_SCHEDULE_INFO, clockInfos.get(position));
+            intent.putExtra(ClockEditActivity.KEY_SCHEDULE_INFO, scheduleBeans.get(position));
             startActivity(intent);
         });
         adapter.setOnItemChildClickListener((adapter, view, position) -> {
             if (view.getId() == R.id.image_status) {//开关按钮点击事件
-                NewClockInfo clockInfo = clockInfos.get(position);
-                clockInfo.setOpen(clockInfo.getOpen() == 1 ? 0 : 1);
-                setSchedule(clockInfo);
+                ScheduleBean bean = scheduleBeans.get(position);
+                bean.setEnable(bean.getEnable() == 1 ? 0 : 1);
+                setSchedule(bean);
+            }
+            if (view.getId() == R.id.iv_delete_schedule) {//删除预约
+                recyclerView.closeMenu();
+                scheduleBeans.get(position).reset();
+                setSchedule(scheduleBeans.get(position));
+
             }
 
         });
@@ -105,51 +93,89 @@ public class ClockingActivity extends BackBaseActivity {
         recyclerView.setAdapter(adapter);
     }
 
+    @Override
+    public void initData() {
+        super.initData();
+        LiveEventBus.get(EnvConfigure.KEY_SCHEDULE, ScheduleBean.class).observe(this, bean -> {
+            if (adapter != null) {
+                ScheduleBean b;
+                boolean isHave = false;
+                for (int i = 0; i < scheduleBeans.size(); i++) {
+                    b = scheduleBeans.get(i);
+                    if (b.getKeyIndex() == bean.getKeyIndex()) {
+                        isHave = true;
+                        if (bean.getWeek() == 0) {//删除
+                            scheduleBeans.remove(i);
+                            adapter.notifyDataSetChanged();
+                        } else {
+                            b.copy(bean);
+                            adapter.notifyDataSetChanged();
+                        }
+                        break;
+                    }
+                }
+                if (bean.getWeek() != 0 && !isHave) {
+                    scheduleBeans.add(bean);
+                    adapter.notifyDataSetChanged();
+                }
+            }
+        });
+    }
 
     @OnClick(R.id.ivb_add_clock)
     public void onClick(View view) {
-        ToastUtils.showToast(UiUtil.getString(R.string.schedule_max_num_tip));
+        if (scheduleBeans.size() == 7) {
+            ToastUtils.showToast(UiUtil.getString(R.string.schedule_max_num_tip));
+        } else {
+            int scheduleKeyIndex = 0;
+            int[] keyIndex = new int[]{1, 2, 3, 4, 5, 6, 7};
+            for (ScheduleBean bean : scheduleBeans) {
+                keyIndex[bean.getKeyIndex() - 1] = 0;
+            }
+            for (int index : keyIndex) {
+                if (index != 0) {
+                    scheduleKeyIndex = index;
+                    break;
+                }
+            }
+            ScheduleBean scheduleBean = new ScheduleBean();
+            scheduleBean.setKeyIndex(scheduleKeyIndex);
+            scheduleBean.setEnd(300);
+            scheduleBean.setEnable(1);
+            scheduleBean.setMode(MsgCodeUtils.STATUE_PLANNING);
+            Intent intent = new Intent(ClockingActivity.this, ClockEditActivity.class);
+            intent.putExtra(ClockEditActivity.KEY_SCHEDULE_INFO, scheduleBean);
+            startActivity(intent);
+        }
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-       getClockInfo();
+        getClockInfo();
     }
 
     /**
      * position 0-6《-----》schedule1-schedule7
-     * @param clockInfo
      */
-    private void setSchedule(NewClockInfo clockInfo) {
-        String scheduleJson = JSON.toJSONString(clockInfo.toScheduleBean());
+    private void setSchedule(ScheduleBean bean) {
+        String scheduleJson = JSON.toJSONString(bean);
         JSONObject jsoSchedule = JSONObject.parseObject(scheduleJson);
         String json_str = "{\"Schedule\":\" \"}";
-        String schedule_ = json_str.replaceFirst(EnvConfigure.KEY_SCHEDULE, clockInfo.getScheduleKey());
+        String schedule_ = json_str.replaceFirst(EnvConfigure.KEY_SCHEDULE, EnvConfigure.KEY_SCHEDULE + bean.getKeyIndex());
         JSONObject jso = JSONObject.parseObject(schedule_);
-        jso.put(clockInfo.getScheduleKey(), jsoSchedule);
+        jso.put(EnvConfigure.KEY_SCHEDULE + bean.getKeyIndex(), jsoSchedule);
         IlifeAli.getInstance().setProperties(jso, aBoolean -> {
-            if (aBoolean) {
-                adapter.notifyDataSetChanged();
-            } else {
-                clockInfo.setOpen(clockInfo.getOpen() == 1 ? 0 : 1);
-            }
         });
     }
 
     public void getClockInfo() {
         IlifeAli.getInstance().getScheduleInfo(new OnAliResponse<List<ScheduleBean>>() {
             @Override
-            public void onSuccess(List<ScheduleBean> scheduleBeans) {
-                clockInfos.clear();
-                int key_index = 1;
-                for (ScheduleBean bean : scheduleBeans) {
-                    NewClockInfo clockInfo = new NewClockInfo(bean);
-                    clockInfo.setMode(6);//预约模式默认规划
-                    clockInfo.setScheduleKey(EnvConfigure.KEY_SCHEDULE + key_index);
-                    key_index++;
-                    clockInfos.add(clockInfo);
-                }
+            public void onSuccess(List<ScheduleBean> beans) {
+                hideLoadingDialog();
+                scheduleBeans.clear();
+                scheduleBeans.addAll(beans);
                 adapter.notifyDataSetChanged();
                 if (refreshLayout != null) {
                     refreshLayout.finishRefresh();
@@ -158,6 +184,7 @@ public class ClockingActivity extends BackBaseActivity {
 
             @Override
             public void onFailed(int code, String message) {
+                hideLoadingDialog();
                 if (refreshLayout != null) {
                     refreshLayout.finishRefresh();
                 }

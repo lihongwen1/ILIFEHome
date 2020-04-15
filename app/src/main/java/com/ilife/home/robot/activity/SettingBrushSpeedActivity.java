@@ -13,6 +13,8 @@ import com.aliyun.iot.aep.sdk.contant.EnvConfigure;
 import com.aliyun.iot.aep.sdk.contant.IlifeAli;
 import com.ilife.home.robot.R;
 import com.ilife.home.robot.base.BackBaseActivity;
+import com.ilife.home.robot.utils.ToastUtils;
+import com.ilife.home.robot.utils.UiUtil;
 
 import butterknife.BindView;
 import butterknife.OnClick;
@@ -69,6 +71,7 @@ public class SettingBrushSpeedActivity extends BackBaseActivity {
         IlifeAli.getInstance().setProperties(jo, aBoolean -> {
             hideLoadingDialog();
             if (aBoolean) {
+                ToastUtils.showToast(UiUtil.getString(R.string.setting_success));
                 removeActivity();
             }
         });

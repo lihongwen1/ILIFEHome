@@ -1,50 +1,66 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_marginTop="@dimen/dp_1"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/rootView"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_gravity="center"
+    android:layout_marginTop="@dimen/dp_1"
     android:background="@color/white"
+    android:orientation="horizontal"
     android:paddingStart="@dimen/dp_20"
-    android:paddingEnd="@dimen/dp_20"
-    android:orientation="vertical">
+    >
 
     <LinearLayout
-        android:paddingTop="@dimen/dp_10"
-        android:paddingBottom="@dimen/dp_10"
+        android:layout_marginEnd="@dimen/dp_20"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:orientation="horizontal">
 
-        <TextView
-            android:id="@+id/tv_time"
-            style="@style/Text_32sp_33"
-            android:text="00:00"
-            />
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingTop="@dimen/dp_10"
+            android:paddingBottom="@dimen/dp_10">
 
-        <TextView
-            android:id="@+id/tv_week"
-            style="@style/Text_12sp_66"
-            android:text="@string/week_sunday_full"
-            android:includeFontPadding="false"
-            android:layout_marginTop="3dp"
-            />
+            <TextView
+                android:id="@+id/tv_time"
+                style="@style/Text_32sp_33"
+                android:text="00:00" />
 
-        <TextView
-            android:id="@+id/tv_mode_"
-            style="@style/Text_10sp_99"
-            android:includeFontPadding="false"
-            android:layout_marginTop="@dimen/dp_5"
-            android:text=""
-            />
+            <TextView
+                android:id="@+id/tv_week"
+                style="@style/Text_12sp_66"
+                android:layout_marginTop="3dp"
+                android:includeFontPadding="false"
+                android:text="@string/week_sunday_full" />
 
+            <TextView
+                android:id="@+id/tv_mode_"
+                style="@style/Text_10sp_99"
+                android:layout_marginTop="@dimen/dp_5"
+                android:includeFontPadding="false"
+                android:text="" />
+        </LinearLayout>
+         <Space
+             android:layout_weight="1"
+             android:layout_width="0dp"
+             android:layout_height="wrap_content"/>
+        <ImageView
+            android:id="@+id/image_status"
+            android:layout_width="@dimen/dp_48"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:background="@drawable/image_max_bg" />
     </LinearLayout>
 
-    <ImageView
-        android:id="@+id/image_status"
-        android:layout_width="@dimen/dp_48"
-        android:layout_height="wrap_content"
-        android:layout_gravity="end|center"
-        android:background="@drawable/image_max_bg" />
-</FrameLayout>
+    <TextView
+        android:id="@+id/iv_delete_schedule"
+        style="@style/Text_14sp_ff"
+        android:gravity="center"
+        android:text="@string/delete"
+        android:background="@color/color_f91f1f"
+        android:layout_width="@dimen/dp_80"
+        android:layout_height="match_parent"
+        />
+</LinearLayout>

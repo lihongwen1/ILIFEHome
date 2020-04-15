@@ -204,7 +204,7 @@
     <string name="help_aty_all_eu">(European Free Call)</string>
     <string name="help_aty_dir_de">(Direct Line DE)</string>
     <string name="add_virtual_wall">Add</string>
-    <string name="delete_virtual_wall">Delete</string>
+    <string name="delete">Delete</string>
     <string name="need_save_settings">Save the settings</string>
     <string name="will_work_on_next_time">New settings will apply to the next cleaning mission.</string>
     <string name="save_and_back">Save and back</string>
@@ -317,5 +317,10 @@
     <string name="setting_set_volumn">Volume setting</string>
     <string name="setting_set_language">Multi-language</string>
     <string name="setting_set_volumn_number">Volume Control</string>
+    <string name="abandom_operation_hint">Cancel all the operation you had done this time.</string>
+    <string name="abandom_operation_title">Undo the current operation?</string>
+    <string name="continue_operation">Comfirm</string>
+    <string name="abandom">Cancel</string>
+
 
 </resources>

@@ -10,7 +10,6 @@ import android.graphics.Path;
 import android.graphics.PointF;
 import android.graphics.PorterDuff;
 import android.graphics.RectF;
-import android.graphics.Region;
 import android.os.Looper;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
@@ -200,7 +199,7 @@ public class MapView extends View {
     public void setMAP_MODE(int MAP_MODE) {
         this.MAP_MODE = MAP_MODE;
         if (MAP_MODE == MODE_ADD_VIRTUAL || MAP_MODE == MODE_DELETE_VIRTUAL) {
-//            mVirtualWallHelper.drawVirtualWall();
+//            mVirtualWallHelper.setVirtualWall();
         }
     }
 
@@ -343,6 +342,7 @@ public class MapView extends View {
     public void drawForbiddenArea(String data) {
         if (mForbiddenHelper != null) {
             mForbiddenHelper.setForbiddenArea(data);
+            invalidateUI();
         }
     }
 
@@ -365,7 +365,7 @@ public class MapView extends View {
          * 计算坐标放大和缩放比例
          */
         baseScare = 20.0f;
-        if (xLength * baseScare > width*0.75 || yLength * baseScare > sCenter.y * 2*0.75) {
+        if (xLength * baseScare > width * 0.75 || yLength * baseScare > sCenter.y * 2 * 0.75) {
             MyLogger.d(TAG, "SYSTEM SCALE MAP -------------");
             float systemW = (width * 0.75f) / ((xLength * baseScare));
             float systemH = (sCenter.y * 2 * 0.75f) / ((yLength * baseScare));
@@ -393,9 +393,9 @@ public class MapView extends View {
             slamCanvas.setBitmap(slamBitmap);
             unconditionalRecreate = false;
         }
-        mVirtualWallHelper.drawVirtualWall();//刷新虚拟墙
-        mForbiddenHelper.setForbiddenArea("");
-        mCleanHelper.setCleanArea("");
+        mVirtualWallHelper.updateVirtualWall();
+        mForbiddenHelper.updateFbdPath();
+        mCleanHelper.updateCleanAreaPath();
     }
 
     private float caculateSystemScale(int xLength, int yLength, int scale) {
@@ -569,8 +569,8 @@ public class MapView extends View {
              * 绘制充电座
              */
             if (standPointF != null) {
-                float width=standBitmap.getWidth()/2f;
-                canvas.drawBitmap(standBitmap, matrixCoordinateX(standPointF.x )- width, matrixCoordinateY(standPointF.y) - width, mPaintManager.getIconPaint());
+                float width = standBitmap.getWidth() / 2f;
+                canvas.drawBitmap(standBitmap, matrixCoordinateX(standPointF.x) - width, matrixCoordinateY(standPointF.y) - width, mPaintManager.getIconPaint());
             }
         }
         super.onDraw(canvas);
@@ -817,7 +817,7 @@ public class MapView extends View {
      * @param vwData 服务器电子墙数据集合
      */
     public void drawVirtualWall(String vwData) {
-        mVirtualWallHelper.drawVirtualWall(vwData);
+        mVirtualWallHelper.setVirtualWall(vwData);
         invalidateUI();
     }
 
@@ -844,7 +844,7 @@ public class MapView extends View {
         if (standPointF == null) {
             standPointF = new PointF();
         }
-        standPointF.set(x,y);
+        standPointF.set(x, y);
         invalidateUI();
     }
 
@@ -989,8 +989,8 @@ public class MapView extends View {
                         } else {
                             roadPath.lineTo(matrixCoordinateX(x), matrixCoordinateY(y));
                         }
-                        endX = matrixCoordinateX(x) + (baseScare) / 2f;
-                        endY = matrixCoordinateY(y) + (baseScare) / 2f;
+                        endX = matrixCoordinateX(x);
+                        endY = matrixCoordinateY(y);
                         break;
                 }
             }

@@ -135,14 +135,14 @@ public class VirtualWallHelper {
                     mMatrix.reset();
                     mMatrix.postTranslate(tx, ty);
                     MyLogger.d(TAG, "变换后的坐标:" + Arrays.toString(curVwBean.getPointCoordinate()));
-                    drawVirtualWall();
+                    updateVirtualWall();
                 }
                 break;
             case PULL:
                 float[] orginalCoo = curVwBean.getPointCoordinate();
                 orginalCoo[2] = mMapView.reMatrixCoordinateX(mapX);
                 orginalCoo[3] = mMapView.reMatrixCoordinateY(mapY);
-                drawVirtualWall();
+                updateVirtualWall();
                 break;
             default:
                 break;
@@ -163,7 +163,7 @@ public class VirtualWallHelper {
                     VirtualWallBean virtualWallBean = new VirtualWallBean(vwBeans.size() + 1, -1, coordinate, 2);
                     selectVwNum = virtualWallBean.getNumber();
                     vwBeans.add(virtualWallBean);
-                    drawVirtualWall();
+                    updateVirtualWall();
                 }
                 break;
             case DELETE:
@@ -178,7 +178,7 @@ public class VirtualWallHelper {
                                 curVwBean.clear();
                             }
                             selectVwNum = -1;
-                            drawVirtualWall();
+                            updateVirtualWall();
                         }
                     }
                 }
@@ -190,7 +190,7 @@ public class VirtualWallHelper {
                     mMatrix.reset();
                     mMatrix.postTranslate(tx, ty);
                     MyLogger.d(TAG, "变换后的坐标:" + Arrays.toString(curVwBean.getPointCoordinate()));
-                    drawVirtualWall();
+                    updateVirtualWall();
                 }
                 float ctx = mMapView.reMatrixCoordinateX(mapX) - mMapView.reMatrixCoordinateX(downPoint.x);//x轴平移距离
                 float cty = mMapView.reMatrixCoordinateY(mapY) - mMapView.reMatrixCoordinateY(downPoint.y);//y轴平移距离 主机坐标偏移量
@@ -215,7 +215,7 @@ public class VirtualWallHelper {
      *
      * @param vwStr 服务器电子墙数据集合
      */
-    public void drawVirtualWall(String vwStr) {
+    public void setVirtualWall(String vwStr) {
         if (!TextUtils.isEmpty(vwStr)) {
             byte[] bytes = Base64.decode(vwStr, Base64.DEFAULT);
             int vwCounts = bytes.length / 12;//一条虚拟墙含12个字节，4个保留字节，加2个坐标（x,y）
@@ -231,15 +231,17 @@ public class VirtualWallHelper {
                 makeLeftToRight(vwBean.getPointCoordinate());
                 vwBeans.add(vwBean);
             }
+        }else{
+            vwBeans.clear();
         }
-
-        drawVirtualWall();
+        updateVirtualWall();
     }
 
     /**
      * 绘制电子墙
+     * 根据最新的缩放比例刷新虚拟墙
      */
-    public void drawVirtualWall() {
+    public void updateVirtualWall() {
         if (vwBeans == null) {
             return;
         }
@@ -331,7 +333,7 @@ public class VirtualWallHelper {
                 }
             }
         }
-        drawVirtualWall();
+        updateVirtualWall();
     }
 
 

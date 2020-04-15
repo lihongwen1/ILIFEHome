@@ -401,6 +401,7 @@ public class DataUtils {
                         weekStr.append(UiUtil.getString(R.string.week_sunday));
                         break;
                 }
+                weekStr.append(" ");
             }
         }
         return weekStr.toString();

@@ -7,7 +7,6 @@ import android.graphics.RectF;
 import android.graphics.Region;
 import android.text.TextUtils;
 import android.util.Base64;
-import android.util.Log;
 import android.view.MotionEvent;
 
 import com.ilife.home.robot.model.bean.VirtualWallBean;
@@ -111,7 +110,8 @@ public class CleanAreaHelper {
             curCleanAreaBean = new VirtualWallBean(1, 3, new float[]{tlx, tly, trx, try_, blx, bly, brx, bry}, 1);
             MyLogger.d(TAG, "清扫区域坐标: " + Arrays.toString(curCleanAreaBean.getPointCoordinate()));
         }
-        updatePath();
+        updateCleanAreaPath();
+            mMapView.invalidateUI();
     }
 
 
@@ -164,7 +164,8 @@ public class CleanAreaHelper {
         switch (caot) {
             case ADD:
                 curRectF.set(downPoint.x, downPoint.y, mapX, mapY);
-                updatePath();
+                updateCleanAreaPath();
+                mMapView.invalidateUI();
                 break;
             case DELETE:
                 //删除up处理
@@ -175,7 +176,8 @@ public class CleanAreaHelper {
                 if (curCleanAreaBean != null) {//理论上不为空，为空时应该是在添加禁区
                     mMatrix.reset();
                     mMatrix.postTranslate(tx, ty);
-                    updatePath();
+                    updateCleanAreaPath();
+                    mMapView.invalidateUI();
                 }
                 break;
             case ROTATE:
@@ -186,7 +188,8 @@ public class CleanAreaHelper {
                 float angle = DataUtils.getAngle(centerP, downPoint, new PointF(mapX, mapY));
                 mMatrix.reset();
                 mMatrix.postRotate(angle, centerP.x, centerP.y);
-                updatePath();
+                updateCleanAreaPath();
+                mMapView.invalidateUI();
                 break;
             case PULL:
                 float[] matrixCoordinate = toMapCoordinate(curCleanAreaBean.getPointCoordinate());
@@ -195,7 +198,8 @@ public class CleanAreaHelper {
                 mMatrix.reset();
                 mMatrix.setTranslate(-matrixCoordinate[0], -matrixCoordinate[1]);
                 mMatrix.postRotate(-degree, 0, 0);
-                updatePath();
+                updateCleanAreaPath();
+                mMapView.invalidateUI();
                 break;
             default:
                 break;
@@ -217,7 +221,8 @@ public class CleanAreaHelper {
                     y2 = mMapView.reMatrixCoordinateY(downPoint.y > mapY ? downPoint.y : mapY);//y2
                     float[] coordinate = new float[]{x1, y1, x2, y1, x2, y2, x1, y2};
                     curCleanAreaBean = new VirtualWallBean(1, 3, coordinate, 2);
-                    updatePath();
+                    updateCleanAreaPath();
+                    mMapView.invalidateUI();
                 }
                 break;
             case DELETE:
@@ -225,7 +230,8 @@ public class CleanAreaHelper {
                     if (curCleanAreaBean != null) {
                         if (curCleanAreaBean.getDeleteIcon() != null && curCleanAreaBean.getDeleteIcon().contains(downPoint.x, downPoint.y)) {//点击了删除键
                             curCleanAreaBean = null;
-                            updatePath();
+                            updateCleanAreaPath();
+                            mMapView.invalidateUI();
                         }
                     }
                 }
@@ -237,7 +243,8 @@ public class CleanAreaHelper {
                     mMatrix.reset();
                     mMatrix.postTranslate(tx, ty);
                     MyLogger.d(TAG, "变换后的坐标:" + Arrays.toString(curCleanAreaBean.getPointCoordinate()));
-                    updatePath();
+                    updateCleanAreaPath();
+                    mMapView.invalidateUI();
                 }
                 float ctx = mMapView.reMatrixCoordinateX(mapX) - mMapView.reMatrixCoordinateX(downPoint.x);//x轴平移距离
                 float cty = mMapView.reMatrixCoordinateY(mapY) - mMapView.reMatrixCoordinateY(downPoint.y);//y轴平移距离 主机坐标偏移量
@@ -257,7 +264,8 @@ public class CleanAreaHelper {
                 mMatrix.postRotate(angle, centerP.x, centerP.y);
                 curCleanAreaBean.updateCoordinateWithMatrix(mMatrix);
                 mMatrix.reset();
-                updatePath();
+                updateCleanAreaPath();
+                mMapView.invalidateUI();
                 break;
             case PULL:
                 float[] matrixCoordinate = toMapCoordinate(curCleanAreaBean.getPointCoordinate());
@@ -282,7 +290,8 @@ public class CleanAreaHelper {
                 mMatrix.mapPoints(matrixCoordinate);
                 curCleanAreaBean.setPointCoordinate(toRobotCoordinate(matrixCoordinate));
                 mMatrix.reset();
-                updatePath();
+                updateCleanAreaPath();
+                mMapView.invalidateUI();
                 break;
         }
         mMatrix.reset();
@@ -295,7 +304,7 @@ public class CleanAreaHelper {
     /**
      * draw history forbidden area,draw the adding forbidden area
      */
-    private void updatePath() {
+    public void updateCleanAreaPath() {
         //TODO draw forbidden area
         float[] matrixCoordinate;
         float[] boundaryCoordinate;
@@ -381,7 +390,6 @@ public class CleanAreaHelper {
         curCleanAreaBean.setDeleteIcon(new RectF(boundaryCoordinate[0] - ICON_RADIUS, boundaryCoordinate[1] - ICON_RADIUS, boundaryCoordinate[0] + ICON_RADIUS, matrixCoordinate[1] + ICON_RADIUS));
         curCleanAreaBean.setRotateIcon(new RectF(boundaryCoordinate[2] - ICON_RADIUS, boundaryCoordinate[3] - ICON_RADIUS, boundaryCoordinate[2] + ICON_RADIUS, boundaryCoordinate[3] + ICON_RADIUS));
         curCleanAreaBean.setPullIcon(new RectF(boundaryCoordinate[4] - ICON_RADIUS, boundaryCoordinate[5] - ICON_RADIUS, boundaryCoordinate[4] + ICON_RADIUS, boundaryCoordinate[5] + ICON_RADIUS));
-        mMapView.invalidateUI();
     }
 
     /**

@@ -272,7 +272,7 @@ public class IlifeAli {
             public void onSucess(List<IoTSmart.Country> list) {
                 IoTSmart.Country selectCountry = null;
                 for (IoTSmart.Country country : list) {
-                    if (country.code.equals("65")) {
+                    if (country.code.equals("49")) {
                         selectCountry = country;
                         break;
                     }
@@ -420,23 +420,23 @@ public class IlifeAli {
                                 if (items.containsKey(EnvConfigure.KEY_POWER_SWITCH)) {
                                     ToastUtils.toast(aApplication, items.getJSONObject(EnvConfigure.KEY_POWER_SWITCH).getString(EnvConfigure.KEY_VALUE));
                                 } else if (items.containsKey(EnvConfigure.KEY_WORK_MODE)) {//工作状态
-                                    LiveEventBus.get(EnvConfigure.KEY_WORK_MODE,Integer.class).post(items.getJSONObject(EnvConfigure.KEY_WORK_MODE).getIntValue(EnvConfigure.KEY_VALUE));
+                                    LiveEventBus.get(EnvConfigure.KEY_WORK_MODE, Integer.class).post(items.getJSONObject(EnvConfigure.KEY_WORK_MODE).getIntValue(EnvConfigure.KEY_VALUE));
                                 } else if (items.containsKey(EnvConfigure.KEY_REALTIMEMAP)) {//实时地图数据
-                                    LiveEventBus.get(EnvConfigure.KEY_REALTIMEMAP,String.class).post(items.getJSONObject(EnvConfigure.KEY_REALTIMEMAP).getString(EnvConfigure.KEY_VALUE));
+                                    LiveEventBus.get(EnvConfigure.KEY_REALTIMEMAP, String.class).post(items.getJSONObject(EnvConfigure.KEY_REALTIMEMAP).getString(EnvConfigure.KEY_VALUE));
                                 } else if (items.containsKey(EnvConfigure.KEY_REAL_TIME_MAP_START)) {
-                                    LiveEventBus.get(EnvConfigure.KEY_REAL_TIME_MAP_START,Long.class).post(items.getJSONObject(EnvConfigure.KEY_REAL_TIME_MAP_START).getLongValue(EnvConfigure.KEY_TIME));
+                                    LiveEventBus.get(EnvConfigure.KEY_REAL_TIME_MAP_START, Long.class).post(items.getJSONObject(EnvConfigure.KEY_REAL_TIME_MAP_START).getLongValue(EnvConfigure.KEY_TIME));
                                 } else if (items.containsKey(EnvConfigure.KEY_BATTERY_STATE)) {
-                                    LiveEventBus.get(EnvConfigure.KEY_BATTERY_STATE,Integer.class).post(items.getJSONObject(EnvConfigure.KEY_BATTERY_STATE).getIntValue(EnvConfigure.KEY_VALUE));
+                                    LiveEventBus.get(EnvConfigure.KEY_BATTERY_STATE, Integer.class).post(items.getJSONObject(EnvConfigure.KEY_BATTERY_STATE).getIntValue(EnvConfigure.KEY_VALUE));
                                 } else if (items.containsKey(EnvConfigure.VirtualWallData)) {
-                                    LiveEventBus.get(EnvConfigure.VirtualWallData,String.class).post(items.getJSONObject(EnvConfigure.VirtualWallData).getString(EnvConfigure.KEY_VALUE));
+                                    LiveEventBus.get(EnvConfigure.VirtualWallData, String.class).post(items.getJSONObject(EnvConfigure.VirtualWallData).getString(EnvConfigure.KEY_VALUE));
                                 } else if (items.containsKey(EnvConfigure.KEY_FORBIDDEN_AREA)) {
-                                    LiveEventBus.get(EnvConfigure.KEY_FORBIDDEN_AREA,String.class).post(items.getJSONObject(EnvConfigure.KEY_FORBIDDEN_AREA).getString(EnvConfigure.KEY_VALUE));
+                                    LiveEventBus.get(EnvConfigure.KEY_FORBIDDEN_AREA, String.class).post(items.getJSONObject(EnvConfigure.KEY_FORBIDDEN_AREA).getString(EnvConfigure.KEY_VALUE));
                                 } else if (items.containsKey(EnvConfigure.CleanAreaData)) {
-                                    LiveEventBus.get(EnvConfigure.CleanAreaData,String.class).post(items.getJSONObject(EnvConfigure.CleanAreaData).getString(EnvConfigure.KEY_VALUE));
+                                    LiveEventBus.get(EnvConfigure.CleanAreaData, String.class).post(items.getJSONObject(EnvConfigure.CleanAreaData).getString(EnvConfigure.KEY_VALUE));
                                 } else if (items.containsKey(EnvConfigure.CleanPartitionData)) {
-                                    LiveEventBus.get(EnvConfigure.CleanPartitionData,String.class).post(items.getJSONObject(EnvConfigure.CleanPartitionData).getString(EnvConfigure.KEY_VALUE));
+                                    LiveEventBus.get(EnvConfigure.CleanPartitionData, String.class).post(items.getJSONObject(EnvConfigure.CleanPartitionData).getString(EnvConfigure.KEY_VALUE));
                                 } else if (items.containsKey(EnvConfigure.KEY_INIT_STATUS)) {
-                                    LiveEventBus.get(EnvConfigure.KEY_INIT_STATUS,Integer.class).post(items.getJSONObject(EnvConfigure.KEY_INIT_STATUS).getIntValue(EnvConfigure.KEY_VALUE));
+                                    LiveEventBus.get(EnvConfigure.KEY_INIT_STATUS, Integer.class).post(items.getJSONObject(EnvConfigure.KEY_INIT_STATUS).getIntValue(EnvConfigure.KEY_VALUE));
                                 } else if (items.containsKey(EnvConfigure.KEY_BeepType)) {
                                     int beepType = items.getJSONObject(EnvConfigure.KEY_BeepType).getIntValue(EnvConfigure.KEY_VALUE);
                                     getWorkingDevice().getDeviceInfo().setLanguageCode(beepType);
@@ -462,13 +462,25 @@ public class IlifeAli {
                                     Log.d("LiveBus", "发送Live Bus 信息");
                                     LiveEventBus.get(EnvConfigure.KEY_MAX_MODE, Boolean.class).post(isMax);
                                     getWorkingDevice().getDeviceInfo().setMaxMode(isMax);
+                                } else if (data.contains(EnvConfigure.KEY_SCHEDULE)) {
+                                    for (int i = 1; i <= 7; i++) {
+                                        String key = EnvConfigure.KEY_SCHEDULE + i;
+                                        if (items.containsKey(key)) {
+                                            String value = items.getJSONObject(key).getString(EnvConfigure.KEY_VALUE);
+                                            ScheduleBean bean = JSONObject.parseObject(value, ScheduleBean.class);
+                                            bean.setKeyIndex(i);
+                                            LiveEventBus.get(EnvConfigure.KEY_SCHEDULE, ScheduleBean.class).post(bean);
+                                            break;
+                                        }
+                                    }
                                 }
+
                             }
                             break;
                         case EnvConfigure.METHOD_THING_EVENT:
                             //TODO 解析初始化状态
                             if (object.containsKey(EnvConfigure.KEY_VALUE)) {
-                              LiveEventBus.get(EnvConfigure.KEY_ERRORCODE,Integer.class).post(object.getJSONObject(EnvConfigure.KEY_VALUE).getIntValue(EnvConfigure.KEY_ERRORCODE));
+                                LiveEventBus.get(EnvConfigure.KEY_ERRORCODE, Integer.class).post(object.getJSONObject(EnvConfigure.KEY_VALUE).getIntValue(EnvConfigure.KEY_ERRORCODE));
                             }
                             break;
                     }
@@ -1196,9 +1208,9 @@ public class IlifeAli {
             public void onResponse(IoTRequest ioTRequest, IoTResponse ioTResponse) {
                 if (ioTResponse.getCode() == 200) {
                     ScheduleBean scheduleBean = new ScheduleBean();
-                    scheduleBean.setScheduleEnable(open);
-                    scheduleBean.setScheduleMinutes(minute);
-                    scheduleBean.setScheduleHour(hour);
+                    scheduleBean.setEnable(open);
+                    scheduleBean.setMinutes(minute);
+                    scheduleBean.setHour(hour);
                     onResponse.onSuccess(scheduleBean);
                 } else {
                     Log.e(TAG, "预约错误：" + ioTResponse.getLocalizedMsg());
@@ -1229,16 +1241,16 @@ public class IlifeAli {
                     ScheduleBean bean;
                     String key;
                     String value;
-                    Gson gson = new Gson();
                     //TODO 解析预约数据
                     for (int i = 1; i <= 7; i++) {
                         key = EnvConfigure.KEY_SCHEDULE + i;
                         if (content.contains(key)) {
                             value = jsonObject.getJSONObject(key).getString(EnvConfigure.KEY_VALUE);
-                            bean = gson.fromJson(value, ScheduleBean.class);
-                            if (TextUtils.isEmpty(bean.getScheduleArea())) {
-                                bean.setScheduleArea("AAAAAAAAAAAAAAAAAAAAAA==");
+                            bean = JSONObject.parseObject(value, ScheduleBean.class);
+                            if (bean.getWeek() == 0) {//week=0代表预约已被删除
+                                continue;
                             }
+                            bean.setKeyIndex(i);
                             scheduleBeans.add(bean);
                         }
                     }

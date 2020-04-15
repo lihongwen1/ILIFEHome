@@ -5,10 +5,9 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.TextView;
 
-import androidx.lifecycle.Observer;
-
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.aliyun.iot.aep.sdk.bean.ScheduleBean;
 import com.aliyun.iot.aep.sdk.contant.EnvConfigure;
 import com.aliyun.iot.aep.sdk.contant.IlifeAli;
 import com.aliyun.iot.aep.sdk.contant.MsgCodeUtils;
@@ -47,7 +46,7 @@ public class ClockEditActivity extends BackBaseActivity {
     TextView tv_schedule_area;
     private TimeSelectDialog mTimeDialog;
     private BottomSheetSelectDialog textSelectDialog;
-    private NewClockInfo mClockInfo;
+    private ScheduleBean scheduleBean;
     private int mTextSelectorType;
 
     @Override
@@ -58,31 +57,31 @@ public class ClockEditActivity extends BackBaseActivity {
     @Override
     public void initData() {
         super.initData();
-        mClockInfo = getIntent().getParcelableExtra(KEY_SCHEDULE_INFO);
-        if (mClockInfo == null) {
-            mClockInfo = new NewClockInfo();
+        scheduleBean = getIntent().getParcelableExtra(KEY_SCHEDULE_INFO);
+        if (scheduleBean == null) {
+            scheduleBean = new ScheduleBean();
         }
         LiveEventBus.get(ScheduleAreaActivity.LIVE_BUS_SCHEDULE_AREA_TYPE, Integer.class)
                 .observe(this, type -> {
-                    mClockInfo.setType(type);
-                    setScheduleArea(mClockInfo.getType());
+                    scheduleBean.setType(type);
+                    setScheduleArea(scheduleBean.getType());
                 });
         LiveEventBus.get(ScheduleAreaActivity.LIVE_BUS_SCHEDULE_AREA_DATA, String.class)
                 .observe(this, s -> {
                     /**
                      * 选房清扫数据和划区清扫数据只能二选一
                      */
-                    if (mClockInfo.getType()==0){
-                        mClockInfo.setArea("AAAAAAAAAAAAAAAAAAAAAA==");
-                        mClockInfo.setRoom(0);
+                    if (scheduleBean.getType()==0){
+                        scheduleBean.setArea("AAAAAAAAAAAAAAAAAAAAAA==");
+                        scheduleBean.setRoom(0);
                     }
-                    if (mClockInfo.getType() == 1) {//分区
-                        mClockInfo.setArea(s);
-                        mClockInfo.setRoom(0);
+                    if (scheduleBean.getType() == 1) {//分区
+                        scheduleBean.setArea(s);
+                        scheduleBean.setRoom(0);
                     }
-                    if (mClockInfo.getType() == 2) {//分房
-                        mClockInfo.setRoom(Integer.valueOf(s));
-                        mClockInfo.setArea("AAAAAAAAAAAAAAAAAAAAAA==");
+                    if (scheduleBean.getType() == 2) {//分房
+                        scheduleBean.setRoom(Integer.valueOf(s));
+                        scheduleBean.setArea("AAAAAAAAAAAAAAAAAAAAAA==");
                     }
                 });
     }
@@ -90,11 +89,11 @@ public class ClockEditActivity extends BackBaseActivity {
     @Override
     public void initView() {
         tv_title.setText(R.string.clock_aty_appoint);
-        setScheduleTime(mClockInfo.getHour(), mClockInfo.getMinute());
-        setScheduleLoop(mClockInfo.getWeek());
-        setScheduleMode(mClockInfo.getMode());
-        setScheduleTimes(mClockInfo.getTimes());
-        setScheduleArea(mClockInfo.getType());
+        setScheduleTime(scheduleBean.getHour(), scheduleBean.getMinutes());
+        setScheduleLoop(scheduleBean.getWeek());
+        setScheduleMode(scheduleBean.getMode());
+        setScheduleTimes(scheduleBean.getLoop());
+        setScheduleArea(scheduleBean.getType());
     }
 
     private void setScheduleTime(int i_hour, int i_minute) {
@@ -154,23 +153,22 @@ public class ClockEditActivity extends BackBaseActivity {
                 break;
             case R.id.ll_schedule_area://预约清扫区域
                 Intent intent = new Intent(ClockEditActivity.this, ScheduleAreaActivity.class);
-                intent.putExtra(KEY_SCHEDULE_INFO, mClockInfo);
+                intent.putExtra(KEY_SCHEDULE_INFO, scheduleBean);
                 startActivity(intent);
                 break;
             case R.id.btn_cancel_schedule:
                 removeActivity();
                 break;
             case R.id.btn_save_schedule:
-                mClockInfo.setOpen(1);
-                String scheduleJson = JSON.toJSONString(mClockInfo.toScheduleBean());
+                scheduleBean.setEnable(1);
+                String scheduleJson = JSON.toJSONString(scheduleBean);
                 JSONObject jsoSchedule = JSONObject.parseObject(scheduleJson);
                 String json_str = "{\"Schedule\":\" \"}";
-                String schedule_ = json_str.replaceFirst(EnvConfigure.KEY_SCHEDULE, mClockInfo.getScheduleKey());
+                String schedule_ = json_str.replaceFirst(EnvConfigure.KEY_SCHEDULE, EnvConfigure.KEY_SCHEDULE+scheduleBean.getKeyIndex());
                 JSONObject jso = JSONObject.parseObject(schedule_);
-                jso.put(mClockInfo.getScheduleKey(), jsoSchedule);
+                jso.put(EnvConfigure.KEY_SCHEDULE+scheduleBean.getKeyIndex(), jsoSchedule);
                 IlifeAli.getInstance().setProperties(jso, aBoolean -> {
                     if (aBoolean) {
-                        ToastUtils.showToast("设置预约数据成功");
                         removeActivity();
 
                     }
@@ -193,16 +191,16 @@ public class ClockEditActivity extends BackBaseActivity {
 
                 @Override
                 public void onConfirmClick(int[] time) {
-                    mClockInfo.setHour(time[0]);
-                    mClockInfo.setMinute(time[1]);
-                    setScheduleTime(mClockInfo.getHour(), mClockInfo.getMinute());
+                    scheduleBean.setHour(time[0]);
+                    scheduleBean.setMinutes(time[1]);
+                    setScheduleTime(scheduleBean.getHour(), scheduleBean.getMinutes());
                 }
             });
 
         }
         if (!mTimeDialog.isAdded()) {
             Bundle bundle = new Bundle();
-            bundle.putIntArray(TimeSelectDialog.KEY_TIME_HOUR, new int[]{mClockInfo.getHour(), mClockInfo.getMinute()});
+            bundle.putIntArray(TimeSelectDialog.KEY_TIME_HOUR, new int[]{scheduleBean.getHour(), scheduleBean.getMinutes()});
             mTimeDialog.setArguments(bundle);
             mTimeDialog.show(getSupportFragmentManager(), "time_selector");
         }
@@ -214,16 +212,16 @@ public class ClockEditActivity extends BackBaseActivity {
             builder.setCancelOutSide(false).setOnTextSelect((positions, text) -> {
                 switch (mTextSelectorType) {
                     case 1://loop
-                        mClockInfo.setWeek(getScheduleWeek(positions));
-                        setScheduleLoop(mClockInfo.getWeek());
+                        scheduleBean.setWeek(getScheduleWeek(positions));
+                        setScheduleLoop(scheduleBean.getWeek());
                         break;
                     case 2://mode
-                        mClockInfo.setMode(positions[0] == 0 ? MsgCodeUtils.STATUE_PLANNING : MsgCodeUtils.STATUE_RANDOM);
-                        setScheduleMode(mClockInfo.getMode());
+                        scheduleBean.setMode(positions[0] == 0 ? MsgCodeUtils.STATUE_PLANNING : MsgCodeUtils.STATUE_RANDOM);
+                        setScheduleMode(scheduleBean.getMode());
                         break;
                     case 3://times
-                        mClockInfo.setTimes(positions[0] + 1);
-                        setScheduleTimes(mClockInfo.getTimes());
+                        scheduleBean.setLoop(positions[0] + 1);
+                        setScheduleTimes(scheduleBean.getLoop());
                         break;
                 }
             });

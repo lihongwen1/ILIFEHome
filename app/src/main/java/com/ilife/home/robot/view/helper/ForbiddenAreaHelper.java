@@ -160,8 +160,10 @@ public class ForbiddenAreaHelper {
                 fbdBeans.add(vwBean);
                 MyLogger.d(TAG, "禁区坐标: " + Arrays.toString(vwBean.getPointCoordinate()));
             }
+        }else {
+            fbdBeans.clear();
         }
-        updatePath();
+        updateFbdPath();
     }
 
 
@@ -225,7 +227,8 @@ public class ForbiddenAreaHelper {
         switch (faot) {
             case ADD:
                 curRectF.set(downPoint.x, downPoint.y, mapX, mapY);
-                updatePath();
+                updateFbdPath();
+                mMapView.invalidateUI();
                 break;
             case DELETE:
                 //删除up处理
@@ -236,7 +239,8 @@ public class ForbiddenAreaHelper {
                 if (curFbdBean != null) {//理论上不为空，为空时应该是在添加禁区
                     mMatrix.reset();
                     mMatrix.postTranslate(tx, ty);
-                    updatePath();
+                    updateFbdPath();
+                    mMapView.invalidateUI();
                 }
                 break;
             case ROTATE:
@@ -247,7 +251,8 @@ public class ForbiddenAreaHelper {
                 float angle = DataUtils.getAngle(centerP, downPoint, new PointF(mapX, mapY));
                 mMatrix.reset();
                 mMatrix.postRotate(angle, centerP.x, centerP.y);
-                updatePath();
+                updateFbdPath();
+                mMapView.invalidateUI();
                 break;
             case PULL:
                 float[] matrixCoordinate = toMapCoordinate(curFbdBean.getPointCoordinate());
@@ -256,7 +261,8 @@ public class ForbiddenAreaHelper {
                 mMatrix.reset();
                 mMatrix.setTranslate(-matrixCoordinate[0], -matrixCoordinate[1]);
                 mMatrix.postRotate(-degree, 0, 0);
-                updatePath();
+                updateFbdPath();
+                mMapView.invalidateUI();
                 break;
             default:
                 break;
@@ -280,7 +286,8 @@ public class ForbiddenAreaHelper {
                     VirtualWallBean fbd = new VirtualWallBean(fbdBeans.size() + 1, mFbdAreaType, coordinate, 2);
                     fbdBeans.add(0,fbd);
                     selectVwNum=fbd.getNumber();
-                    updatePath();
+                    updateFbdPath();
+                    mMapView.invalidateUI();
                 }
                 break;
             case DELETE:
@@ -295,7 +302,8 @@ public class ForbiddenAreaHelper {
                                 curFbdBean.clear();
                             }
                             selectVwNum = -1;
-                            updatePath();
+                            updateFbdPath();
+                            mMapView.invalidateUI();
                         }
                     }
                 }
@@ -307,7 +315,8 @@ public class ForbiddenAreaHelper {
                     mMatrix.reset();
                     mMatrix.postTranslate(tx, ty);
                     MyLogger.d(TAG, "变换后的坐标:" + Arrays.toString(curFbdBean.getPointCoordinate()));
-                    updatePath();
+                    updateFbdPath();
+                    mMapView.invalidateUI();
                 }
                 float ctx = mMapView.reMatrixCoordinateX(mapX) - mMapView.reMatrixCoordinateX(downPoint.x);//x轴平移距离
                 float cty = mMapView.reMatrixCoordinateY(mapY) - mMapView.reMatrixCoordinateY(downPoint.y);//y轴平移距离 主机坐标偏移量
@@ -327,7 +336,8 @@ public class ForbiddenAreaHelper {
                 mMatrix.postRotate(angle, centerP.x, centerP.y);
                 curFbdBean.updateCoordinateWithMatrix(mMatrix);
                 mMatrix.reset();
-                updatePath();
+                updateFbdPath();
+                mMapView.invalidateUI();
                 break;
             case PULL:
                 float[] matrixCoordinate = toMapCoordinate(curFbdBean.getPointCoordinate());
@@ -352,7 +362,8 @@ public class ForbiddenAreaHelper {
                 mMatrix.mapPoints(matrixCoordinate);
                 curFbdBean.setPointCoordinate(toRobotCoordinate(matrixCoordinate));
                 mMatrix.reset();
-                updatePath();
+                updateFbdPath();
+                mMapView.invalidateUI();
                 break;
         }
         curFbdBean = null;
@@ -381,7 +392,7 @@ public class ForbiddenAreaHelper {
     /**
      * draw history forbidden area,draw the adding forbidden area
      */
-    private void updatePath() {
+    public void updateFbdPath() {
         //TODO draw forbidden area
         mGlobalPath.reset();
         mMopPath.reset();
@@ -468,7 +479,6 @@ public class ForbiddenAreaHelper {
             fbd.setRotateIcon(new RectF(boundaryCoordinate[2] - ICON_RADIUS, boundaryCoordinate[3] - ICON_RADIUS, boundaryCoordinate[2] + ICON_RADIUS, boundaryCoordinate[3] + ICON_RADIUS));
             fbd.setPullIcon(new RectF(boundaryCoordinate[4] - ICON_RADIUS, boundaryCoordinate[5] - ICON_RADIUS, boundaryCoordinate[4] + ICON_RADIUS, boundaryCoordinate[5] + ICON_RADIUS));
         }
-        mMapView.invalidateUI();
     }
 
     /**

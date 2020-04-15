@@ -219,7 +219,7 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
         if (!TextUtils.isEmpty(mapData)) {
             byte[] bytes = Base64.decode(mapData, Base64.DEFAULT);
             Coordinate coordinate;
-            boolean isFirstRoadPoint=true;//第一个路径点
+            boolean isFirstRoadPoint = true;//第一个路径点
             if (bytes != null && bytes.length > 0) {
                 for (int i = 4; i < bytes.length; i += 5) {
                     int type = bytes[i];
@@ -232,9 +232,9 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
                     pointCoor[0] = bytes[i - 2];
                     pointCoor[1] = bytes[i - 1];
                     int y = DataUtils.bytesToInt(pointCoor, 0);
-                    if (isFirstRoadPoint&&type==4) {
-                        isFirstRoadPoint=false;
-                        coordinate = new Coordinate(x,-y , -1);
+                    if (isFirstRoadPoint && type == 4) {
+                        isFirstRoadPoint = false;
+                        coordinate = new Coordinate(x, -y, -1);
                     } else {
                         coordinate = new Coordinate(x, -y, type);
                     }
@@ -532,7 +532,7 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
 
 
     /**
-     * 注册实时地图数据监听
+     * 注册/订阅实时地图数据监听
      */
     @Override
     public void registerPropReceiver() {
@@ -575,13 +575,6 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
             }
             singleThread.execute(new ParseDataRunnable(mapBeanData));
         });
-        LiveEventBus.get(EnvConfigure.KEY_REALTIMEMAP, String.class).observe((BaseActivity) mView, mapBeanData -> {
-            if (mapBeanData == null) {
-                return;
-            }
-            singleThread.execute(new ParseDataRunnable(mapBeanData));
-        });
-
         LiveEventBus.get(EnvConfigure.KEY_ERRORCODE, Integer.class).observe((BaseActivity) mView, new Observer<Integer>() {
             @Override
             public void onChanged(Integer code) {
@@ -615,15 +608,11 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
         });
         LiveEventBus.get(EnvConfigure.KEY_FORBIDDEN_AREA, String.class).observe((BaseActivity) mView, fbdArea -> {
             MyLogger.d(TAG, "禁区改变:  " + fbdArea);
-            if (!TextUtils.isEmpty(fbdArea)) {
-                mView.drawForbiddenArea(fbdArea);
-            }
+            mView.drawForbiddenArea(fbdArea);
         });
         LiveEventBus.get(EnvConfigure.VirtualWallData, String.class).observe((BaseActivity) mView, virtualWall -> {
             MyLogger.d(TAG, "虚拟墙改变:  " + virtualWall);
-            if (!TextUtils.isEmpty(virtualWall)) {
-                mView.drawVirtualWall(virtualWall);
-            }
+            mView.drawVirtualWall(virtualWall);
         });
         LiveEventBus.get(EnvConfigure.CleanPartitionData, String.class).observe((BaseActivity) mView, cleanRoomData -> {
             if (!TextUtils.isEmpty(cleanRoomData)) {

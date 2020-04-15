@@ -13,6 +13,8 @@ import com.aliyun.iot.aep.sdk.contant.EnvConfigure;
 import com.aliyun.iot.aep.sdk.contant.IlifeAli;
 import com.ilife.home.robot.R;
 import com.ilife.home.robot.base.BackBaseActivity;
+import com.ilife.home.robot.utils.ToastUtils;
+import com.ilife.home.robot.utils.UiUtil;
 
 import butterknife.BindView;
 import butterknife.OnClick;
@@ -79,6 +81,7 @@ public class VoiceVolumeActivity extends BackBaseActivity {
                 jo.put(EnvConfigure.KEY_BeepVolume, sk_voice_volume.getProgress());
                 IlifeAli.getInstance().setProperties(jo, aBoolean -> {
                     if (aBoolean) {
+                        ToastUtils.showToast(UiUtil.getString(R.string.setting_success));
                         removeActivity();
                     }
                 });

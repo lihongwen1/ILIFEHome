@@ -12,8 +12,8 @@ import com.aliyun.iot.aep.sdk.contant.IlifeAli;
 import com.ilife.home.robot.R;
 import com.ilife.home.robot.adapter.VoiceLanguageAdapter;
 import com.ilife.home.robot.base.BackBaseActivity;
-import com.ilife.home.robot.utils.DataUtils;
 import com.ilife.home.robot.utils.ToastUtils;
+import com.ilife.home.robot.utils.UiUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -74,7 +74,8 @@ public class VoiceLanguageActivity extends BackBaseActivity {
                 IlifeAli.getInstance().setProperties(jsonObject, aBoolean -> {
                     hideLoadingDialog();
                     if (aBoolean) {
-                      removeActivity();
+                        ToastUtils.showToast(UiUtil.getString(R.string.setting_success));
+                        removeActivity();
                     }
                 });
                 break;

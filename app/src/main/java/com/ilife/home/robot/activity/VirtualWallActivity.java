@@ -17,9 +17,12 @@ import com.ilife.home.robot.R;
 import com.ilife.home.robot.base.BackBaseActivity;
 import com.ilife.home.robot.bean.Coordinate;
 import com.ilife.home.robot.bean.MapDataBean;
+import com.ilife.home.robot.fragment.UniversalDialog;
 import com.ilife.home.robot.model.MapX9Model;
 import com.ilife.home.robot.utils.DataUtils;
 import com.ilife.home.robot.utils.MyLogger;
+import com.ilife.home.robot.utils.ToastUtils;
+import com.ilife.home.robot.utils.UiUtil;
 import com.ilife.home.robot.view.MapView;
 
 import java.util.ArrayList;
@@ -189,7 +192,7 @@ public class VirtualWallActivity extends BackBaseActivity {
      *
      * @param view
      */
-    @OnClick({R.id.fl_top_menu})
+    @OnClick({R.id.fl_top_menu,R.id.image_back})
     public void onClick(View view) {
         if (view.getId() == R.id.fl_top_menu) {
             String vrData = "{\"VirtualWallData\":\"\"}";
@@ -202,6 +205,7 @@ public class VirtualWallActivity extends BackBaseActivity {
                     parJson.put(EnvConfigure.KEY_FORBIDDEN_AREA, mMapView.getForbiddenData());
                     IlifeAli.getInstance().setProperties(parJson, result -> {
                         if (result) {
+                            ToastUtils.showToast(UiUtil.getString(R.string.setting_success));
                             removeActivity();
                         }
                     });
@@ -209,17 +213,24 @@ public class VirtualWallActivity extends BackBaseActivity {
             });
 
         }
-    }
+        if (view.getId()==R.id.image_back){
+             UniversalDialog universalDialog=new UniversalDialog();
+             universalDialog.setTitle(UiUtil.getString(R.string.abandom_operation_title))
+                     .setHintTip(UiUtil.getString(R.string.abandom_operation_hint))
+                     .setLeftText(UiUtil.getString(R.string.abandom)).setRightText(UiUtil.getString(R.string.continue_operation))
+                     .setOnRightButtonClck(() -> {
+                         if (str_virtual != null) {
+                             String vrData = "{\"VirtualWallData\":\"\"}";
+                             JSONObject vrJson = JSONObject.parseObject(vrData);
+                             vrJson.put(EnvConfigure.VirtualWallData, str_virtual);
+                             IlifeAli.getInstance().setProperties(vrJson, aBoolean -> {
+                                 finish();
+                             });
+                         }
+                     });
+             universalDialog.show(getSupportFragmentManager(),"abandon_operation");
 
-    @Override
-    protected void beforeFinish() {
-        super.beforeFinish();
-        if (str_virtual != null) {
-            String vrData = "{\"VirtualWallData\":\"\"}";
-            JSONObject vrJson = JSONObject.parseObject(vrData);
-            vrJson.put(EnvConfigure.VirtualWallData, str_virtual);
-            IlifeAli.getInstance().setProperties(vrJson, aBoolean -> {
-            });
         }
     }
+
 }

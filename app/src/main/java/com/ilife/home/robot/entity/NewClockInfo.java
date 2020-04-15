@@ -24,29 +24,29 @@ public class NewClockInfo implements Parcelable {
     }
 
     public NewClockInfo(ScheduleBean bean) {
-        this.week = bean.getScheduleWeek();
-        this.hour = bean.getScheduleHour();
-        this.minute = bean.getScheduleMinutes();
-        this.open = bean.getScheduleEnable();
-        this.mode = bean.getScheduleMode();
-        this.type = bean.getScheduleType();
-        this.times = bean.getScheduleLoop();
-        this.area = bean.getScheduleArea();
-        this.room = bean.getScheduleRoom();
+        this.week = bean.getWeek();
+        this.hour = bean.getHour();
+        this.minute = bean.getMinutes();
+        this.open = bean.getEnable();
+        this.mode = bean.getMode();
+        this.type = bean.getType();
+        this.times = bean.getLoop();
+        this.area = bean.getArea();
+        this.room = bean.getRoom();
     }
 
     public ScheduleBean toScheduleBean() {
         ScheduleBean scheduleBean = new ScheduleBean();
-        scheduleBean.setScheduleWeek(this.week);
-        scheduleBean.setScheduleHour(this.hour);
-        scheduleBean.setScheduleMinutes(this.minute);
-        scheduleBean.setScheduleEnable(this.open);
-        scheduleBean.setScheduleMode(this.mode);
-        scheduleBean.setScheduleType(this.type);
-        scheduleBean.setScheduleLoop(this.times);
-        scheduleBean.setScheduleArea(this.area);
-        scheduleBean.setScheduleRoom(this.room);
-        scheduleBean.setScheduleEnd(300);
+        scheduleBean.setWeek(this.week);
+        scheduleBean.setHour(this.hour);
+        scheduleBean.setMinutes(this.minute);
+        scheduleBean.setEnable(this.open);
+        scheduleBean.setMode(this.mode);
+        scheduleBean.setType(this.type);
+        scheduleBean.setLoop(this.times);
+        scheduleBean.setArea(this.area);
+        scheduleBean.setRoom(this.room);
+        scheduleBean.setEnd(300);
        return scheduleBean;
     }
 

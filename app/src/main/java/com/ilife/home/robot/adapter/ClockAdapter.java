@@ -2,6 +2,7 @@ package com.ilife.home.robot.adapter;
 
 import androidx.annotation.NonNull;
 
+import com.aliyun.iot.aep.sdk.bean.ScheduleBean;
 import com.aliyun.iot.aep.sdk.contant.MsgCodeUtils;
 import com.huawei.android.hms.agent.common.UIUtils;
 import com.ilife.home.robot.R;
@@ -19,31 +20,31 @@ import java.util.List;
  * Created by chengjiaping on 2018/8/15.
  */
 
-public class ClockAdapter extends BaseQuickAdapter<NewClockInfo, BaseViewHolder> {
-    public ClockAdapter(int layoutId, @NonNull List<NewClockInfo> data) {
+public class ClockAdapter extends BaseQuickAdapter<ScheduleBean, BaseViewHolder> {
+    public ClockAdapter(int layoutId, @NonNull List<ScheduleBean> data) {
         super(layoutId, data);
     }
 
 
     @Override
     protected void convert(@NonNull BaseViewHolder holder, int position) {
-        NewClockInfo info = data.get(position);
-        byte open = (byte) info.getOpen();
+        ScheduleBean info = data.get(position);
+        byte open = (byte) info.getEnable();
         boolean isOpen = open == 1;
         String hour = info.getHour() < 10 ? "0" + info.getHour() : "" + info.getHour();
-        String minute = info.getMinute() < 10 ? "0" + info.getMinute() : "" + info.getMinute();
+        String minute = info.getMinutes() < 10 ? "0" + info.getMinutes(): "" + info.getMinutes();
         holder.setText(R.id.tv_time, hour + ":" + minute);
         holder.setSelect(R.id.tv_time, isOpen);
         int week = info.getWeek();
         holder.setText(R.id.tv_week, DataUtils.getScheduleWeek(week));
         holder.setSelect(R.id.tv_week, isOpen);
-        StringBuilder sb = new StringBuilder();
         holder.setText(R.id.tv_mode_,getModeString(info));
         holder.setSelect(R.id.image_status, isOpen);
         holder.addOnClickListener(R.id.image_status);
+        holder.addOnClickListener(R.id.iv_delete_schedule);
     }
 
-    private String getModeString(NewClockInfo info) {
+    private String getModeString(ScheduleBean info) {
         StringBuilder sb = new StringBuilder();
         String area = "";
         switch (info.getType()) {
@@ -60,8 +61,8 @@ public class ClockAdapter extends BaseQuickAdapter<NewClockInfo, BaseViewHolder>
         if (info.getMode() == 0) {
             info.setMode(MsgCodeUtils.STATUE_PLANNING);
         }
-        sb.append(area).append("|")
-                .append(DataUtils.getScheduleTimes(info.getTimes()));
+        sb.append(area).append(" | ")
+                .append(DataUtils.getScheduleTimes(info.getLoop()));
     return sb.toString();
     }
 }

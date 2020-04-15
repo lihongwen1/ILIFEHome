@@ -195,10 +195,8 @@ public abstract class BaseMapActivity extends BackBaseActivity<MapX9Presenter> i
         if (sleepTime >= 3) {
             MyLogger.d(TAG, "prepare for first or reload history map data");
             mPresenter.prepareToReloadData();//重新获取历史map
+            mPresenter.getDevStatus();
         }
-        mPresenter.getDevStatus();
-        setDevName();
-        updateMaxButton(mPresenter.isMaxMode());
         setDevName();
     }
 
@@ -235,6 +233,7 @@ public abstract class BaseMapActivity extends BackBaseActivity<MapX9Presenter> i
         initBottomSheet();
 //        showGuide();
     }
+
     private void showGuide() {
         NewbieGuide.with(BaseMapActivity.this)
                 .setLabel("guide3")
@@ -306,7 +305,6 @@ public abstract class BaseMapActivity extends BackBaseActivity<MapX9Presenter> i
                             || status == MsgCodeUtils.STATUE_WAIT) {
                         startActivity(new Intent(BaseMapActivity.this, SelectSaveMapActivity.class));
                     } else {
-                        startActivity(new Intent(BaseMapActivity.this, SelectSaveMapActivity.class));
                         ToastUtils.showToast(MyApplication.getInstance(), Utils.getString(R.string.map_aty_can_not_execute));
                     }
                     break;
