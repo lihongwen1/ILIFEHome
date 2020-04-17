@@ -1,7 +1,6 @@
 package com.ilife.home.robot.view.helper;
 
 import android.graphics.Path;
-import android.graphics.PointF;
 import android.graphics.RectF;
 import android.graphics.Region;
 import android.util.Base64;
@@ -11,8 +10,6 @@ import com.ilife.home.robot.R;
 import com.ilife.home.robot.app.MyApplication;
 import com.ilife.home.robot.bean.PartitionBean;
 import com.ilife.home.robot.utils.DataUtils;
-import com.ilife.home.robot.utils.ToastUtils;
-import com.ilife.home.robot.utils.Utils;
 import com.ilife.home.robot.view.MapView;
 
 import java.util.ArrayList;
@@ -52,7 +49,7 @@ public class RoomHelper {
      *
      * @param data
      */
-    public void drawRoom(String data) {
+    public void drawRoom(String data, int checkedRoom) {
         byte[] bytes = Base64.decode(data, Base64.DEFAULT);
         int num = bytes.length / 8;
         int partionId, x, y;
@@ -62,12 +59,14 @@ public class RoomHelper {
             x = DataUtils.bytesToInt(bytes[i * 8 + 4], bytes[i * 8 + 5]);
             y = -DataUtils.bytesToInt(bytes[i * 8 + 6], bytes[i * 8 + 7]);
             rooms.add(new PartitionBean(partionId, x, y));
-
+            if ((checkedRoom & partionId) ==partionId) {
+                selecRoom.put(partionId, partionId);
+            }
         }
         Collections.sort(rooms);
         int tag = 65;
         for (PartitionBean room : rooms) {
-            room.setTag(String.valueOf((char)tag));
+            room.setTag(String.valueOf((char) tag));
             tag++;
         }
         Path circle = new Path();
@@ -84,7 +83,15 @@ public class RoomHelper {
                 pb.setTagIcon(new RectF(cx - radius, cy - radius, cx + radius, cy + radius));
             }
         }
+    }
 
+    /**
+     * 绘制房间标识
+     *
+     * @param data
+     */
+    public void drawRoom(String data) {
+        drawRoom(data, 0);
     }
 
 
@@ -123,5 +130,6 @@ public class RoomHelper {
         return selecRoom.indexOfKey(roomId) >= 0;
 
     }
+
 
 }

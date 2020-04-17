@@ -457,6 +457,10 @@ public class IlifeAli {
                                     int carpet = items.getJSONObject(EnvConfigure.KEY_FanPower).getIntValue(EnvConfigure.KEY_VALUE);
                                     getWorkingDevice().getDeviceInfo().setSuctionNumber(carpet);
                                     LiveEventBus.get(EnvConfigure.KEY_FanPower, Integer.class).post(carpet);
+                                } else if (items.containsKey(EnvConfigure.KEY_WATER_CONTROL)) {
+                                    int water = items.getJSONObject(EnvConfigure.KEY_WATER_CONTROL).getIntValue(EnvConfigure.KEY_VALUE);
+                                    getWorkingDevice().getDeviceInfo().setWaterLevel(water);
+                                    LiveEventBus.get(EnvConfigure.KEY_WATER_CONTROL, Integer.class).post(water);
                                 } else if (items.containsKey(EnvConfigure.KEY_MAX_MODE)) {
                                     boolean isMax = items.getJSONObject(EnvConfigure.KEY_MAX_MODE).getIntValue(EnvConfigure.KEY_VALUE) == 1;
                                     Log.d("LiveBus", "发送Live Bus 信息");
@@ -612,10 +616,10 @@ public class IlifeAli {
                      * setting页面属性字段
                      */
 
-//                    if (jsonObject.containsKey(EnvConfigure.)){//吸力
-//
-//                    }
-                    if (jsonObject.containsKey(EnvConfigure.KEY_SideBrushPower)) {//边刷速率
+                    if (jsonObject.containsKey(EnvConfigure.KEY_VirtualWallEN)) {//边刷速率
+                        int enable = jsonObject.getJSONObject(EnvConfigure.KEY_VirtualWallEN).getIntValue(EnvConfigure.KEY_VALUE);
+                        bean.setVirtualWallEn(enable);
+                    } if (jsonObject.containsKey(EnvConfigure.KEY_SideBrushPower)) {//边刷速率
                         int brushSpeed = jsonObject.getJSONObject(EnvConfigure.KEY_SideBrushPower).getIntValue(EnvConfigure.KEY_VALUE);
                         bean.setBrushSpeed(brushSpeed);
                     }
@@ -628,11 +632,11 @@ public class IlifeAli {
                         int beepVolume = jsonObject.getJSONObject(EnvConfigure.KEY_BeepVolume).getIntValue(EnvConfigure.KEY_VALUE);
                         bean.setVoiceVolume(beepVolume);
                     }
-                    if (jsonObject.containsKey(EnvConfigure.KEY_BeepType)) {//提示音音量
+                    if (jsonObject.containsKey(EnvConfigure.KEY_BeepType)) {//提示音类型
                         int language = jsonObject.getJSONObject(EnvConfigure.KEY_BeepType).getIntValue(EnvConfigure.KEY_VALUE);
                         bean.setLanguageCode(language);
                     }
-                    if (jsonObject.containsKey(EnvConfigure.KEY_FanPower)) {//提示音音量
+                    if (jsonObject.containsKey(EnvConfigure.KEY_FanPower)) {//吸力
                         int fanPower = jsonObject.getJSONObject(EnvConfigure.KEY_FanPower).getIntValue(EnvConfigure.KEY_VALUE);
                         bean.setSuctionNumber(fanPower);
                     }

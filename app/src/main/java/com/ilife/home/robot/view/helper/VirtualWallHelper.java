@@ -10,9 +10,12 @@ import android.util.Base64;
 import android.util.Log;
 import android.view.MotionEvent;
 
+import com.ilife.home.robot.R;
 import com.ilife.home.robot.model.bean.VirtualWallBean;
 import com.ilife.home.robot.utils.DataUtils;
 import com.ilife.home.robot.utils.MyLogger;
+import com.ilife.home.robot.utils.ToastUtils;
+import com.ilife.home.robot.utils.UiUtil;
 import com.ilife.home.robot.view.MapView;
 
 import java.util.ArrayList;
@@ -34,9 +37,11 @@ public class VirtualWallHelper {
     private VirtualWallBean curVwBean;//当前操作虚拟墙对象
     private Matrix mMatrix;
     private Matrix mBoundaryMatix;
-    private int BOUNDARY_LENGTH = 60;
+    private int BOUNDARY_LENGTH = 40;
+    private int curMaxNumber;//当前最大的虚拟墙序号
 
     public enum VWOT {
+        NOON(21),
         ADD(22),
         DELETE(23),
         DRAG(24),
@@ -115,6 +120,10 @@ public class VirtualWallHelper {
                 break;
             }
         }
+        if (vwot == VWOT.ADD && getUsefulWallNum() >= 10) {
+            ToastUtils.showToast(UiUtil.getString(R.string.map_aty_max_count));
+            vwot = VWOT.NOON;
+        }
     }
 
     private void doOnActionMove(float mapX, float mapY) {
@@ -160,10 +169,16 @@ public class VirtualWallHelper {
                 if (getUsefulWallNum() < 10 && DataUtils.distance(downPoint.x, downPoint.y, mapX, mapY) > MIN_WALL_LENGTH) {
                     float[] coordinate = new float[]{mMapView.reMatrixCoordinateX(downPoint.x), mMapView.reMatrixCoordinateY(downPoint.y), mMapView.reMatrixCoordinateX(mapX), mMapView.reMatrixCoordinateY(mapY)};
                     makeLeftToRight(coordinate);
-                    VirtualWallBean virtualWallBean = new VirtualWallBean(vwBeans.size() + 1, -1, coordinate, 2);
+                    VirtualWallBean virtualWallBean = new VirtualWallBean(curMaxNumber++, -1, coordinate, 2);
                     selectVwNum = virtualWallBean.getNumber();
                     vwBeans.add(virtualWallBean);
                     updateVirtualWall();
+                    if (tooCloseToChargePort(virtualWallBean)) {
+                        ToastUtils.showVirFbdCloseTip(virtualWallBean.getType(), 1);
+                    }
+                    if (tooCloseToRobotPosition(virtualWallBean)) {
+                        ToastUtils.showVirFbdCloseTip(virtualWallBean.getType(), 0);
+                    }
                 }
                 break;
             case DELETE:
@@ -197,9 +212,20 @@ public class VirtualWallHelper {
                 mMatrix.reset();
                 mMatrix.postTranslate(ctx, cty);
                 curVwBean.updateCoordinateWithMatrix(mMatrix);
+                if (tooCloseToChargePort(curVwBean)) {
+                    ToastUtils.showVirFbdCloseTip(curVwBean.getType(), 1);
+                }
+                if (tooCloseToRobotPosition(curVwBean)) {
+                    ToastUtils.showVirFbdCloseTip(curVwBean.getType(), 0);
+                }
                 break;
             case PULL:
-
+                if (tooCloseToChargePort(curVwBean)) {
+                    ToastUtils.showVirFbdCloseTip(curVwBean.getType(), 1);
+                }
+                if (tooCloseToRobotPosition(curVwBean)) {
+                    ToastUtils.showVirFbdCloseTip(curVwBean.getType(), 0);
+                }
                 break;
         }
         curVwBean = null;
@@ -224,17 +250,33 @@ public class VirtualWallHelper {
             VirtualWallBean vwBean;
             for (int i = 0; i < vwCounts; i++) {
                 sx = DataUtils.bytesToInt(bytes[12 * i + 4], bytes[12 * i + 5]);
-                sy =- DataUtils.bytesToInt(bytes[12 * i + 6], bytes[12 * i + 7]);
-                ex = DataUtils.bytesToInt(bytes[12 * i + 8], bytes[12 * i + 9]) ;
-                ey =- DataUtils.bytesToInt(bytes[12 * i + 10], bytes[12 * i + 11]);
-                vwBean = new VirtualWallBean(i + 1, -1, new float[]{sx, sy, ex, ey}, 1);
+                sy = -DataUtils.bytesToInt(bytes[12 * i + 6], bytes[12 * i + 7]);
+                ex = DataUtils.bytesToInt(bytes[12 * i + 8], bytes[12 * i + 9]);
+                ey = -DataUtils.bytesToInt(bytes[12 * i + 10], bytes[12 * i + 11]);
+                vwBean = new VirtualWallBean(curMaxNumber++, -1, new float[]{sx, sy, ex, ey}, 1);
                 makeLeftToRight(vwBean.getPointCoordinate());
                 vwBeans.add(vwBean);
             }
-        }else{
+        } else {
             vwBeans.clear();
         }
         updateVirtualWall();
+    }
+
+    private boolean tooCloseToChargePort(VirtualWallBean bean) {
+        if (mMapView.getStandPointF() == null) {
+            return false;
+        }
+        return bean.getBoundaryRegion().contains((int) mMapView.matrixCoordinateX(mMapView.getStandPointF().x),
+                (int) mMapView.matrixCoordinateY(mMapView.getStandPointF().y));
+    }
+
+    private boolean tooCloseToRobotPosition(VirtualWallBean bean) {
+        if (mMapView.getEndX() == mMapView.getEndY() && mMapView.getEndX() == 0) {
+            return false;
+        }
+        return bean.getBoundaryRegion().contains((int) mMapView.getEndX(),
+                (int) mMapView.getEndY());
     }
 
     /**
@@ -336,6 +378,28 @@ public class VirtualWallHelper {
         updateVirtualWall();
     }
 
+    public boolean isClose() {
+        boolean isTooCloseToChargePort = false;
+        boolean isTooCloseToRobot = false;
+        for (VirtualWallBean bean : vwBeans) {
+            if (bean.getState() == 3) {
+                continue;
+            }
+            if (tooCloseToChargePort(bean)) {
+                isTooCloseToChargePort = true;
+                break;
+            }
+            if (tooCloseToRobotPosition(bean)) {
+                isTooCloseToRobot = true;
+                break;
+            }
+        }
+        boolean isClose = isTooCloseToChargePort || isTooCloseToRobot;
+        if (isClose) {
+            ToastUtils.showVirFbdCloseTip(-1, isTooCloseToRobot ? 0 : 1);
+        }
+        return isClose;
+    }
 
     /**
      * 获取电子墙列表,包含新增，和删除
@@ -406,7 +470,9 @@ public class VirtualWallHelper {
             coordinate[3] = sy;
         }
     }
-    public void resetSelectNum(){
-        selectVwNum=-1;
+
+    public void resetSelectNum() {
+        selectVwNum = -1;
     }
+
 }

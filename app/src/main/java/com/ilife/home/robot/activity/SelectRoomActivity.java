@@ -1,10 +1,9 @@
 package com.ilife.home.robot.activity;
 
+import android.text.TextUtils;
 import android.view.View;
-import android.widget.CompoundButton;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
-import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 
@@ -17,10 +16,10 @@ import com.aliyun.iot.aep.sdk.contant.IlifeAli;
 import com.ilife.home.robot.R;
 import com.ilife.home.robot.base.BackBaseActivity;
 import com.ilife.home.robot.bean.MapDataBean;
-import com.ilife.home.robot.bean.PartitionBean;
 import com.ilife.home.robot.utils.DataUtils;
 import com.ilife.home.robot.utils.MyLogger;
 import com.ilife.home.robot.utils.ToastUtils;
+import com.ilife.home.robot.utils.UiUtil;
 import com.ilife.home.robot.view.MapView;
 
 import java.util.List;
@@ -34,8 +33,8 @@ public class SelectRoomActivity extends BackBaseActivity {
     TextView tv_title;
     @BindView(R.id.map_room)
     MapView map_room;
-    @BindView(R.id.tv_name_room)
-    TextView tv_name_room;
+    @BindView(R.id.tv_move_map)
+    TextView tv_move_map;
     @BindView(R.id.tv_select_room)
     TextView tv_select_room;
 
@@ -50,7 +49,7 @@ public class SelectRoomActivity extends BackBaseActivity {
     ImageView iv_finish;
     @BindView(R.id.iv_clean_room_time)
     ImageView iv_clean_room_time;
-    private int times=1;//清扫次数
+    private int times = 1;//清扫次数
 
     @Override
     public int getLayoutId() {
@@ -67,7 +66,7 @@ public class SelectRoomActivity extends BackBaseActivity {
         rg_select_room.setOnCheckedChangeListener((group, checkedId) -> {
 
         });
-        rg_select_room.check(R.id.tv_select_room);
+        rg_select_room.check(R.id.tv_move_map);
     }
 
     @Override
@@ -78,6 +77,7 @@ public class SelectRoomActivity extends BackBaseActivity {
             public void onSuccess(PropertyBean result) {
                 long selectId = result.getSelectedMapId();
                 String roomData = result.getPartition();
+                String charging_port = result.getChagePort();
                 IlifeAli.getInstance().getSelectMap(selectId, new OnAliResponse<List<HistoryRecordBean>>() {
                     @Override
                     public void onSuccess(List<HistoryRecordBean> result) {
@@ -91,7 +91,20 @@ public class SelectRoomActivity extends BackBaseActivity {
                             map_room.drawMapX8(mapDataBean.getCoordinates());
                         }
                         map_room.drawRoomTag(roomData);
-
+                        /**
+                         * 处理充电座
+                         */
+                        if (!TextUtils.isEmpty(charging_port)) {
+                            JSONObject jsonObject = JSONObject.parseObject(charging_port);
+                            boolean isDisplay = jsonObject.getIntValue("DisplaySwitch") == 1;
+                            if (isDisplay) {
+                                int xy = jsonObject.getIntValue("Piont");
+                                byte[] bytes = DataUtils.intToBytes4(xy);
+                                int x = DataUtils.bytesToInt(new byte[]{bytes[0], bytes[1]}, 0);
+                                int y = -DataUtils.bytesToInt(new byte[]{bytes[2], bytes[3]}, 0);
+                                map_room.drawChargePort(x, y);
+                            }
+                        }
                     }
 
                     @Override
@@ -120,15 +133,20 @@ public class SelectRoomActivity extends BackBaseActivity {
         } else {
             String roomData = "{\"CleanPartitionData\":{\"CleanLoop\":1,\"Enable\":1,\"PartitionData\":0}}";
             JSONObject caJson = JSONObject.parseObject(roomData);
-            caJson.getJSONObject(EnvConfigure.CleanPartitionData).put("PartitionData", map_room.getSelectRoom());
-            caJson.getJSONObject(EnvConfigure.CleanPartitionData).put("CleanLoop",times);
-            MyLogger.d(TAG, "选房清扫：" + caJson.toString());
-            IlifeAli.getInstance().setProperties(caJson, aBoolean -> {
-                if (aBoolean) {
-                    ToastUtils.showToast("设置选房清扫数据成功");
-                    finish();
-                }
-            });
+            int room = map_room.getSelectRoom();
+            if (room == 0) {
+                ToastUtils.showToast(UiUtil.getString(R.string.toast_select_one_room));
+            } else {
+                caJson.getJSONObject(EnvConfigure.CleanPartitionData).put("PartitionData", room);
+                caJson.getJSONObject(EnvConfigure.CleanPartitionData).put("CleanLoop", times);
+                MyLogger.d(TAG, "选房清扫：" + caJson.toString());
+                IlifeAli.getInstance().setProperties(caJson, aBoolean -> {
+                    if (aBoolean) {
+                        ToastUtils.showToast(UiUtil.getString(R.string.setting_success));
+                        finish();
+                    }
+                });
+            }
         }
     }
 

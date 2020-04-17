@@ -14,6 +14,7 @@ import com.ilife.home.robot.base.BackBaseActivity;
 import com.ilife.home.robot.bean.Coordinate;
 import com.ilife.home.robot.utils.DataUtils;
 import com.ilife.home.robot.utils.MyLogger;
+import com.ilife.home.robot.utils.UiUtil;
 import com.ilife.home.robot.view.MapView;
 
 import java.text.SimpleDateFormat;
@@ -338,7 +339,13 @@ public class HistoryDetailActivity_x9 extends BackBaseActivity {
                 text = getResources().getString(R.string.stop_work_reason5);
                 break;
             case 6:
+                text = UiUtil.getString(R.string.finish_tip_robot_xk);
+                break;
+            case 7:
                 text = getResources().getString(R.string.stop_work_reason6);
+                break;
+            case 8:
+                text = UiUtil.getString(R.string.finish_tip_uncompleted);
                 break;
             default:
                 text = getResources().getString(R.string.stop_work_reason1);

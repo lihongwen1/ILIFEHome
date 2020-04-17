@@ -317,10 +317,20 @@
     <string name="setting_set_volumn">Volume setting</string>
     <string name="setting_set_language">Multi-language</string>
     <string name="setting_set_volumn_number">Volume Control</string>
-    <string name="abandom_operation_hint">Cancel all the operation you had done this time.</string>
     <string name="abandom_operation_title">Undo the current operation?</string>
     <string name="continue_operation">Comfirm</string>
     <string name="abandom">Cancel</string>
-
-
+    <string name="schedule_only_once">Only once</string>
+    <string name="map_enter_virtual_tip">Please clean for a while</string>
+    <string name="finish_tip_robot_xk">Robot suspended</string>
+    <string name="finish_tip_uncompleted">Could not complete the target cleaning</string>
+    <string name="schedule_delete_tip_hint">Need to reset the scheduled cleaning after deletion confirmed</string>
+    <string name="schedule_delete_tip_title">Delete scheduled</string>
+    <string name="toast_select_one_room">Please select one room at least</string>
+    <string name="toast_fbd_too_close_to_robot">No-go zone is too close to the Robot</string>
+    <string name="toast_vir_too_close_to_robot">ElectroWall is too close to the Robot</string>
+    <string name="toast_carpet_too_close_to_robot">Carpet area is too close to the Robot</string>
+    <string name="toast_fbd_too_close_to_charging">No-go zone is too close to the Charging Dock</string>
+    <string name="toast_vir_too_close_to_charging">Electrowall is too close to the Charging Dock</string>
+    <string name="toast_carpet_too_close_to_charging">Carpet area is too close to the Charging Dock</string>
 </resources>

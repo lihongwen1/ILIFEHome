@@ -43,7 +43,7 @@
                 android:paddingBottom="@dimen/dp_14">
 
                 <RadioButton
-                    android:id="@+id/tv_name_room"
+                    android:id="@+id/tv_move_map"
                     style="@style/map_text_button"
                     android:button="@null"
                     android:drawableTop="@drawable/selector_select_map"

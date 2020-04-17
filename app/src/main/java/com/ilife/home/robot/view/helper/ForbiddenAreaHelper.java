@@ -13,6 +13,7 @@ import android.view.MotionEvent;
 import com.ilife.home.robot.model.bean.VirtualWallBean;
 import com.ilife.home.robot.utils.DataUtils;
 import com.ilife.home.robot.utils.MyLogger;
+import com.ilife.home.robot.utils.ToastUtils;
 import com.ilife.home.robot.view.MapView;
 
 import java.util.ArrayList;
@@ -43,6 +44,7 @@ public class ForbiddenAreaHelper {
     private int selectVwNum = -1;
     private Matrix mMatrix;
     private Matrix boundaryMatrix;
+
     public enum FAOT {
         NOON(31),
         ADD(32),
@@ -78,7 +80,7 @@ public class ForbiddenAreaHelper {
         this.touchPoint = new PointF();
         this.curRectF = new RectF();
         this.mMatrix = new Matrix();
-        this.boundaryMatrix=new Matrix();
+        this.boundaryMatrix = new Matrix();
     }
 
     public Path getmGlobalPath() {
@@ -118,9 +120,9 @@ public class ForbiddenAreaHelper {
             index++;
             for (int i = 0; i < coordinate.length; i++) {
                 if (i % 2 == 0) {
-                    coor = Math.round(coordinate[i]) ;
+                    coor = Math.round(coordinate[i]);
                 } else {
-                    coor =  - Math.round(coordinate[i]);
+                    coor = -Math.round(coordinate[i]);
                 }
                 MyLogger.d(TAG, "禁区坐标 ：" + coor);
                 intToByte = DataUtils.intToBytes(coor);
@@ -140,7 +142,7 @@ public class ForbiddenAreaHelper {
     public void setForbiddenArea(String fbdStr) {
         if (!TextUtils.isEmpty(fbdStr)) {
             byte[] bytes = Base64.decode(fbdStr, Base64.DEFAULT);
-            int vwCounts = bytes.length / LENGTH;//一条虚拟墙含12个字节，4个保留字节，加4个坐标（x,y）
+            int vwCounts = bytes.length / LENGTH;//一条禁区含20个字节，4个保留字节，加4个坐标（x,y）
             fbdBeans.clear();
             int tlx, tly, trx, try_, blx, bly, brx, bry, type;
             VirtualWallBean vwBean;
@@ -148,19 +150,19 @@ public class ForbiddenAreaHelper {
             for (int i = 0; i < vwCounts; i++) {
                 bType = new byte[]{bytes[LENGTH * i], bytes[LENGTH * i + 1], bytes[LENGTH * i + 2], bytes[LENGTH * i + 3]};
                 type = DataUtils.bytesToInt(bType);
-                tlx = DataUtils.bytesToInt(bytes[LENGTH * i + 4], bytes[LENGTH * i + 5]) ;
-                tly =  - DataUtils.bytesToInt(bytes[LENGTH * i + 6], bytes[LENGTH * i + 7]);
+                tlx = DataUtils.bytesToInt(bytes[LENGTH * i + 4], bytes[LENGTH * i + 5]);
+                tly = -DataUtils.bytesToInt(bytes[LENGTH * i + 6], bytes[LENGTH * i + 7]);
                 trx = DataUtils.bytesToInt(bytes[LENGTH * i + 8], bytes[LENGTH * i + 9]);
-                try_ =  - DataUtils.bytesToInt(bytes[LENGTH * i + 10], bytes[LENGTH * i + 11]);
+                try_ = -DataUtils.bytesToInt(bytes[LENGTH * i + 10], bytes[LENGTH * i + 11]);
                 blx = DataUtils.bytesToInt(bytes[LENGTH * i + 12], bytes[LENGTH * i + 13]);
-                bly =  - DataUtils.bytesToInt(bytes[LENGTH * i + 14], bytes[LENGTH * i + 15]);
+                bly = -DataUtils.bytesToInt(bytes[LENGTH * i + 14], bytes[LENGTH * i + 15]);
                 brx = DataUtils.bytesToInt(bytes[LENGTH * i + 16], bytes[LENGTH * i + 17]);
-                bry =  - DataUtils.bytesToInt(bytes[LENGTH * i + 18], bytes[LENGTH * i + 19]);
+                bry = -DataUtils.bytesToInt(bytes[LENGTH * i + 18], bytes[LENGTH * i + 19]);
                 vwBean = new VirtualWallBean(i + 1, type, new float[]{tlx, tly, trx, try_, blx, bly, brx, bry}, 1);
                 fbdBeans.add(vwBean);
                 MyLogger.d(TAG, "禁区坐标: " + Arrays.toString(vwBean.getPointCoordinate()));
             }
-        }else {
+        } else {
             fbdBeans.clear();
         }
         updateFbdPath();
@@ -273,7 +275,7 @@ public class ForbiddenAreaHelper {
     private void doOnActionUp(float mapX, float mapY) {
         switch (faot) {
             case ADD:
-                if (getUsefulFbdArea() < 10 &&Math.abs( mapX-downPoint.x )> MIN_FBD_LENGTH&&Math.abs(mapY-downPoint.y)>MIN_FBD_LENGTH) {
+                if (getUsefulFbdArea() < 10 && Math.abs(mapX - downPoint.x) > MIN_FBD_LENGTH && Math.abs(mapY - downPoint.y) > MIN_FBD_LENGTH) {
                     float x1, y1, x2, y2;
                     /**
                      * 转化为云端坐标系坐标
@@ -284,10 +286,16 @@ public class ForbiddenAreaHelper {
                     y2 = mMapView.reMatrixCoordinateY(downPoint.y > mapY ? downPoint.y : mapY);//y2
                     float[] coordinate = new float[]{x1, y1, x2, y1, x2, y2, x1, y2};
                     VirtualWallBean fbd = new VirtualWallBean(fbdBeans.size() + 1, mFbdAreaType, coordinate, 2);
-                    fbdBeans.add(0,fbd);
-                    selectVwNum=fbd.getNumber();
+                    fbdBeans.add(0, fbd);
+                    selectVwNum = fbd.getNumber();
                     updateFbdPath();
                     mMapView.invalidateUI();
+                    if (tooCloseToChargePort(fbd)) {
+                        ToastUtils.showVirFbdCloseTip(fbd.getType(), 1);
+                    }
+                    if (tooCloseToRobotPosition(fbd)) {
+                        ToastUtils.showVirFbdCloseTip(fbd.getType(), 0);
+                    }
                 }
                 break;
             case DELETE:
@@ -323,6 +331,15 @@ public class ForbiddenAreaHelper {
                 mMatrix.reset();
                 mMatrix.postTranslate(ctx, cty);
                 curFbdBean.updateCoordinateWithMatrix(mMatrix);
+                mMatrix.reset();
+                updateFbdPath();
+                mMapView.invalidateUI();
+                if (tooCloseToChargePort(curFbdBean)) {
+                    ToastUtils.showVirFbdCloseTip(curFbdBean.getType(), 1);
+                }
+                if (tooCloseToRobotPosition(curFbdBean)) {
+                    ToastUtils.showVirFbdCloseTip(curFbdBean.getType(), 0);
+                }
                 break;
             case ROTATE:
                 PointF centerP = curFbdBean.getCenterPoint();
@@ -338,6 +355,12 @@ public class ForbiddenAreaHelper {
                 mMatrix.reset();
                 updateFbdPath();
                 mMapView.invalidateUI();
+                if (tooCloseToChargePort(curFbdBean)) {
+                    ToastUtils.showVirFbdCloseTip(curFbdBean.getType(), 1);
+                }
+                if (tooCloseToRobotPosition(curFbdBean)) {
+                    ToastUtils.showVirFbdCloseTip(curFbdBean.getType(), 0);
+                }
                 break;
             case PULL:
                 float[] matrixCoordinate = toMapCoordinate(curFbdBean.getPointCoordinate());
@@ -347,7 +370,7 @@ public class ForbiddenAreaHelper {
                 mMatrix.setTranslate(-matrixCoordinate[0], -matrixCoordinate[1]);
                 mMatrix.postRotate(-degree, 0, 0);
 
-                float[] touchCoordinate =  new float[]{touchPoint.x, touchPoint.y};
+                float[] touchCoordinate = new float[]{touchPoint.x, touchPoint.y};
                 mMatrix.mapPoints(touchCoordinate);
                 mMatrix.mapPoints(matrixCoordinate);
                 matrixCoordinate[2] = touchCoordinate[0];
@@ -364,6 +387,12 @@ public class ForbiddenAreaHelper {
                 mMatrix.reset();
                 updateFbdPath();
                 mMapView.invalidateUI();
+                if (tooCloseToChargePort(curFbdBean)) {
+                    ToastUtils.showVirFbdCloseTip(curFbdBean.getType(), 1);
+                }
+                if (tooCloseToRobotPosition(curFbdBean)) {
+                    ToastUtils.showVirFbdCloseTip(curFbdBean.getType(), 0);
+                }
                 break;
         }
         curFbdBean = null;
@@ -405,8 +434,8 @@ public class ForbiddenAreaHelper {
                 continue;
             }
             matrixCoordinate = toMapCoordinate(fbd.getPointCoordinate());
-            if (selectVwNum == fbd.getNumber()&&mMatrix!=null&&!mMatrix.isIdentity()) {
-                if (faot == FAOT.PULL&&!mMatrix.isIdentity()) {
+            if (selectVwNum == fbd.getNumber() && mMatrix != null && !mMatrix.isIdentity()) {
+                if (faot == FAOT.PULL && !mMatrix.isIdentity()) {
                     float[] touchCoordinate = new float[]{touchPoint.x, touchPoint.y};
                     mMatrix.mapPoints(touchCoordinate);
                     mMatrix.mapPoints(matrixCoordinate);
@@ -462,10 +491,10 @@ public class ForbiddenAreaHelper {
             /**
              * 边界
              */
-            if (fbd.getBoundaryPath()==null){
+            if (fbd.getBoundaryPath() == null) {
                 fbd.setBoundaryPath(new Path());
             }
-            Path boundaryPath=fbd.getBoundaryPath();
+            Path boundaryPath = fbd.getBoundaryPath();
             boundaryPath.reset();
             boundaryPath.moveTo(boundaryCoordinate[0], boundaryCoordinate[1]);
             boundaryPath.lineTo(boundaryCoordinate[2], boundaryCoordinate[3]);
@@ -475,7 +504,7 @@ public class ForbiddenAreaHelper {
             boundaryRegion = new Region((int) minx, (int) miny, (int) maxx, (int) maxy);
             boundaryRegion.setPath(boundaryPath, boundaryRegion);
             fbd.setBoundaryRegion(boundaryRegion);
-            fbd.setDeleteIcon(new RectF(boundaryCoordinate[0] - ICON_RADIUS, boundaryCoordinate[1] - ICON_RADIUS, boundaryCoordinate[0] + ICON_RADIUS, matrixCoordinate[1] + ICON_RADIUS));
+            fbd.setDeleteIcon(new RectF(boundaryCoordinate[0] - ICON_RADIUS, boundaryCoordinate[1] - ICON_RADIUS, boundaryCoordinate[0] + ICON_RADIUS, boundaryCoordinate[1] + ICON_RADIUS));
             fbd.setRotateIcon(new RectF(boundaryCoordinate[2] - ICON_RADIUS, boundaryCoordinate[3] - ICON_RADIUS, boundaryCoordinate[2] + ICON_RADIUS, boundaryCoordinate[3] + ICON_RADIUS));
             fbd.setPullIcon(new RectF(boundaryCoordinate[4] - ICON_RADIUS, boundaryCoordinate[5] - ICON_RADIUS, boundaryCoordinate[4] + ICON_RADIUS, boundaryCoordinate[5] + ICON_RADIUS));
         }
@@ -522,7 +551,54 @@ public class ForbiddenAreaHelper {
     public int getSelectVwNum() {
         return selectVwNum;
     }
-    public void reserSelectNum(){
-        selectVwNum=-1;
+
+    public void reserSelectNum() {
+        selectVwNum = -1;
+    }
+
+    public boolean isClose() {
+        boolean isTooCloseToChargePort = false;
+        boolean isTooCloseToRobot = false;
+        int fbdType = 0;
+        for (VirtualWallBean bean : fbdBeans) {
+            if (bean.getState() == 3) {//已删除禁区
+                continue;
+            }
+            if (tooCloseToChargePort(bean)) {
+                fbdType = bean.getType();
+                isTooCloseToChargePort = true;
+                break;
+            }
+            if (tooCloseToRobotPosition(bean)) {
+                fbdType = bean.getType();
+                isTooCloseToRobot = true;
+                break;
+            }
+        }
+        boolean isclose = isTooCloseToChargePort || isTooCloseToRobot;
+        if (isclose) {
+            ToastUtils.showVirFbdCloseTip(fbdType, isTooCloseToRobot ? 0 : 1);
+        }
+        return isclose;
+    }
+
+    private boolean tooCloseToChargePort(VirtualWallBean bean) {
+        if (mMapView.getStandPointF() == null) {
+            return false;
+        }
+        return areaToPoint(bean, mMapView.getStandPointF());
+    }
+
+    private boolean tooCloseToRobotPosition(VirtualWallBean bean) {
+        if (mMapView.getEndX() == mMapView.getEndY() && mMapView.getEndX() == 0) {
+            return false;
+        }
+        return bean.getBoundaryRegion().contains((int) mMapView.getEndX(),
+                (int) mMapView.getEndY());
+    }
+
+
+    public boolean areaToPoint(VirtualWallBean bean, PointF pointF) {
+        return bean.getBoundaryRegion().contains(Math.round(mMapView.matrixCoordinateX(pointF.x)), Math.round(mMapView.matrixCoordinateY(pointF.y)));
     }
 }

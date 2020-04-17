@@ -197,6 +197,11 @@ public class SettingActivity extends BackBaseActivity implements OnAliSetPropert
             MyLogger.d("LiveBus", "收到Live Bus 信息");
             tv_max_number.setText(String.valueOf(value));
         });
+        LiveEventBus.get(EnvConfigure.KEY_WATER_CONTROL, Integer.class).observeSticky(this, value -> {
+            MyLogger.d("LiveBus", "收到Live Bus 信息");
+            waterLevel = value;
+            setStatus(waterLevel, isMaxMode, voiceOpen);
+        });
 
     }
 

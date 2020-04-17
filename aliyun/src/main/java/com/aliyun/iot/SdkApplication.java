@@ -12,6 +12,7 @@ import android.os.Bundle;
 import com.aliyun.alink.linksdk.tools.ThreadTools;
 import com.aliyun.alink.sdk.bone.plugins.config.BoneConfig;
 import com.aliyun.iot.aep.component.router.IUrlHandler;
+import com.aliyun.iot.aep.oa.OALanguageHelper;
 import com.aliyun.iot.aep.routerexternal.RouterExternal;
 import com.aliyun.iot.aep.sdk.apiclient.IoTAPIClientImpl;
 import com.aliyun.iot.aep.sdk.contant.IlifeAli;
@@ -22,6 +23,7 @@ import com.aliyun.iot.aep.sdk.helper.SDKInitHelper;
 import com.aliyun.iot.aep.sdk.log.ALog;
 
 import java.util.ArrayList;
+import java.util.Locale;
 
 public abstract class SdkApplication extends AApplication {
     @Override
@@ -65,15 +67,14 @@ public abstract class SdkApplication extends AApplication {
                 RouterExternal.getInstance().registerNativePages(nativeUrls, new NativeUrlHandler(deepCopyItem));
             }
         });
-//        Locale locale = Locale.getDefault();
-//        String lan = locale.getLanguage();
-//        if (!lan.equals("zh")) {//
-//            //初始化之后，可以改变显示语言,目前支持中文“zh-CN”, 英文"en-US"，法文"fr-FR",德文"de-DE",日文"ja-JP",韩文"ko-KR",西班牙文"es-ES",俄文"ru-RU"，八种语言
-//            switchLanguage("en-US");
-//            //修改OA多语言 目前支持Locale.US 英文、Locale.SIMPLIFIED_CHINESE 中文、Locale.FRANCE 法语、Locale.JAPAN 日语、Locale.GERMANY 德语、Locale.KOREA 韩语  、new Locale("ru","RU") 俄语、new Locale("es","ES") 西班牙语
-//            OALanguageHelper.setLanguageCode(Locale.US);
-//        }
-
+        Locale locale = Locale.getDefault();
+        String lan = locale.getLanguage();
+        if (!lan.equals("zh")) {//
+            //初始化之后，可以改变显示语言,目前支持中文“zh-CN”, 英文"en-US"，法文"fr-FR",德文"de-DE",日文"ja-JP",韩文"ko-KR",西班牙文"es-ES",俄文"ru-RU"，八种语言
+            switchLanguage("en-US");
+            //修改OA多语言 目前支持Locale.US 英文、Locale.SIMPLIFIED_CHINESE 中文、Locale.FRANCE 法语、Locale.JAPAN 日语、Locale.GERMANY 德语、Locale.KOREA 韩语  、new Locale("ru","RU") 俄语、new Locale("es","ES") 西班牙语
+            OALanguageHelper.setLanguageCode(Locale.US);
+        }
     }
 
     /**

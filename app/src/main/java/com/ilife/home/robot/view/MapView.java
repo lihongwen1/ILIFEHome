@@ -82,7 +82,7 @@ public class MapView extends View {
     private final int ZOOM = 2;
     private final int DRAG = 3;
     private PaintManager mPaintManager;
-    private PointF standPointF;
+    private PointF standPointF;//充电座
 
     /**
      * map operation type
@@ -286,6 +286,10 @@ public class MapView extends View {
             slamCanvas.drawCircle(endX, endY, Utils.dip2px(MyApplication.getInstance(), 6), mPaintManager.changeColor(mPaintManager.getFillPaint(), PaintColor.END_CIRCLE));
         }
         invalidateUI();
+    }
+
+    public PointF getStandPointF() {
+        return standPointF;
     }
 
     public void drawMapX8(List<Coordinate> dataList) {
@@ -569,11 +573,22 @@ public class MapView extends View {
              * 绘制充电座
              */
             if (standPointF != null) {
+                if (standPointF.x ==  standPointF.y && standPointF.x == 0) {
+                    return;
+                }
                 float width = standBitmap.getWidth() / 2f;
                 canvas.drawBitmap(standBitmap, matrixCoordinateX(standPointF.x) - width, matrixCoordinateY(standPointF.y) - width, mPaintManager.getIconPaint());
             }
         }
         super.onDraw(canvas);
+    }
+
+    public float getEndX() {
+        return endX;
+    }
+
+    public float getEndY() {
+        return endY;
     }
 
     @Override
@@ -609,6 +624,7 @@ public class MapView extends View {
         switch (mOT) {
             case NOON:
             case SELECT_ROOM:
+
             case MAP://操作地图
                 switch (me) {
                     case MotionEvent.ACTION_CANCEL:
@@ -819,6 +835,18 @@ public class MapView extends View {
     public void drawVirtualWall(String vwData) {
         mVirtualWallHelper.setVirtualWall(vwData);
         invalidateUI();
+    }
+
+    public VirtualWallHelper getmVirtualWallHelper() {
+        return mVirtualWallHelper;
+    }
+
+    public ForbiddenAreaHelper getmForbiddenHelper() {
+        return mForbiddenHelper;
+    }
+
+    public RoomHelper getmRoomHelper() {
+        return mRoomHelper;
     }
 
     /**

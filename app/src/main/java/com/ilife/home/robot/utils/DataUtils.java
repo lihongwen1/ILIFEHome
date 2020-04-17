@@ -3,7 +3,6 @@ package com.ilife.home.robot.utils;
 
 import android.graphics.Point;
 import android.graphics.PointF;
-import android.graphics.RectF;
 import android.util.Base64;
 import android.view.MotionEvent;
 
@@ -11,11 +10,9 @@ import com.ilife.home.robot.R;
 import com.ilife.home.robot.app.MyApplication;
 import com.ilife.home.robot.bean.Coordinate;
 import com.ilife.home.robot.bean.MapDataBean;
-import com.ilife.home.robot.bean.PartitionBean;
+import com.ilife.home.robot.model.bean.VirtualWallBean;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -332,24 +329,73 @@ public class DataUtils {
         return null;
     }
 
-    public static int judgedVirAndCharge(int sx, int sy, int ex, int ey, Point point) {//判断虚拟墙和圆的位置关系
-        double judDis = 0;
-        double k = (ey - sy) * 1.0 / (ex - sx);//虚拟墙斜率
-        double bn = ey - k * ex;//虚拟墙的截距b
-        //垂足坐标
-        double chuiX = (k * k * sx + k * (point.y - sy) + point.x) / (k * k + 1);
-        double chuiY = k * (chuiX - sx) + sy;
-        int cx = (int) chuiX;
-        int cy = (int) chuiY;
-        if ((Math.min(sx, ex) < cx && cx < Math.max(sx, ex)) || (Math.min(sy, ey) < cy && cy < Math.max(sy, ey))) {
-            judDis = Math.sqrt((point.x - chuiX) * (point.x - chuiX) + (point.y - chuiY) * (point.y - chuiY));
-        } else {
-            double p1dis = Math.sqrt((point.x - sx) * (point.x - sx) + (point.y - sy) * (point.y - sy));
-            double p2dis = Math.sqrt((point.x - ex) * (point.x - ex) + (point.y - ey) * (point.y - ey));
-            judDis = p1dis > p2dis ? p2dis : p1dis;
+
+
+    public static double lineToPointSpace(float x1, float y1, float x2, float y2, float x0, float y0) {//判断虚拟墙和圆的位置关系
+        double space = 0;
+
+        double a, b, c;
+
+        a = lineSpace(x1, y1, x2, y2);// 线段的长度
+
+        b = lineSpace(x1, y1, x0, y0);// (x1,y1)到点的距离
+
+        c = lineSpace(x2, y2, x0, y0);// (x2,y2)到点的距离
+
+        if (c <= 0.000001 || b <= 0.000001) {
+
+            space = 0;
+
+            return space;
+
         }
-        return (int) judDis;
+
+        if (a <= 0.000001) {
+
+            space = b;
+
+            return space;
+
+        }
+
+        if (c * c >= a * a + b * b) {
+
+            space = b;
+
+            return space;
+
+        }
+
+        if (b * b >= a * a + c * c) {
+
+            space = c;
+
+            return space;
+
+        }
+
+        double p = (a + b + c) / 2;// 半周长
+
+        double s = Math.sqrt(p * (p - a) * (p - b) * (p - c));// 海伦公式求面积
+
+        space = 2 * s / a;// 返回点到线的距离（利用三角形面积公式求高）
+
+        return space;
     }
+
+    // 计算两点之间的距离
+    public static double lineSpace(float x1, float y1, float x2, float y2) {
+
+        double lineLength = 0;
+
+        lineLength = Math.sqrt((x1 - x2) * (x1 - x2) + (y1 - y2)
+
+                * (y1 - y2));
+
+        return lineLength;
+
+    }
+
 
     /**
      * b为传入的字节，i为第几位（范围0-7），如要获取bit0，则i=0
@@ -376,7 +422,7 @@ public class DataUtils {
 
     public static String getScheduleWeek(int week) {
         StringBuilder weekStr = new StringBuilder();
-        for (int i = 0; i < 7; i++) {
+        for (int i = 0; i <= 7; i++) {
             if (DataUtils.getBit((byte) week, i) == 1) {
                 switch (i) {
                     case 0:
@@ -400,6 +446,45 @@ public class DataUtils {
                     case 6:
                         weekStr.append(UiUtil.getString(R.string.week_sunday));
                         break;
+                    case 7:
+                        weekStr.append(UiUtil.getString(R.string.schedule_only_once));
+                        break;
+                }
+                weekStr.append(" ");
+            }
+        }
+        return weekStr.toString();
+    }
+
+    public static String getScheduleWeekFull(int week) {
+        StringBuilder weekStr = new StringBuilder();
+        for (int i = 0; i <= 7; i++) {
+            if (DataUtils.getBit((byte) week, i) == 1) {
+                switch (i) {
+                    case 0:
+                        weekStr.append(UiUtil.getString(R.string.week_monday_full));
+                        break;
+                    case 1:
+                        weekStr.append(UiUtil.getString(R.string.week_tuesday_full));
+                        break;
+                    case 2:
+                        weekStr.append(UiUtil.getString(R.string.week_wednesday_full));
+                        break;
+                    case 3:
+                        weekStr.append(UiUtil.getString(R.string.week_thursday_full));
+                        break;
+                    case 4:
+                        weekStr.append(UiUtil.getString(R.string.week_friday_full));
+                        break;
+                    case 5:
+                        weekStr.append(UiUtil.getString(R.string.week_saturday_full));
+                        break;
+                    case 6:
+                        weekStr.append(UiUtil.getString(R.string.week_sunday_full));
+                        break;
+                    case 7:
+                        weekStr.append(UiUtil.getString(R.string.schedule_only_once));
+                        break;
                 }
                 weekStr.append(" ");
             }
@@ -410,7 +495,6 @@ public class DataUtils {
     public static String getScheduleTimes(int times) {
         String value = "";
         switch (times) {
-            case 0:
             case 1:
                 value = UiUtil.getString(R.string.schedule_onece);
                 break;
@@ -429,5 +513,6 @@ public class DataUtils {
         String[] languages = MyApplication.getInstance().getResources().getStringArray(R.array.array_voice_language);
         return languages[language];
     }
+
 
 }

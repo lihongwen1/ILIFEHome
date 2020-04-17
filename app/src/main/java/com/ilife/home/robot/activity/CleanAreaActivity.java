@@ -20,6 +20,7 @@ import com.ilife.home.robot.bean.MapDataBean;
 import com.ilife.home.robot.utils.DataUtils;
 import com.ilife.home.robot.utils.MyLogger;
 import com.ilife.home.robot.utils.ToastUtils;
+import com.ilife.home.robot.utils.UiUtil;
 import com.ilife.home.robot.view.MapView;
 
 import java.util.List;
@@ -49,7 +50,7 @@ public class CleanAreaActivity extends BackBaseActivity {
     ImageView iv_finish;
     private int times;//清扫次数
     private int enable;//0-无效  1-开始 2-进行中
-
+    private String charging_port;
     @Override
     public int getLayoutId() {
         return R.layout.activity_clean_area;
@@ -83,6 +84,7 @@ public class CleanAreaActivity extends BackBaseActivity {
             public void onSuccess(PropertyBean result) {
                 long selectId = result.getSelectedMapId();
                 String cleanAreaData = result.getCleanArea();
+                charging_port = result.getChagePort();
                 MyLogger.d(TAG, "划区数据1111：" + cleanAreaData);
                 IlifeAli.getInstance().getSelectMap(selectId, new OnAliResponse<List<HistoryRecordBean>>() {
                     @Override
@@ -110,6 +112,21 @@ public class CleanAreaActivity extends BackBaseActivity {
                                 }
                             }
                             map_clean_area.drawCleanArea(area);
+                        }
+
+                        /**
+                         * 处理充电座
+                         */
+                        if (!TextUtils.isEmpty(charging_port)) {
+                            JSONObject jsonObject = JSONObject.parseObject(charging_port);
+                            boolean isDisplay = jsonObject.getIntValue("DisplaySwitch") == 1;
+                            if (isDisplay) {
+                                int xy = jsonObject.getIntValue("Piont");
+                                byte[] bytes = DataUtils.intToBytes4(xy);
+                                int x = DataUtils.bytesToInt(new byte[]{bytes[0], bytes[1]}, 0);
+                                int y = -DataUtils.bytesToInt(new byte[]{bytes[2], bytes[3]}, 0);
+                                map_clean_area.drawChargePort(x, y);
+                            }
                         }
                     }
 
@@ -158,15 +175,20 @@ public class CleanAreaActivity extends BackBaseActivity {
         } else {
             String clenAreaData = "{\"CleanAreaData\":{\"AreaData\":\"\",\"CleanLoop\":0,\"Enable\":1}}";
             JSONObject caJson = JSONObject.parseObject(clenAreaData);
-            caJson.getJSONObject(EnvConfigure.CleanAreaData).put("AreaData", map_clean_area.getCleanAreaData());
+            String cleanData=map_clean_area.getCleanAreaData();
+            if (cleanData.equals("AAAAAAAAAAAAAAAAAAAAAA==")) {
+                ToastUtils.showToast("请先进行划区");
+            }else {
+            caJson.getJSONObject(EnvConfigure.CleanAreaData).put("AreaData",cleanData);
             caJson.getJSONObject(EnvConfigure.CleanAreaData).put("CleanLoop", times);
             MyLogger.d(TAG, "划区数据2222：" + caJson.toString());
             IlifeAli.getInstance().setProperties(caJson, aBoolean -> {
                 if (aBoolean) {
-                    ToastUtils.showToast("设置划区数据成功");
+                    ToastUtils.showToast(UiUtil.getString(R.string.setting_success));
                     removeActivity();
                 }
             });
+            }
         }
     }
 

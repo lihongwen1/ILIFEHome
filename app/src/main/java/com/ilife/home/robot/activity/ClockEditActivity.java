@@ -16,15 +16,20 @@ import com.ilife.home.robot.R;
 import com.ilife.home.robot._interface.OnDialogClick;
 import com.ilife.home.robot.able.DeviceUtils;
 import com.ilife.home.robot.base.BackBaseActivity;
-import com.ilife.home.robot.entity.NewClockInfo;
 import com.ilife.home.robot.fragment.BottomSheetSelectDialog;
 import com.ilife.home.robot.fragment.TimeSelectDialog;
 import com.ilife.home.robot.utils.DataUtils;
 import com.ilife.home.robot.utils.ToastUtils;
 import com.ilife.home.robot.utils.UiUtil;
 
+import java.util.concurrent.TimeUnit;
+
 import butterknife.BindView;
 import butterknife.OnClick;
+import io.reactivex.Observable;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.CompositeDisposable;
+import io.reactivex.disposables.Disposable;
 
 /**
  * 定时预约编辑界面
@@ -48,6 +53,7 @@ public class ClockEditActivity extends BackBaseActivity {
     private BottomSheetSelectDialog textSelectDialog;
     private ScheduleBean scheduleBean;
     private int mTextSelectorType;
+    private CompositeDisposable mDisposable;
 
     @Override
     public int getLayoutId() {
@@ -57,30 +63,29 @@ public class ClockEditActivity extends BackBaseActivity {
     @Override
     public void initData() {
         super.initData();
+        mDisposable = new CompositeDisposable();
         scheduleBean = getIntent().getParcelableExtra(KEY_SCHEDULE_INFO);
         if (scheduleBean == null) {
             scheduleBean = new ScheduleBean();
         }
-        LiveEventBus.get(ScheduleAreaActivity.LIVE_BUS_SCHEDULE_AREA_TYPE, Integer.class)
-                .observe(this, type -> {
-                    scheduleBean.setType(type);
+        LiveEventBus.get(ScheduleAreaActivity.KEY_SCHEDULE_AREA_BEAN, ScheduleBean.class)
+                .observe(this, bean -> {
+                    scheduleBean.setLoop(bean.getLoop());
+                    scheduleBean.setType(bean.getType());
                     setScheduleArea(scheduleBean.getType());
-                });
-        LiveEventBus.get(ScheduleAreaActivity.LIVE_BUS_SCHEDULE_AREA_DATA, String.class)
-                .observe(this, s -> {
                     /**
                      * 选房清扫数据和划区清扫数据只能二选一
                      */
-                    if (scheduleBean.getType()==0){
+                    if (scheduleBean.getType() == 0) {
                         scheduleBean.setArea("AAAAAAAAAAAAAAAAAAAAAA==");
                         scheduleBean.setRoom(0);
                     }
                     if (scheduleBean.getType() == 1) {//分区
-                        scheduleBean.setArea(s);
+                        scheduleBean.setArea(bean.getArea());
                         scheduleBean.setRoom(0);
                     }
                     if (scheduleBean.getType() == 2) {//分房
-                        scheduleBean.setRoom(Integer.valueOf(s));
+                        scheduleBean.setRoom(bean.getRoom());
                         scheduleBean.setArea("AAAAAAAAAAAAAAAAAAAAAA==");
                     }
                 });
@@ -127,7 +132,7 @@ public class ClockEditActivity extends BackBaseActivity {
                 area = UiUtil.getString(R.string.clock_area_clean_area);
                 break;
             case 2:
-                area =UiUtil.getString(R.string.clock_area_choose_room);
+                area = UiUtil.getString(R.string.clock_area_choose_room);
                 break;
         }
         tv_schedule_area.setText(area);
@@ -141,7 +146,7 @@ public class ClockEditActivity extends BackBaseActivity {
                 break;
             case R.id.ll_schedule_loop://预约重复时间
                 mTextSelectorType = 1;
-                showTextSelectorDialog(true, UiUtil.getString(R.string.clock_repeat), R.array.text_week, tv_schedule_loop.getText().toString().trim());
+                showTextSelectorDialog(true, UiUtil.getString(R.string.clock_repeat), R.array.text_week, DataUtils.getScheduleWeekFull(scheduleBean.getWeek()));
                 break;
             case R.id.ll_schedule_mode://预约清扫模式
                 mTextSelectorType = 2;
@@ -160,16 +165,22 @@ public class ClockEditActivity extends BackBaseActivity {
                 removeActivity();
                 break;
             case R.id.btn_save_schedule:
+                showLoadingDialog();
                 scheduleBean.setEnable(1);
                 String scheduleJson = JSON.toJSONString(scheduleBean);
                 JSONObject jsoSchedule = JSONObject.parseObject(scheduleJson);
                 String json_str = "{\"Schedule\":\" \"}";
-                String schedule_ = json_str.replaceFirst(EnvConfigure.KEY_SCHEDULE, EnvConfigure.KEY_SCHEDULE+scheduleBean.getKeyIndex());
+                String schedule_ = json_str.replaceFirst(EnvConfigure.KEY_SCHEDULE, EnvConfigure.KEY_SCHEDULE + scheduleBean.getKeyIndex());
                 JSONObject jso = JSONObject.parseObject(schedule_);
-                jso.put(EnvConfigure.KEY_SCHEDULE+scheduleBean.getKeyIndex(), jsoSchedule);
+                jso.put(EnvConfigure.KEY_SCHEDULE + scheduleBean.getKeyIndex(), jsoSchedule);
                 IlifeAli.getInstance().setProperties(jso, aBoolean -> {
                     if (aBoolean) {
-                        removeActivity();
+                        Disposable dis = Observable.timer(1, TimeUnit.SECONDS).observeOn(AndroidSchedulers.mainThread()).subscribe(aLong -> {
+                            hideLoadingDialog();
+                            ToastUtils.showToast(UiUtil.getString(R.string.setting_success));
+                            removeActivity();
+                        });
+                        mDisposable.add(dis);
 
                     }
                 });
@@ -239,6 +250,9 @@ public class ClockEditActivity extends BackBaseActivity {
     }
 
     private int getScheduleWeek(int[] positions) {
+        if (positions.length == 0) {
+            return 0x80;//默认显示仅一次
+        }
         int week = 0;
         for (int position : positions) {
             position = position - 1;
@@ -248,5 +262,13 @@ public class ClockEditActivity extends BackBaseActivity {
             week = DataUtils.setBitTo1(week, position);
         }
         return week;
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (mDisposable != null && !mDisposable.isDisposed()) {
+            mDisposable.dispose();
+        }
     }
 }

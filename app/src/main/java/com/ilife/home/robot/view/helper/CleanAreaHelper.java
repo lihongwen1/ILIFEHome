@@ -97,7 +97,7 @@ public class CleanAreaHelper {
      * @param fbdStr
      */
         public void setCleanArea(String fbdStr) {
-        if (!TextUtils.isEmpty(fbdStr)) {
+        if (!TextUtils.isEmpty(fbdStr)&&!fbdStr.equals("AAAAAAAAAAAAAAAAAAAAAA==")) {
             byte[] bytes = Base64.decode(fbdStr, Base64.DEFAULT);
             int tlx = DataUtils.bytesToInt(bytes[0], bytes[1]);
             int tly =  - DataUtils.bytesToInt(bytes[2], bytes[3]);
@@ -387,7 +387,7 @@ public class CleanAreaHelper {
         boundaryRegion = new Region((int) minx, (int) miny, (int) maxx, (int) maxy);
         boundaryRegion.setPath(boundaryPath, boundaryRegion);
         curCleanAreaBean.setBoundaryRegion(boundaryRegion);
-        curCleanAreaBean.setDeleteIcon(new RectF(boundaryCoordinate[0] - ICON_RADIUS, boundaryCoordinate[1] - ICON_RADIUS, boundaryCoordinate[0] + ICON_RADIUS, matrixCoordinate[1] + ICON_RADIUS));
+        curCleanAreaBean.setDeleteIcon(new RectF(boundaryCoordinate[0] - ICON_RADIUS, boundaryCoordinate[1] - ICON_RADIUS, boundaryCoordinate[0] + ICON_RADIUS, boundaryCoordinate[1] + ICON_RADIUS));
         curCleanAreaBean.setRotateIcon(new RectF(boundaryCoordinate[2] - ICON_RADIUS, boundaryCoordinate[3] - ICON_RADIUS, boundaryCoordinate[2] + ICON_RADIUS, boundaryCoordinate[3] + ICON_RADIUS));
         curCleanAreaBean.setPullIcon(new RectF(boundaryCoordinate[4] - ICON_RADIUS, boundaryCoordinate[5] - ICON_RADIUS, boundaryCoordinate[4] + ICON_RADIUS, boundaryCoordinate[5] + ICON_RADIUS));
     }

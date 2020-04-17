@@ -15,10 +15,11 @@ import com.aliyun.iot.aep.sdk.bean.ScheduleBean;
 import com.aliyun.iot.aep.sdk.contant.EnvConfigure;
 import com.aliyun.iot.aep.sdk.contant.IlifeAli;
 import com.aliyun.iot.aep.sdk.contant.MsgCodeUtils;
-import com.ilife.home.livebus.LiveEventBus;
+import com.badoo.mobile.util.WeakHandler;
 import com.ilife.home.robot.R;
 import com.ilife.home.robot.adapter.ClockAdapter;
 import com.ilife.home.robot.base.BackBaseActivity;
+import com.ilife.home.robot.fragment.UniversalDialog;
 import com.ilife.home.robot.utils.ToastUtils;
 import com.ilife.home.robot.utils.UiUtil;
 import com.ilife.home.robot.view.SlideRecyclerView;
@@ -45,6 +46,9 @@ public class ClockingActivity extends BackBaseActivity {
     List<ScheduleBean> scheduleBeans = new ArrayList<>();
     @BindView(R.id.tv_top_title)
     TextView tv_title;
+    private WeakHandler weakHandler;
+    private int clickPosition;
+    private UniversalDialog deleteDialog;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -78,13 +82,26 @@ public class ClockingActivity extends BackBaseActivity {
             if (view.getId() == R.id.image_status) {//开关按钮点击事件
                 ScheduleBean bean = scheduleBeans.get(position);
                 bean.setEnable(bean.getEnable() == 1 ? 0 : 1);
+                showLoadingDialog();
                 setSchedule(bean);
             }
             if (view.getId() == R.id.iv_delete_schedule) {//删除预约
-                recyclerView.closeMenu();
-                scheduleBeans.get(position).reset();
-                setSchedule(scheduleBeans.get(position));
-
+                clickPosition = position;
+                if (deleteDialog == null) {
+                    deleteDialog = new UniversalDialog();
+                    deleteDialog.setTitle(UiUtil.getString(R.string.schedule_delete_tip_title))
+                            .setHintTip(UiUtil.getString(R.string.schedule_delete_tip_hint))
+                            .setLeftText(UiUtil.getString(R.string.cancel_)).setRightText(UiUtil.getString(R.string.dialog_del_confirm))
+                            .setOnRightButtonClck(() -> {
+                                recyclerView.closeMenu();
+                                showLoadingDialog();
+                                scheduleBeans.get(clickPosition).reset();
+                                setSchedule(scheduleBeans.get(clickPosition));
+                            });
+                }
+                if (!deleteDialog.isAdded()) {
+                    deleteDialog.show(getSupportFragmentManager(), "delete_schedule");
+                }
             }
 
         });
@@ -96,30 +113,34 @@ public class ClockingActivity extends BackBaseActivity {
     @Override
     public void initData() {
         super.initData();
-        LiveEventBus.get(EnvConfigure.KEY_SCHEDULE, ScheduleBean.class).observe(this, bean -> {
-            if (adapter != null) {
-                ScheduleBean b;
-                boolean isHave = false;
-                for (int i = 0; i < scheduleBeans.size(); i++) {
-                    b = scheduleBeans.get(i);
-                    if (b.getKeyIndex() == bean.getKeyIndex()) {
-                        isHave = true;
-                        if (bean.getWeek() == 0) {//删除
-                            scheduleBeans.remove(i);
-                            adapter.notifyDataSetChanged();
-                        } else {
-                            b.copy(bean);
-                            adapter.notifyDataSetChanged();
-                        }
-                        break;
-                    }
-                }
-                if (bean.getWeek() != 0 && !isHave) {
-                    scheduleBeans.add(bean);
-                    adapter.notifyDataSetChanged();
-                }
-            }
+        weakHandler = new WeakHandler(msg -> {
+            getClockInfo();
+            return false;
         });
+//        LiveEventBus.get(EnvConfigure.KEY_SCHEDULE, ScheduleBean.class).observe(this, bean -> {
+//            if (adapter != null) {
+//                ScheduleBean b;
+//                boolean isHave = false;
+//                for (int i = 0; i < scheduleBeans.size(); i++) {
+//                    b = scheduleBeans.get(i);
+//                    if (b.getKeyIndex() == bean.getKeyIndex()) {
+//                        isHave = true;
+//                        if (bean.getWeek() == 0) {//删除
+//                            scheduleBeans.remove(i);
+//                            adapter.notifyDataSetChanged();
+//                        } else {
+//                            b.copy(bean);
+//                            adapter.notifyDataSetChanged();
+//                        }
+//                        break;
+//                    }
+//                }
+//                if (bean.getWeek() != 0 && !isHave) {
+//                    scheduleBeans.add(bean);
+//                    adapter.notifyDataSetChanged();
+//                }
+//            }
+//        });
     }
 
     @OnClick(R.id.ivb_add_clock)
@@ -142,7 +163,9 @@ public class ClockingActivity extends BackBaseActivity {
             scheduleBean.setKeyIndex(scheduleKeyIndex);
             scheduleBean.setEnd(300);
             scheduleBean.setEnable(1);
+            scheduleBean.setLoop(1);
             scheduleBean.setMode(MsgCodeUtils.STATUE_PLANNING);
+            scheduleBean.setWeek(0x80);//默认为仅一次
             Intent intent = new Intent(ClockingActivity.this, ClockEditActivity.class);
             intent.putExtra(ClockEditActivity.KEY_SCHEDULE_INFO, scheduleBean);
             startActivity(intent);
@@ -166,6 +189,7 @@ public class ClockingActivity extends BackBaseActivity {
         JSONObject jso = JSONObject.parseObject(schedule_);
         jso.put(EnvConfigure.KEY_SCHEDULE + bean.getKeyIndex(), jsoSchedule);
         IlifeAli.getInstance().setProperties(jso, aBoolean -> {
+            weakHandler.sendEmptyMessageDelayed(1, 200);
         });
     }
 

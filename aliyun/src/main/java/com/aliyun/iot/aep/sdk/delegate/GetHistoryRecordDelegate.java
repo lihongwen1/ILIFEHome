@@ -52,13 +52,13 @@ public class GetHistoryRecordDelegate {
         params.put("identifier", EnvConfigure.KEY_CLEAN_HISTORY);
         params.put("start", start);
         params.put("end", end);
-        params.put("pageSize", 200);
-        params.put("ordered", false);
+        params.put("limit", 200);
+        params.put("order", "desc");
         IoTRequest request = new IoTRequestBuilder()
                 .setAuthType(EnvConfigure.IOT_AUTH)
                 .setScheme(Scheme.HTTPS)        // 如果是HTTPS，可以省略本设置
-                .setPath(EnvConfigure.PATH_GET_PROPERTY_TIMELINE)                  // 参考业务API文档，设置path
-                .setApiVersion(EnvConfigure.API_VER)          // 参考业务API文档，设置apiVersion
+                .setPath(EnvConfigure.PATH__GET_PROPERTY_TIME_LINE_LIVE)                  // 参考业务API文档，设置path
+                .setApiVersion("1.0.0")          // 参考业务API文档，设置apiVersion
                 .setParams(params)
                 .build();
         ioTAPIClient.send(request, new IoTUIThreadCallback(new IoTCallback() {
@@ -70,7 +70,6 @@ public class GetHistoryRecordDelegate {
             public void onResponse(IoTRequest ioTRequest, IoTResponse ioTResponse) {
                 if (ioTResponse.getCode() == 200) {
                     String result = ioTResponse.getData().toString();
-                    Log.d("getHistoryRecord", "data:  " + result);
                     JSONObject jsonObject = JSON.parseObject(result);
                     JSONArray jsonArray = jsonObject.getJSONArray(EnvConfigure.KEY_ITEMS);
                     Gson gson = new Gson();
@@ -96,9 +95,9 @@ public class GetHistoryRecordDelegate {
                                 continue;
                             }
                             exitBean = mapBeans.get(startTime);
-                            Log.d("HISTORY_MAP", "新历史记录---" + generateTime(bean.getStartTime(), "MM月dd日HH:mm:ss") + "---------" + bean.getPackId() + "------------" + bean.getPackNum());
+                            Log.e("HISTORY_MAP", "新历史记录---" + generateTime(bean.getStartTime(), "MM月dd日HH:mm:ss") + "---------" + bean.getPackId() + "------------" + bean.getPackNum());
                             if (exitBean == null) {
-                                if (IlifeAli.getInstance().getWorkingDevice().getProductKey().equals(EnvConfigure.PRODUCT_KEY_X787) ||
+                                if (IlifeAli.getInstance().getWorkingDevice().getProductKey().equals(EnvConfigure.PRODUCT_KEY_X787)||
                                         IlifeAli.getInstance().getWorkingDevice().getProductKey().equals(EnvConfigure.PRODUCT_KEY_X434)) {
                                     //X787 X784清扫面积需要除去100.
                                     bean.setCleanTotalArea(bean.getCleanTotalArea() / 100);
@@ -110,8 +109,7 @@ public class GetHistoryRecordDelegate {
                             }
                         }
                     }
-                    Log.d("HISTORY_RECORD", "SLAM TIME: " + timestamp + " ----:" + start + "-----:" + jsonArray.size());
-                    if (dataSize >= 200 && timestamp > start) {
+                    if (dataSize>=200 && timestamp > start) {
                         end = timestamp;
                         Log.e("HISTORY_MAP", "开始下一次获取下一包历史记录");
                         getHistoryRecords();

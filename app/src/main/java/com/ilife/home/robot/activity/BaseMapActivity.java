@@ -42,6 +42,7 @@ import com.ilife.home.robot.fragment.UseTipDialogFragment;
 import com.ilife.home.robot.presenter.MapX9Presenter;
 import com.ilife.home.robot.utils.MyLogger;
 import com.ilife.home.robot.utils.ToastUtils;
+import com.ilife.home.robot.utils.UiUtil;
 import com.ilife.home.robot.utils.Utils;
 import com.ilife.home.robot.view.CustomPopupWindow;
 import com.ilife.home.robot.view.MapView;
@@ -281,8 +282,12 @@ public abstract class BaseMapActivity extends BackBaseActivity<MapX9Presenter> i
         adapter.setOnItemClickListener((adapter1, view, position) -> {
             switch (position) {
                 case 0:
-                    mPresenter.setPropertiesWithParams(AliSkills.get().enterVirtualEditMode(IlifeAli.getInstance().getWorkingDevice().getIotId()));
-                    startActivity(new Intent(BaseMapActivity.this, VirtualWallActivity.class));
+                    if (mPresenter.isVirtualWallOpen()) {
+                        mPresenter.setPropertiesWithParams(AliSkills.get().enterVirtualEditMode(IlifeAli.getInstance().getWorkingDevice().getIotId()));
+                        startActivity(new Intent(BaseMapActivity.this, VirtualWallActivity.class));
+                    } else {
+                        ToastUtils.showToast(UiUtil.getString(R.string.map_enter_virtual_tip));
+                    }
                     break;
                 case 1://选房清扫
                     if (mPresenter.getCurStatus() == MsgCodeUtils.STATUE_CHARGING || mPresenter.getCurStatus() == MsgCodeUtils.STATUE_CHARGING_BASE_SLEEP) {

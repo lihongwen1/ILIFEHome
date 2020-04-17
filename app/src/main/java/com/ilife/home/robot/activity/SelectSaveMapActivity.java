@@ -20,6 +20,7 @@ import com.ilife.home.robot.fragment.UniversalDialog;
 import com.ilife.home.robot.utils.MyLogger;
 import com.ilife.home.robot.utils.ToastUtils;
 import com.ilife.home.robot.utils.Utils;
+import com.ilife.home.robot.view.SlideRecyclerView;
 import com.ilife.home.robot.view.SpaceItemDecoration;
 
 import java.util.ArrayList;
@@ -35,7 +36,7 @@ import butterknife.BindView;
 public class SelectSaveMapActivity extends BackBaseActivity {
     private static final String TAG = "SelectSaveMapActivity";
     @BindView(R.id.rv_save_map)
-    RecyclerView rv_save_map;
+    SlideRecyclerView rv_save_map;
     @BindView(R.id.tv_top_title)
     TextView tv_title;
     private SelectMapAdapter mAdapter;
@@ -78,6 +79,7 @@ public class SelectSaveMapActivity extends BackBaseActivity {
                     break;
                 case R.id.iv_delete_map:
                     onDeleteMap();
+                    rv_save_map.closeMenu();
                     break;
             }
         });

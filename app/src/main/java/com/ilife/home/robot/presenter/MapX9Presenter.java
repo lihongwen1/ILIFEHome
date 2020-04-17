@@ -64,7 +64,6 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
     private int curStatus, errorCode, batteryNo = -1, workTime = 0, cleanArea = 0, virtualStatus;
     private ArrayList<Integer> realTimePoints, historyRoadList;
     private ExecutorService singleThread;
-
     private byte[] slamBytes, virtualContentBytes;
     /**
      * x800实时地图数据
@@ -320,6 +319,7 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
                     }
                 });
                 if (propertyBean != null) {
+                    virtualStatus = propertyBean.getVirtualWallEn();
                     mapStartTime = propertyBean.getRealTimeMapTimeLine();
                     errorCode = 0;
                     batteryNo = propertyBean.getBattery();
@@ -537,6 +537,10 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
     @Override
     public void registerPropReceiver() {
         IlifeAli.getInstance().registerDownStream();
+        LiveEventBus.get(EnvConfigure.KEY_VirtualWallEN, Integer.class).observe((BaseActivity) mView, enable -> {
+            virtualStatus = enable;
+        });
+
         LiveEventBus.get(EnvConfigure.KEY_WORK_MODE, Integer.class).observe((BaseActivity) mView, workMode -> {
             if (workMode == curStatus) {
                 return;
@@ -644,18 +648,21 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
             @Override
             public void onChanged(Integer initStatus) {
                 MyLogger.d(TAG, "初始化状态改变 init status：" + initStatus);
-                slamPointList.clear();
-                IlifeAli.getInstance().getProperties(new OnAliResponse<PropertyBean>() {
-                    @Override
-                    public void onSuccess(PropertyBean result) {
-                        doAboutSlam(result);
-                    }
+                if (initStatus == 0) {
+                    slamPointList.clear();
+                } else {
+                    IlifeAli.getInstance().getProperties(new OnAliResponse<PropertyBean>() {
+                        @Override
+                        public void onSuccess(PropertyBean result) {
+                            doAboutSlam(result);
+                        }
 
-                    @Override
-                    public void onFailed(int code, String message) {
+                        @Override
+                        public void onFailed(int code, String message) {
 
-                    }
-                });
+                        }
+                    });
+                }
             }
         });
     }
@@ -817,7 +824,8 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
     @Override
     public void enterPointMode() {
         if ((curStatus == MsgCodeUtils.STATUE_ALONG && pointToAlong(true)) || curStatus == MsgCodeUtils.STATUE_WAIT || curStatus == MsgCodeUtils.STATUE_POINT || curStatus == MsgCodeUtils.STATUE_TEMPORARY_POINT ||
-                curStatus == MsgCodeUtils.STATUE_PAUSE || curStatus == MsgCodeUtils.STATUE_PLANNING || curStatus == MsgCodeUtils.STATUE_RANDOM) {
+                curStatus == MsgCodeUtils.STATUE_PAUSE || curStatus == MsgCodeUtils.STATUE_PLANNING || curStatus == MsgCodeUtils.STATUE_RANDOM
+                || curStatus == MsgCodeUtils.STATUE_CLEAN_ROOM || curStatus == MsgCodeUtils.STATUE_CLEAN_AREA) {
             if (curStatus == MsgCodeUtils.STATUE_POINT) {//重点-进入待机
                 setPropertiesWithParams(AliSkills.get().enterWaitMode(IlifeAli.getInstance().getWorkingDevice().getIotId()));
             } else if (curStatus == MsgCodeUtils.STATUE_TEMPORARY_POINT) {//临时重点-进入规划

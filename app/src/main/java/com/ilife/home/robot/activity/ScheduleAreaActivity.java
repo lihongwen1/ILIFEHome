@@ -6,11 +6,10 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.RadioGroup;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
 import com.aliyun.iot.aep.sdk._interface.OnAliResponse;
 import com.aliyun.iot.aep.sdk.bean.HistoryRecordBean;
 import com.aliyun.iot.aep.sdk.bean.PropertyBean;
+import com.aliyun.iot.aep.sdk.bean.ScheduleBean;
 import com.aliyun.iot.aep.sdk.contant.IlifeAli;
 import com.ilife.home.livebus.LiveEventBus;
 import com.ilife.home.robot.R;
@@ -19,6 +18,7 @@ import com.ilife.home.robot.bean.MapDataBean;
 import com.ilife.home.robot.utils.DataUtils;
 import com.ilife.home.robot.utils.MyLogger;
 import com.ilife.home.robot.utils.ToastUtils;
+import com.ilife.home.robot.utils.UiUtil;
 import com.ilife.home.robot.view.MapView;
 
 import java.util.List;
@@ -31,8 +31,7 @@ import butterknife.OnClick;
  */
 public class ScheduleAreaActivity extends BackBaseActivity {
     private static final String TAG = "ScheduleAreaActivity";
-    public static final String LIVE_BUS_SCHEDULE_AREA_DATA="schedule_area_data";
-    public static final String LIVE_BUS_SCHEDULE_AREA_TYPE="schedule_area_type";
+    public static final String KEY_SCHEDULE_AREA_BEAN = "schedule_area_bean";
     @BindView(R.id.rg_schedule_area)
     RadioGroup rg_schedule_area;
     @BindView(R.id.map_schedule_area)
@@ -44,8 +43,10 @@ public class ScheduleAreaActivity extends BackBaseActivity {
     ImageView iv_back;
     @BindView(R.id.image_menu)
     ImageView iv_finish;
-    private String cleanAreaData;
-    private String partitionData;
+    private ScheduleBean scheduleBean;
+    @BindView(R.id.iv_schedule_clean_time)
+    ImageView iv_schedule_clean_time;
+    private int times;
 
     @Override
     public int getLayoutId() {
@@ -62,14 +63,21 @@ public class ScheduleAreaActivity extends BackBaseActivity {
                 case R.id.tv_schedule_area:
                     map_schedule_area.setmOT(MapView.OT.NOON);
                     map_schedule_area.invalidateUI();
+                    iv_schedule_clean_time.setVisibility(View.GONE);
                     break;
                 case R.id.tv_schedule_area_room:
                     map_schedule_area.setmOT(MapView.OT.SELECT_ROOM);
                     map_schedule_area.invalidateUI();
+                    iv_schedule_clean_time.setVisibility(View.VISIBLE);
+                    times = 1;
+                    updateLoopImage();
                     break;
                 case R.id.tv_schedule_area_clean_area:
                     map_schedule_area.setmOT(MapView.OT.CLEAN_AREA);
                     map_schedule_area.invalidateUI();
+                    iv_schedule_clean_time.setVisibility(View.VISIBLE);
+                    times = 1;
+                    updateLoopImage();
                     break;
             }
         });
@@ -78,12 +86,12 @@ public class ScheduleAreaActivity extends BackBaseActivity {
 
     @Override
     public void initData() {
+        scheduleBean = getIntent().getParcelableExtra(ClockEditActivity.KEY_SCHEDULE_INFO);
         IlifeAli.getInstance().getProperties(new OnAliResponse<PropertyBean>() {
             @Override
             public void onSuccess(PropertyBean result) {
                 long selectId = result.getSelectedMapId();
-                cleanAreaData = result.getCleanArea();
-                partitionData = result.getPartition();
+                String partitionData = result.getPartition();
                 IlifeAli.getInstance().getSelectMap(selectId, new OnAliResponse<List<HistoryRecordBean>>() {
                     @Override
                     public void onSuccess(List<HistoryRecordBean> result) {
@@ -97,20 +105,11 @@ public class ScheduleAreaActivity extends BackBaseActivity {
                             map_schedule_area.drawMapX8(mapDataBean.getCoordinates());
                         }
                         if (!TextUtils.isEmpty(partitionData)) {
-                            map_schedule_area.drawRoomTag(partitionData);
+                            map_schedule_area.getmRoomHelper().drawRoom(partitionData, scheduleBean.getType() == 2 ? scheduleBean.getRoom() : 0);
                         }
-
+                        String cleanAreaData = scheduleBean.getType() == 1 ? scheduleBean.getArea() : "";
                         if (!TextUtils.isEmpty(cleanAreaData)) {
-                            JSONObject json = JSON.parseObject(cleanAreaData);
-                            boolean enable = json.getIntValue("Enable") == 1;
-                            String area = "";
-                            if (enable) {
-                                area = json.getString("AreaData");
-                                if (area.equals("AAAAAAAAAAAAAAAAAAAAAA==")) {
-                                    area = "";
-                                }
-                            }
-                            map_schedule_area.drawCleanArea(area);
+                            map_schedule_area.drawCleanArea(cleanAreaData);
                         }
                     }
 
@@ -129,36 +128,67 @@ public class ScheduleAreaActivity extends BackBaseActivity {
 
     }
 
-    @OnClick(R.id.fl_top_menu)
+    @OnClick({R.id.fl_top_menu, R.id.iv_schedule_clean_time})
     public void onClick(View view) {
-        switch (map_schedule_area.getmOT()) {
-            case NOON:
-                LiveEventBus.get(LIVE_BUS_SCHEDULE_AREA_TYPE,Integer.class)
-                        .post(0);
+        if (view.getId() == R.id.iv_schedule_clean_time) {
+            if (times == 3) {
+                times = 0;
+            }
+            times++;
+            updateLoopImage();
+        } else {
+            ScheduleBean scheduleBean = new ScheduleBean();
+            scheduleBean.setLoop(times);
+            switch (map_schedule_area.getmOT()) {
+                case NOON:
+                    scheduleBean.setType(0);
+                    LiveEventBus.get(KEY_SCHEDULE_AREA_BEAN, ScheduleBean.class).post(scheduleBean);
+                    removeActivity();
+                    break;
+                case SELECT_ROOM:
+                    int room = map_schedule_area.getSelectRoom();
+                    if (room == 0) {
+                        ToastUtils.showToast(UiUtil.getString(R.string.toast_select_one_room));
+                    } else {
+                        scheduleBean.setType(2);
+                        scheduleBean.setRoom(room);
+                        LiveEventBus.get(KEY_SCHEDULE_AREA_BEAN, ScheduleBean.class).post(scheduleBean);
+                        removeActivity();
+                    }
+                    break;
+                case CLEAN_AREA:
+                    String cleanArea = map_schedule_area.getCleanAreaData();
+                    if (cleanArea.equals("AAAAAAAAAAAAAAAAAAAAAA==")) {
+                        ToastUtils.showToast("请先进行划区");
+                    } else {
+                        scheduleBean.setType(1);
+                        scheduleBean.setArea(cleanArea);
+                        LiveEventBus.get(KEY_SCHEDULE_AREA_BEAN, ScheduleBean.class).post(scheduleBean);
+                        removeActivity();
+                    }
+                    break;
+            }
+        }
+
+    }
+
+    /**
+     * 更新循环次数图片
+     */
+    private void updateLoopImage() {
+        int src = R.drawable.operation_btn_fre_1;
+        switch (times) {
+            case 1:
+                src = R.drawable.operation_btn_fre_1;
                 break;
-            case SELECT_ROOM:
-                int room=map_schedule_area.getSelectRoom();
-                if (room==0){
-                    ToastUtils.showToast("请至少选择一个房间");
-                }else {
-                    LiveEventBus.get(LIVE_BUS_SCHEDULE_AREA_DATA,String.class)
-                            .post(String.valueOf(room));
-                    LiveEventBus.get(LIVE_BUS_SCHEDULE_AREA_TYPE,Integer.class)
-                            .post(2);
-                }
+            case 2:
+                src = R.drawable.operation_btn_fre_2;
                 break;
-            case CLEAN_AREA:
-                String cleanArea=map_schedule_area.getCleanAreaData();
-                if (cleanArea.equals("AAAAAAAAAAAAAAAAAAAAAA==")){
-                    ToastUtils.showToast("请先进行划区");
-                }else {
-                    LiveEventBus.get(LIVE_BUS_SCHEDULE_AREA_DATA,String.class)
-                            .post(cleanArea);
-                    LiveEventBus.get(LIVE_BUS_SCHEDULE_AREA_TYPE,Integer.class)
-                            .post(1);
-                }
+            case 3:
+                src = R.drawable.operation_btn_fre_3;
                 break;
         }
-        removeActivity();
+        iv_schedule_clean_time.setImageResource(src);
     }
+
 }

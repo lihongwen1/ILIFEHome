@@ -1,6 +1,7 @@
 package com.ilife.home.robot.activity;
 
 import android.text.TextUtils;
+import android.view.KeyEvent;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
@@ -24,6 +25,8 @@ import com.ilife.home.robot.utils.MyLogger;
 import com.ilife.home.robot.utils.ToastUtils;
 import com.ilife.home.robot.utils.UiUtil;
 import com.ilife.home.robot.view.MapView;
+import com.ilife.home.robot.view.helper.ForbiddenAreaHelper;
+import com.ilife.home.robot.view.helper.VirtualWallHelper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -131,8 +134,8 @@ public class VirtualWallActivity extends BackBaseActivity {
 
     private synchronized void drawMap(List<Coordinate> data) {
         coordinates.addAll(data);
-        updateSlamX8(data, 0);
-        mMapView.drawMapX8(data);
+        updateSlamX8(coordinates, 0);
+        mMapView.drawMapX8(coordinates);
         mMapView.drawVirtualWall(str_virtual);
         mMapView.drawForbiddenArea(str_mopArea);
         /**
@@ -192,45 +195,62 @@ public class VirtualWallActivity extends BackBaseActivity {
      *
      * @param view
      */
-    @OnClick({R.id.fl_top_menu,R.id.image_back})
+    @OnClick({R.id.fl_top_menu, R.id.image_back})
     public void onClick(View view) {
         if (view.getId() == R.id.fl_top_menu) {
-            String vrData = "{\"VirtualWallData\":\"\"}";
-            String parData = "{\"ForbiddenAreaData\":\"\"}";
-            JSONObject vrJson = JSONObject.parseObject(vrData);
-            vrJson.put(EnvConfigure.VirtualWallData, mMapView.getVirtualWallPointfs());
-            IlifeAli.getInstance().setProperties(vrJson, aBoolean -> {
-                if (aBoolean) {
-                    JSONObject parJson = JSONObject.parseObject(parData);
-                    parJson.put(EnvConfigure.KEY_FORBIDDEN_AREA, mMapView.getForbiddenData());
-                    IlifeAli.getInstance().setProperties(parJson, result -> {
-                        if (result) {
-                            ToastUtils.showToast(UiUtil.getString(R.string.setting_success));
-                            removeActivity();
-                        }
-                    });
-                }
-            });
+            VirtualWallHelper virHelper = mMapView.getmVirtualWallHelper();
+            ForbiddenAreaHelper fbdHelper = mMapView.getmForbiddenHelper();
+            if (!virHelper.isClose() && !fbdHelper.isClose()) {
+                String vrData = "{\"VirtualWallData\":\"\"}";
+                String parData = "{\"ForbiddenAreaData\":\"\"}";
+                JSONObject vrJson = JSONObject.parseObject(vrData);
+                vrJson.put(EnvConfigure.VirtualWallData, mMapView.getVirtualWallPointfs());
+                JSONObject parJson = JSONObject.parseObject(parData);
+                parJson.put(EnvConfigure.KEY_FORBIDDEN_AREA, mMapView.getForbiddenData());
+                IlifeAli.getInstance().setProperties(vrJson, aBoolean -> {
+                    if (aBoolean) {
+                        IlifeAli.getInstance().setProperties(parJson, result -> {
+                            if (result) {
+                                ToastUtils.showToast(UiUtil.getString(R.string.setting_success));
+                                removeActivity();
+                            }
+                        });
+                    }
+                });
+            }
+
 
         }
-        if (view.getId()==R.id.image_back){
-             UniversalDialog universalDialog=new UniversalDialog();
-             universalDialog.setTitle(UiUtil.getString(R.string.abandom_operation_title))
-                     .setHintTip(UiUtil.getString(R.string.abandom_operation_hint))
-                     .setLeftText(UiUtil.getString(R.string.abandom)).setRightText(UiUtil.getString(R.string.continue_operation))
-                     .setOnRightButtonClck(() -> {
-                         if (str_virtual != null) {
-                             String vrData = "{\"VirtualWallData\":\"\"}";
-                             JSONObject vrJson = JSONObject.parseObject(vrData);
-                             vrJson.put(EnvConfigure.VirtualWallData, str_virtual);
-                             IlifeAli.getInstance().setProperties(vrJson, aBoolean -> {
-                                 finish();
-                             });
-                         }
-                     });
-             universalDialog.show(getSupportFragmentManager(),"abandon_operation");
-
+        if (view.getId() == R.id.image_back) {
+            showAbandonDialog();
         }
     }
 
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_BACK) {
+            showAbandonDialog();
+            return true;
+        } else {
+            return super.onKeyDown(keyCode, event);
+        }
+    }
+
+    private void showAbandonDialog() {
+        UniversalDialog universalDialog = new UniversalDialog();
+        universalDialog.setTitle(UiUtil.getString(R.string.abandom_operation_title))
+                .setHintTip("")
+                .setLeftText(UiUtil.getString(R.string.abandom)).setRightText(UiUtil.getString(R.string.continue_operation))
+                .setOnRightButtonClck(() -> {
+                    if (str_virtual != null) {
+                        String vrData = "{\"VirtualWallData\":\"\"}";
+                        JSONObject vrJson = JSONObject.parseObject(vrData);
+                        vrJson.put(EnvConfigure.VirtualWallData, str_virtual);
+                        IlifeAli.getInstance().setProperties(vrJson, aBoolean -> {
+                            finish();
+                        });
+                    }
+                });
+        universalDialog.show(getSupportFragmentManager(), "abandon_operation");
+    }
 }

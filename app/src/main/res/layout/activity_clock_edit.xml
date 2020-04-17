@@ -71,6 +71,7 @@
     </LinearLayout>
 
     <View
+        android:visibility="gone"
         style="@style/View_Line_Style"
         android:layout_alignParentBottom="true" />
 
@@ -106,10 +107,12 @@
     </LinearLayout>
 
     <View
+        android:visibility="gone"
         style="@style/View_Line_Style"
         android:layout_alignParentBottom="true" />
 
     <LinearLayout
+        android:visibility="gone"
         android:id="@+id/ll_schedule_times"
         android:layout_width="match_parent"
         android:layout_height="@dimen/dp_60"

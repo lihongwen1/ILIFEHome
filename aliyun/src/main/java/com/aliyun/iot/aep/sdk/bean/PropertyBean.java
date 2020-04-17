@@ -22,7 +22,7 @@ public class PropertyBean {
     private int brushSpeed;//边刷速度
     private int languageCode;
     private int carpetControl;//地毯增压
-
+    private int virtualWallEn;//虚拟墙使能
     public PropertyBean() {
     }
 
@@ -202,6 +202,14 @@ public class PropertyBean {
 
     public void setCarpetControl(int carpetControl) {
         this.carpetControl = carpetControl;
+    }
+
+    public int getVirtualWallEn() {
+        return virtualWallEn;
+    }
+
+    public void setVirtualWallEn(int virtualWallEn) {
+        this.virtualWallEn = virtualWallEn;
     }
 
     @Override
