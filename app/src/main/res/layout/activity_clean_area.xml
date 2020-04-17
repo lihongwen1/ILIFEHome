@@ -53,7 +53,7 @@
                     android:id="@+id/tv_do_clean_area"
                     style="@style/map_text_button"
                     android:drawableTop="@drawable/selector_operation_btn_edit"
-                    android:text="@string/map_status_clean_area" />
+                    android:text="@string/map_bottom_sheet_clean_area" />
             </RadioGroup>
         </LinearLayout>
     </FrameLayout>

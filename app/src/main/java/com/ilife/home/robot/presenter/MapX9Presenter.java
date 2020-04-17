@@ -61,7 +61,7 @@ import io.reactivex.functions.Function;
 public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements MapX9Contract.Presenter {
     private final String TAG = "MapX9Presenter";
     private String robotType;
-    private int curStatus, errorCode, batteryNo = -1, workTime = 0, cleanArea = 0, virtualStatus;
+    private int curStatus, errorCode, batteryNo = -1, workTime = 0, cleanArea = 0;
     private ArrayList<Integer> realTimePoints, historyRoadList;
     private ExecutorService singleThread;
     private byte[] slamBytes, virtualContentBytes;
@@ -79,10 +79,12 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
     private long mapStartTime;
     private MapX9Model mapX9Model;
     private RobotConfigBean.RobotBean rBean;//robot config
+    private PropertyBean mDevicePropertyBean;//设置信息
 
     @Override
     public void attachView(MapX9Contract.View view) {
         super.attachView(view);
+        mDevicePropertyBean = new PropertyBean();
         mapX9Model = new MapX9Model();
         mComDisposable = new CompositeDisposable();
         realTimePoints = new ArrayList<>();
@@ -301,10 +303,11 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
             }
 
             @Override
-            public void onSuccess(PropertyBean propertyBean) {
+            public void onSuccess(PropertyBean bean) {
                 if (!isViewAttached()) {
                     return;
                 }
+                mDevicePropertyBean = bean;
                 isGainDevStatus = true;
                 registerPropReceiver();
                 /**
@@ -318,14 +321,13 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
                         setStatus(curStatus, batteryNo);
                     }
                 });
-                if (propertyBean != null) {
-                    virtualStatus = propertyBean.getVirtualWallEn();
-                    mapStartTime = propertyBean.getRealTimeMapTimeLine();
+                if (mDevicePropertyBean != null) {
+                    mapStartTime = mDevicePropertyBean.getRealTimeMapTimeLine();
                     errorCode = 0;
-                    batteryNo = propertyBean.getBattery();
-                    curStatus = propertyBean.getWorkMode();
+                    batteryNo = mDevicePropertyBean.getBattery();
+                    curStatus = mDevicePropertyBean.getWorkMode();
                     MyLogger.d(TAG, "gain the device status success and the status is :" + curStatus + "--------");
-                    IlifeAli.getInstance().getWorkingDevice().setDeviceInfo(propertyBean);
+                    IlifeAli.getInstance().getWorkingDevice().setDeviceInfo(mDevicePropertyBean);
                     setStatus(curStatus, batteryNo);
 
                     /**
@@ -345,14 +347,9 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
                         /**
                          * 处理保存地图
                          */
-                        if (propertyBean.isInitStatus() && propertyBean.getSelectedMapId() != 0) {
-                            doAboutSlam(propertyBean);
+                        if (mDevicePropertyBean.isInitStatus() && mDevicePropertyBean.getSelectedMapId() != 0) {
+                            doAboutSlam();
                         }
-                        LiveEventBus.get(EnvConfigure.VirtualWallData, String.class).post(propertyBean.getVirtualWall());
-                        LiveEventBus.get(EnvConfigure.KEY_FORBIDDEN_AREA, String.class).post(propertyBean.getForbiddenArea());
-                        LiveEventBus.get(EnvConfigure.CleanAreaData, String.class).post(propertyBean.getCleanArea());
-                        LiveEventBus.get(EnvConfigure.CleanPartitionData, String.class).post(propertyBean.getCleanRoomData());
-                        LiveEventBus.get(EnvConfigure.ChargerPiont, String.class).post(propertyBean.getChagePort());
                     }
                 }
             }
@@ -464,7 +461,7 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
 
     @Override
     public boolean isVirtualWallOpen() {
-        return virtualStatus == MsgCodeUtils.VIRTUAL_WALL_OPEN;
+        return mDevicePropertyBean.getVirtualWallEn() == MsgCodeUtils.VIRTUAL_WALL_OPEN;
     }
 
     @Override
@@ -490,7 +487,7 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
     public boolean isWork(int curStatus) {
         return curStatus == MsgCodeUtils.STATUE_RANDOM || curStatus == MsgCodeUtils.STATUE_ALONG ||
                 curStatus == MsgCodeUtils.STATUE_POINT || curStatus == MsgCodeUtils.STATUE_TEMPORARY_POINT || curStatus == MsgCodeUtils.STATUE_PLANNING ||
-                curStatus == MsgCodeUtils.STATUE_RECHARGE || curStatus == MsgCodeUtils.STATUE_CLEAN_AREA || curStatus == MsgCodeUtils.STATUE_CLEAN_ROOM;
+               curStatus == MsgCodeUtils.STATUE_CLEAN_AREA || curStatus == MsgCodeUtils.STATUE_CLEAN_ROOM;
     }
 
     /**
@@ -510,7 +507,8 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
     private String getAreaValue() {
         BigDecimal bg = new BigDecimal(cleanArea / 100.0f);
         double area = bg.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue();
-        if (curStatus == MsgCodeUtils.STATUE_RECHARGE || !havMapData || (!isDrawMap() && curStatus != MsgCodeUtils.STATUE_RANDOM && curStatus != MsgCodeUtils.STATUE_TEMPORARY_POINT)) {
+        if (curStatus == MsgCodeUtils.STATUE_CHARGING ||
+                curStatus == MsgCodeUtils.STATUE_CHARGING_BASE_SLEEP || curStatus == MsgCodeUtils.STATUE_RECHARGE || !havMapData || (!isDrawMap() && curStatus != MsgCodeUtils.STATUE_RANDOM && curStatus != MsgCodeUtils.STATUE_TEMPORARY_POINT)) {
             return "——";
         } else {
             String areaStr = area + "㎡";
@@ -523,7 +521,8 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
 
     private String getTimeValue() {
         int min = (int) (workTime / 60f);
-        if (curStatus == MsgCodeUtils.STATUE_RECHARGE || !havMapData || (!isDrawMap() && curStatus != MsgCodeUtils.STATUE_RANDOM && curStatus != MsgCodeUtils.STATUE_TEMPORARY_POINT)) {
+        if (curStatus == MsgCodeUtils.STATUE_CHARGING ||
+                curStatus == MsgCodeUtils.STATUE_CHARGING_BASE_SLEEP || curStatus == MsgCodeUtils.STATUE_RECHARGE || !havMapData || (!isDrawMap() && curStatus != MsgCodeUtils.STATUE_RANDOM && curStatus != MsgCodeUtils.STATUE_TEMPORARY_POINT)) {
             return "——";
         } else {
             return min + "min";
@@ -538,7 +537,9 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
     public void registerPropReceiver() {
         IlifeAli.getInstance().registerDownStream();
         LiveEventBus.get(EnvConfigure.KEY_VirtualWallEN, Integer.class).observe((BaseActivity) mView, enable -> {
-            virtualStatus = enable;
+            if (mDevicePropertyBean != null) {
+                mDevicePropertyBean.setVirtualWallEn(enable);
+            }
         });
 
         LiveEventBus.get(EnvConfigure.KEY_WORK_MODE, Integer.class).observe((BaseActivity) mView, workMode -> {
@@ -590,24 +591,8 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
         });
 
         LiveEventBus.get(EnvConfigure.CleanAreaData, String.class).observe((BaseActivity) mView, cleanAreaData -> {
-            MyLogger.d(TAG, "清扫区域改变:  " + cleanAreaData);
-            //处理清扫区域
-            if ((curStatus == MsgCodeUtils.STATUE_CLEAN_AREA || curStatus == MsgCodeUtils.STATUE_CLEAN_ROOM) &&
-                    !TextUtils.isEmpty(cleanAreaData)) {
-                JSONObject json = JSON.parseObject(cleanAreaData);
-                int times = json.getIntValue("CleanLoop");
-                int cleanedTimes = times >> 4;
-                int settingTimes = times & 0x0f;
-                boolean enable = json.getIntValue("Enable") != 0;//0-无效/没有进行 1-开始 2-进行中
-                mView.updateCleanTimes(enable, cleanedTimes, settingTimes);
-                String area = "";
-                if (enable) {
-                    area = json.getString("AreaData");
-                    if (area.equals("AAAAAAAAAAAAAAAAAAAAAA==")) {
-                        area = "";
-                    }
-                }
-                mView.drawCleanArea(area);
+            if (mDevicePropertyBean != null) {
+                mDevicePropertyBean.setCleanArea(cleanAreaData);
             }
         });
         LiveEventBus.get(EnvConfigure.KEY_FORBIDDEN_AREA, String.class).observe((BaseActivity) mView, fbdArea -> {
@@ -619,6 +604,7 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
             mView.drawVirtualWall(virtualWall);
         });
         LiveEventBus.get(EnvConfigure.CleanPartitionData, String.class).observe((BaseActivity) mView, cleanRoomData -> {
+            MyLogger.d(TAG, "选房清扫改变");
             if (!TextUtils.isEmpty(cleanRoomData)) {
                 JSONObject json = JSON.parseObject(cleanRoomData);
                 int times = json.getIntValue("CleanLoop");
@@ -644,25 +630,26 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
         });
 
 
-        LiveEventBus.get(EnvConfigure.KEY_INIT_STATUS, Integer.class).observe((BaseActivity) mView, new Observer<Integer>() {
-            @Override
-            public void onChanged(Integer initStatus) {
-                MyLogger.d(TAG, "初始化状态改变 init status：" + initStatus);
-                if (initStatus == 0) {
-                    slamPointList.clear();
-                } else {
-                    IlifeAli.getInstance().getProperties(new OnAliResponse<PropertyBean>() {
-                        @Override
-                        public void onSuccess(PropertyBean result) {
-                            doAboutSlam(result);
-                        }
+        LiveEventBus.get(EnvConfigure.KEY_INIT_STATUS, Integer.class).observe((BaseActivity) mView, initStatus -> {
+            MyLogger.d(TAG, "初始化状态改变 init status：" + initStatus);
+            if (initStatus == 0) {
+                slamPointList.clear();
+                mView.drawVirtualWall("");
+                mView.drawForbiddenArea("");
+                mView.drawChargePort(0,0);
+            } else {
+                IlifeAli.getInstance().getProperties(new OnAliResponse<PropertyBean>() {
+                    @Override
+                    public void onSuccess(PropertyBean result) {
+                        mDevicePropertyBean = result;
+                        doAboutSlam();
+                    }
 
-                        @Override
-                        public void onFailed(int code, String message) {
+                    @Override
+                    public void onFailed(int code, String message) {
 
-                        }
-                    });
-                }
+                    }
+                });
             }
         });
     }
@@ -670,8 +657,8 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
     /**
      * 处理SLAM
      */
-    private void doAboutSlam(PropertyBean result) {
-        long selectId = result.getSelectedMapId();
+    private void doAboutSlam() {
+        long selectId = mDevicePropertyBean.getSelectedMapId();
         IlifeAli.getInstance().getSelectMap(selectId, new OnAliResponse<List<HistoryRecordBean>>() {
             @Override
             public void onSuccess(List<HistoryRecordBean> result) {
@@ -693,6 +680,34 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
                     slamPointList.clear();
                     slamPointList.addAll(mapDataBean.getCoordinates());
                     mView.drawMapX8(pointList, slamPointList);
+                    /**
+                     * 处理虚拟墙。禁区
+                     */
+                    mView.drawVirtualWall(mDevicePropertyBean.getVirtualWall());
+                    mView.drawForbiddenArea(mDevicePropertyBean.getForbiddenArea());
+                    /**
+                     * 处理充电座
+                     */
+                    LiveEventBus.get(EnvConfigure.ChargerPiont, String.class).post(mDevicePropertyBean.getChargePort());
+                    if (curStatus == MsgCodeUtils.STATUE_CLEAN_AREA) { //处理清扫区域
+                        if (mDevicePropertyBean != null) {
+                            String cleanAreaData = mDevicePropertyBean.getCleanArea();
+                            JSONObject json = JSON.parseObject(cleanAreaData);
+                            int times = json.getIntValue("CleanLoop");
+                            int cleanedTimes = times >> 4;
+                            int settingTimes = times & 0x0f;
+                            boolean enable = json.getIntValue("Enable") != 0;//0-无效/没有进行 1-开始 2-进行中
+                            mView.updateCleanTimes(enable, cleanedTimes, settingTimes);
+                            String area = "";
+                            if (enable) {
+                                area = json.getString("AreaData");
+                                if (area.equals("AAAAAAAAAAAAAAAAAAAAAA==")) {
+                                    area = "";
+                                }
+                            }
+                            mView.drawCleanArea(area);
+                        }
+                    }
                 }
             }
 
@@ -824,8 +839,7 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
     @Override
     public void enterPointMode() {
         if ((curStatus == MsgCodeUtils.STATUE_ALONG && pointToAlong(true)) || curStatus == MsgCodeUtils.STATUE_WAIT || curStatus == MsgCodeUtils.STATUE_POINT || curStatus == MsgCodeUtils.STATUE_TEMPORARY_POINT ||
-                curStatus == MsgCodeUtils.STATUE_PAUSE || curStatus == MsgCodeUtils.STATUE_PLANNING || curStatus == MsgCodeUtils.STATUE_RANDOM
-                || curStatus == MsgCodeUtils.STATUE_CLEAN_ROOM || curStatus == MsgCodeUtils.STATUE_CLEAN_AREA) {
+                curStatus == MsgCodeUtils.STATUE_PAUSE || curStatus == MsgCodeUtils.STATUE_PLANNING || curStatus == MsgCodeUtils.STATUE_RANDOM) {
             if (curStatus == MsgCodeUtils.STATUE_POINT) {//重点-进入待机
                 setPropertiesWithParams(AliSkills.get().enterWaitMode(IlifeAli.getInstance().getWorkingDevice().getIotId()));
             } else if (curStatus == MsgCodeUtils.STATUE_TEMPORARY_POINT) {//临时重点-进入规划

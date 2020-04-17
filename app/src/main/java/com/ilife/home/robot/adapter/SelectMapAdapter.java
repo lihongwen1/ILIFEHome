@@ -9,6 +9,7 @@ import com.ilife.home.robot.base.BaseViewHolder;
 import com.ilife.home.robot.bean.MapDataBean;
 import com.ilife.home.robot.bean.SaveMapBean;
 import com.ilife.home.robot.utils.DataUtils;
+import com.ilife.home.robot.utils.UiUtil;
 import com.ilife.home.robot.utils.Utils;
 import com.ilife.home.robot.view.MapView;
 
@@ -36,8 +37,8 @@ public class SelectMapAdapter extends BaseQuickAdapter<SaveMapBean, BaseViewHold
             holder.setText(R.id.tv_save_map_time, time);
             holder.setVisible(R.id.tv_apply_this_map, true);
             holder.setVisible(R.id.v_used_map, isSelect);
-            holder.setText(R.id.tv_apply_this_map, isSelect ? "已应用" : "应用此地图");
-            holder.setText(R.id.tv_map_name, isSelect ? "当前地图" : "历史地图");
+            holder.setText(R.id.tv_apply_this_map, isSelect ? UiUtil.getString(R.string.map_already_use_map):UiUtil.getString(R.string.map_apply_this_map));
+            holder.setText(R.id.tv_map_name, isSelect ?UiUtil.getString(R.string.map_current_map):UiUtil.getString(R.string.map_history_map));
             holder.setSelect(R.id.tv_apply_this_map, isSelect);
             holder.addOnClickListener(R.id.tv_apply_this_map);
             holder.addOnClickListener(R.id.iv_delete_map);

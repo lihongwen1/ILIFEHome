@@ -55,19 +55,19 @@
         <item>@string/map_bottom_sheet_find_robot</item>
     </array>
     <string-array name="array_voice_language">
-        <item>Czech</item>
-        <item>Danish</item>
-        <item>Dutch</item>
+        <item>Čeština</item>
+        <item>Dansk</item>
+        <item>Nederlands</item>
         <item>English</item>
-        <item>Finnis</item>
-        <item>French </item>
-        <item>German </item>
-        <item>Greek</item>
-        <item>Italian</item>
-        <item>Norwegian</item>
-        <item>Polish</item>
-        <item>Portuguese</item>
-        <item>Spanish</item>
-        <item>Swedish</item>
+        <item>Suomi</item>
+        <item>Français</item>
+        <item>Deutsch</item>
+        <item>Ελληνικά</item>
+        <item>Italiano</item>
+        <item>Norsk</item>
+        <item>Polski</item>
+        <item>Português</item>
+        <item>Español</item>
+        <item>Svenska</item>
     </string-array>
 </resources>

@@ -54,7 +54,7 @@
                     style="@style/map_text_button"
                     android:button="@null"
                     android:drawableTop="@drawable/selector_select_room"
-                    android:text="选房清扫" />
+                    android:text="@string/map_bottom_sheet_select_room" />
             </RadioGroup>
         </LinearLayout>
     </FrameLayout>

@@ -159,7 +159,7 @@ public class ScheduleAreaActivity extends BackBaseActivity {
                 case CLEAN_AREA:
                     String cleanArea = map_schedule_area.getCleanAreaData();
                     if (cleanArea.equals("AAAAAAAAAAAAAAAAAAAAAA==")) {
-                        ToastUtils.showToast("请先进行划区");
+                        ToastUtils.showToast(UiUtil.getString(R.string.toast_set_clean_area_first));
                     } else {
                         scheduleBean.setType(1);
                         scheduleBean.setArea(cleanArea);

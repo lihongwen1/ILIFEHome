@@ -58,7 +58,7 @@ public class CleanAreaActivity extends BackBaseActivity {
 
     @Override
     public void initView() {
-        tv_title.setText("划区清扫");
+        tv_title.setText(R.string.map_bottom_sheet_clean_area);
         iv_back.setImageResource(R.drawable.nav_button_cancel);
         iv_finish.setImageResource(R.drawable.nav_button_finish);
         fl_top_menu.setVisibility(View.VISIBLE);
@@ -71,7 +71,6 @@ public class CleanAreaActivity extends BackBaseActivity {
                 case R.id.tv_do_clean_area:
                     map_clean_area.setmOT(MapView.OT.CLEAN_AREA);
                     break;
-
             }
         });
         rg_clean_area.check(R.id.tv_clean_area_do_map);
@@ -84,7 +83,7 @@ public class CleanAreaActivity extends BackBaseActivity {
             public void onSuccess(PropertyBean result) {
                 long selectId = result.getSelectedMapId();
                 String cleanAreaData = result.getCleanArea();
-                charging_port = result.getChagePort();
+                charging_port = result.getChargePort();
                 MyLogger.d(TAG, "划区数据1111：" + cleanAreaData);
                 IlifeAli.getInstance().getSelectMap(selectId, new OnAliResponse<List<HistoryRecordBean>>() {
                     @Override
@@ -100,8 +99,7 @@ public class CleanAreaActivity extends BackBaseActivity {
                         }
                         if (!TextUtils.isEmpty(cleanAreaData)) {
                             JSONObject json = JSON.parseObject(cleanAreaData);
-                            times = json.getIntValue("CleanLoop");
-                            times = times & 0x0f;
+                            times = 1;
                             updateLoopImage();
                             boolean enable = json.getIntValue("Enable")!=0;
                             String area = "";
@@ -177,7 +175,7 @@ public class CleanAreaActivity extends BackBaseActivity {
             JSONObject caJson = JSONObject.parseObject(clenAreaData);
             String cleanData=map_clean_area.getCleanAreaData();
             if (cleanData.equals("AAAAAAAAAAAAAAAAAAAAAA==")) {
-                ToastUtils.showToast("请先进行划区");
+                ToastUtils.showToast(UiUtil.getString(R.string.toast_set_clean_area_first));
             }else {
             caJson.getJSONObject(EnvConfigure.CleanAreaData).put("AreaData",cleanData);
             caJson.getJSONObject(EnvConfigure.CleanAreaData).put("CleanLoop", times);

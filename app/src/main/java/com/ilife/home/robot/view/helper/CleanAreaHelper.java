@@ -31,6 +31,7 @@ public class CleanAreaHelper {
     private final int ICON_RADIUS = 50;
     private Matrix mMatrix;
     private Matrix boundaryMatrix;
+
     public enum CAOT {
         NOON(51),
         ADD(52),
@@ -60,7 +61,7 @@ public class CleanAreaHelper {
         this.touchPoint = new PointF();
         this.curRectF = new RectF();
         this.mMatrix = new Matrix();
-        this.boundaryMatrix=new Matrix();
+        this.boundaryMatrix = new Matrix();
     }
 
 
@@ -77,9 +78,9 @@ public class CleanAreaHelper {
             float[] coordinate = curCleanAreaBean.getPointCoordinate();
             for (int i = 0; i < coordinate.length; i++) {
                 if (i % 2 == 0) {
-                    coor = Math.round(coordinate[i]) ;
+                    coor = Math.round(coordinate[i]);
                 } else {
-                    coor =  - Math.round(coordinate[i]);
+                    coor = -Math.round(coordinate[i]);
                 }
                 MyLogger.d(TAG, "划区坐标 ：" + coor);
                 intToByte = DataUtils.intToBytes(coor);
@@ -96,22 +97,26 @@ public class CleanAreaHelper {
     /**
      * @param fbdStr
      */
-        public void setCleanArea(String fbdStr) {
-        if (!TextUtils.isEmpty(fbdStr)&&!fbdStr.equals("AAAAAAAAAAAAAAAAAAAAAA==")) {
+    public void setCleanArea(String fbdStr) {
+        if (!TextUtils.isEmpty(fbdStr) && !fbdStr.equals("AAAAAAAAAAAAAAAAAAAAAA==")) {
             byte[] bytes = Base64.decode(fbdStr, Base64.DEFAULT);
             int tlx = DataUtils.bytesToInt(bytes[0], bytes[1]);
-            int tly =  - DataUtils.bytesToInt(bytes[2], bytes[3]);
+            int tly = -DataUtils.bytesToInt(bytes[2], bytes[3]);
             int trx = DataUtils.bytesToInt(bytes[4], bytes[5]);
-            int try_ =  - DataUtils.bytesToInt(bytes[6], bytes[7]);
-            int blx = DataUtils.bytesToInt(bytes[8], bytes[9]) ;
-            int bly = - DataUtils.bytesToInt(bytes[10], bytes[11]);
+            int try_ = -DataUtils.bytesToInt(bytes[6], bytes[7]);
+            int blx = DataUtils.bytesToInt(bytes[8], bytes[9]);
+            int bly = -DataUtils.bytesToInt(bytes[10], bytes[11]);
             int brx = DataUtils.bytesToInt(bytes[12], bytes[13]);
-            int bry =  - DataUtils.bytesToInt(bytes[14], bytes[15]);
+            int bry = -DataUtils.bytesToInt(bytes[14], bytes[15]);
             curCleanAreaBean = new VirtualWallBean(1, 3, new float[]{tlx, tly, trx, try_, blx, bly, brx, bry}, 1);
             MyLogger.d(TAG, "清扫区域坐标: " + Arrays.toString(curCleanAreaBean.getPointCoordinate()));
+        } else {
+            if (curCleanAreaBean != null) {
+                curCleanAreaBean.clear();
+            }
         }
         updateCleanAreaPath();
-            mMapView.invalidateUI();
+        mMapView.invalidateUI();
     }
 
 
@@ -374,10 +379,10 @@ public class CleanAreaHelper {
         /**
          * 边界
          */
-        if (curCleanAreaBean.getBoundaryPath()==null){
+        if (curCleanAreaBean.getBoundaryPath() == null) {
             curCleanAreaBean.setBoundaryPath(new Path());
         }
-        Path boundaryPath=curCleanAreaBean.getBoundaryPath();
+        Path boundaryPath = curCleanAreaBean.getBoundaryPath();
         boundaryPath.reset();
         boundaryPath.moveTo(boundaryCoordinate[0], boundaryCoordinate[1]);
         boundaryPath.lineTo(boundaryCoordinate[2], boundaryCoordinate[3]);

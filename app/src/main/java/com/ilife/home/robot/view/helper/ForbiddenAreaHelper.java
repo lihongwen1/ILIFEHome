@@ -44,7 +44,7 @@ public class ForbiddenAreaHelper {
     private int selectVwNum = -1;
     private Matrix mMatrix;
     private Matrix boundaryMatrix;
-
+    private final int BOUNDARY_WIDTH=3;
     public enum FAOT {
         NOON(31),
         ADD(32),

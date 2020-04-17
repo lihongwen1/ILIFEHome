@@ -14,7 +14,7 @@ public class PropertyBean {
     private String virtualWall;
     private String partition;//分区（分房）
     private String cleanArea;//划区数据
-    private String chagePort;
+    private String chargePort;
     private String cleanRoomData;//选房清扫数据
     private boolean initStatus;
     private int voiceVolume;//音量
@@ -132,12 +132,12 @@ public class PropertyBean {
         this.partition = partition;
     }
 
-    public String getChagePort() {
-        return chagePort;
+    public String getChargePort() {
+        return chargePort;
     }
 
-    public void setChagePort(String chagePort) {
-        this.chagePort = chagePort;
+    public void setChargePort(String chargePort) {
+        this.chargePort = chargePort;
     }
 
     public boolean isVoiceOpen() {

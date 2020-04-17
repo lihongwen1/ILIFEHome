@@ -1233,4 +1233,8 @@ public class MapView extends View {
             this.color = color;
         }
     }
+
+    public float getBaseScare() {
+        return baseScare;
+    }
 }

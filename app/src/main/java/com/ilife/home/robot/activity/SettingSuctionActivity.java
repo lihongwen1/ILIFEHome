@@ -9,6 +9,7 @@ import androidx.appcompat.widget.AppCompatSeekBar;
 import com.alibaba.fastjson.JSONObject;
 import com.aliyun.iot.aep.sdk.contant.EnvConfigure;
 import com.aliyun.iot.aep.sdk.contant.IlifeAli;
+import com.aliyun.iot.aep.sdk.contant.MsgCodeUtils;
 import com.ilife.home.robot.R;
 import com.ilife.home.robot.base.BackBaseActivity;
 import com.ilife.home.robot.utils.ToastUtils;
@@ -71,5 +72,14 @@ public class SettingSuctionActivity extends BackBaseActivity {
                 removeActivity();
             }
         });
+    }
+
+    private boolean canOperateSuction() {
+        int curWorkMode = IlifeAli.getInstance().getWorkingDevice().getWork_status();
+        if ((curWorkMode == MsgCodeUtils.STATUE_POINT || curWorkMode == MsgCodeUtils.STATUE_RECHARGE)) {
+            return false;
+        } else {
+            return true;
+        }
     }
 }

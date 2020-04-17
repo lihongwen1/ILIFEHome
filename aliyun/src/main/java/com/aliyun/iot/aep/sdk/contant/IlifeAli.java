@@ -432,11 +432,18 @@ public class IlifeAli {
                                 } else if (items.containsKey(EnvConfigure.KEY_FORBIDDEN_AREA)) {
                                     LiveEventBus.get(EnvConfigure.KEY_FORBIDDEN_AREA, String.class).post(items.getJSONObject(EnvConfigure.KEY_FORBIDDEN_AREA).getString(EnvConfigure.KEY_VALUE));
                                 } else if (items.containsKey(EnvConfigure.CleanAreaData)) {
-                                    LiveEventBus.get(EnvConfigure.CleanAreaData, String.class).post(items.getJSONObject(EnvConfigure.CleanAreaData).getString(EnvConfigure.KEY_VALUE));
+                                    String cleanArea = items.getJSONObject(EnvConfigure.CleanAreaData).getString(EnvConfigure.KEY_VALUE);
+                                    getWorkingDevice().getDeviceInfo().setCleanArea(cleanArea);
+                                    LiveEventBus.get(EnvConfigure.CleanAreaData, String.class).post(cleanArea);
                                 } else if (items.containsKey(EnvConfigure.CleanPartitionData)) {
                                     LiveEventBus.get(EnvConfigure.CleanPartitionData, String.class).post(items.getJSONObject(EnvConfigure.CleanPartitionData).getString(EnvConfigure.KEY_VALUE));
                                 } else if (items.containsKey(EnvConfigure.KEY_INIT_STATUS)) {
-                                    LiveEventBus.get(EnvConfigure.KEY_INIT_STATUS, Integer.class).post(items.getJSONObject(EnvConfigure.KEY_INIT_STATUS).getIntValue(EnvConfigure.KEY_VALUE));
+                                    int lastInit = getWorkingDevice().getDeviceInfo().isInitStatus() ? 1 : 0;
+                                    int currentInit = items.getJSONObject(EnvConfigure.KEY_INIT_STATUS).getIntValue(EnvConfigure.KEY_VALUE);
+                                    if (currentInit != lastInit) {
+                                        getWorkingDevice().getDeviceInfo().setInitStatus(currentInit == 1);
+                                        LiveEventBus.get(EnvConfigure.KEY_INIT_STATUS, Integer.class).post(currentInit);
+                                    }
                                 } else if (items.containsKey(EnvConfigure.KEY_BeepType)) {
                                     int beepType = items.getJSONObject(EnvConfigure.KEY_BeepType).getIntValue(EnvConfigure.KEY_VALUE);
                                     getWorkingDevice().getDeviceInfo().setLanguageCode(beepType);
@@ -619,7 +626,8 @@ public class IlifeAli {
                     if (jsonObject.containsKey(EnvConfigure.KEY_VirtualWallEN)) {//边刷速率
                         int enable = jsonObject.getJSONObject(EnvConfigure.KEY_VirtualWallEN).getIntValue(EnvConfigure.KEY_VALUE);
                         bean.setVirtualWallEn(enable);
-                    } if (jsonObject.containsKey(EnvConfigure.KEY_SideBrushPower)) {//边刷速率
+                    }
+                    if (jsonObject.containsKey(EnvConfigure.KEY_SideBrushPower)) {//边刷速率
                         int brushSpeed = jsonObject.getJSONObject(EnvConfigure.KEY_SideBrushPower).getIntValue(EnvConfigure.KEY_VALUE);
                         bean.setBrushSpeed(brushSpeed);
                     }
@@ -672,7 +680,7 @@ public class IlifeAli {
                     if (jsonObject.containsKey(EnvConfigure.ChargerPiont)) {
                         //{"time":1586323952726,"value":{"Piont":65526,"DisplaySwitch":1}}
                         String chargePort = jsonObject.getJSONObject(EnvConfigure.ChargerPiont).getString(EnvConfigure.KEY_VALUE);
-                        bean.setChagePort(chargePort);
+                        bean.setChargePort(chargePort);
                         Log.d(TAG, "ChargerPiont" + jsonObject.getString("ChargerPiont"));
                     }
                     if (jsonObject.containsKey(EnvConfigure.CleanAreaData)) {
@@ -1006,23 +1014,33 @@ public class IlifeAli {
             @Override
             public void onResponse(IoTRequest ioTRequest, IoTResponse ioTResponse) {
                 onResponse.onSuccess(EnvConfigure.PATH_SET_PROPERTIES, EnvConfigure.VALUE_FAC_RESET, 1, ioTResponse.getCode());
-//                cloudResetFactory(onResponse);
+                cloudResetFactory();
             }
         }));
     }
 
-    private void cloudResetFactory(final OnAliSetPropertyResponse onResponse) {
+    /**
+     * 删除云端的主机数据
+     */
+    private void cloudResetFactory() {
         HashMap<String, Object> params = new HashMap<>();
         params.put(EnvConfigure.KEY_IOT_ID, iotId);
-        ioTAPIClient.send(buildRequest(EnvConfigure.PATH_RESET_FACTORY, params), new IoTUIThreadCallback(new IoTCallback() {
+        IoTRequest ioTRequest = new IoTRequestBuilder()
+                .setAuthType(EnvConfigure.IOT_AUTH)
+                .setScheme(Scheme.HTTPS)        // 如果是HTTPS，可以省略本设置
+                .setPath(EnvConfigure.PATH_RESET_FACTORY)                  // 参考业务API文档，设置path
+                .setApiVersion("1.0.0")          // 参考业务API文档，设置apiVersion
+                .setParams(params)
+                .build();
+        ioTAPIClient.send(ioTRequest, new IoTUIThreadCallback(new IoTCallback() {
             @Override
             public void onFailure(IoTRequest ioTRequest, Exception e) {
-                onResponse.onFailed(ioTRequest.getPath(), EnvConfigure.VALUE_FAC_RESET, 0, e.getLocalizedMessage());
+                Log.d(TAG, "清除云端数据 异常：" + e.getMessage());
             }
 
             @Override
             public void onResponse(IoTRequest ioTRequest, IoTResponse ioTResponse) {
-                onResponse.onSuccess(EnvConfigure.PATH_SET_PROPERTIES, EnvConfigure.VALUE_FAC_RESET, 1, ioTResponse.getCode());
+                Log.d(TAG, "清除云端数据：" + ioTRequest.toString());
             }
         }));
     }

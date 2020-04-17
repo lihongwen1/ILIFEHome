@@ -54,7 +54,7 @@ public class VoiceLanguageActivity extends BackBaseActivity {
     public void initData() {
         super.initData();
         curLanguage = IlifeAli.getInstance().getWorkingDevice().getDeviceInfo().getLanguageCode();
-        for (int i = 1; i < 20; i++) {
+        for (int i = 6; i < 20; i++) {
             if (curLanguage == i) {
                 languages.add(0, i);
             } else {

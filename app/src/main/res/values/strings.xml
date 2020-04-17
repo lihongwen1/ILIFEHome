@@ -333,4 +333,12 @@
     <string name="toast_fbd_too_close_to_charging">No-go zone is too close to the Charging Dock</string>
     <string name="toast_vir_too_close_to_charging">Electrowall is too close to the Charging Dock</string>
     <string name="toast_carpet_too_close_to_charging">Carpet area is too close to the Charging Dock</string>
+    <string name="toast_set_clean_area_first">Please set the To-go zone first</string>
+    <string name="map_current_map">Current map</string>
+    <string name="map_already_use_map">Now</string>
+    <string name="map_history_map">History</string>
+    <string name="map_apply_this_map">Apply the current map</string>
+    <string name="map_delete_map_title">Delete map</string>
+    <string name="map_delete_map_hint">The map will not exist after deletion</string>
+
 </resources>

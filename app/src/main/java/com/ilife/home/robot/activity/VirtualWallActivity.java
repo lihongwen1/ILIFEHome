@@ -14,6 +14,7 @@ import com.aliyun.iot.aep.sdk.bean.HistoryRecordBean;
 import com.aliyun.iot.aep.sdk.bean.PropertyBean;
 import com.aliyun.iot.aep.sdk.contant.EnvConfigure;
 import com.aliyun.iot.aep.sdk.contant.IlifeAli;
+import com.aliyun.iot.aep.sdk.contant.MsgCodeUtils;
 import com.ilife.home.robot.R;
 import com.ilife.home.robot.base.BackBaseActivity;
 import com.ilife.home.robot.bean.Coordinate;
@@ -93,11 +94,18 @@ public class VirtualWallActivity extends BackBaseActivity {
         IlifeAli.getInstance().getProperties(new OnAliResponse<PropertyBean>() {
             @Override
             public void onSuccess(PropertyBean bean) {
+                boolean isDrawSaveMap = false;
+                int workMode = bean.getWorkMode();
+                if (workMode == MsgCodeUtils.STATUE_CHARGING || workMode == MsgCodeUtils.STATUE_CHARGING_BASE_SLEEP) {
+                    isDrawSaveMap = true;
+                } else {
+                    isDrawSaveMap = bean.isInitStatus();
+                }
                 long selectId = bean.getSelectedMapId();
                 str_virtual = bean.getVirtualWall();
                 MyLogger.d(TAG, "服务器虚拟墙数据：" + str_virtual);
                 str_mopArea = bean.getForbiddenArea();
-                charging_port = bean.getChagePort();
+                charging_port = bean.getChargePort();
                 MyLogger.d(TAG, "服务器禁区数据：" + str_mopArea);
 
                 MapX9Model model = new MapX9Model();
@@ -105,24 +113,26 @@ public class VirtualWallActivity extends BackBaseActivity {
                     MyLogger.d(TAG, "getHistoryDataX8-------------------------------success");
                     drawMap(cleaningDataX8.getCoordinates());
                 });
-                IlifeAli.getInstance().getSelectMap(selectId, new OnAliResponse<List<HistoryRecordBean>>() {
-                    @Override
-                    public void onSuccess(List<HistoryRecordBean> result) {
-                        if (result.size() == 0) {//应该只有一条数据
-                            return;
+                if (isDrawSaveMap && selectId != 0) {
+                    IlifeAli.getInstance().getSelectMap(selectId, new OnAliResponse<List<HistoryRecordBean>>() {
+                        @Override
+                        public void onSuccess(List<HistoryRecordBean> result) {
+                            if (result.size() == 0) {//应该只有一条数据
+                                return;
+                            }
+                            MapDataBean mapDataBean = DataUtils.parseSaveMapData(result.get(0).getMapDataArray());
+                            if (mapDataBean != null) {
+                                drawMap(mapDataBean.getCoordinates());
+                            }
+
                         }
-                        MapDataBean mapDataBean = DataUtils.parseSaveMapData(result.get(0).getMapDataArray());
-                        if (mapDataBean != null) {
-                            drawMap(mapDataBean.getCoordinates());
+
+                        @Override
+                        public void onFailed(int code, String message) {
+
                         }
-
-                    }
-
-                    @Override
-                    public void onFailed(int code, String message) {
-
-                    }
-                });
+                    });
+                }
             }
 
             @Override
@@ -204,19 +214,21 @@ public class VirtualWallActivity extends BackBaseActivity {
                 String vrData = "{\"VirtualWallData\":\"\"}";
                 String parData = "{\"ForbiddenAreaData\":\"\"}";
                 JSONObject vrJson = JSONObject.parseObject(vrData);
-                vrJson.put(EnvConfigure.VirtualWallData, mMapView.getVirtualWallPointfs());
-                JSONObject parJson = JSONObject.parseObject(parData);
-                parJson.put(EnvConfigure.KEY_FORBIDDEN_AREA, mMapView.getForbiddenData());
-                IlifeAli.getInstance().setProperties(vrJson, aBoolean -> {
-                    if (aBoolean) {
-                        IlifeAli.getInstance().setProperties(parJson, result -> {
-                            if (result) {
-                                ToastUtils.showToast(UiUtil.getString(R.string.setting_success));
-                                removeActivity();
-                            }
-                        });
-                    }
-                });
+                if (mMapView != null) {
+                    vrJson.put(EnvConfigure.VirtualWallData, mMapView.getVirtualWallPointfs());
+                    JSONObject parJson = JSONObject.parseObject(parData);
+                    parJson.put(EnvConfigure.KEY_FORBIDDEN_AREA, mMapView.getForbiddenData());
+                    IlifeAli.getInstance().setProperties(vrJson, aBoolean -> {
+                        if (aBoolean) {
+                            IlifeAli.getInstance().setProperties(parJson, result -> {
+                                if (result) {
+                                    ToastUtils.showToast(UiUtil.getString(R.string.setting_success));
+                                    removeActivity();
+                                }
+                            });
+                        }
+                    });
+                }
             }
 
 

@@ -58,7 +58,7 @@ public class SelectRoomActivity extends BackBaseActivity {
 
     @Override
     public void initView() {
-        tv_title.setText("选房清扫");
+        tv_title.setText(R.string.map_bottom_sheet_select_room);
         iv_back.setImageResource(R.drawable.nav_button_cancel);
         iv_finish.setImageResource(R.drawable.nav_button_finish);
         fl_top_menu.setVisibility(View.VISIBLE);
@@ -77,7 +77,7 @@ public class SelectRoomActivity extends BackBaseActivity {
             public void onSuccess(PropertyBean result) {
                 long selectId = result.getSelectedMapId();
                 String roomData = result.getPartition();
-                String charging_port = result.getChagePort();
+                String charging_port = result.getChargePort();
                 IlifeAli.getInstance().getSelectMap(selectId, new OnAliResponse<List<HistoryRecordBean>>() {
                     @Override
                     public void onSuccess(List<HistoryRecordBean> result) {

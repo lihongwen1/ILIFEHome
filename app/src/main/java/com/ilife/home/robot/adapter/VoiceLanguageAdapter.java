@@ -18,9 +18,9 @@ public class VoiceLanguageAdapter extends BaseQuickAdapter<Integer, BaseViewHold
 
     @Override
     protected void convert(@NonNull BaseViewHolder holder, int position) {
-       Integer code = data.get(position);
+        Integer code = data.get(position);
         holder.setText(R.id.tv_text_selector, DataUtils.getLanguageByCode(code));
-        holder.setSelect(R.id.iv_text_selector, defaultLanguage==code);
+        holder.setSelect(R.id.iv_text_selector, defaultLanguage == code);
     }
 
     public void setDefaultLanguage(int defaultLanguage) {

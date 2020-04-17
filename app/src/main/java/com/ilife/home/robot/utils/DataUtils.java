@@ -10,7 +10,6 @@ import com.ilife.home.robot.R;
 import com.ilife.home.robot.app.MyApplication;
 import com.ilife.home.robot.bean.Coordinate;
 import com.ilife.home.robot.bean.MapDataBean;
-import com.ilife.home.robot.model.bean.VirtualWallBean;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -330,7 +329,6 @@ public class DataUtils {
     }
 
 
-
     public static double lineToPointSpace(float x1, float y1, float x2, float y2, float x0, float y0) {//判断虚拟墙和圆的位置关系
         double space = 0;
 
@@ -509,8 +507,11 @@ public class DataUtils {
     }
 
     public static String getLanguageByCode(int language) {
-        language = language - 1;
+        language = language - 6;
         String[] languages = MyApplication.getInstance().getResources().getStringArray(R.array.array_voice_language);
+        if (language < 0 || language >= languages.length) {
+            return languages[0];
+        }
         return languages[language];
     }
 
