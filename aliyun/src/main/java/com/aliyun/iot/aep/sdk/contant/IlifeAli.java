@@ -1,9 +1,7 @@
 package com.aliyun.iot.aep.sdk.contant;
 
 import android.os.Build;
-import android.os.Process;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
@@ -39,21 +37,18 @@ import com.aliyun.iot.aep.sdk.bean.OTAUpgradeBean;
 import com.aliyun.iot.aep.sdk.bean.PropertyBean;
 import com.aliyun.iot.aep.sdk.bean.RealTimeMapBean;
 import com.aliyun.iot.aep.sdk.bean.ScheduleBean;
-import com.aliyun.iot.aep.sdk.credential.IotCredentialManager.IoTCredentialManage;
 import com.aliyun.iot.aep.sdk.credential.IotCredentialManager.IoTCredentialManageImpl;
 import com.aliyun.iot.aep.sdk.delegate.AliInterfaceDelegate;
 import com.aliyun.iot.aep.sdk.delegate.BindDeviceDelagate;
 import com.aliyun.iot.aep.sdk.delegate.GetHistoryMapDelegate;
 import com.aliyun.iot.aep.sdk.delegate.GetHistoryRecordDelegate;
 import com.aliyun.iot.aep.sdk.framework.AApplication;
-import com.aliyun.iot.aep.sdk.framework.sdk.SDKManager;
 import com.aliyun.iot.aep.sdk.framework.utils.SpUtil;
 import com.aliyun.iot.aep.sdk.helper.SDKInitHelper;
 import com.aliyun.iot.aep.sdk.login.ILoginCallback;
 import com.aliyun.iot.aep.sdk.login.ILogoutCallback;
 import com.aliyun.iot.aep.sdk.login.LoginBusiness;
 import com.aliyun.iot.aep.sdk.login.data.UserInfo;
-import com.aliyun.iot.aep.sdk.threadpool.ThreadPool;
 import com.google.gson.Gson;
 import com.ilife.home.livebus.LiveEventBus;
 
@@ -549,7 +544,10 @@ public class IlifeAli {
                 if (ioTResponse.getCode() == 200) {
                     Log.d(TAG, "get propertied data:    " + ioTResponse.getData().toString());
                     JSONObject jsonObject = JSON.parseObject(ioTResponse.getData().toString());
-                    boolean max = jsonObject.getJSONObject(EnvConfigure.KEY_MAX_MODE).getIntValue(EnvConfigure.KEY_VALUE) == 1;
+                    boolean max = false;
+                    if (jsonObject.containsKey(EnvConfigure.KEY_MAX_MODE)) {
+                        max = jsonObject.getJSONObject(EnvConfigure.KEY_MAX_MODE).getIntValue(EnvConfigure.KEY_VALUE) == 1;
+                    }
                     int battery = jsonObject.getJSONObject(EnvConfigure.KEY_BATTERY_STATE).getIntValue(EnvConfigure.KEY_VALUE);
                     int workMode = jsonObject.getJSONObject(EnvConfigure.KEY_WORK_MODE).getIntValue(EnvConfigure.KEY_VALUE);
                     int waterLevel = jsonObject.getJSONObject(EnvConfigure.KEY_WATER_CONTROL).getIntValue(EnvConfigure.KEY_VALUE);
@@ -844,7 +842,7 @@ public class IlifeAli {
     private void cloudResetFactory() {
         HashMap<String, Object> params = new HashMap<>();
         params.put(EnvConfigure.KEY_IOT_ID, iotId);
-        IoTRequest ioTRequest= new IoTRequestBuilder()
+        IoTRequest ioTRequest = new IoTRequestBuilder()
                 .setAuthType(EnvConfigure.IOT_AUTH)
                 .setScheme(Scheme.HTTPS)        // 如果是HTTPS，可以省略本设置
                 .setPath(EnvConfigure.PATH_RESET_FACTORY)                  // 参考业务API文档，设置path
@@ -854,12 +852,12 @@ public class IlifeAli {
         ioTAPIClient.send(ioTRequest, new IoTUIThreadCallback(new IoTCallback() {
             @Override
             public void onFailure(IoTRequest ioTRequest, Exception e) {
-                Log.d(TAG,"清除云端数据 异常："+e.getMessage());
+                Log.d(TAG, "清除云端数据 异常：" + e.getMessage());
             }
 
             @Override
             public void onResponse(IoTRequest ioTRequest, IoTResponse ioTResponse) {
-                Log.d(TAG,"清除云端数据："+ioTRequest.toString());
+                Log.d(TAG, "清除云端数据：" + ioTRequest.toString());
             }
         }));
     }
