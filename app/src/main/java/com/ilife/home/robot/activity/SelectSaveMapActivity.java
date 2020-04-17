@@ -5,7 +5,6 @@ import android.util.Base64;
 import android.widget.TextView;
 
 import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
 import com.aliyun.iot.aep.sdk._interface.OnAliResponse;
 import com.aliyun.iot.aep.sdk.bean.HistoryRecordBean;
@@ -18,7 +17,6 @@ import com.ilife.home.robot.base.BackBaseActivity;
 import com.ilife.home.robot.bean.SaveMapBean;
 import com.ilife.home.robot.fragment.UniversalDialog;
 import com.ilife.home.robot.utils.MyLogger;
-import com.ilife.home.robot.utils.ToastUtils;
 import com.ilife.home.robot.utils.Utils;
 import com.ilife.home.robot.view.SlideRecyclerView;
 import com.ilife.home.robot.view.SpaceItemDecoration;
@@ -54,7 +52,7 @@ public class SelectSaveMapActivity extends BackBaseActivity {
 
     @Override
     public void initView() {
-        tv_title.setText("选择地图");
+        tv_title.setText(R.string.map_bottom_sheet_select_map);
         mAdapter = new SelectMapAdapter(R.layout.item_save_map, saveMapBeans);
         rv_save_map.setLayoutManager(new LinearLayoutManager(this));
         rv_save_map.addItemDecoration(new SpaceItemDecoration(Utils.dip2px(this, 20)));
@@ -62,9 +60,7 @@ public class SelectSaveMapActivity extends BackBaseActivity {
             selectPosition = position;
             switch (view.getId()) {
                 case R.id.tv_apply_this_map:
-                    if (selectMapId == saveMapBeans.get(selectPosition).getMapId()) {
-                        ToastUtils.showToast("已应用此地图");
-                    } else {
+                    if (selectMapId != saveMapBeans.get(selectPosition).getMapId()) {
                         String str_id = encodeSaveMap();
                         IlifeAli.getInstance().setSelectMapId(saveMapBeans.get(selectPosition).getMapId(), str_id, aBoolean -> {
                             MyLogger.d(TAG, "选择地图成功：" + aBoolean);
@@ -102,6 +98,9 @@ public class SelectSaveMapActivity extends BackBaseActivity {
                 String saveMapId = result.getSaveMapId();
                 if (!TextUtils.isEmpty(saveMapId)) {
                     for (int mapId : decodeSaveMapId(saveMapId)) {
+                        if (mapId==0){
+                            continue;
+                        }
                         IlifeAli.getInstance().getSelectMap(mapId, new OnAliResponse<List<HistoryRecordBean>>() {
                             @Override
                             public void onSuccess(List<HistoryRecordBean> result) {
@@ -194,7 +193,7 @@ public class SelectSaveMapActivity extends BackBaseActivity {
 
                         if (saveMapBeans.get(selectPosition).getMapId() == selectMapId) {//删除选择地图
                             saveMapBeans.remove(selectPosition);
-                            selectMapId=0;
+                            selectMapId = 0;
                             IlifeAli.getInstance().setSelectMapId(selectMapId, encodeSaveMap(), aBoolean -> {
                                 MyLogger.d(TAG, "删除地图成功：" + aBoolean);
                                 weakHandler.sendEmptyMessage(1);
