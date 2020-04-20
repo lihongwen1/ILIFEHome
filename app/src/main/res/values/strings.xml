@@ -344,5 +344,6 @@
     <string name="guide_tip_for_start">Start Cleaning</string>
     <string name="guide_tip_for_more_function">Slide up to see more features</string>
     <string name="guide_start">Start</string>
+    <string name="toast_ensure_robot_on_charging_dock">Please ensure the robot is charging in the Charging Dock</string>
 
 </resources>
