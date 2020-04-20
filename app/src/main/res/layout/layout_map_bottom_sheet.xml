@@ -85,6 +85,7 @@
                         android:visibility="visible" />
 
                     <LinearLayout
+                        android:id="@+id/ll_map_start"
                         android:gravity="center_horizontal"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"

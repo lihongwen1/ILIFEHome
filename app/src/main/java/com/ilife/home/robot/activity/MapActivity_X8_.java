@@ -50,7 +50,7 @@ public class MapActivity_X8_ extends BaseMapActivity {
             tv_control_x9.setVisibility(View.VISIBLE);
         }
         tv_start.setText(value);
-        tv_start.setSelected(isSelect);
+        iv_map_start.setSelected(isSelect);
         image_center.setSelected(isSelect);//the  start button of remote control
     }
 

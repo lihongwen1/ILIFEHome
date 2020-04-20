@@ -23,7 +23,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
-            android:text="用手指在地图上相应的位置划线即可添加虚拟墙/禁区"
+            android:text="@string/tip_add_virtual"
             android:textColor="@color/white"
             android:textSize="@dimen/dp_12" />
 

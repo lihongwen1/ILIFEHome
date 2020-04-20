@@ -349,6 +349,10 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
                          */
                         if (mDevicePropertyBean.isInitStatus() && mDevicePropertyBean.getSelectedMapId() != 0) {
                             doAboutSlam();
+                        } else {
+                            LiveEventBus.get(EnvConfigure.VirtualWallData, String.class).post(mDevicePropertyBean.getVirtualWall());
+                            LiveEventBus.get(EnvConfigure.KEY_FORBIDDEN_AREA, String.class).post(mDevicePropertyBean.getForbiddenArea());
+                            LiveEventBus.get(EnvConfigure.ChargerPiont, String.class).post(mDevicePropertyBean.getChargePort());
                         }
                     }
                 }
@@ -487,7 +491,7 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
     public boolean isWork(int curStatus) {
         return curStatus == MsgCodeUtils.STATUE_RANDOM || curStatus == MsgCodeUtils.STATUE_ALONG ||
                 curStatus == MsgCodeUtils.STATUE_POINT || curStatus == MsgCodeUtils.STATUE_TEMPORARY_POINT || curStatus == MsgCodeUtils.STATUE_PLANNING ||
-               curStatus == MsgCodeUtils.STATUE_CLEAN_AREA || curStatus == MsgCodeUtils.STATUE_CLEAN_ROOM;
+                curStatus == MsgCodeUtils.STATUE_CLEAN_AREA || curStatus == MsgCodeUtils.STATUE_CLEAN_ROOM;
     }
 
     /**
@@ -636,7 +640,7 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
                 slamPointList.clear();
                 mView.drawVirtualWall("");
                 mView.drawForbiddenArea("");
-                mView.drawChargePort(0,0);
+                mView.drawChargePort(0, 0);
             } else {
                 IlifeAli.getInstance().getProperties(new OnAliResponse<PropertyBean>() {
                     @Override

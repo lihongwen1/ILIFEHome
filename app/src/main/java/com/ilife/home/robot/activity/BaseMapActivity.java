@@ -1,11 +1,7 @@
 package com.ilife.home.robot.activity;
 
 import android.content.Intent;
-import android.graphics.Canvas;
 import android.graphics.Color;
-import android.graphics.DashPathEffect;
-import android.graphics.Paint;
-import android.graphics.RectF;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.os.Message;
@@ -31,10 +27,8 @@ import com.aliyun.iot.aep.sdk.contant.AliSkills;
 import com.aliyun.iot.aep.sdk.contant.IlifeAli;
 import com.aliyun.iot.aep.sdk.contant.MsgCodeUtils;
 import com.app.hubert.guide.NewbieGuide;
-import com.app.hubert.guide.listener.OnHighlightDrewListener;
 import com.app.hubert.guide.model.GuidePage;
 import com.app.hubert.guide.model.HighLight;
-import com.app.hubert.guide.model.HighlightOptions;
 import com.app.hubert.guide.model.RelativeGuide;
 import com.badoo.mobile.util.WeakHandler;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
@@ -45,6 +39,7 @@ import com.ilife.home.robot.app.MyApplication;
 import com.ilife.home.robot.base.BackBaseActivity;
 import com.ilife.home.robot.bean.Coordinate;
 import com.ilife.home.robot.contract.MapX9Contract;
+import com.ilife.home.robot.fragment.DialogFragmentUtil;
 import com.ilife.home.robot.fragment.UniversalDialog;
 import com.ilife.home.robot.fragment.UseTipDialogFragment;
 import com.ilife.home.robot.presenter.MapX9Presenter;
@@ -87,6 +82,8 @@ public abstract class BaseMapActivity extends BackBaseActivity<MapX9Presenter> i
     TextView tv_title;
     @BindView(R.id.tv_start_x9)
     TextView tv_start;
+    @BindView(R.id.iv_map_start)
+    ImageView iv_map_start;
     @BindView(R.id.tv_status)
     TextView tv_status;
     @BindView(R.id.tv_point_x9)
@@ -160,6 +157,7 @@ public abstract class BaseMapActivity extends BackBaseActivity<MapX9Presenter> i
     private WeakHandler weakHandler;
     private BottomSheetBehavior mBottomSheetBehavior;
     private UseTipDialogFragment useTipDialogFragment;
+    private DialogFragmentUtil findRobotDialog;
 
     @Override
     public void attachPresenter() {
@@ -177,6 +175,11 @@ public abstract class BaseMapActivity extends BackBaseActivity<MapX9Presenter> i
                         break;
                     case 3:
                         mMapView.drawMapX8((List<Coordinate>) msg.obj);
+                        break;
+                    case 4:
+                        if (findRobotDialog != null && findRobotDialog.isAdded()) {
+                            findRobotDialog.dismissAllowingStateLoss();
+                        }
                         break;
                 }
             }
@@ -247,12 +250,12 @@ public abstract class BaseMapActivity extends BackBaseActivity<MapX9Presenter> i
         NewbieGuide.with(BaseMapActivity.this)
                 .setLabel("guide")
                 .addGuidePage(GuidePage.newInstance()
-                        .setLayoutRes(R.layout.layer_guide_step,R.id.tv_guide_next)
-                        .addHighLight(fl_setting,new RelativeGuide(R.layout.layer_map_setting,Gravity.BOTTOM,0))
-                        .addHighLight(findViewById(R.id.iv_map_start), HighLight.Shape.CIRCLE,new RelativeGuide(R.layout.layer_map_start,Gravity.TOP,0))
+                        .setLayoutRes(R.layout.layer_guide_step, R.id.tv_guide_next)
+                        .addHighLight(fl_setting, new RelativeGuide(R.layout.layer_map_setting, Gravity.BOTTOM, 0))
+                        .addHighLight(findViewById(R.id.iv_map_start), HighLight.Shape.CIRCLE, new RelativeGuide(R.layout.layer_map_start, Gravity.TOP, 0))
                         .setEverywhereCancelable(false)
                 )
-                .addGuidePage(GuidePage.newInstance().setLayoutRes(R.layout.layer_guide_step_2,R.id.tv_guide_next2) .setEverywhereCancelable(false))
+                .addGuidePage(GuidePage.newInstance().setLayoutRes(R.layout.layer_guide_step_2, R.id.tv_guide_next2).setEverywhereCancelable(false))
                 .alwaysShow(false).show();
     }
 
@@ -303,14 +306,14 @@ public abstract class BaseMapActivity extends BackBaseActivity<MapX9Presenter> i
                     if (mPresenter.getCurStatus() == MsgCodeUtils.STATUE_CHARGING || mPresenter.getCurStatus() == MsgCodeUtils.STATUE_CHARGING_BASE_SLEEP) {
                         startActivity(new Intent(BaseMapActivity.this, SelectRoomActivity.class));
                     } else {
-                        ToastUtils.showToast(MyApplication.getInstance(), Utils.getString(R.string.map_aty_can_not_execute));
+                        ToastUtils.showToast(MyApplication.getInstance(), Utils.getString(R.string.toast_ensure_robot_on_charging_dock));
                     }
                     break;
                 case 2://划区清扫
                     if (mPresenter.getCurStatus() == MsgCodeUtils.STATUE_CHARGING || mPresenter.getCurStatus() == MsgCodeUtils.STATUE_CHARGING_BASE_SLEEP) {
                         startActivity(new Intent(BaseMapActivity.this, CleanAreaActivity.class));
                     } else {
-                        ToastUtils.showToast(MyApplication.getInstance(), Utils.getString(R.string.map_aty_can_not_execute));
+                        ToastUtils.showToast(MyApplication.getInstance(), Utils.getString(R.string.toast_ensure_robot_on_charging_dock));
                     }
                     break;
                 case 3://选择地图
@@ -324,8 +327,15 @@ public abstract class BaseMapActivity extends BackBaseActivity<MapX9Presenter> i
                     }
                     break;
                 case 4://寻找机器人
-                    IlifeAli.getInstance().findDevice(null);
-                    ToastUtils.showToast("寻找中。。。");
+                    if (findRobotDialog == null) {
+                        DialogFragmentUtil.Builder builder = new DialogFragmentUtil.Builder();
+                        findRobotDialog = builder.setCancelOutSide(false).setLayoutId(R.layout.toast_layout_finding_robot).build();
+                    }
+                    if (!findRobotDialog.isAdded()) {
+                        findRobotDialog.show(getSupportFragmentManager(), "find_robot");
+                        weakHandler.sendEmptyMessageDelayed(4, 5000);
+                        IlifeAli.getInstance().findDevice(null);
+                    }
                     break;
             }
         });
@@ -539,7 +549,7 @@ public abstract class BaseMapActivity extends BackBaseActivity<MapX9Presenter> i
 
     }
 
-    @OnClick({R.id.image_center, R.id.tv_start_x9, R.id.tv_control_x9, R.id.fl_top_menu, R.id.tv_recharge_x9, R.id.tv_along_x9,
+    @OnClick({R.id.image_center, R.id.ll_map_start, R.id.tv_control_x9, R.id.fl_top_menu, R.id.tv_recharge_x9, R.id.tv_along_x9,
             R.id.tv_point_x9, R.id.tv_close_virtual_x9, R.id.ib_virtual_wall_tip
             , R.id.tv_add_virtual_x9, R.id.tv_delete_virtual_x9, R.id.iv_control_close_x9, R.id.tv_bottom_recharge
             , R.id.tv_set_max, R.id.iv_operation_help
@@ -548,7 +558,7 @@ public abstract class BaseMapActivity extends BackBaseActivity<MapX9Presenter> i
         switch (v.getId()) {
             case R.id.image_center:
                 image_center.setSelected(image_center.isSelected());
-            case R.id.tv_start_x9: //done
+            case R.id.ll_map_start: //done
                 if (mPresenter.getCurStatus() == MsgCodeUtils.STATUE_POINT || mPresenter.getCurStatus() == MsgCodeUtils.STATUE_ALONG) {//延边重点，直接进入待机模式
                     mPresenter.setPropertiesWithParams(AliSkills.get().enterWaitMode(IlifeAli.getInstance().getWorkingDevice().getIotId()));
                 } else if (mPresenter.getCurStatus() == MsgCodeUtils.STATUE_TEMPORARY_POINT) {//临时重点进入规划

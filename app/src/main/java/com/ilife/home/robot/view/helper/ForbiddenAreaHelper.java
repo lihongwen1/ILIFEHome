@@ -14,6 +14,7 @@ import com.ilife.home.robot.model.bean.VirtualWallBean;
 import com.ilife.home.robot.utils.DataUtils;
 import com.ilife.home.robot.utils.MyLogger;
 import com.ilife.home.robot.utils.ToastUtils;
+import com.ilife.home.robot.utils.toast.ArithmeticUtils;
 import com.ilife.home.robot.view.MapView;
 
 import java.util.ArrayList;
@@ -44,7 +45,8 @@ public class ForbiddenAreaHelper {
     private int selectVwNum = -1;
     private Matrix mMatrix;
     private Matrix boundaryMatrix;
-    private final int BOUNDARY_WIDTH=3;
+    private final int BOUNDARY_WIDTH = 3;
+
     public enum FAOT {
         NOON(31),
         ADD(32),
@@ -425,6 +427,7 @@ public class ForbiddenAreaHelper {
         //TODO draw forbidden area
         mGlobalPath.reset();
         mMopPath.reset();
+        boundaryMatrix.reset();
         Path realPath;
         float[] matrixCoordinate;
         float[] boundaryCoordinate;
@@ -455,8 +458,21 @@ public class ForbiddenAreaHelper {
             }
             boundaryCoordinate = new float[matrixCoordinate.length];
             System.arraycopy(matrixCoordinate, 0, boundaryCoordinate, 0, matrixCoordinate.length);
-            boundaryMatrix.setScale(1.2f, 1.2f,
-                    (boundaryCoordinate[0] + boundaryCoordinate[4]) / 2, (boundaryCoordinate[1] + boundaryCoordinate[5]) / 2);
+            float cx = ArithmeticUtils.roundF((boundaryCoordinate[0] + boundaryCoordinate[4]) / 2, 2);
+            float cy = ArithmeticUtils.roundF((boundaryCoordinate[1] + boundaryCoordinate[5]) / 2, 2);
+            float k = (boundaryCoordinate[3] - boundaryCoordinate[1]) / (boundaryCoordinate[2]
+                    - boundaryCoordinate[0]);
+            float degree = (float) (Math.atan(k) * 180 / Math.PI);
+            boundaryMatrix.setRotate(-degree, cx,cy);
+            boundaryMatrix.mapPoints(boundaryCoordinate);
+            float realBoundaryWidth = mMapView.getBaseScare() * 5;
+            double esx = realBoundaryWidth / DataUtils.distance(boundaryCoordinate[0], boundaryCoordinate[1], boundaryCoordinate[2], boundaryCoordinate[3]);
+            float sx = (float) (ArithmeticUtils.round(esx, 2) + 1);
+            double esy = realBoundaryWidth / DataUtils.distance(boundaryCoordinate[0], boundaryCoordinate[1], boundaryCoordinate[6], boundaryCoordinate[7]);
+            float sy = (float) (ArithmeticUtils.round(esy, 2) + 1);
+            boundaryMatrix.setScale(sx, sy, cx, cy);
+            boundaryMatrix.mapPoints(boundaryCoordinate);
+            boundaryMatrix.setRotate(degree, cx,cy);
             boundaryMatrix.mapPoints(boundaryCoordinate);
             float minx = boundaryCoordinate[0], miny = boundaryCoordinate[1], maxx = boundaryCoordinate[0], maxy = boundaryCoordinate[1];
             for (int i = 0; i < boundaryCoordinate.length; i++) {

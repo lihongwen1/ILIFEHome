@@ -157,7 +157,7 @@ public class DeviceUtils {
             } else if (b == MsgCodeUtils.STATUE_TEMPORARY_POINT) {
                 str = context.getString(R.string.map_aty_temp_keypoint);
             } else if (b == MsgCodeUtils.STATUE_CLEAN_AREA) {//区域清扫
-                str = context.getString(R.string.map_status_clean_area);
+                str = context.getString(R.string.map_bottom_sheet_clean_area);
             }
             if (b == MsgCodeUtils.STATUE_CLEAN_ROOM) {//选房清扫
                 str = context.getString(R.string.map_status_select_room);

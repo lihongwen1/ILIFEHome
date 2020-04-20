@@ -66,7 +66,7 @@ public class MapActivity_X9_ extends BaseMapActivity {
         } else {
             setNavigationBarColor(R.color.white);
         }
-        tv_start.setSelected(isSelect);
+        iv_map_start.setSelected(isSelect);
         image_center.setSelected(isSelect);//remote control start button
     }
 

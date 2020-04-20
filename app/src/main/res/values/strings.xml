@@ -307,8 +307,8 @@
     <string name="schedule_twice">Twice</string>
     <string name="schedule_third">Third</string>
     <string name="schedule_max_num_tip">Support up to 7 schedules.</string>
-    <string name="map_status_charging_base_sleep">Sleep</string>
-    <string name="map_status_charging_dot_sleep">Sleep</string>
+    <string name="map_status_charging_base_sleep">Hibernate</string>
+    <string name="map_status_charging_dot_sleep">Hibernate</string>
     <string name="setting_set_max">Suction setting</string>
     <string name="setting_max_number">Suction control</string>
     <string name="setting_brush_speed">Side brush speed</string>
@@ -345,5 +345,7 @@
     <string name="guide_tip_for_more_function">Slide up to see more features</string>
     <string name="guide_start">Start</string>
     <string name="toast_ensure_robot_on_charging_dock">Please ensure the robot is charging in the Charging Dock</string>
+    <string name="toast_finding_robot">Searching...</string>
+    <string name="tip_add_virtual">Set the Electrowall/No-go zone within the map</string>
 
 </resources>

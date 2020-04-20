@@ -345,5 +345,7 @@
     <string name="guide_tip_for_more_function">上滑解锁更多功能</string>
     <string name="guide_start">开始清扫</string>
     <string name="toast_ensure_robot_on_charging_dock">请确保扫地机在充电座上</string>
+    <string name="toast_finding_robot">寻找中...</string>
+    <string name="tip_add_virtual">用手指在地图上相应的位置划线即可添加虚拟墙/禁区</string>
 
 </resources>
