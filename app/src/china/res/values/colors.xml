@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="color_theme">#EF7C00</color>
+    <color name="colorPrimary">#3F51B5</color>
+    <color name="colorPrimaryDark">#ffffff</color>
+    <color name="colorAccent">#ff4d00</color>
+    <color name="colorTopPressed">#F1F1F1</color>
+    <color name="colorTopNormal">#FFFFFF</color>
+    <color name="clock_aty_tv_pressed">#cbcbcb</color>
+    <color name="clock_aty_tv_unpressed">#00bdb5</color>
+
+    <color name="color_theme_66">#40EF7C00</color>
+    <color name="color_ff1b92e2">#ff1b92e2</color>
+    <color name="color_ff">#ffffff</color>
+    <color name="color_33">#333333</color>
+    <color name="color_e2">#e2e2e2</color>
+    <color name="color_f6">#f6f6f6</color>
+    <color name="color_ac">#acacac</color>
+    <color name="color_81">#818181</color>
+    <color name="color_ef8200">#ef8200</color>
+    <color name="color_595757">#ff595757</color>
+    <color name="color_00">#000000</color>
+
+    <!--  QRCode scanner color begin  -->
+    <color name="viewfinder_mask">#B3000000</color>
+    <color name="result_view">#B0000000</color>
+    <color name="viewfinder_frame">#90FFFFFF</color>
+    <color name="result_point_color">#C0FFFF00</color>
+    <color name="color_00ffffff">#00ffffff</color>
+    <color name="lineColor_click">#1296db</color>
+    <color name="lineColor_unclick">#9b9b9b</color>
+    <color name="bg_color_f5f7fa">#f5f7fa</color>
+    <color name="white">#ffffff</color>
+    <color name="start_point">#81F80B</color>
+    <color name="white_50">#32ffffff</color>
+    <color name="obstacle_color">#FF76C9EE</color>
+   <color name="slam_color">#FF49B6E8</color>
+    <!--  QRCode scanner color end  -->
+    <!--toast color-->
+    <color name="defaultTextColor">#FFFFFF</color>
+    <color name="errorColor">#D50000</color>
+    <color name="infoColor">#3F51B5</color>
+    <color name="successColor">#388E3C</color>
+    <color name="warningColor">#FFA900</color>
+    <color name="normalColor">#4c4c4c</color>
+    <color name="moka_color">#45362E</color>
+    <color name="color_c7c7c7">#ffc7c7c7</color>
+    <color name="color_666666">#ff666666</color>
+    <color name="color_999999">#999999</color>
+
+<!--    800格子地图的格子颜色-->
+    <color name="color_road_box">#6b4940</color>
+    <color name="color_obstacle_box_">#9c5e4c</color>
+    <color name="color_map_start_point">#FFF700</color>
+    <color name="color_f91f1f">#F91F1F</color>
+    <color name="color_ffb300">#FFB300</color>
+    <color name="color_1adb2d">#1ADB2D</color>
+    <color name="transparent">#00000000</color>
+
+
+</resources>
