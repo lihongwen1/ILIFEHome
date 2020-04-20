@@ -340,5 +340,9 @@
     <string name="map_apply_this_map">Apply the current map</string>
     <string name="map_delete_map_title">Delete map</string>
     <string name="map_delete_map_hint">The map will not exist after deletion</string>
+    <string name="guide_tip_for_setting">More features</string>
+    <string name="guide_tip_for_start">Start Cleaning</string>
+    <string name="guide_tip_for_more_function">Slide up to see more features</string>
+    <string name="guide_start">Start</string>
 
 </resources>

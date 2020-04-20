@@ -1,7 +1,11 @@
 package com.ilife.home.robot.activity;
 
 import android.content.Intent;
+import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.DashPathEffect;
+import android.graphics.Paint;
+import android.graphics.RectF;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.os.Message;
@@ -27,7 +31,11 @@ import com.aliyun.iot.aep.sdk.contant.AliSkills;
 import com.aliyun.iot.aep.sdk.contant.IlifeAli;
 import com.aliyun.iot.aep.sdk.contant.MsgCodeUtils;
 import com.app.hubert.guide.NewbieGuide;
+import com.app.hubert.guide.listener.OnHighlightDrewListener;
 import com.app.hubert.guide.model.GuidePage;
+import com.app.hubert.guide.model.HighLight;
+import com.app.hubert.guide.model.HighlightOptions;
+import com.app.hubert.guide.model.RelativeGuide;
 import com.badoo.mobile.util.WeakHandler;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.ilife.home.robot.R;
@@ -232,18 +240,20 @@ public abstract class BaseMapActivity extends BackBaseActivity<MapX9Presenter> i
         mMapView.setmOT(MapView.OT.MAP);
         mMapView.setRobotSeriesX9(mPresenter.isX900Series());
         initBottomSheet();
-//        showGuide();
+        showGuide();
     }
 
     private void showGuide() {
         NewbieGuide.with(BaseMapActivity.this)
-                .setLabel("guide3")
+                .setLabel("guide")
                 .addGuidePage(GuidePage.newInstance()
-                        .addHighLight(fl_setting)
-
-                        .addHighLight(findViewById(R.id.tv_start_x9))
+                        .setLayoutRes(R.layout.layer_guide_step,R.id.tv_guide_next)
+                        .addHighLight(fl_setting,new RelativeGuide(R.layout.layer_map_setting,Gravity.BOTTOM,0))
+                        .addHighLight(findViewById(R.id.iv_map_start), HighLight.Shape.CIRCLE,new RelativeGuide(R.layout.layer_map_start,Gravity.TOP,0))
+                        .setEverywhereCancelable(false)
                 )
-                .alwaysShow(true).show();
+                .addGuidePage(GuidePage.newInstance().setLayoutRes(R.layout.layer_guide_step_2,R.id.tv_guide_next2) .setEverywhereCancelable(false))
+                .alwaysShow(false).show();
     }
 
 

@@ -1,2 +1,2 @@
-include ':app', ':aliyun', ':livebus'
+include ':app', ':aliyun', ':livebus', ':guide'
 rootProject.name='IlifeHome'

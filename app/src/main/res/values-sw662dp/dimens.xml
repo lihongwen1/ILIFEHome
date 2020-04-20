@@ -40,6 +40,7 @@
 	<dimen name="dp_70">128.7222dp</dimen>
 	<dimen name="dp_72">132.4000dp</dimen>
 	<dimen name="dp_80">147.1111dp</dimen>
+	<dimen name="dp_85">156.3056dp</dimen>
 	<dimen name="dp_100">183.8889dp</dimen>
 	<dimen name="dp_110">202.2778dp</dimen>
 	<dimen name="dp_120">220.6667dp</dimen>

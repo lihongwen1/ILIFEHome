@@ -84,12 +84,26 @@
                         android:text="@string/map_aty_recharge"
                         android:visibility="visible" />
 
+                    <LinearLayout
+                        android:gravity="center_horizontal"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
 
-                    <TextView
-                        android:id="@+id/tv_start_x9"
-                        style="@style/map_text_button"
-                        android:drawableTop="@drawable/image_start_bg"
-                        android:text="@string/map_aty_start" />
+                        <ImageView
+                            android:id="@+id/iv_map_start"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:src="@drawable/image_start_bg" />
+
+                        <TextView
+                            android:layout_marginTop="@dimen/dp_8"
+                            android:id="@+id/tv_start_x9"
+                            style="@style/Text_14sp_33"
+                            android:text="@string/map_aty_start" />
+
+                    </LinearLayout>
 
                     <TextView
                         android:id="@+id/tv_control_x9"

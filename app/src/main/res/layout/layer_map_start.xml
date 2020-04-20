@@ -2,31 +2,30 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:gravity="end"
-    android:paddingEnd="@dimen/dp_40"
+    android:gravity="center"
     android:orientation="vertical">
+
+    <TextView
+        style="@style/Text_14sp_ff"
+        android:layout_marginTop="@dimen/dp_6"
+        android:text="@string/guide_tip_for_start" />
 
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:gravity="center"
-        android:layout_gravity="end"
         android:orientation="vertical">
-
-        <View
-            android:layout_width="@dimen/dp_2"
-            android:layout_height="@dimen/dp_48"
-            android:background="@color/white" />
 
         <View
             android:layout_width="@dimen/dp_7"
             android:layout_height="@dimen/dp_7"
             android:background="@drawable/shape_bg_white" />
+
+        <View
+            android:layout_width="@dimen/dp_2"
+            android:layout_height="@dimen/dp_48"
+            android:background="@color/white" />
     </LinearLayout>
 
 
-    <TextView
-        style="@style/Text_14sp_ff"
-        android:layout_marginTop="@dimen/dp_6"
-        android:text="@string/guide_tip_for_setting" />
 </LinearLayout>

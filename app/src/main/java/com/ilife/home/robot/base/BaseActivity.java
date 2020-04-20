@@ -8,21 +8,16 @@ import android.util.AttributeSet;
 import android.view.View;
 import android.view.WindowManager;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
-
-import com.aliyun.iot.aep.sdk._interface.OnAliResponse;
 import com.aliyun.iot.aep.sdk.contant.IlifeAli;
 import com.aliyun.iot.aep.sdk.framework.AActivity;
-import com.ilife.home.robot.activity.MainActivity;
+import com.ilife.home.robot.R;
+import com.ilife.home.robot.activity.BaseMapActivity;
 import com.ilife.home.robot.activity.PersonalActivity;
 import com.ilife.home.robot.app.MyApplication;
 import com.ilife.home.robot.fragment.DialogFragmentUtil;
 import com.ilife.home.robot.utils.MyLogger;
 import com.ilife.home.robot.utils.StatusBarUtil;
 import com.ilife.home.robot.utils.ToastUtils;
-import com.ilife.home.robot.R;
 import com.ilife.home.robot.view.GrayFrameLayout;
 
 import butterknife.ButterKnife;
@@ -40,10 +35,11 @@ public abstract class BaseActivity<T extends BasePresenter> extends AActivity im
     private MyApplication application;
     protected BaseActivity context;
     protected boolean isActivityInteraction;
-    private boolean isGrayTheme=false;//特殊日子黑白模式
+    private boolean isGrayTheme = false;//特殊日子黑白模式
+
     @Override
     public View onCreateView(String name, Context context, AttributeSet attrs) {
-        if(isGrayTheme&&"FrameLayout".equals(name)){
+        if (isGrayTheme && "FrameLayout".equals(name)) {
             int count = attrs.getAttributeCount();
             for (int i = 0; i < count; i++) {
                 String attributeName = attrs.getAttributeName(i);
@@ -70,17 +66,16 @@ public abstract class BaseActivity<T extends BasePresenter> extends AActivity im
         attachPresenter();
         initData();
         initView();
-        if (this instanceof PersonalActivity) {
+        if (this instanceof PersonalActivity || this instanceof BaseMapActivity) {
             StatusBarUtil.setTransparentForWindow(this);
-        } else {
-            setAndroidNativeLightStatusBar();
         }
+        setAndroidNativeLightStatusBar();
         if (application == null) {
             // 得到Application对象
             application = (MyApplication) getApplication();
         }
         addActivity();
-        MyLogger.i("LIFE_CYCLE", this.getClass().getName()+"onCreate");
+        MyLogger.i("LIFE_CYCLE", this.getClass().getName() + "onCreate");
     }
 
 
@@ -139,7 +134,7 @@ public abstract class BaseActivity<T extends BasePresenter> extends AActivity im
     protected void onResume() {
         super.onResume();
         IlifeAli.getInstance().checkAndReconnection();
-        MyLogger.i("LIFE_CYCLE", this.getClass().getName()+"onResume");
+        MyLogger.i("LIFE_CYCLE", this.getClass().getName() + "onResume");
     }
 
     @Override
@@ -150,7 +145,7 @@ public abstract class BaseActivity<T extends BasePresenter> extends AActivity im
         if (mPresenter != null) {
             mPresenter.detachView();
         }
-        MyLogger.i("LIFE_CYCLE", this.getClass().getName()+"onDestroy");
+        MyLogger.i("LIFE_CYCLE", this.getClass().getName() + "onDestroy");
         super.onDestroy();
     }
 

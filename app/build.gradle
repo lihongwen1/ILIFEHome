@@ -81,7 +81,7 @@ android {
             dimension "default"
             applicationId "com.zaco.home.robot"
             versionCode = 3
-            versionName = '1.0.2.9'
+            versionName = '1.0.2.10'
             signingConfig signingConfigs.ilife_home
             resValue "string", "app_name", "ZACOHome"
             buildConfigField("String", "environment", "\"product\"")
@@ -138,8 +138,8 @@ dependencies {
     implementation 'com.orhanobut:logger:2.2.0'
     implementation 'com.airbnb.android:lottie:3.0.3'
     implementation 'com.github.bumptech.glide:glide:4.9.0'
-    implementation project(path: ':aliyun')
     implementation 'androidx.lifecycle:lifecycle-extensions:2.2.0'
     implementation 'com.romandanylyk:pageindicatorview:1.0.3'
-    implementation 'com.github.huburt-Hu:NewbieGuide:v2.4.0'
+    implementation project(path: ':guide')
+    implementation project(path: ':aliyun')
 }
