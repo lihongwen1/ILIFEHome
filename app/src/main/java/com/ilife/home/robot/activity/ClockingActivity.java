@@ -189,7 +189,7 @@ public class ClockingActivity extends BackBaseActivity {
         JSONObject jso = JSONObject.parseObject(schedule_);
         jso.put(EnvConfigure.KEY_SCHEDULE + bean.getKeyIndex(), jsoSchedule);
         IlifeAli.getInstance().setProperties(jso, aBoolean -> {
-            weakHandler.sendEmptyMessageDelayed(1, 200);
+            weakHandler.sendEmptyMessageDelayed(1, 500);
         });
     }
 

@@ -47,7 +47,7 @@
     <string name="personal_aty_help">Help</string>
     <string name="personal_aty_scan">Scan</string>
     <string name="personal_aty_share">Share a device</string>
-    <string name="personal_aty_version">Version%1$s %2$s</string>
+    <string name="personal_aty_version">VersionV%1$s %2$s</string>
     <string name="user_agreement">Privacy policy &amp; service agreements</string>
     <string name="personal_aty_protocol">Privacy policy and service agreement</string>
     <string name="personal_aty_protocol_privacy">Privacy policy</string>
@@ -347,5 +347,7 @@
     <string name="toast_ensure_robot_on_charging_dock">Please ensure the robot is charging in the Charging Dock</string>
     <string name="toast_finding_robot">Searching...</string>
     <string name="tip_add_virtual">Set the Electrowall/No-go zone within the map</string>
+    <string name="toast_ensure_in_no_work_mode">Please ensure the robot is in non-working mode</string>
+    <string name="map_tip_no_map_yet">No map available yet.Please create a map for the house first.</string>
 
 </resources>

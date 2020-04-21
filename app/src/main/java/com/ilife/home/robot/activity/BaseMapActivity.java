@@ -323,7 +323,7 @@ public abstract class BaseMapActivity extends BackBaseActivity<MapX9Presenter> i
                             || status == MsgCodeUtils.STATUE_WAIT) {
                         startActivity(new Intent(BaseMapActivity.this, SelectSaveMapActivity.class));
                     } else {
-                        ToastUtils.showToast(MyApplication.getInstance(), Utils.getString(R.string.map_aty_can_not_execute));
+                        ToastUtils.showToast(MyApplication.getInstance(), Utils.getString(R.string.toast_ensure_in_no_work_mode));
                     }
                     break;
                 case 4://寻找机器人

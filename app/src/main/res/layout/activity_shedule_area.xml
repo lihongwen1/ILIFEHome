@@ -5,65 +5,95 @@
     android:orientation="vertical">
 
     <include layout="@layout/template_top_title" />
-
     <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="@drawable/shape_gradient_map_bg">
-
-        <com.ilife.home.robot.view.MapView
-            android:id="@+id/map_schedule_area"
+        android:layout_height="match_parent">
+        <FrameLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent" />
+            android:layout_height="match_parent"
+            android:background="@drawable/shape_gradient_map_bg">
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="bottom"
-            android:orientation="vertical">
-            <ImageView
-                android:id="@+id/iv_schedule_clean_time"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="end"
-                android:layout_marginEnd="@dimen/dp_20"
-                android:layout_marginBottom="@dimen/dp_20"
-                android:src="@drawable/operation_btn_fre_1" />
-
-            <RadioGroup
-                android:id="@+id/rg_schedule_area"
+            <com.ilife.home.robot.view.MapView
+                android:id="@+id/map_schedule_area"
                 android:layout_width="match_parent"
-                android:layout_height="@dimen/dp_48"
+                android:layout_height="match_parent" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
                 android:layout_gravity="bottom"
-                android:layout_margin="@dimen/dp_12"
-                android:background="@drawable/bg_shape_radius_16_theme"
-                android:orientation="horizontal">
+                android:orientation="vertical">
 
-                <RadioButton
-                    android:id="@+id/tv_schedule_area"
-                    style="@style/text_button_16"
-                    android:background="@drawable/selector_retangle_bg__theme"
-                    android:button="@null"
-                    android:text="@string/clock_area_default"
-                    android:textColor="@color/color_white_33_selector" />
+                <ImageView
+                    android:id="@+id/iv_schedule_clean_time"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="end"
+                    android:layout_marginEnd="@dimen/dp_20"
+                    android:layout_marginBottom="@dimen/dp_20"
+                    android:src="@drawable/operation_btn_fre_1" />
 
-                <RadioButton
-                    android:id="@+id/tv_schedule_area_room"
-                    style="@style/text_button_16"
-                    android:background="@drawable/selector_retangle_bg__theme"
-                    android:button="@null"
-                    android:text="@string/clock_area_choose_room"
-                    android:textColor="@color/color_white_33_selector" />
+                <RadioGroup
+                    android:id="@+id/rg_schedule_area"
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/dp_48"
+                    android:layout_gravity="bottom"
+                    android:layout_margin="@dimen/dp_12"
+                    android:background="@drawable/bg_shape_radius_16_theme"
+                    android:orientation="horizontal">
 
-                <RadioButton
-                    android:id="@+id/tv_schedule_area_clean_area"
-                    style="@style/text_button_16"
-                    android:background="@drawable/selector_retangle_bg__theme"
-                    android:button="@null"
-                    android:text="@string/clock_area_clean_area"
-                    android:textColor="@color/color_white_33_selector" />
-            </RadioGroup>
-        </LinearLayout>
+                    <RadioButton
+                        android:id="@+id/tv_schedule_area"
+                        style="@style/text_button_16"
+                        android:background="@drawable/selector_retangle_bg__theme"
+                        android:button="@null"
+                        android:text="@string/clock_area_default"
+                        android:textColor="@color/color_white_33_selector" />
+
+                    <RadioButton
+                        android:id="@+id/tv_schedule_area_room"
+                        style="@style/text_button_16"
+                        android:background="@drawable/selector_retangle_bg__theme"
+                        android:button="@null"
+                        android:text="@string/clock_area_choose_room"
+                        android:textColor="@color/color_white_33_selector" />
+
+                    <RadioButton
+                        android:id="@+id/tv_schedule_area_clean_area"
+                        style="@style/text_button_16"
+                        android:background="@drawable/selector_retangle_bg__theme"
+                        android:button="@null"
+                        android:text="@string/clock_area_clean_area"
+                        android:textColor="@color/color_white_33_selector" />
+                </RadioGroup>
+            </LinearLayout>
+        </FrameLayout>
+
+        <FrameLayout
+            android:visibility="gone"
+            android:id="@+id/fl_no_map"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/bg_color_f5f7fa">
+
+            <LinearLayout
+                android:layout_width="@dimen/dp_200"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="@dimen/dp_20"
+                android:orientation="vertical">
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/pic_no_map" />
+
+                <TextView
+                    style="@style/Text_14sp_99"
+                    android:layout_marginTop="@dimen/dp_8"
+                    android:text="@string/map_tip_no_map_yet" />
+            </LinearLayout>
+        </FrameLayout>
     </FrameLayout>
 
 </LinearLayout>

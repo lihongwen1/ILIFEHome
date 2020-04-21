@@ -12,6 +12,7 @@ import android.view.MotionEvent;
 import com.ilife.home.robot.model.bean.VirtualWallBean;
 import com.ilife.home.robot.utils.DataUtils;
 import com.ilife.home.robot.utils.MyLogger;
+import com.ilife.home.robot.utils.toast.ArithmeticUtils;
 import com.ilife.home.robot.view.MapView;
 
 import java.util.Arrays;
@@ -280,7 +281,7 @@ public class CleanAreaHelper {
                 mMatrix.setTranslate(-matrixCoordinate[0], -matrixCoordinate[1]);
                 mMatrix.postRotate(-degree, 0, 0);
 
-                float[] touchCoordinate = new float[]{mapX, mapY};
+                float[] touchCoordinate = new float[]{touchPoint.x, touchPoint.y};
                 mMatrix.mapPoints(touchCoordinate);
                 mMatrix.mapPoints(matrixCoordinate);
                 matrixCoordinate[2] = touchCoordinate[0];
@@ -315,7 +316,6 @@ public class CleanAreaHelper {
         float[] boundaryCoordinate;
         Region boundaryRegion;
         if (curCleanAreaBean == null) {
-            mMapView.invalidateUI();
             return;
         }
         matrixCoordinate = toMapCoordinate(curCleanAreaBean.getPointCoordinate());
@@ -340,8 +340,21 @@ public class CleanAreaHelper {
         }
         boundaryCoordinate = new float[matrixCoordinate.length];
         System.arraycopy(matrixCoordinate, 0, boundaryCoordinate, 0, matrixCoordinate.length);
-        boundaryMatrix.setScale(1.2f, 1.2f,
-                (boundaryCoordinate[0] + boundaryCoordinate[4]) / 2, (boundaryCoordinate[1] + boundaryCoordinate[5]) / 2);
+        float cx = ArithmeticUtils.roundF((boundaryCoordinate[0] + boundaryCoordinate[4]) / 2, 2);
+        float cy = ArithmeticUtils.roundF((boundaryCoordinate[1] + boundaryCoordinate[5]) / 2, 2);
+        float k = (boundaryCoordinate[3] - boundaryCoordinate[1]) / (boundaryCoordinate[2]
+                - boundaryCoordinate[0]);
+        float degree = (float) (Math.atan(k) * 180 / Math.PI);
+        boundaryMatrix.setRotate(-degree, cx, cy);
+        boundaryMatrix.mapPoints(boundaryCoordinate);
+        float realBoundaryWidth = mMapView.getBaseScare() * 3;
+        double esx = realBoundaryWidth / DataUtils.distance(boundaryCoordinate[0], boundaryCoordinate[1], boundaryCoordinate[2], boundaryCoordinate[3]);
+        float sx = (float) (ArithmeticUtils.round(esx, 2) + 1);
+        double esy = realBoundaryWidth / DataUtils.distance(boundaryCoordinate[0], boundaryCoordinate[1], boundaryCoordinate[6], boundaryCoordinate[7]);
+        float sy = (float) (ArithmeticUtils.round(esy, 2) + 1);
+        boundaryMatrix.setScale(sx, sy, cx, cy);
+        boundaryMatrix.mapPoints(boundaryCoordinate);
+        boundaryMatrix.setRotate(degree, cx, cy);
         boundaryMatrix.mapPoints(boundaryCoordinate);
         float minx = boundaryCoordinate[0], miny = boundaryCoordinate[1], maxx = boundaryCoordinate[0], maxy = boundaryCoordinate[1];
         for (int i = 0; i < boundaryCoordinate.length; i++) {
@@ -407,7 +420,7 @@ public class CleanAreaHelper {
         int index = 0;
         for (float coo : coordinate) {
             if (index % 2 == 0) {
-                robotCoor[index] = mMapView.reMatrixCoordinateY(coo);
+                robotCoor[index] = mMapView.reMatrixCoordinateX(coo);
             } else {
                 robotCoor[index] = mMapView.reMatrixCoordinateY(coo);
             }

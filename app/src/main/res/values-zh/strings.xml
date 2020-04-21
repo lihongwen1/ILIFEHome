@@ -47,7 +47,7 @@
     <string name="personal_aty_help">帮助</string>
     <string name="personal_aty_scan">扫一扫</string>
     <string name="personal_aty_share">机器共享</string>
-    <string name="personal_aty_version">版本%1$s%2$s</string>
+    <string name="personal_aty_version">版本V%1$s%2$s</string>
     <string name="user_agreement">用户协议</string>
     <string name="personal_aty_protocol">隐私政策与服务协议</string>
     <string name="personal_aty_protocol_privacy">隐私政策</string>
@@ -347,5 +347,6 @@
     <string name="toast_ensure_robot_on_charging_dock">请确保扫地机在充电座上</string>
     <string name="toast_finding_robot">寻找中...</string>
     <string name="tip_add_virtual">用手指在地图上相应的位置划线即可添加虚拟墙/禁区</string>
-
+    <string name="toast_ensure_in_no_work_mode">请确保机器处于非工作模式</string>
+    <string name="map_tip_no_map_yet">暂未生成地图，请先开始清扫</string>
 </resources>

@@ -262,7 +262,7 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
         historyRoadList.clear();
         realTimePoints.clear();//X900 series
         pointList.clear();//X800 series
-        slamPointList.clear();//X900 系列
+//        slamPointList.clear();//底图
     }
 
 
@@ -439,6 +439,10 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
             mView.cleanMapView();
 //            mView.setMapViewVisible(false);
         }
+        if (!isWork && curStatus != MsgCodeUtils.STATUE_PAUSE) {//非工作状态清除清扫次数
+            mView.updateCleanTimes(false, 0, 0);
+            mView.drawCleanArea("");
+        }
         switch (curStatus) {
             case MsgCodeUtils.STATUE_RECHARGE://回充
                 mView.updateRecharge(true);
@@ -561,9 +565,10 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
                 MyLogger.d(TAG, "registerPropReceiver----onRealTimeMapStart");
                 //TODO 清空地图相关数据
                 mapStartTime = startTime;
-                prepareToReloadData();
                 mView.updateCleanTime(getTimeValue());
                 mView.updateCleanArea(getAreaValue());
+                prepareToReloadData();
+                doAboutSlam();
                 if (haveMap && pointList != null && isDrawMap()) {
                     mView.drawMapX8(pointList, slamPointList);
                 }
@@ -596,7 +601,30 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
 
         LiveEventBus.get(EnvConfigure.CleanAreaData, String.class).observe((BaseActivity) mView, cleanAreaData -> {
             if (mDevicePropertyBean != null) {
+                //区域清扫
                 mDevicePropertyBean.setCleanArea(cleanAreaData);
+                if (curStatus == MsgCodeUtils.STATUE_CLEAN_AREA) {
+                    if (mDevicePropertyBean != null) {
+                        JSONObject json = JSON.parseObject(cleanAreaData);
+                        int times = json.getIntValue("CleanLoop");
+                        int cleanedTimes = times >> 4;
+                        int settingTimes = times & 0x0f;
+                        boolean enable = json.getIntValue("Enable") != 0;//0-无效/没有进行 1-开始 2-进行中
+                        mView.updateCleanTimes(enable, cleanedTimes, settingTimes);
+                        String area = "";
+                        if (enable) {
+                            area = json.getString("AreaData");
+                            if (area.equals("AAAAAAAAAAAAAAAAAAAAAA==")) {
+                                area = "";
+                            }
+                        }
+                        mView.drawCleanArea(area);
+                    }
+                }
+
+
+
+
             }
         });
         LiveEventBus.get(EnvConfigure.KEY_FORBIDDEN_AREA, String.class).observe((BaseActivity) mView, fbdArea -> {
@@ -609,7 +637,8 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
         });
         LiveEventBus.get(EnvConfigure.CleanPartitionData, String.class).observe((BaseActivity) mView, cleanRoomData -> {
             MyLogger.d(TAG, "选房清扫改变");
-            if (!TextUtils.isEmpty(cleanRoomData)) {
+            mDevicePropertyBean.setCleanRoomData(cleanRoomData);
+            if (curStatus==MsgCodeUtils.STATUE_CLEAN_ROOM&&!TextUtils.isEmpty(cleanRoomData)) {
                 JSONObject json = JSON.parseObject(cleanRoomData);
                 int times = json.getIntValue("CleanLoop");
                 int cleanedTimes = times >> 4;
@@ -685,7 +714,7 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
                     slamPointList.addAll(mapDataBean.getCoordinates());
                     mView.drawMapX8(pointList, slamPointList);
                     /**
-                     * 处理虚拟墙。禁区
+                     * 处理虚拟墙禁区
                      */
                     mView.drawVirtualWall(mDevicePropertyBean.getVirtualWall());
                     mView.drawForbiddenArea(mDevicePropertyBean.getForbiddenArea());
@@ -693,7 +722,10 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
                      * 处理充电座
                      */
                     LiveEventBus.get(EnvConfigure.ChargerPiont, String.class).post(mDevicePropertyBean.getChargePort());
-                    if (curStatus == MsgCodeUtils.STATUE_CLEAN_AREA) { //处理清扫区域
+                    /**
+                     * 处理区域清扫数据
+                     */
+                    if (curStatus == MsgCodeUtils.STATUE_CLEAN_AREA) {
                         if (mDevicePropertyBean != null) {
                             String cleanAreaData = mDevicePropertyBean.getCleanArea();
                             JSONObject json = JSON.parseObject(cleanAreaData);
@@ -710,6 +742,21 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
                                 }
                             }
                             mView.drawCleanArea(area);
+                        }
+                    }
+
+                    /**
+                     * 处理选房清扫数据
+                     */
+                    if (curStatus == MsgCodeUtils.STATUE_CLEAN_ROOM) {
+                        String cleanRoomData = mDevicePropertyBean.getCleanRoomData();
+                        if (!TextUtils.isEmpty(cleanRoomData)) {
+                            JSONObject json = JSON.parseObject(cleanRoomData);
+                            int times = json.getIntValue("CleanLoop");
+                            int cleanedTimes = times >> 4;
+                            int settingTimes = times & 0x0f;
+                            boolean enable = json.getIntValue("Enable") != 0;//0-无效/没有进行 1-开始 2-进行中
+                            mView.updateCleanTimes(enable, cleanedTimes, settingTimes);
                         }
                     }
                 }

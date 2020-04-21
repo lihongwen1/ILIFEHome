@@ -5,6 +5,7 @@ import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.RadioGroup;
+import android.widget.TextView;
 
 import com.aliyun.iot.aep.sdk._interface.OnAliResponse;
 import com.aliyun.iot.aep.sdk.bean.HistoryRecordBean;
@@ -36,7 +37,8 @@ public class ScheduleAreaActivity extends BackBaseActivity {
     RadioGroup rg_schedule_area;
     @BindView(R.id.map_schedule_area)
     MapView map_schedule_area;
-
+    @BindView(R.id.tv_top_title)
+    TextView tv_title;
     @BindView(R.id.fl_top_menu)
     FrameLayout fl_top_menu;
     @BindView(R.id.image_back)
@@ -46,6 +48,8 @@ public class ScheduleAreaActivity extends BackBaseActivity {
     private ScheduleBean scheduleBean;
     @BindView(R.id.iv_schedule_clean_time)
     ImageView iv_schedule_clean_time;
+    @BindView(R.id.fl_no_map)
+    FrameLayout fl_no_map;
     private int times;
 
     @Override
@@ -55,6 +59,7 @@ public class ScheduleAreaActivity extends BackBaseActivity {
 
     @Override
     public void initView() {
+        tv_title.setText(R.string.clock_edit_choose_area);
         iv_back.setImageResource(R.drawable.nav_button_cancel);
         iv_finish.setImageResource(R.drawable.nav_button_finish);
         fl_top_menu.setVisibility(View.VISIBLE);
@@ -96,6 +101,7 @@ public class ScheduleAreaActivity extends BackBaseActivity {
                     @Override
                     public void onSuccess(List<HistoryRecordBean> result) {
                         if (result.size() == 0) {//应该只有一条数据
+                            fl_no_map.setVisibility(View.VISIBLE);
                             return;
                         }
                         MapDataBean mapDataBean = DataUtils.parseSaveMapData(result.get(0).getMapDataArray());
@@ -122,6 +128,7 @@ public class ScheduleAreaActivity extends BackBaseActivity {
 
             @Override
             public void onFailed(int code, String message) {
+                fl_no_map.setVisibility(View.VISIBLE);
                 MyLogger.e(TAG, "获取清扫区域数据失败，reason: " + message);
             }
         });
