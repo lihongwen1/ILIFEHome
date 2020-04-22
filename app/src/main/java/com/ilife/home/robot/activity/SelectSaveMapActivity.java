@@ -17,6 +17,7 @@ import com.ilife.home.robot.base.BackBaseActivity;
 import com.ilife.home.robot.bean.SaveMapBean;
 import com.ilife.home.robot.fragment.UniversalDialog;
 import com.ilife.home.robot.utils.MyLogger;
+import com.ilife.home.robot.utils.UiUtil;
 import com.ilife.home.robot.utils.Utils;
 import com.ilife.home.robot.view.SlideRecyclerView;
 import com.ilife.home.robot.view.SpaceItemDecoration;
@@ -40,6 +41,7 @@ public class SelectSaveMapActivity extends BackBaseActivity {
     private SelectMapAdapter mAdapter;
     private long selectMapId;
     private UniversalDialog mDeleteMapDialog;
+    private UniversalDialog mApplyMapDialog;
     private List<SaveMapBean> saveMapBeans = new ArrayList<>();
     private int selectPosition;
 
@@ -60,18 +62,7 @@ public class SelectSaveMapActivity extends BackBaseActivity {
             selectPosition = position;
             switch (view.getId()) {
                 case R.id.tv_apply_this_map:
-                    if (selectMapId != saveMapBeans.get(selectPosition).getMapId()) {
-                        String str_id = encodeSaveMap();
-                        IlifeAli.getInstance().setSelectMapId(saveMapBeans.get(selectPosition).getMapId(), str_id, aBoolean -> {
-                            MyLogger.d(TAG, "选择地图成功：" + aBoolean);
-                            selectMapId = saveMapBeans.get(selectPosition).getMapId();
-                            mAdapter.setSelectMapId(selectMapId);
-                            SaveMapBean bean = saveMapBeans.get(selectPosition);
-                            saveMapBeans.remove(bean);
-                            saveMapBeans.add(0, bean);
-                            weakHandler.sendEmptyMessage(1);
-                        });
-                    }
+                   onApplyMap();
                     break;
                 case R.id.iv_delete_map:
                     onDeleteMap();
@@ -188,7 +179,8 @@ public class SelectSaveMapActivity extends BackBaseActivity {
     private void onDeleteMap() {
         if (mDeleteMapDialog == null) {
             mDeleteMapDialog = new UniversalDialog();
-            mDeleteMapDialog.setTitle("删除地图").setHintTip("删除后将不再保存该地图记录")
+            mDeleteMapDialog.setTitle(UiUtil.getString(R.string.dialog_delete_map_title)).
+                    setHintTip(UiUtil.getString(R.string.dialog_delete_map_hint))
                     .setOnRightButtonClck(() -> {
 
                         if (saveMapBeans.get(selectPosition).getMapId() == selectMapId) {//删除选择地图
@@ -210,6 +202,32 @@ public class SelectSaveMapActivity extends BackBaseActivity {
         }
         if (!mDeleteMapDialog.isAdded()) {
             mDeleteMapDialog.show(getSupportFragmentManager(), "delete_map");
+        }
+    }
+
+    private void onApplyMap(){
+        if (mApplyMapDialog==null){
+            mApplyMapDialog=new UniversalDialog();
+            mApplyMapDialog.setTitle(UiUtil.getString(R.string.map_apply_this_map))
+                    .setHintTip(UiUtil.getString(R.string.dialog_apply_map_hint))
+                    .setOnRightButtonClck(() -> {
+                        if (selectMapId != saveMapBeans.get(selectPosition).getMapId()) {
+                            String str_id = encodeSaveMap();
+                            IlifeAli.getInstance().setSelectMapId(saveMapBeans.get(selectPosition).getMapId(), str_id, aBoolean -> {
+                                MyLogger.d(TAG, "选择地图成功：" + aBoolean);
+                                selectMapId = saveMapBeans.get(selectPosition).getMapId();
+                                mAdapter.setSelectMapId(selectMapId);
+                                SaveMapBean bean = saveMapBeans.get(selectPosition);
+                                saveMapBeans.remove(bean);
+                                saveMapBeans.add(0, bean);
+                                weakHandler.sendEmptyMessage(1);
+                            });
+                        }
+                    });
+        }
+
+        if (!mApplyMapDialog.isAdded()){
+            mApplyMapDialog.show(getSupportFragmentManager(),"apply_map");
         }
     }
 }

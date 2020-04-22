@@ -10,6 +10,7 @@ import com.ilife.home.robot.R;
 import com.ilife.home.robot.app.MyApplication;
 import com.ilife.home.robot.bean.PartitionBean;
 import com.ilife.home.robot.utils.DataUtils;
+import com.ilife.home.robot.utils.ToastUtils;
 import com.ilife.home.robot.view.MapView;
 
 import java.util.ArrayList;

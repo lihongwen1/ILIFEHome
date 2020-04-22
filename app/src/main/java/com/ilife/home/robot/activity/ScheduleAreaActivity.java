@@ -75,14 +75,14 @@ public class ScheduleAreaActivity extends BackBaseActivity {
                     map_schedule_area.invalidateUI();
                     iv_schedule_clean_time.setVisibility(View.VISIBLE);
                     times = 1;
-                    updateLoopImage();
+                    updateLoopImage(false);
                     break;
                 case R.id.tv_schedule_area_clean_area:
                     map_schedule_area.setmOT(MapView.OT.CLEAN_AREA);
                     map_schedule_area.invalidateUI();
                     iv_schedule_clean_time.setVisibility(View.VISIBLE);
                     times = 1;
-                    updateLoopImage();
+                    updateLoopImage(false);
                     break;
             }
         });
@@ -142,7 +142,7 @@ public class ScheduleAreaActivity extends BackBaseActivity {
                 times = 0;
             }
             times++;
-            updateLoopImage();
+            updateLoopImage(true);
         } else {
             ScheduleBean scheduleBean = new ScheduleBean();
             scheduleBean.setLoop(times);
@@ -182,7 +182,7 @@ public class ScheduleAreaActivity extends BackBaseActivity {
     /**
      * 更新循环次数图片
      */
-    private void updateLoopImage() {
+    private void updateLoopImage(boolean isFromUser) {
         int src = R.drawable.operation_btn_fre_1;
         switch (times) {
             case 1:
@@ -194,6 +194,9 @@ public class ScheduleAreaActivity extends BackBaseActivity {
             case 3:
                 src = R.drawable.operation_btn_fre_3;
                 break;
+        }
+        if (isFromUser) {
+            ToastUtils.showCleanTimes(times);
         }
         iv_schedule_clean_time.setImageResource(src);
     }

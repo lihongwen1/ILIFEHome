@@ -62,9 +62,15 @@ public class SelectRoomActivity extends BackBaseActivity {
         iv_back.setImageResource(R.drawable.nav_button_cancel);
         iv_finish.setImageResource(R.drawable.nav_button_finish);
         fl_top_menu.setVisibility(View.VISIBLE);
-        map_room.setmOT(MapView.OT.SELECT_ROOM);
         rg_select_room.setOnCheckedChangeListener((group, checkedId) -> {
-
+          switch (checkedId){
+              case R.id.tv_move_map:
+                  map_room.setmOT(MapView.OT.MAP);
+                  break;
+              case R.id.tv_select_room:
+                  map_room.setmOT(MapView.OT.SELECT_ROOM);
+                  break;
+          }
         });
         rg_select_room.check(R.id.tv_move_map);
     }
@@ -129,6 +135,7 @@ public class SelectRoomActivity extends BackBaseActivity {
                 times = 0;
             }
             times++;
+
             updateLoopImage();
         } else {
             String roomData = "{\"CleanPartitionData\":{\"CleanLoop\":1,\"Enable\":1,\"PartitionData\":0}}";
@@ -166,6 +173,7 @@ public class SelectRoomActivity extends BackBaseActivity {
                 src = R.drawable.operation_btn_fre_3;
                 break;
         }
+        ToastUtils.showCleanTimes(times);
         iv_clean_room_time.setImageResource(src);
     }
 

@@ -465,7 +465,7 @@ public class ForbiddenAreaHelper {
             float degree = (float) (Math.atan(k) * 180 / Math.PI);
             boundaryMatrix.setRotate(-degree, cx,cy);
             boundaryMatrix.mapPoints(boundaryCoordinate);
-            float realBoundaryWidth = mMapView.getBaseScare() * 3;
+            float realBoundaryWidth = mMapView.getBaseScare() * 5;
             double esx = realBoundaryWidth / DataUtils.distance(boundaryCoordinate[0], boundaryCoordinate[1], boundaryCoordinate[2], boundaryCoordinate[3]);
             float sx = (float) (ArithmeticUtils.round(esx, 2) + 1);
             double esy = realBoundaryWidth / DataUtils.distance(boundaryCoordinate[0], boundaryCoordinate[1], boundaryCoordinate[6], boundaryCoordinate[7]);

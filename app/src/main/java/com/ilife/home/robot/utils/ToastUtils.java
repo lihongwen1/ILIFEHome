@@ -83,4 +83,17 @@ public class ToastUtils {
             showToast(value);
         }
     }
+    public static void showCleanTimes(int times){
+        switch (times){
+            case 1:
+                ToastUtils.showToast(UiUtil.getString(R.string.toast_clean_times_1));
+                break;
+            case 2:
+                ToastUtils.showToast(UiUtil.getString(R.string.toast_clean_times_2));
+                break;
+            case 3:
+                ToastUtils.showToast(UiUtil.getString(R.string.toast_clean_times_3));
+                break;
+        }
+    }
 }

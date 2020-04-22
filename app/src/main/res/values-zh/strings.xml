@@ -349,4 +349,11 @@
     <string name="tip_add_virtual">用手指在地图上相应的位置划线即可添加虚拟墙/禁区</string>
     <string name="toast_ensure_in_no_work_mode">请确保机器处于非工作模式</string>
     <string name="map_tip_no_map_yet">暂未生成地图，请先开始清扫</string>
+    <string name="toast_clean_times_1">清扫1次</string>
+    <string name="toast_clean_times_2">清扫2次</string>
+    <string name="toast_clean_times_3">清扫3次</string>
+    <string name="dialog_delete_map_title">删除地图</string>
+    <string name="dialog_delete_map_hint">删除后将不再保存该地图记录</string>
+    <string name="dialog_apply_map_hint">扫地机将按照应用的地图环境清扫</string>
+
 </resources>

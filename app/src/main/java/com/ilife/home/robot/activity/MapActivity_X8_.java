@@ -62,7 +62,7 @@ public class MapActivity_X8_ extends BaseMapActivity {
         layout_remote_control.setVisibility(View.GONE);
         tv_bottom_recharge.setSelected(isRecharge);
         tv_bottom_recharge.setSelected(isRecharge);
-        layout_recharge.setVisibility(View.VISIBLE);
+//        layout_recharge.setVisibility(View.VISIBLE);
     }
 
 }

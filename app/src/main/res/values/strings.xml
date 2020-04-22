@@ -349,5 +349,11 @@
     <string name="tip_add_virtual">Set the Electrowall/No-go zone within the map</string>
     <string name="toast_ensure_in_no_work_mode">Please ensure the robot is in non-working mode</string>
     <string name="map_tip_no_map_yet">No map available yet.Please create a map for the house first.</string>
+    <string name="toast_clean_times_1">Once</string>
+    <string name="toast_clean_times_2">Twice</string>
+    <string name="toast_clean_times_3">Third</string>
+    <string name="dialog_delete_map_title">Delete map</string>
+    <string name="dialog_delete_map_hint">The map will not exist after deletion</string>
+    <string name="dialog_apply_map_hint">The robot will clean according to the map selected now</string>
 
 </resources>

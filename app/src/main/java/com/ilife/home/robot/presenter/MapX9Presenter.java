@@ -262,7 +262,7 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
         historyRoadList.clear();
         realTimePoints.clear();//X900 series
         pointList.clear();//X800 series
-//        slamPointList.clear();//底图
+        slamPointList.clear();//底图
     }
 
 
@@ -432,13 +432,13 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
         mView.updateStartStatue(isWork, isWork ? Utils.getString(R.string.map_aty_stop) : Utils.getString(R.string.map_aty_start));
         mView.updateOperationViewStatue(curStatus);
         mView.showBottomView();
-        if (haveMap && isViewAttached() && isDrawMap()) {
+//        if (haveMap && isViewAttached() && isDrawMap()) {
 //            mView.setMapViewVisible(true);
-            refreshMap();
-        } else {
-            mView.cleanMapView();
+//            refreshMap();
+//        } else {
+//            mView.cleanMapView();
 //            mView.setMapViewVisible(false);
-        }
+//        }
         if (!isWork && curStatus != MsgCodeUtils.STATUE_PAUSE) {//非工作状态清除清扫次数
             mView.updateCleanTimes(false, 0, 0);
             mView.drawCleanArea("");
@@ -568,7 +568,6 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
                 mView.updateCleanTime(getTimeValue());
                 mView.updateCleanArea(getAreaValue());
                 prepareToReloadData();
-                doAboutSlam();
                 if (haveMap && pointList != null && isDrawMap()) {
                     mView.drawMapX8(pointList, slamPointList);
                 }
@@ -587,6 +586,7 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
             if (mapBeanData == null) {
                 return;
             }
+            MyLogger.d(TAG,"实时地图数据改变---");
             singleThread.execute(new ParseDataRunnable(mapBeanData));
         });
         LiveEventBus.get(EnvConfigure.KEY_ERRORCODE, Integer.class).observe((BaseActivity) mView, new Observer<Integer>() {
@@ -670,6 +670,7 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
                 mView.drawVirtualWall("");
                 mView.drawForbiddenArea("");
                 mView.drawChargePort(0, 0);
+                mView.drawMapX8(pointList,slamPointList);
             } else {
                 IlifeAli.getInstance().getProperties(new OnAliResponse<PropertyBean>() {
                     @Override

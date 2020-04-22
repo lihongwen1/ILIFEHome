@@ -487,10 +487,10 @@ public abstract class BaseMapActivity extends BackBaseActivity<MapX9Presenter> i
                 fl_virtual_wall.setVisibility(View.GONE);
                 ll_bottom_sheet.setVisibility(View.GONE);
                 fl_control_x9.setVisibility(View.VISIBLE);
-                layout_remote_control.setVisibility(View.VISIBLE);
+                layout_remote_control.setVisibility(View.GONE);
                 tv_set_max.setSelected(mPresenter.isMaxMode());
                 updateOperationViewStatue(mPresenter.getCurStatus());
-                setMapViewVisible(false);
+//                setMapViewVisible(false);
                 break;
         }
     }
@@ -820,9 +820,9 @@ public abstract class BaseMapActivity extends BackBaseActivity<MapX9Presenter> i
     public void updateOperationViewStatue(int surStatues) {
         tv_point.setSelected(surStatues == MsgCodeUtils.STATUE_POINT || surStatues == MsgCodeUtils.STATUE_TEMPORARY_POINT);
         tv_along.setSelected(surStatues == MsgCodeUtils.STATUE_ALONG);
-        tv_recharge_x9.setSelected(surStatues == MsgCodeUtils.STATUE_RECHARGE);
-        layout_along.setVisibility(surStatues == MsgCodeUtils.STATUE_ALONG ? View.VISIBLE : View.GONE);
-        layout_point.setVisibility(surStatues == MsgCodeUtils.STATUE_POINT || surStatues == MsgCodeUtils.STATUE_TEMPORARY_POINT ? View.VISIBLE : View.GONE);
+//        tv_recharge_x9.setSelected(surStatues == MsgCodeUtils.STATUE_RECHARGE);
+//        layout_along.setVisibility(surStatues == MsgCodeUtils.STATUE_ALONG ? View.VISIBLE : View.GONE);
+//        layout_point.setVisibility(surStatues == MsgCodeUtils.STATUE_POINT || surStatues == MsgCodeUtils.STATUE_TEMPORARY_POINT ? View.VISIBLE : View.GONE);
 
     }
 

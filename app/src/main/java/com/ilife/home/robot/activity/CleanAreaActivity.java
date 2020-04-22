@@ -48,7 +48,7 @@ public class CleanAreaActivity extends BackBaseActivity {
     ImageView iv_back;
     @BindView(R.id.image_menu)
     ImageView iv_finish;
-    private int times;//清扫次数
+    private int times=1;//清扫次数
     private int enable;//0-无效  1-开始 2-进行中
     private String charging_port;
     @Override
@@ -99,8 +99,6 @@ public class CleanAreaActivity extends BackBaseActivity {
                         }
                         if (!TextUtils.isEmpty(cleanAreaData)) {
                             JSONObject json = JSON.parseObject(cleanAreaData);
-                            times = 1;
-                            updateLoopImage();
                             boolean enable = json.getIntValue("Enable")!=0;
                             String area = "";
                             if (enable) {
@@ -159,6 +157,7 @@ public class CleanAreaActivity extends BackBaseActivity {
                 src = R.drawable.operation_btn_fre_3;
                 break;
         }
+        ToastUtils.showCleanTimes(times);
         iv_clean_area_time.setImageResource(src);
     }
 
