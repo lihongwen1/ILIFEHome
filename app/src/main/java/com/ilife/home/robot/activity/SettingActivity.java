@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.animation.Animation;
@@ -15,21 +14,15 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import androidx.lifecycle.Observer;
-
-import com.aliyun.iot.aep.sdk._interface.OnAliResponseSingle;
 import com.aliyun.iot.aep.sdk._interface.OnAliSetPropertyResponse;
 import com.aliyun.iot.aep.sdk.bean.DeviceInfoBean;
 import com.aliyun.iot.aep.sdk.contant.EnvConfigure;
 import com.aliyun.iot.aep.sdk.contant.IlifeAli;
-import com.aliyun.iot.aep.sdk.contant.LiveBusKey;
 import com.aliyun.iot.aep.sdk.contant.MsgCodeUtils;
 import com.badoo.mobile.util.WeakHandler;
 import com.ilife.home.livebus.LiveEventBus;
 import com.ilife.home.robot.BuildConfig;
 import com.ilife.home.robot.R;
-import com.ilife.home.robot.able.Constants;
-import com.ilife.home.robot.able.DeviceUtils;
 import com.ilife.home.robot.app.MyApplication;
 import com.ilife.home.robot.base.BackBaseActivity;
 import com.ilife.home.robot.bean.RobotConfigBean;
@@ -48,7 +41,6 @@ import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
-import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
 
 
@@ -183,7 +175,7 @@ public class SettingActivity extends BackBaseActivity implements OnAliSetPropert
         inflater = LayoutInflater.from(context);
         tv_top_title.setText(R.string.ap_aty_setting);
         LiveEventBus.get(EnvConfigure.KEY_MAX_MODE, Boolean.class).observeSticky(this, max -> {
-            MyLogger.d("LiveBus","收到Live Bus 信息");
+            MyLogger.d("LiveBus", "收到Live Bus 信息");
             isMaxMode = max;
             setStatus(waterLevel, isMaxMode, voiceOpen);
         });
@@ -259,7 +251,7 @@ public class SettingActivity extends BackBaseActivity implements OnAliSetPropert
                     tv_water.setText(getString(R.string.setting_aty_strong));
                     break;
             }
-        } else {
+        } else if (rBean.getWaterLevelType() == 3) {// X3 X4 X6 X9
             switch (water) {
                 case 0:
                     tv_standard.setSelected(true);
@@ -270,6 +262,24 @@ public class SettingActivity extends BackBaseActivity implements OnAliSetPropert
                     tv_soft.setSelected(true);
                     image_soft.setSelected(true);
                     tv_water.setText(getString(R.string.setting_aty_soft));
+                    break;
+                case 2:
+                    tv_strong.setSelected(true);
+                    image_strong.setSelected(true);
+                    tv_water.setText(getString(R.string.setting_aty_strong));
+                    break;
+            }
+        } else {//x8
+            switch (water) {
+                case 0:
+                    tv_soft.setSelected(true);
+                    image_soft.setSelected(true);
+                    tv_water.setText(getString(R.string.setting_aty_soft));
+                    break;
+                case 1:
+                    tv_standard.setSelected(true);
+                    image_standard.setSelected(true);
+                    tv_water.setText(getString(R.string.setting_aty_standard));
                     break;
                 case 2:
                     tv_strong.setSelected(true);
@@ -371,15 +381,19 @@ public class SettingActivity extends BackBaseActivity implements OnAliSetPropert
             case R.id.rl_standard:
                 if (rBean.getWaterLevelType() == 2) {
                     IlifeAli.getInstance().waterControl(2, this);
-                } else {
+                } else if (rBean.getWaterLevelType() == 3) {
                     IlifeAli.getInstance().waterControl(0, this);
+                } else {
+                    IlifeAli.getInstance().waterControl(1, this);
                 }
                 break;
             case R.id.rl_soft:
                 if (rBean.getWaterLevelType() == 2) {
                     IlifeAli.getInstance().waterControl(1, this);
-                } else {
+                } else if (rBean.getWaterLevelType() == 3) {
                     IlifeAli.getInstance().waterControl(1, this);
+                } else {
+                    IlifeAli.getInstance().waterControl(0, this);
                 }
                 break;
             case R.id.rl_strong:
