@@ -16,6 +16,7 @@ import com.aliyun.iot.aep.sdk.contant.EnvConfigure;
 import com.aliyun.iot.aep.sdk.contant.IlifeAli;
 import com.aliyun.iot.aep.sdk.contant.MsgCodeUtils;
 import com.badoo.mobile.util.WeakHandler;
+import com.ilife.home.livebus.LiveEventBus;
 import com.ilife.home.robot.R;
 import com.ilife.home.robot.adapter.ClockAdapter;
 import com.ilife.home.robot.base.BackBaseActivity;
@@ -76,6 +77,7 @@ public class ClockingActivity extends BackBaseActivity {
         adapter.setOnItemClickListener((adapter, view, position) -> {
             Intent intent = new Intent(ClockingActivity.this, ClockEditActivity.class);
             intent.putExtra(ClockEditActivity.KEY_SCHEDULE_INFO, scheduleBeans.get(position));
+            LiveEventBus.get(ClockEditActivity.KEY_SCHEDULE_EXIST).post(scheduleBeans);
             startActivity(intent);
         });
         adapter.setOnItemChildClickListener((adapter, view, position) -> {

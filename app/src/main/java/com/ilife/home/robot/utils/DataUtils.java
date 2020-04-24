@@ -420,9 +420,12 @@ public class DataUtils {
 
     public static String getScheduleWeek(int week) {
         StringBuilder weekStr = new StringBuilder();
-        for (int i = 0; i <= 7; i++) {
-            if (DataUtils.getBit((byte) week, i) == 1) {
-                switch (i) {
+        int[] bitPosition=new int[]{6,0,1,2,3,4,5,7};
+        int position;
+        for (int i = 0; i <bitPosition.length; i++) {
+            position=bitPosition[i];
+            if (DataUtils.getBit((byte) week,position) == 1) {
+                switch (position) {
                     case 0:
                         weekStr.append(UiUtil.getString(R.string.week_monday));
                         break;
@@ -456,9 +459,12 @@ public class DataUtils {
 
     public static String getScheduleWeekFull(int week) {
         StringBuilder weekStr = new StringBuilder();
-        for (int i = 0; i <= 7; i++) {
-            if (DataUtils.getBit((byte) week, i) == 1) {
-                switch (i) {
+        int[] bitPosition=new int[]{6,0,1,2,3,4,5,7};
+        int position;
+        for (int i = 0; i <bitPosition.length; i++) {
+            position=bitPosition[i];
+            if (DataUtils.getBit((byte) week, position) == 1) {
+                switch (position) {
                     case 0:
                         weekStr.append(UiUtil.getString(R.string.week_monday_full));
                         break;

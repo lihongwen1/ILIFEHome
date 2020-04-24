@@ -63,30 +63,46 @@ public class ScheduleAreaActivity extends BackBaseActivity {
         iv_back.setImageResource(R.drawable.nav_button_cancel);
         iv_finish.setImageResource(R.drawable.nav_button_finish);
         fl_top_menu.setVisibility(View.VISIBLE);
+
         rg_schedule_area.setOnCheckedChangeListener((group, checkedId) -> {
-            switch (checkedId) {
-                case R.id.tv_schedule_area:
-                    map_schedule_area.setmOT(MapView.OT.NOON);
-                    map_schedule_area.invalidateUI();
-                    iv_schedule_clean_time.setVisibility(View.GONE);
-                    break;
-                case R.id.tv_schedule_area_room:
-                    map_schedule_area.setmOT(MapView.OT.SELECT_ROOM);
-                    map_schedule_area.invalidateUI();
-                    iv_schedule_clean_time.setVisibility(View.VISIBLE);
-                    times = 1;
-                    updateLoopImage(false);
-                    break;
-                case R.id.tv_schedule_area_clean_area:
-                    map_schedule_area.setmOT(MapView.OT.CLEAN_AREA);
-                    map_schedule_area.invalidateUI();
-                    iv_schedule_clean_time.setVisibility(View.VISIBLE);
-                    times = 1;
-                    updateLoopImage(false);
-                    break;
+            if (fl_no_map.getVisibility() == View.VISIBLE) {
+                rg_schedule_area.check(R.id.tv_schedule_area);
+                ToastUtils.showToast(UiUtil.getString(R.string.map_tip_no_map_yet));
+            } else {
+                switch (checkedId) {
+                    case R.id.tv_schedule_area:
+                        map_schedule_area.setmOT(MapView.OT.NOON);
+                        map_schedule_area.invalidateUI();
+                        iv_schedule_clean_time.setVisibility(View.GONE);
+                        break;
+                    case R.id.tv_schedule_area_room:
+                        map_schedule_area.setmOT(MapView.OT.SELECT_ROOM);
+                        map_schedule_area.invalidateUI();
+                        iv_schedule_clean_time.setVisibility(View.VISIBLE);
+                        times = 1;
+                        updateLoopImage(false);
+                        break;
+                    case R.id.tv_schedule_area_clean_area:
+                        map_schedule_area.setmOT(MapView.OT.CLEAN_AREA);
+                        map_schedule_area.invalidateUI();
+                        iv_schedule_clean_time.setVisibility(View.VISIBLE);
+                        times = 1;
+                        updateLoopImage(false);
+                        break;
+                }
             }
         });
-        rg_schedule_area.check(R.id.tv_schedule_area);
+        switch (scheduleBean.getType()) {
+            case 0:
+                rg_schedule_area.check(R.id.tv_schedule_area);
+                break;
+            case 1:
+                rg_schedule_area.check(R.id.tv_schedule_area_clean_area);
+                break;
+            case 2:
+                rg_schedule_area.check(R.id.tv_schedule_area_room);
+                break;
+        }
     }
 
     @Override
@@ -97,9 +113,16 @@ public class ScheduleAreaActivity extends BackBaseActivity {
             public void onSuccess(PropertyBean result) {
                 long selectId = result.getSelectedMapId();
                 String partitionData = result.getPartition();
+                if (selectId == 0) {
+                    fl_no_map.setVisibility(View.VISIBLE);
+                    return;
+                }
                 IlifeAli.getInstance().getSelectMap(selectId, new OnAliResponse<List<HistoryRecordBean>>() {
                     @Override
                     public void onSuccess(List<HistoryRecordBean> result) {
+                        if (isDestroyed() || map_schedule_area == null) {
+                            return;
+                        }
                         if (result.size() == 0) {//应该只有一条数据
                             fl_no_map.setVisibility(View.VISIBLE);
                             return;

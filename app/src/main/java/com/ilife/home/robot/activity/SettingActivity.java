@@ -172,32 +172,32 @@ public class SettingActivity extends BackBaseActivity implements OnAliSetPropert
         context = this;
         inflater = LayoutInflater.from(context);
         tv_top_title.setText(R.string.ap_aty_setting);
-        LiveEventBus.get(EnvConfigure.KEY_MAX_MODE, Boolean.class).observeSticky(this, max -> {
+        LiveEventBus.get(EnvConfigure.KEY_MAX_MODE, Boolean.class).observe(this, max -> {
             MyLogger.d("LiveBus", "收到Live Bus 信息");
             isMaxMode = max;
             setStatus(waterLevel, isMaxMode, voiceOpen);
         });
-        LiveEventBus.get(EnvConfigure.KEY_BeepVolume, Integer.class).observeSticky(this, value -> {
+        LiveEventBus.get(EnvConfigure.KEY_BeepVolume, Integer.class).observe(this, value -> {
             MyLogger.d("LiveBus", "收到Live Bus 信息");
             tv_volume_number.setText(String.valueOf(value));
         });
-        LiveEventBus.get(EnvConfigure.KEY_SideBrushPower, Integer.class).observeSticky(this, value -> {
+        LiveEventBus.get(EnvConfigure.KEY_SideBrushPower, Integer.class).observe(this, value -> {
             MyLogger.d("LiveBus", "收到Live Bus 信息");
             tv_brush_speed_number.setText(String.valueOf(value));
         });
-        LiveEventBus.get(EnvConfigure.KEY_BeepType, Integer.class).observeSticky(this, value -> {
+        LiveEventBus.get(EnvConfigure.KEY_BeepType, Integer.class).observe(this, value -> {
             MyLogger.d("LiveBus", "收到Live Bus 信息");
             tv_language.setText(String.valueOf(DataUtils.getLanguageByCode(value)));
         });
-        LiveEventBus.get(EnvConfigure.KEY_CarpetControl, Integer.class).observeSticky(this, value -> {
+        LiveEventBus.get(EnvConfigure.KEY_CarpetControl, Integer.class).observe(this, value -> {
             MyLogger.d("LiveBus", "收到Live Bus 信息");
             image_carpet.setSelected(value == 1);
         });
-        LiveEventBus.get(EnvConfigure.KEY_FanPower, Integer.class).observeSticky(this, value -> {
+        LiveEventBus.get(EnvConfigure.KEY_FanPower, Integer.class).observe(this, value -> {
             MyLogger.d("LiveBus", "收到Live Bus 信息");
             tv_max_number.setText(String.valueOf(value));
         });
-        LiveEventBus.get(EnvConfigure.KEY_WATER_CONTROL, Integer.class).observeSticky(this, value -> {
+        LiveEventBus.get(EnvConfigure.KEY_WATER_CONTROL, Integer.class).observe(this, value -> {
             MyLogger.d("LiveBus", "收到Live Bus 信息");
             waterLevel = value;
             setStatus(waterLevel, isMaxMode, voiceOpen);

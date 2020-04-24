@@ -155,7 +155,7 @@
     <string name="week_saturday_full">Saturday</string>
     <string name="clock_aty_set_time">Schedule</string>
     <string name="setting_aty_duration">Cleaning time</string>
-    <string name="history_adapter_month_day">MM/dd</string>
+    <string name="history_adapter_month_day">yyyy/MM/dd</string>
     <string name="history_aty_no_record">No cleaning history.</string>
     <string name="consume_aty_side_time">Side brush</string>
     <string name="consume_aty_side_time_reset">Reset side brush life</string>
@@ -355,5 +355,6 @@
     <string name="dialog_delete_map_title">Delete map</string>
     <string name="dialog_delete_map_hint">The map will not exist after deletion</string>
     <string name="dialog_apply_map_hint">The robot will clean according to the map selected now</string>
+    <string name="toast_schedule_already_exits">This schedule already exists</string>
 
 </resources>

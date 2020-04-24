@@ -448,6 +448,10 @@ public class IlifeAli {
                                     int beepType = items.getJSONObject(EnvConfigure.KEY_BeepType).getIntValue(EnvConfigure.KEY_VALUE);
                                     getWorkingDevice().getDeviceInfo().setLanguageCode(beepType);
                                     LiveEventBus.get(EnvConfigure.KEY_BeepType, Integer.class).post(beepType);
+                                } else if (items.containsKey(EnvConfigure.KEY_BEEP_NO_DISTURB)) {
+                                    int distub = items.getJSONObject(EnvConfigure.KEY_BEEP_NO_DISTURB).getJSONObject(EnvConfigure.KEY_VALUE).getIntValue(EnvConfigure.KEY_SWITCH);
+                                    getWorkingDevice().getDeviceInfo().setVoiceOpen(distub == 0);
+//                                    LiveEventBus.get(EnvConfigure.KEY_BeepVolume, Integer.class).post(distub);
                                 } else if (items.containsKey(EnvConfigure.KEY_BeepVolume)) {
                                     int beepVolume = items.getJSONObject(EnvConfigure.KEY_BeepVolume).getIntValue(EnvConfigure.KEY_VALUE);
                                     getWorkingDevice().getDeviceInfo().setVoiceVolume(beepVolume);
@@ -505,8 +509,12 @@ public class IlifeAli {
                 }
             };
         }
+
         registerSubscribeTopic();
-        MobileChannel.getInstance().registerDownstreamListener(true, downListener);
+        MobileChannel.getInstance().
+
+                registerDownstreamListener(true, downListener);
+
     }
 
 
@@ -652,6 +660,10 @@ public class IlifeAli {
                      * 特殊字段
                      */
 
+                    if (jsonObject.containsKey(EnvConfigure.KEY_BEEP_NO_DISTURB)) {
+                        int distub = jsonObject.getJSONObject(EnvConfigure.KEY_BEEP_NO_DISTURB).getJSONObject(EnvConfigure.KEY_VALUE).getIntValue(EnvConfigure.KEY_SWITCH);
+                        bean.setVoiceOpen(distub == 0);
+                    }
                     if (jsonObject.containsKey(EnvConfigure.KEY_INIT_STATUS)) {
                         int initStatus = jsonObject.getJSONObject(EnvConfigure.KEY_INIT_STATUS).getIntValue(EnvConfigure.KEY_VALUE);
                         bean.setInitStatus(initStatus == 1);

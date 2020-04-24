@@ -127,4 +127,14 @@ public class VirtualWallBean {
         boundaryRegion=null;
         boundaryPath=null;
     }
+    public boolean isInvalid(){
+        boolean isAllZero=true;
+        for (float f:pointCoordinate) {
+            if (f!=0){
+                isAllZero=false;
+                break;
+            }
+        }
+        return isAllZero;
+    }
 }

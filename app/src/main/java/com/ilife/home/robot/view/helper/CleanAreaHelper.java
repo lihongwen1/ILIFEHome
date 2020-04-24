@@ -112,9 +112,7 @@ public class CleanAreaHelper {
             curCleanAreaBean = new VirtualWallBean(1, 3, new float[]{tlx, tly, trx, try_, blx, bly, brx, bry}, 1);
             MyLogger.d(TAG, "清扫区域坐标: " + Arrays.toString(curCleanAreaBean.getPointCoordinate()));
         } else {
-            if (curCleanAreaBean != null) {
-                curCleanAreaBean.clear();
-            }
+            curCleanAreaBean=null;//置空清数据
         }
         updateCleanAreaPath();
         mMapView.invalidateUI();

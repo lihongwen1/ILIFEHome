@@ -355,5 +355,6 @@
     <string name="dialog_delete_map_title">删除地图</string>
     <string name="dialog_delete_map_hint">删除后将不再保存该地图记录</string>
     <string name="dialog_apply_map_hint">扫地机将按照应用的地图环境清扫</string>
+    <string name="toast_schedule_already_exits">您设置的预约重复了</string>
 
 </resources>

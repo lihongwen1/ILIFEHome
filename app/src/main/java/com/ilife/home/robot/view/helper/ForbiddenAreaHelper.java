@@ -142,13 +142,14 @@ public class ForbiddenAreaHelper {
      * @param fbdStr
      */
     public void setForbiddenArea(String fbdStr) {
-        if (!TextUtils.isEmpty(fbdStr)) {
+        if (!TextUtils.isEmpty(fbdStr) && !fbdStr.equals("AAAAAAAAAAAAAAAAAAAAAAAAAAA=")) {
             byte[] bytes = Base64.decode(fbdStr, Base64.DEFAULT);
             int vwCounts = bytes.length / LENGTH;//一条禁区含20个字节，4个保留字节，加4个坐标（x,y）
             fbdBeans.clear();
             int tlx, tly, trx, try_, blx, bly, brx, bry, type;
             VirtualWallBean vwBean;
             byte[] bType;
+            float[] coordinate;
             for (int i = 0; i < vwCounts; i++) {
                 bType = new byte[]{bytes[LENGTH * i], bytes[LENGTH * i + 1], bytes[LENGTH * i + 2], bytes[LENGTH * i + 3]};
                 type = DataUtils.bytesToInt(bType);
@@ -160,9 +161,12 @@ public class ForbiddenAreaHelper {
                 bly = -DataUtils.bytesToInt(bytes[LENGTH * i + 14], bytes[LENGTH * i + 15]);
                 brx = DataUtils.bytesToInt(bytes[LENGTH * i + 16], bytes[LENGTH * i + 17]);
                 bry = -DataUtils.bytesToInt(bytes[LENGTH * i + 18], bytes[LENGTH * i + 19]);
-                vwBean = new VirtualWallBean(i + 1, type, new float[]{tlx, tly, trx, try_, blx, bly, brx, bry}, 1);
+                coordinate = new float[]{tlx, tly, trx, try_, blx, bly, brx, bry};
+                vwBean = new VirtualWallBean(i + 1, type, coordinate, 1);
+                if (vwBean.isInvalid()) {
+                    continue;
+                }
                 fbdBeans.add(vwBean);
-                MyLogger.d(TAG, "禁区坐标: " + Arrays.toString(vwBean.getPointCoordinate()));
             }
         } else {
             fbdBeans.clear();
@@ -463,7 +467,7 @@ public class ForbiddenAreaHelper {
             float k = (boundaryCoordinate[3] - boundaryCoordinate[1]) / (boundaryCoordinate[2]
                     - boundaryCoordinate[0]);
             float degree = (float) (Math.atan(k) * 180 / Math.PI);
-            boundaryMatrix.setRotate(-degree, cx,cy);
+            boundaryMatrix.setRotate(-degree, cx, cy);
             boundaryMatrix.mapPoints(boundaryCoordinate);
             float realBoundaryWidth = mMapView.getBaseScare() * 5;
             double esx = realBoundaryWidth / DataUtils.distance(boundaryCoordinate[0], boundaryCoordinate[1], boundaryCoordinate[2], boundaryCoordinate[3]);
@@ -472,8 +476,10 @@ public class ForbiddenAreaHelper {
             float sy = (float) (ArithmeticUtils.round(esy, 2) + 1);
             boundaryMatrix.setScale(sx, sy, cx, cy);
             boundaryMatrix.mapPoints(boundaryCoordinate);
-            boundaryMatrix.setRotate(degree, cx,cy);
+            boundaryMatrix.setRotate(degree, cx, cy);
             boundaryMatrix.mapPoints(boundaryCoordinate);
+//            boundaryMatrix.setScale(1.2f,1.2f,cx,cy);
+//            boundaryMatrix.mapPoints(boundaryCoordinate);
             float minx = boundaryCoordinate[0], miny = boundaryCoordinate[1], maxx = boundaryCoordinate[0], maxy = boundaryCoordinate[1];
             for (int i = 0; i < boundaryCoordinate.length; i++) {
                 float value = boundaryCoordinate[i];
@@ -551,17 +557,29 @@ public class ForbiddenAreaHelper {
      * @param coordinate
      */
     private float[] toMapCoordinate(float[] coordinate) {
-        float[] mapCoor = new float[coordinate.length];
+        Matrix matrix=new Matrix();
+        float[] matrixCoordinate = new float[coordinate.length];
         int index = 0;
         for (float coo : coordinate) {
             if (index % 2 == 0) {
-                mapCoor[index] = mMapView.matrixCoordinateX(coo);
+                matrixCoordinate[index] = mMapView.matrixCoordinateX(coo);
             } else {
-                mapCoor[index] = mMapView.matrixCoordinateY(coo);
+                matrixCoordinate[index] = mMapView.matrixCoordinateY(coo);
             }
             index++;
         }
-        return mapCoor;
+//        float k = (matrixCoordinate[3] - matrixCoordinate[1]) / (matrixCoordinate[2] - matrixCoordinate[0]);
+//        float degree = (float) (Math.atan(k) * 180 / Math.PI);
+//        matrix.setTranslate(-matrixCoordinate[0], -matrixCoordinate[1]);
+//        matrix.postRotate(-degree, 0, 0);
+//        matrix.mapPoints(matrixCoordinate);
+//        matrixCoordinate[2] = matrixCoordinate[4];
+//        matrixCoordinate[3] = matrixCoordinate[1];
+//        matrixCoordinate[6] = matrixCoordinate[0];
+//        matrixCoordinate[7] = matrixCoordinate[5];
+//        matrix.invert(matrix);
+//        matrix.mapPoints(matrixCoordinate);
+        return matrixCoordinate;
     }
 
     public int getSelectVwNum() {

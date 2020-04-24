@@ -181,6 +181,9 @@ public abstract class BaseMapActivity extends BackBaseActivity<MapX9Presenter> i
                             findRobotDialog.dismissAllowingStateLoss();
                         }
                         break;
+                    case 5:
+                        mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+                        break;
                 }
             }
 
@@ -298,13 +301,16 @@ public abstract class BaseMapActivity extends BackBaseActivity<MapX9Presenter> i
                     if (mPresenter.isVirtualWallOpen()) {
                         mPresenter.setPropertiesWithParams(AliSkills.get().enterVirtualEditMode(IlifeAli.getInstance().getWorkingDevice().getIotId()));
                         startActivity(new Intent(BaseMapActivity.this, VirtualWallActivity.class));
+                        weakHandler.sendEmptyMessageDelayed(5, 300);
                     } else {
                         ToastUtils.showToast(UiUtil.getString(R.string.map_enter_virtual_tip));
                     }
+
                     break;
                 case 1://选房清扫
                     if (mPresenter.getCurStatus() == MsgCodeUtils.STATUE_CHARGING || mPresenter.getCurStatus() == MsgCodeUtils.STATUE_CHARGING_BASE_SLEEP) {
                         startActivity(new Intent(BaseMapActivity.this, SelectRoomActivity.class));
+                        weakHandler.sendEmptyMessageDelayed(5, 300);
                     } else {
                         ToastUtils.showToast(MyApplication.getInstance(), Utils.getString(R.string.toast_ensure_robot_on_charging_dock));
                     }
@@ -312,6 +318,7 @@ public abstract class BaseMapActivity extends BackBaseActivity<MapX9Presenter> i
                 case 2://划区清扫
                     if (mPresenter.getCurStatus() == MsgCodeUtils.STATUE_CHARGING || mPresenter.getCurStatus() == MsgCodeUtils.STATUE_CHARGING_BASE_SLEEP) {
                         startActivity(new Intent(BaseMapActivity.this, CleanAreaActivity.class));
+                        weakHandler.sendEmptyMessageDelayed(5, 300);
                     } else {
                         ToastUtils.showToast(MyApplication.getInstance(), Utils.getString(R.string.toast_ensure_robot_on_charging_dock));
                     }
@@ -322,6 +329,7 @@ public abstract class BaseMapActivity extends BackBaseActivity<MapX9Presenter> i
                             status == MsgCodeUtils.STATUE_CHARGING_ADAPTER_SLEEP || status == MsgCodeUtils.STATUE_CHARGING_BASE_SLEEP
                             || status == MsgCodeUtils.STATUE_WAIT) {
                         startActivity(new Intent(BaseMapActivity.this, SelectSaveMapActivity.class));
+                        weakHandler.sendEmptyMessageDelayed(5, 300);
                     } else {
                         ToastUtils.showToast(MyApplication.getInstance(), Utils.getString(R.string.toast_ensure_in_no_work_mode));
                     }
@@ -333,7 +341,7 @@ public abstract class BaseMapActivity extends BackBaseActivity<MapX9Presenter> i
                     }
                     if (!findRobotDialog.isAdded()) {
                         findRobotDialog.show(getSupportFragmentManager(), "find_robot");
-                        weakHandler.sendEmptyMessageDelayed(4, 5000);
+                        weakHandler.sendEmptyMessageDelayed(4, 300);
                         IlifeAli.getInstance().findDevice(null);
                     }
                     break;
@@ -487,10 +495,10 @@ public abstract class BaseMapActivity extends BackBaseActivity<MapX9Presenter> i
                 fl_virtual_wall.setVisibility(View.GONE);
                 ll_bottom_sheet.setVisibility(View.GONE);
                 fl_control_x9.setVisibility(View.VISIBLE);
-                layout_remote_control.setVisibility(View.GONE);
+                layout_remote_control.setVisibility(View.VISIBLE);
                 tv_set_max.setSelected(mPresenter.isMaxMode());
                 updateOperationViewStatue(mPresenter.getCurStatus());
-//                setMapViewVisible(false);
+                setMapViewVisible(false);
                 break;
         }
     }
@@ -820,9 +828,9 @@ public abstract class BaseMapActivity extends BackBaseActivity<MapX9Presenter> i
     public void updateOperationViewStatue(int surStatues) {
         tv_point.setSelected(surStatues == MsgCodeUtils.STATUE_POINT || surStatues == MsgCodeUtils.STATUE_TEMPORARY_POINT);
         tv_along.setSelected(surStatues == MsgCodeUtils.STATUE_ALONG);
-//        tv_recharge_x9.setSelected(surStatues == MsgCodeUtils.STATUE_RECHARGE);
-//        layout_along.setVisibility(surStatues == MsgCodeUtils.STATUE_ALONG ? View.VISIBLE : View.GONE);
-//        layout_point.setVisibility(surStatues == MsgCodeUtils.STATUE_POINT || surStatues == MsgCodeUtils.STATUE_TEMPORARY_POINT ? View.VISIBLE : View.GONE);
+        tv_recharge_x9.setSelected(surStatues == MsgCodeUtils.STATUE_RECHARGE);
+        layout_along.setVisibility(surStatues == MsgCodeUtils.STATUE_ALONG ? View.VISIBLE : View.GONE);
+        layout_point.setVisibility(surStatues == MsgCodeUtils.STATUE_POINT || surStatues == MsgCodeUtils.STATUE_TEMPORARY_POINT ? View.VISIBLE : View.GONE);
 
     }
 

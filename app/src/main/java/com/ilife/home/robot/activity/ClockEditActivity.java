@@ -5,12 +5,15 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.TextView;
 
+import androidx.lifecycle.Observer;
+
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.aliyun.iot.aep.sdk.bean.ScheduleBean;
 import com.aliyun.iot.aep.sdk.contant.EnvConfigure;
 import com.aliyun.iot.aep.sdk.contant.IlifeAli;
 import com.aliyun.iot.aep.sdk.contant.MsgCodeUtils;
+import com.google.android.material.tabs.TabLayout;
 import com.ilife.home.livebus.LiveEventBus;
 import com.ilife.home.robot.R;
 import com.ilife.home.robot._interface.OnDialogClick;
@@ -19,9 +22,11 @@ import com.ilife.home.robot.base.BackBaseActivity;
 import com.ilife.home.robot.fragment.BottomSheetSelectDialog;
 import com.ilife.home.robot.fragment.TimeSelectDialog;
 import com.ilife.home.robot.utils.DataUtils;
+import com.ilife.home.robot.utils.MyLogger;
 import com.ilife.home.robot.utils.ToastUtils;
 import com.ilife.home.robot.utils.UiUtil;
 
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import butterknife.BindView;
@@ -35,7 +40,9 @@ import io.reactivex.disposables.Disposable;
  * 定时预约编辑界面
  */
 public class ClockEditActivity extends BackBaseActivity {
+    public static final String TAG="ClockEditActivity";
     public static final String KEY_SCHEDULE_INFO = "schedule_info";
+    public static final String KEY_SCHEDULE_EXIST = "schedule_exist";
 
     @BindView(R.id.tv_top_title)
     TextView tv_title;
@@ -54,7 +61,7 @@ public class ClockEditActivity extends BackBaseActivity {
     private ScheduleBean scheduleBean;
     private int mTextSelectorType;
     private CompositeDisposable mDisposable;
-
+    private List<ScheduleBean> existBeans;
     @Override
     public int getLayoutId() {
         return R.layout.activity_clock_edit;
@@ -68,6 +75,7 @@ public class ClockEditActivity extends BackBaseActivity {
         if (scheduleBean == null) {
             scheduleBean = new ScheduleBean();
         }
+
         LiveEventBus.get(ScheduleAreaActivity.KEY_SCHEDULE_AREA_BEAN, ScheduleBean.class)
                 .observe(this, bean -> {
                     scheduleBean.setLoop(bean.getLoop());

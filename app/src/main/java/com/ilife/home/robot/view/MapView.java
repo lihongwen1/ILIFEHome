@@ -172,8 +172,6 @@ public class MapView extends View {
         rotateBitmap = BitmapUtils.decodeBitmapFromResource(getResources(), R.drawable.operation_btn_angle, deleteIconW, deleteIconW);
         pullBitmap = BitmapUtils.decodeBitmapFromResource(getResources(), R.drawable.operation_btn_zoom, deleteIconW, deleteIconW);
         standBitmap = BitmapUtils.decodeBitmapFromResource(getResources(), R.drawable.operation_icon_stand, deleteIconW, deleteIconW);
-
-
         boxPath = new Path();
     }
 

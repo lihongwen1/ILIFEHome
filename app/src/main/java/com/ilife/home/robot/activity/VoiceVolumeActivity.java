@@ -5,10 +5,7 @@ import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
-
 import com.alibaba.fastjson.JSONObject;
-import com.aliyun.iot.aep.sdk._interface.OnAliResponse;
-import com.aliyun.iot.aep.sdk.bean.PropertyBean;
 import com.aliyun.iot.aep.sdk.contant.EnvConfigure;
 import com.aliyun.iot.aep.sdk.contant.IlifeAli;
 import com.ilife.home.robot.R;
@@ -62,9 +59,9 @@ public class VoiceVolumeActivity extends BackBaseActivity {
     public void initData() {
         super.initData();
         int volume = IlifeAli.getInstance().getWorkingDevice().getDeviceInfo().getVoiceVolume();
+        boolean isOpen = IlifeAli.getInstance().getWorkingDevice().getDeviceInfo().isVoiceOpen();
         sk_voice_volume.setProgress(volume);
         tv_voice_volume.setText(volume + "%");
-        boolean isOpen = volume > 0;
         iv_volume_switch.setSelected(isOpen);
         sk_voice_volume.setEnabled(isOpen);
         tv_voice_volume.setEnabled(isOpen);
@@ -79,12 +76,17 @@ public class VoiceVolumeActivity extends BackBaseActivity {
                 String jsonStr = "{\"BeepVolume\":1}";
                 JSONObject jo = JSONObject.parseObject(jsonStr);
                 jo.put(EnvConfigure.KEY_BeepVolume, sk_voice_volume.getProgress());
-                IlifeAli.getInstance().setProperties(jo, aBoolean -> {
+
+                String beepJson = "{\"BeepNoDisturb\":{\"Switch\":1,\"Time\":0}}";
+                JSONObject bj = JSONObject.parseObject(beepJson);
+                bj.getJSONObject(EnvConfigure.KEY_BEEP_NO_DISTURB).put(EnvConfigure.KEY_SWITCH, iv_volume_switch.isSelected()?0:1);
+                IlifeAli.getInstance().setProperties(bj, value -> IlifeAli.getInstance().setProperties(jo, aBoolean -> {
                     if (aBoolean) {
                         ToastUtils.showToast(UiUtil.getString(R.string.setting_success));
                         removeActivity();
                     }
-                });
+                }));
+
                 break;
             case R.id.iv_volume_switch:
                 boolean isOpen = !iv_volume_switch.isSelected();

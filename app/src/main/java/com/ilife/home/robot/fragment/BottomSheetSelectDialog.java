@@ -3,16 +3,21 @@ package com.ilife.home.robot.fragment;
 import android.content.Context;
 import android.os.Bundle;
 import android.util.SparseIntArray;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import com.ilife.home.robot.R;
 import com.ilife.home.robot.adapter.TextImageSelectorAdapter;
@@ -35,7 +40,7 @@ public class BottomSheetSelectDialog extends BottomSheetDialogFragment {
     private String title;
     private boolean supportCheck;//是否支持多选
     private SparseIntArray selectPosition;
-
+    private View view;
     public BottomSheetSelectDialog(Builder builder) {
         this.builder = builder;
     }
@@ -46,10 +51,22 @@ public class BottomSheetSelectDialog extends BottomSheetDialogFragment {
         this.context = context;
     }
 
+    @Override
+    public void onStart() {
+        super.onStart();
+        /**
+         * 修复小屏幕手机显示不全的bug
+         */
+        View parent = (View) view.getParent();
+        BottomSheetBehavior behavior = BottomSheetBehavior.from(parent);
+        view.measure(0, 0);
+        behavior.setPeekHeight(view.getMeasuredHeight());
+    }
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.dialog_bottom_sheet_text_select, container, false);
+        view = inflater.inflate(R.layout.dialog_bottom_sheet_text_select, container, false);
         initData();
         initView(view);
         return view;
