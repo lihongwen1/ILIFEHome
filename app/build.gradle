@@ -77,19 +77,19 @@ android {
             buildConfigField("int", "Area", "1")
             buildConfigField "String", "BUILD_COUNTRY", "\"CHINA\""//国内
         }
-        zaco {
+        global {
             dimension "default"
-            applicationId "com.zaco.home.robot"
-            versionCode = 2
-            versionName = '1.0.0.2'
+            applicationId "com.ilife.home.global"
+            versionCode = 1
+            versionName = 'V1.0.0'
             signingConfig signingConfigs.ilife_home
-            resValue "string", "app_name", "ZACO"
+            resValue "string", "app_name", "ILIFEHOME"
             buildConfigField("String", "environment", "\"product\"")
-            buildConfigField("String", "BRAND", "\"ZACO\"")
+            buildConfigField("String", "BRAND", "\"ILIFE\"")
             buildConfigField("String", "BUGKY_KEY", "\"2b09f20d-6fca-47de-9e45-3d14223e6731\"")
             buildConfigField("String", "BUGLY_ID", "\"76637b4e00\"")
             buildConfigField("int", "Area", "2")
-            buildConfigField "String", "BUILD_COUNTRY", "\"SINGAPORE\""//国外
+            buildConfigField "String", "BUILD_COUNTRY", "\"GLOBAL\""//海外
         }
     }
 
