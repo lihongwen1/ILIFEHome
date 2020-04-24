@@ -1,16 +1,11 @@
 package com.ilife.home.robot.able;
 
-import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
-import android.os.Bundle;
 
-import com.aliyun.iot.aep.sdk.contant.EnvConfigure;
 import com.aliyun.iot.aep.sdk.contant.MsgCodeUtils;
 import com.ilife.home.robot.BuildConfig;
-import com.ilife.home.robot.app.MyApplication;
-import com.ilife.home.robot.utils.MyLogger;
 import com.ilife.home.robot.R;
+import com.ilife.home.robot.app.MyApplication;
 
 /**
  * Created by chenjiaping on 2017/8/3.
@@ -165,7 +160,11 @@ public class DeviceUtils {
         String[] supportDevice;
         switch (BuildConfig.BRAND) {
             case Constants.BRAND_ILIFE:
-                supportDevice = MyApplication.getInstance().getResources().getStringArray(R.array.array_device_type);
+                if (BuildConfig.Area==Constants.GLOBAL) {//global
+                    supportDevice = MyApplication.getInstance().getResources().getStringArray(R.array.array_oversea_device_type);
+                } else {
+                    supportDevice = MyApplication.getInstance().getResources().getStringArray(R.array.array_device_type);
+                }
                 break;
             case Constants.BRAND_ZACO:
                 supportDevice = MyApplication.getInstance().getResources().getStringArray(R.array.array_zaco_device_type);

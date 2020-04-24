@@ -198,8 +198,8 @@
     {
       "productKey": "a1ogWJdRVNo",
       "factoryType": "X781",
-      "robotType": "A80plus",
-      "settingRobot": "A80plus",
+      "robotType": "X781",
+      "settingRobot": "X781",
       "faceImg": "n_a80_plus",
       "openPowerImg": "pic_open_power_a80_plus",
       "readyWifiImg": "pic_start_a80_plus",
