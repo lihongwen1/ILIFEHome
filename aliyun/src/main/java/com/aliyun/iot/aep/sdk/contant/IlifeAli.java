@@ -664,6 +664,10 @@ public class IlifeAli {
                         int distub = jsonObject.getJSONObject(EnvConfigure.KEY_BEEP_NO_DISTURB).getJSONObject(EnvConfigure.KEY_VALUE).getIntValue(EnvConfigure.KEY_SWITCH);
                         bean.setVoiceOpen(distub == 0);
                     }
+                    if (jsonObject.containsKey(EnvConfigure.KEY_AppRemind)) {
+                        int remind = jsonObject.getJSONObject(EnvConfigure.KEY_AppRemind).getIntValue(EnvConfigure.KEY_VALUE);
+                        bean.setAppRemind(remind);
+                    }
                     if (jsonObject.containsKey(EnvConfigure.KEY_INIT_STATUS)) {
                         int initStatus = jsonObject.getJSONObject(EnvConfigure.KEY_INIT_STATUS).getIntValue(EnvConfigure.KEY_VALUE);
                         bean.setInitStatus(initStatus == 1);

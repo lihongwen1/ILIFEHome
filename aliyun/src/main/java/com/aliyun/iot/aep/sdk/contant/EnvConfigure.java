@@ -66,7 +66,7 @@ public class EnvConfigure {
     public static final String PATH_REPORY_OTA_VER = "/thing/ota/version/reportByUser";
     public static final String PATH_BIND_SERVER_FILTER = "/awss/enrollee/product/filter";
     public static final String PATH_RESET_FACTORY = "/living/device/reset";
-    public static final String PATH__GET_PROPERTY_TIME_LINE_LIVE="/living/device/property/timeline/get";
+    public static final String PATH__GET_PROPERTY_TIME_LINE_LIVE = "/living/device/property/timeline/get";
     /**
      * topic/method
      */
@@ -96,7 +96,7 @@ public class EnvConfigure {
     public static final String KEY_CLEAN_DIRECTION = "CleanDirection";
     public static final String KEY_MAX_MODE = "MaxMode";
     public static final String KEY_VOICE_OPNE = "VOICE_OPEN";
-    public static final String KEY_VirtualWallEN  = "VirtualWallEN";
+    public static final String KEY_VirtualWallEN = "VirtualWallEN";
     public static final String KEY_WATER_CONTROL = "WaterTankContrl";
     public static final String KEY_SCHEDULE = "Schedule";
     public static final String KEY_SCHEDULE_ENABLE = "ScheduleEnable";
@@ -144,7 +144,7 @@ public class EnvConfigure {
     public static final String KEY_FanPower = "FanPower";//地毯增压
     public static final String KEY_BeepType = "BeepType";//语音包
     public static final String KEY_BeepVolume = "BeepVolume";//提示音音量
-    public static final String KEY_WaterTankContrl  = "WaterTankContrl";//提示音音量
+    public static final String KEY_WaterTankContrl = "WaterTankContrl";//提示音音量
 
     public static final String KEY_SAVE_MAP = "SaveMap";
     public static final String KEY_INIT_STATUS = "InitStatus";
@@ -157,6 +157,7 @@ public class EnvConfigure {
     public static final String CleanAreaData = "CleanAreaData";
     public static final String ChargerPiont = "ChargerPiont";
     public static final String KEY_SWITCH = "Switch";
+    public static final String KEY_AppRemind = "AppRemind";
     public static final String KEY_DATA = "data";
     public static final String KEY_START_TIME = "StartTime";
     public static final String KEY_TOTAL_TIME = "CleanTotalTime";

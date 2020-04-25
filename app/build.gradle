@@ -69,7 +69,7 @@ android {
             versionCode = 5
             versionName = '1.0.2.5'
             signingConfig signingConfigs.ilife_home
-            resValue "string", "app_name", "ILIFEHome"
+            resValue "string", "app_name", "AliyunGN"
             buildConfigField("String", "environment", "\"product\"")
             buildConfigField("String", "BRAND", "\"ILIFE\"")
             buildConfigField("String", "BUGKY_KEY", "\"2b09f20d-6fca-47de-9e45-3d14223e6731\"")

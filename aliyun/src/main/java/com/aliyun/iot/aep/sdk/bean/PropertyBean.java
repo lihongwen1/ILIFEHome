@@ -23,6 +23,7 @@ public class PropertyBean {
     private int languageCode;
     private int carpetControl;//地毯增压
     private int virtualWallEn;//虚拟墙使能
+    private int appRemind;//1-提示主机已被移动
     public PropertyBean() {
     }
 
@@ -210,6 +211,14 @@ public class PropertyBean {
 
     public void setVirtualWallEn(int virtualWallEn) {
         this.virtualWallEn = virtualWallEn;
+    }
+
+    public int getAppRemind() {
+        return appRemind;
+    }
+
+    public void setAppRemind(int appRemind) {
+        this.appRemind = appRemind;
     }
 
     @Override

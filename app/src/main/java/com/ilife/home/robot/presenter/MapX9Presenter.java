@@ -29,6 +29,7 @@ import com.ilife.home.robot.bean.Coordinate;
 import com.ilife.home.robot.bean.MapDataBean;
 import com.ilife.home.robot.bean.RobotConfigBean;
 import com.ilife.home.robot.contract.MapX9Contract;
+import com.ilife.home.robot.fragment.UniversalDialog;
 import com.ilife.home.robot.model.MapX9Model;
 import com.ilife.home.robot.utils.DataUtils;
 import com.ilife.home.robot.utils.MyLogger;
@@ -637,6 +638,13 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
         LiveEventBus.get(EnvConfigure.CleanPartitionData, String.class).observe((BaseActivity) mView, cleanRoomData -> {
             MyLogger.d(TAG, "选房清扫改变");
             mDevicePropertyBean.setCleanRoomData(cleanRoomData);
+        });
+        LiveEventBus.get(EnvConfigure.KEY_AppRemind, Integer.class).observe((BaseActivity) mView, appRemind -> {
+            MyLogger.d(TAG, "主机需要APP提示");
+            if (appRemind == 1) {
+//                UniversalDialog universalDialog
+            }
+
         });
 
         LiveEventBus.get(EnvConfigure.ChargerPiont, String.class).observe((BaseActivity) mView, chargingPort -> {
