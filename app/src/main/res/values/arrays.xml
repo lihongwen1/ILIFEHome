@@ -13,6 +13,7 @@
     <string-array name="array_oversea_device_type">
         <item>A80plus</item>
         <item>V85</item>
+        <item>V5x</item>
     </string-array>
     <string-array name="array_zaco_device_type">
         <item>X800</item>

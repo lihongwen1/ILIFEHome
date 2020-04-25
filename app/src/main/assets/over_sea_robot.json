@@ -65,6 +65,38 @@
       "waterLevelType": 2,
       "suctionType": false,
       "newScheduleVersion": false
+    },
+    {
+      "productKey": "a2OrF0qnBjz",
+      "factoryType": "X320",
+      "robotType": "V5x",
+      "settingRobot": "V5x",
+      "faceImg": "n_v3x",
+      "openPowerImg": "pic_open_power_v3x",
+      "readyWifiImg": "pic_start_v3x",
+      "openPowerTip": "",
+      "prepareWifiTip": "ap_guide_sty_typ2_x320",
+      "readyForWifiTip": "ap_guide_already_heared_didi",
+      "rechargeStand": "recharge_stand_v3x",
+      "isHaveMap": false,
+      "isHaveMapData": false,
+      "isOnlyRandomMode": true,
+      "isLongPressControl": false,
+      "isSupportPause": false,
+      "pointToAlong": true,
+      "alongToPoint": true,
+      "planningToAlong": false,
+      "pointAlongToRecharge": false,
+      "settingMode":false,
+      "settingUpdate":false,
+      "settingRecord":false,
+      "settingVoice":false,
+      "historyMapType": 0,
+      "scheduleInDark": true,
+      "waitForOpenPower":false,
+      "waterLevelType": 1,
+      "suctionType": true,
+      "newScheduleVersion":false
     }
   ]
 }
