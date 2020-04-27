@@ -468,6 +468,11 @@ public class IlifeAli {
                                     int carpet = items.getJSONObject(EnvConfigure.KEY_FanPower).getIntValue(EnvConfigure.KEY_VALUE);
                                     getWorkingDevice().getDeviceInfo().setSuctionNumber(carpet);
                                     LiveEventBus.get(EnvConfigure.KEY_FanPower, Integer.class).post(carpet);
+                                } else if (items.containsKey(EnvConfigure.KEY_AppRemind)) {
+                                    int appRemind = items.getJSONObject(EnvConfigure.KEY_AppRemind).getIntValue(EnvConfigure.KEY_VALUE);
+                                    if (appRemind == 1) {
+                                        LiveEventBus.get(EnvConfigure.KEY_AppRemind, Integer.class).post(appRemind);
+                                    }
                                 } else if (items.containsKey(EnvConfigure.KEY_WATER_CONTROL)) {
                                     int water = items.getJSONObject(EnvConfigure.KEY_WATER_CONTROL).getIntValue(EnvConfigure.KEY_VALUE);
                                     getWorkingDevice().getDeviceInfo().setWaterLevel(water);

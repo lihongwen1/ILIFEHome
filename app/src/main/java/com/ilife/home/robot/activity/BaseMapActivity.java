@@ -158,6 +158,7 @@ public abstract class BaseMapActivity extends BackBaseActivity<MapX9Presenter> i
     private BottomSheetBehavior mBottomSheetBehavior;
     private UseTipDialogFragment useTipDialogFragment;
     private DialogFragmentUtil findRobotDialog;
+    private DialogFragmentUtil tipDialog;
 
     @Override
     public void attachPresenter() {
@@ -455,6 +456,20 @@ public abstract class BaseMapActivity extends BackBaseActivity<MapX9Presenter> i
 
     }
 
+    @Override
+    public void showTipDialog() {
+        if (tipDialog == null) {
+            DialogFragmentUtil.Builder builder = new DialogFragmentUtil.Builder();
+            tipDialog = builder.setLayoutId(R.layout.dialog_no_title).setCancelOutSide(false)
+                    .addClickLister(R.id.tv_dialog_ok, v -> {
+                        tipDialog.dismiss();
+                        mPresenter.setAppRemind();
+                    }).build();
+        }
+        if (!tipDialog.isAdded()&&null==getSupportFragmentManager().findFragmentByTag("app_remind")) {
+            tipDialog.show(getSupportFragmentManager(), "app_remind");
+        }
+    }
 
     /**
      * 组件异常

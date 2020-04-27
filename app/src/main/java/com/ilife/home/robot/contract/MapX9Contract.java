@@ -82,6 +82,7 @@ public interface MapX9Contract {
         void drawCleanArea(String data);
         void setStandCoordinate(int x,int y);
         void updateCleanTimes(boolean isDisplay,int cleanedTimes,int settingCleanTimes);
+        void showTipDialog();
     }
 
     interface Presenter {
@@ -160,6 +161,7 @@ public interface MapX9Contract {
         boolean planningToAlong();
 
         RobotConfigBean.RobotBean getRobotBean();
+        void setAppRemind();
     }
 
 }

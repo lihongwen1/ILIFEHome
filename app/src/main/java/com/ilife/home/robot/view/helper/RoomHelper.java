@@ -6,11 +6,14 @@ import android.graphics.Region;
 import android.util.Base64;
 import android.util.SparseIntArray;
 
+import com.huawei.android.hms.agent.common.UIUtils;
 import com.ilife.home.robot.R;
 import com.ilife.home.robot.app.MyApplication;
 import com.ilife.home.robot.bean.PartitionBean;
 import com.ilife.home.robot.utils.DataUtils;
+import com.ilife.home.robot.utils.MyLogger;
 import com.ilife.home.robot.utils.ToastUtils;
+import com.ilife.home.robot.utils.UiUtil;
 import com.ilife.home.robot.view.MapView;
 
 import java.util.ArrayList;
@@ -40,8 +43,9 @@ public class RoomHelper {
     public int getSelectRoomId() {
         int roomId = 0;
         for (int i = 0; i < selecRoom.size(); i++) {
-            roomId += selecRoom.valueAt(i);
+            roomId=DataUtils.setBitTo1(roomId,selecRoom.valueAt(i)-1);
         }
+        MyLogger.d(TAG,"room id to send to server:"+roomId);
         return roomId;
     }
 
@@ -56,7 +60,10 @@ public class RoomHelper {
         int partionId, x, y;
 
         for (int i = 0; i < num; i++) {
-            partionId = DataUtils.bytesToInt(new byte[]{bytes[i * 8], bytes[i * 8 + 1], bytes[i * 8 + 2], bytes[i * 8 + 3]});
+            partionId = DataUtils.getRoomId(new byte[]{bytes[i * 8+3], bytes[i * 8 + 2], bytes[i * 8 + 1], bytes[i * 8]});
+            if (partionId==-1){
+                continue;
+            }
             x = DataUtils.bytesToInt(bytes[i * 8 + 4], bytes[i * 8 + 5]);
             y = -DataUtils.bytesToInt(bytes[i * 8 + 6], bytes[i * 8 + 7]);
             rooms.add(new PartitionBean(partionId, x, y));
@@ -65,10 +72,11 @@ public class RoomHelper {
             }
         }
         Collections.sort(rooms);
-        int tag = 65;
+        int index=0;
+        String[] tags= UiUtil.getStringArray(R.array.array_room_tag);
         for (PartitionBean room : rooms) {
-            room.setTag(String.valueOf((char) tag));
-            tag++;
+            room.setTag(tags[index]);
+            index++;
         }
         Path circle = new Path();
         Region region;
@@ -117,6 +125,7 @@ public class RoomHelper {
         for (PartitionBean room : rooms) {
             if (room.getRegion().contains((int) mapX, (int) mapY)) {
                 id = room.getPartitionId();
+                ToastUtils.showToast("房间ID："+id);
                 if (selecRoom.indexOfKey(id) >= 0) {
                     selecRoom.delete(id);
                 } else {

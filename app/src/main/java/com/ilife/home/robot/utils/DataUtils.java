@@ -394,7 +394,25 @@ public class DataUtils {
 
     }
 
-
+    /**
+     *
+     * @param src 低位在前，高位在后
+     * @return
+     */
+    public static final int getRoomId(byte[] src){
+        byte b;
+        int index=-1;
+        for (int i = 0; i <src.length; i++) {
+            b=src[i];
+            for (int j = 0; j <7; j++) {
+               if (getBit(b,j)==1){
+                   index=i*8+j+1;
+                   return index;
+               }
+            }
+        }
+        return index;
+    }
     /**
      * b为传入的字节，i为第几位（范围0-7），如要获取bit0，则i=0
      *

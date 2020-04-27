@@ -356,5 +356,6 @@
     <string name="dialog_delete_map_hint">The map will not exist after deletion</string>
     <string name="dialog_apply_map_hint">The robot will clean according to the map selected now</string>
     <string name="toast_schedule_already_exits">This schedule already exists</string>
+    <string name="dialog_content_robot_moved">The robot has been moved, please confirm the map</string>
 
 </resources>

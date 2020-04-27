@@ -2,12 +2,14 @@ package com.ilife.home.robot.presenter;
 
 import android.text.TextUtils;
 import android.util.Base64;
+import android.view.View;
 
 import androidx.lifecycle.Observer;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.aliyun.iot.aep.sdk._interface.OnAliResponse;
+import com.aliyun.iot.aep.sdk._interface.OnAliResponseSingle;
 import com.aliyun.iot.aep.sdk._interface.OnAliSetPropertyResponse;
 import com.aliyun.iot.aep.sdk.bean.HistoryRecordBean;
 import com.aliyun.iot.aep.sdk.bean.PropertyBean;
@@ -29,7 +31,7 @@ import com.ilife.home.robot.bean.Coordinate;
 import com.ilife.home.robot.bean.MapDataBean;
 import com.ilife.home.robot.bean.RobotConfigBean;
 import com.ilife.home.robot.contract.MapX9Contract;
-import com.ilife.home.robot.fragment.UniversalDialog;
+import com.ilife.home.robot.fragment.DialogFragmentUtil;
 import com.ilife.home.robot.model.MapX9Model;
 import com.ilife.home.robot.utils.DataUtils;
 import com.ilife.home.robot.utils.MyLogger;
@@ -345,6 +347,8 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
                                 getHistoryDataX8();
                             }
                         }
+                        LiveEventBus.get(EnvConfigure.KEY_AppRemind,Integer.class)
+                                .post(mDevicePropertyBean.getAppRemind());
                         /**
                          * 处理保存地图
                          */
@@ -642,7 +646,7 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
         LiveEventBus.get(EnvConfigure.KEY_AppRemind, Integer.class).observe((BaseActivity) mView, appRemind -> {
             MyLogger.d(TAG, "主机需要APP提示");
             if (appRemind == 1) {
-//                UniversalDialog universalDialog
+               mView.showTipDialog();
             }
 
         });
@@ -942,8 +946,14 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
         return dataBean;
     }
 
-    private int leftX = 0, leftY = 0;
-
+    @Override
+    public void setAppRemind() {
+        String appRemind1 ="{\"AppRemind\":0}";
+        JSONObject json=JSONObject.parseObject(appRemind1);
+        IlifeAli.getInstance().setProperties(json, aBoolean -> {
+            MyLogger.d(TAG,"设置AppRemind为0成功");
+        });
+    }
 
     @Override
     public void detachView() {

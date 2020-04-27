@@ -33,11 +33,10 @@ public class DialogFragmentUtil extends DialogFragment {
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         Window window = getDialog().getWindow();
-        getDialog().setCanceledOnTouchOutside(builder.cancelOutSide);
+        getDialog().setCanceledOnTouchOutside(false);
         WindowManager.LayoutParams wlp = window.getAttributes();
-        wlp.width = WindowManager.LayoutParams.WRAP_CONTENT;
+        wlp.width = (int) getResources().getDimension(R.dimen.dp_315);
         wlp.height = WindowManager.LayoutParams.WRAP_CONTENT;
-        wlp.gravity = Gravity.CENTER;
         window.setAttributes(wlp);
     }
 
