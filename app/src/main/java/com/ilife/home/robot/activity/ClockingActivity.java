@@ -44,7 +44,7 @@ public class ClockingActivity extends BackBaseActivity {
     ClockAdapter adapter;
     LayoutInflater inflater;
     SmartRefreshLayout refreshLayout;
-    List<ScheduleBean> scheduleBeans = new ArrayList<>();
+    ArrayList<ScheduleBean> scheduleBeans = new ArrayList<>();
     @BindView(R.id.tv_top_title)
     TextView tv_title;
     private WeakHandler weakHandler;
@@ -77,6 +77,7 @@ public class ClockingActivity extends BackBaseActivity {
         adapter.setOnItemClickListener((adapter, view, position) -> {
             Intent intent = new Intent(ClockingActivity.this, ClockEditActivity.class);
             intent.putExtra(ClockEditActivity.KEY_SCHEDULE_INFO, scheduleBeans.get(position));
+            intent.putParcelableArrayListExtra(ClockEditActivity.KEY_SCHEDULE_EXIST, scheduleBeans);
             LiveEventBus.get(ClockEditActivity.KEY_SCHEDULE_EXIST).post(scheduleBeans);
             startActivity(intent);
         });
@@ -170,6 +171,7 @@ public class ClockingActivity extends BackBaseActivity {
             scheduleBean.setWeek(0x80);//默认为仅一次
             Intent intent = new Intent(ClockingActivity.this, ClockEditActivity.class);
             intent.putExtra(ClockEditActivity.KEY_SCHEDULE_INFO, scheduleBean);
+            intent.putParcelableArrayListExtra(ClockEditActivity.KEY_SCHEDULE_EXIST, scheduleBeans);
             startActivity(intent);
         }
     }

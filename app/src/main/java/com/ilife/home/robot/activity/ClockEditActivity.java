@@ -5,15 +5,12 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.TextView;
 
-import androidx.lifecycle.Observer;
-
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.aliyun.iot.aep.sdk.bean.ScheduleBean;
 import com.aliyun.iot.aep.sdk.contant.EnvConfigure;
 import com.aliyun.iot.aep.sdk.contant.IlifeAli;
 import com.aliyun.iot.aep.sdk.contant.MsgCodeUtils;
-import com.google.android.material.tabs.TabLayout;
 import com.ilife.home.livebus.LiveEventBus;
 import com.ilife.home.robot.R;
 import com.ilife.home.robot._interface.OnDialogClick;
@@ -22,10 +19,11 @@ import com.ilife.home.robot.base.BackBaseActivity;
 import com.ilife.home.robot.fragment.BottomSheetSelectDialog;
 import com.ilife.home.robot.fragment.TimeSelectDialog;
 import com.ilife.home.robot.utils.DataUtils;
-import com.ilife.home.robot.utils.MyLogger;
 import com.ilife.home.robot.utils.ToastUtils;
 import com.ilife.home.robot.utils.UiUtil;
 
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -40,7 +38,7 @@ import io.reactivex.disposables.Disposable;
  * 定时预约编辑界面
  */
 public class ClockEditActivity extends BackBaseActivity {
-    public static final String TAG="ClockEditActivity";
+    public static final String TAG = "ClockEditActivity";
     public static final String KEY_SCHEDULE_INFO = "schedule_info";
     public static final String KEY_SCHEDULE_EXIST = "schedule_exist";
 
@@ -62,6 +60,7 @@ public class ClockEditActivity extends BackBaseActivity {
     private int mTextSelectorType;
     private CompositeDisposable mDisposable;
     private List<ScheduleBean> existBeans;
+
     @Override
     public int getLayoutId() {
         return R.layout.activity_clock_edit;
@@ -75,7 +74,7 @@ public class ClockEditActivity extends BackBaseActivity {
         if (scheduleBean == null) {
             scheduleBean = new ScheduleBean();
         }
-
+        existBeans = getIntent().getParcelableArrayListExtra(KEY_SCHEDULE_EXIST);
         LiveEventBus.get(ScheduleAreaActivity.KEY_SCHEDULE_AREA_BEAN, ScheduleBean.class)
                 .observe(this, bean -> {
                     scheduleBean.setLoop(bean.getLoop());
@@ -173,26 +172,30 @@ public class ClockEditActivity extends BackBaseActivity {
                 removeActivity();
                 break;
             case R.id.btn_save_schedule:
-                showLoadingDialog();
-                scheduleBean.setEnable(1);
-                String scheduleJson = JSON.toJSONString(scheduleBean);
-                JSONObject jsoSchedule = JSONObject.parseObject(scheduleJson);
-                String json_str = "{\"Schedule\":\" \"}";
-                String schedule_ = json_str.replaceFirst(EnvConfigure.KEY_SCHEDULE, EnvConfigure.KEY_SCHEDULE + scheduleBean.getKeyIndex());
-                JSONObject jso = JSONObject.parseObject(schedule_);
-                jso.put(EnvConfigure.KEY_SCHEDULE + scheduleBean.getKeyIndex(), jsoSchedule);
-                IlifeAli.getInstance().setProperties(jso, aBoolean -> {
-                    if (aBoolean) {
-                        Disposable dis = Observable.timer(1, TimeUnit.SECONDS).observeOn(AndroidSchedulers.mainThread()).subscribe(aLong -> {
-                            hideLoadingDialog();
-                            ToastUtils.showToast(UiUtil.getString(R.string.setting_success));
-                            removeActivity();
-                        });
-                        mDisposable.add(dis);
+                if (checkSchedule()) {
+                    ToastUtils.showToast(UiUtil.getString(R.string.toast_schedule_already_exits));
+                } else {
+                    showLoadingDialog();
+                    scheduleBean.setEnable(1);
+                    String scheduleJson = JSON.toJSONString(scheduleBean);
+                    JSONObject jsoSchedule = JSONObject.parseObject(scheduleJson);
+                    String json_str = "{\"Schedule\":\" \"}";
+                    String schedule_ = json_str.replaceFirst(EnvConfigure.KEY_SCHEDULE, EnvConfigure.KEY_SCHEDULE + scheduleBean.getKeyIndex());
+                    JSONObject jso = JSONObject.parseObject(schedule_);
+                    jso.put(EnvConfigure.KEY_SCHEDULE + scheduleBean.getKeyIndex(), jsoSchedule);
+                    IlifeAli.getInstance().setProperties(jso, aBoolean -> {
+                        if (aBoolean) {
+                            Disposable dis = Observable.timer(1, TimeUnit.SECONDS).observeOn(AndroidSchedulers.mainThread()).subscribe(aLong -> {
+                                hideLoadingDialog();
+                                ToastUtils.showToast(UiUtil.getString(R.string.setting_success));
+                                removeActivity();
+                            });
+                            mDisposable.add(dis);
 
-                    }
-                });
-                //保存预约数据
+                        }
+                    });
+                    //保存预约数据
+                }
                 break;
         }
     }
@@ -255,6 +258,53 @@ public class ClockEditActivity extends BackBaseActivity {
             textSelectDialog.setArguments(bundle);
             textSelectDialog.show(getSupportFragmentManager(), "time_selector");
         }
+    }
+
+    /**
+     * 检查预约是否可用
+     *
+     * @return
+     */
+    private boolean checkSchedule() {
+        boolean isExist = false;
+        int week;
+        if (scheduleBean.getWeek() == 0x80) {
+            week = getOnlyOnceWeek(scheduleBean);
+        } else {
+            week = scheduleBean.getWeek();
+        }
+        if (existBeans != null) {
+            for (ScheduleBean bean : existBeans) {
+                if (scheduleBean.getKeyIndex() != bean.getKeyIndex()) {
+                    if (bean.getWeek() == 0x80) {
+                        isExist = (getOnlyOnceWeek(bean) & week) > 0 && bean.getHour() == scheduleBean.getHour() && bean.getMinutes() == bean.getMinutes();
+                    } else {
+                        isExist = (bean.getWeek() & week) > 0 && bean.getHour() == scheduleBean.getHour() && bean.getMinutes() == bean.getMinutes();
+                    }
+                    if (isExist) {
+                        break;
+                    }
+                }
+            }
+        }
+
+        return isExist;
+    }
+
+    private int getOnlyOnceWeek(ScheduleBean bean) {
+        Date date = new Date();
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
+        int hour = calendar.get(Calendar.HOUR);
+        int minute = calendar.get(Calendar.MINUTE);
+        int d_week = calendar.get(Calendar.DAY_OF_WEEK);
+        if (hour > bean.getHour()) {
+            d_week += 1;
+        }
+        if (hour == bean.getHour() && minute > bean.getMinutes()) {
+            d_week += 1;
+        }
+        return getScheduleWeek(new int[]{d_week - 1});
     }
 
     private int getScheduleWeek(int[] positions) {
