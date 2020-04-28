@@ -1233,4 +1233,8 @@ public class MapView extends View {
     public float getBaseScare() {
         return baseScare;
     }
+
+    public ArrayList<Coordinate> getPointList() {
+        return pointList;
+    }
 }
