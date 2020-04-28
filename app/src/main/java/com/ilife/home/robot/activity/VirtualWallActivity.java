@@ -159,7 +159,7 @@ public class VirtualWallActivity extends BackBaseActivity {
                 byte[] bytes = DataUtils.intToBytes4(xy);
                 int x = DataUtils.bytesToInt(new byte[]{bytes[0], bytes[1]}, 0);
                 int y = -DataUtils.bytesToInt(new byte[]{bytes[2], bytes[3]}, 0);
-                mMapView.drawChargePort(x, y);
+                mMapView.drawChargePort(x, y,true);
             }
         }
     }

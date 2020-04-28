@@ -33,6 +33,7 @@
             android:layout_width="0dp"
             android:layout_height="@dimen/dp_48"
             android:layout_weight="1"
+            android:textColor="@color/color_theme"
             android:background="@drawable/shape_bg_gray"
             android:text="@string/cancel_" />
 
@@ -44,6 +45,7 @@
             android:id="@+id/btn_save_text"
             android:layout_width="0dp"
             android:layout_height="@dimen/dp_48"
+            android:textColor="@color/color_ff"
             android:layout_weight="1"
             android:background="@drawable/shape_bg_color"
             android:text="@string/btn_save" />

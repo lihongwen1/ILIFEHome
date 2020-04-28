@@ -57,7 +57,7 @@ public interface MapX9Contract {
 
         void drawVirtualWall(String vwStr);
 
-        void drawChargePort(int x,int y);
+        void drawChargePort(int x,int y,boolean isDisplay);
 
         void updateAlong(boolean isAlong);
 
@@ -80,7 +80,6 @@ public interface MapX9Contract {
         void setUnconditionalRecreate(boolean recreate);
         void drawForbiddenArea(String data);
         void drawCleanArea(String data);
-        void setStandCoordinate(int x,int y);
         void updateCleanTimes(boolean isDisplay,int cleanedTimes,int settingCleanTimes);
         void showTipDialog();
     }

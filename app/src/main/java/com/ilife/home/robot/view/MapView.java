@@ -83,7 +83,7 @@ public class MapView extends View {
     private final int DRAG = 3;
     private PaintManager mPaintManager;
     private PointF standPointF;//充电座
-
+    private boolean isChargingPortDisplay=false;//是否展示充电座
     /**
      * map operation type
      */
@@ -570,10 +570,7 @@ public class MapView extends View {
             /**
              * 绘制充电座
              */
-            if (standPointF != null) {
-                if (standPointF.x ==  standPointF.y && standPointF.x == 0) {
-                    return;
-                }
+            if (standPointF != null&&isChargingPortDisplay) {
                 float width = standBitmap.getWidth() / 2f;
                 canvas.drawBitmap(standBitmap, matrixCoordinateX(standPointF.x) - width, matrixCoordinateY(standPointF.y) - width, mPaintManager.getIconPaint());
             }
@@ -866,10 +863,11 @@ public class MapView extends View {
      * @param x
      * @param y
      */
-    public void drawChargePort(int x, int y) {
+    public void drawChargePort(int x, int y,boolean isDisplay) {
         if (standPointF == null) {
             standPointF = new PointF();
         }
+        isChargingPortDisplay=isDisplay;
         standPointF.set(x, y);
         invalidateUI();
     }

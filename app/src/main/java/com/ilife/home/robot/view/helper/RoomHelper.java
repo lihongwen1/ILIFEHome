@@ -35,8 +35,8 @@ public class RoomHelper {
         this.mMapView = mapView;
         rooms = new ArrayList<>();
         selecRoom = new SparseIntArray();
-        radius = MyApplication.getInstance().getResources().getDimensionPixelSize(R.dimen.dp_20);
-        textSize = MyApplication.getInstance().getResources().getDimensionPixelSize(R.dimen.dp_20);
+        radius = MyApplication.getInstance().getResources().getDimensionPixelSize(R.dimen.dp_40);
+        textSize = MyApplication.getInstance().getResources().getDimensionPixelSize(R.dimen.dp_40);
     }
 
 
@@ -125,7 +125,6 @@ public class RoomHelper {
         for (PartitionBean room : rooms) {
             if (room.getRegion().contains((int) mapX, (int) mapY)) {
                 id = room.getPartitionId();
-                ToastUtils.showToast("房间ID："+id);
                 if (selecRoom.indexOfKey(id) >= 0) {
                     selecRoom.delete(id);
                 } else {

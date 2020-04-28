@@ -20,5 +20,5 @@
     <string name="ali_sdk_openaccount_text_reset_password_rule">1、为了您的账号安全，新旧密码必须不同\n2、6–20位字符(字母 数字 符号)，不能只使用一种字符，区别大小写</string>
     <string name="ali_sdk_openaccount_text_send_sms_code">获取验证码</string>
     <string name="ali_sdk_openaccount_text_sendmail">获取验证码</string>
-    <string name="ali_sdk_openaccount_text_username">手机号码/邮箱</string>
+    <string name="ali_sdk_openaccount_text_username">邮箱</string>
 </resources>

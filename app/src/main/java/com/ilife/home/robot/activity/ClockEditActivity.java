@@ -153,7 +153,7 @@ public class ClockEditActivity extends BackBaseActivity {
                 break;
             case R.id.ll_schedule_loop://预约重复时间
                 mTextSelectorType = 1;
-                showTextSelectorDialog(true, UiUtil.getString(R.string.clock_repeat), R.array.text_week, DataUtils.getScheduleWeekFull(scheduleBean.getWeek()));
+                showTextSelectorDialog(true, UiUtil.getString(R.string.clock_repeat), R.array.text_week, DataUtils.getScheduleWeek(scheduleBean.getWeek()));
                 break;
             case R.id.ll_schedule_mode://预约清扫模式
                 mTextSelectorType = 2;
@@ -277,9 +277,9 @@ public class ClockEditActivity extends BackBaseActivity {
             for (ScheduleBean bean : existBeans) {
                 if (scheduleBean.getKeyIndex() != bean.getKeyIndex()) {
                     if (bean.getWeek() == 0x80) {
-                        isExist = (getOnlyOnceWeek(bean) & week) > 0 && bean.getHour() == scheduleBean.getHour() && bean.getMinutes() == bean.getMinutes();
+                        isExist = (getOnlyOnceWeek(bean) & week) > 0 && bean.getHour() == scheduleBean.getHour() && bean.getMinutes() == scheduleBean.getMinutes();
                     } else {
-                        isExist = (bean.getWeek() & week) > 0 && bean.getHour() == scheduleBean.getHour() && bean.getMinutes() == bean.getMinutes();
+                        isExist = (bean.getWeek() & week) > 0 && bean.getHour() == scheduleBean.getHour() && bean.getMinutes() == scheduleBean.getMinutes();
                     }
                     if (isExist) {
                         break;

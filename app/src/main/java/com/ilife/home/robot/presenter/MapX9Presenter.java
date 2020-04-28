@@ -2,14 +2,12 @@ package com.ilife.home.robot.presenter;
 
 import android.text.TextUtils;
 import android.util.Base64;
-import android.view.View;
 
 import androidx.lifecycle.Observer;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.aliyun.iot.aep.sdk._interface.OnAliResponse;
-import com.aliyun.iot.aep.sdk._interface.OnAliResponseSingle;
 import com.aliyun.iot.aep.sdk._interface.OnAliSetPropertyResponse;
 import com.aliyun.iot.aep.sdk.bean.HistoryRecordBean;
 import com.aliyun.iot.aep.sdk.bean.PropertyBean;
@@ -31,7 +29,6 @@ import com.ilife.home.robot.bean.Coordinate;
 import com.ilife.home.robot.bean.MapDataBean;
 import com.ilife.home.robot.bean.RobotConfigBean;
 import com.ilife.home.robot.contract.MapX9Contract;
-import com.ilife.home.robot.fragment.DialogFragmentUtil;
 import com.ilife.home.robot.model.MapX9Model;
 import com.ilife.home.robot.utils.DataUtils;
 import com.ilife.home.robot.utils.MyLogger;
@@ -347,7 +344,7 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
                                 getHistoryDataX8();
                             }
                         }
-                        LiveEventBus.get(EnvConfigure.KEY_AppRemind,Integer.class)
+                        LiveEventBus.get(EnvConfigure.KEY_AppRemind, Integer.class)
                                 .post(mDevicePropertyBean.getAppRemind());
                         /**
                          * 处理保存地图
@@ -646,7 +643,7 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
         LiveEventBus.get(EnvConfigure.KEY_AppRemind, Integer.class).observe((BaseActivity) mView, appRemind -> {
             MyLogger.d(TAG, "主机需要APP提示");
             if (appRemind == 1) {
-               mView.showTipDialog();
+                mView.showTipDialog();
             }
 
         });
@@ -655,13 +652,11 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
             if (!TextUtils.isEmpty(chargingPort) && isViewAttached() && isDrawMap()) {
                 JSONObject jsonObject = JSONObject.parseObject(chargingPort);
                 boolean isDisplay = jsonObject.getIntValue("DisplaySwitch") == 1;
-                if (isDisplay) {
-                    int xy = jsonObject.getIntValue("Piont");
-                    byte[] bytes = DataUtils.intToBytes4(xy);
-                    int x = DataUtils.bytesToInt(new byte[]{bytes[0], bytes[1]}, 0);
-                    int y = -DataUtils.bytesToInt(new byte[]{bytes[2], bytes[3]}, 0);
-                    mView.drawChargePort(x, y);
-                }
+                int xy = jsonObject.getIntValue("Piont");
+                byte[] bytes = DataUtils.intToBytes4(xy);
+                int x = DataUtils.bytesToInt(new byte[]{bytes[0], bytes[1]}, 0);
+                int y = -DataUtils.bytesToInt(new byte[]{bytes[2], bytes[3]}, 0);
+                mView.drawChargePort(x, y, isDisplay);
             }
         });
 
@@ -672,7 +667,7 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
                 slamPointList.clear();
                 mView.drawVirtualWall("");
                 mView.drawForbiddenArea("");
-                mView.drawChargePort(0, 0);
+                mView.drawChargePort(0, 0,false);
                 mView.drawMapX8(pointList, slamPointList);
             } else {
                 IlifeAli.getInstance().getProperties(new OnAliResponse<PropertyBean>() {
@@ -948,10 +943,10 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
 
     @Override
     public void setAppRemind() {
-        String appRemind1 ="{\"AppRemind\":0}";
-        JSONObject json=JSONObject.parseObject(appRemind1);
+        String appRemind1 = "{\"AppRemind\":0}";
+        JSONObject json = JSONObject.parseObject(appRemind1);
         IlifeAli.getInstance().setProperties(json, aBoolean -> {
-            MyLogger.d(TAG,"设置AppRemind为0成功");
+            MyLogger.d(TAG, "设置AppRemind为0成功");
         });
     }
 

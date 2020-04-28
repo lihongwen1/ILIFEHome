@@ -414,8 +414,8 @@ public abstract class BaseMapActivity extends BackBaseActivity<MapX9Presenter> i
     }
 
     @Override
-    public void drawChargePort(int x, int y) {
-        mMapView.drawChargePort(x, y);
+    public void drawChargePort(int x, int y,boolean isDisplay) {
+        mMapView.drawChargePort(x, y,isDisplay);
     }
 
     @Override
@@ -466,7 +466,7 @@ public abstract class BaseMapActivity extends BackBaseActivity<MapX9Presenter> i
                         mPresenter.setAppRemind();
                     }).build();
         }
-        if (!tipDialog.isAdded()&&null==getSupportFragmentManager().findFragmentByTag("app_remind")) {
+        if (!tipDialog.isAdded()) {
             tipDialog.show(getSupportFragmentManager(), "app_remind");
         }
     }
@@ -537,10 +537,7 @@ public abstract class BaseMapActivity extends BackBaseActivity<MapX9Presenter> i
     }
 
 
-    @Override
-    public void setStandCoordinate(int x, int y) {
-        mMapView.drawChargePort(x, y);
-    }
+
 
     @Override
     /**

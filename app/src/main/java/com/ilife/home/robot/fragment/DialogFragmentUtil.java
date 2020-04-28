@@ -12,6 +12,8 @@ import android.view.WindowManager;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 
 import com.ilife.home.robot.R;
 
@@ -33,10 +35,11 @@ public class DialogFragmentUtil extends DialogFragment {
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         Window window = getDialog().getWindow();
-        getDialog().setCanceledOnTouchOutside(false);
+        getDialog().setCanceledOnTouchOutside(builder.cancelOutSide);
         WindowManager.LayoutParams wlp = window.getAttributes();
-        wlp.width = (int) getResources().getDimension(R.dimen.dp_315);
+        wlp.width = WindowManager.LayoutParams.WRAP_CONTENT;
         wlp.height = WindowManager.LayoutParams.WRAP_CONTENT;
+        wlp.gravity = Gravity.CENTER;
         window.setAttributes(wlp);
     }
 
@@ -58,10 +61,6 @@ public class DialogFragmentUtil extends DialogFragment {
             view.findViewById(id).setOnClickListener(onClickListener);
         }
     }
-
-
-
-
 
     public static class Builder {
         int layoutId;
