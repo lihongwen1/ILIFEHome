@@ -534,12 +534,13 @@ public class SettingActivity extends BackBaseActivity implements OnAliSetPropert
     }
 
     private boolean canOperateSuction() {
-        int curWorkMode = IlifeAli.getInstance().getWorkingDevice().getWork_status();
-        if ((curWorkMode == MsgCodeUtils.STATUE_POINT || curWorkMode == MsgCodeUtils.STATUE_RECHARGE)) {
-            return false;
-        } else {
-            return true;
-        }
+        return true;
+//        int curWorkMode = IlifeAli.getInstance().getWorkingDevice().getWork_status();
+//        if ((curWorkMode == MsgCodeUtils.STATUE_POINT || curWorkMode == MsgCodeUtils.STATUE_RECHARGE)) {
+//            return false;
+//        } else {
+//            return true;
+//        }
     }
 
     public void findDone() {
