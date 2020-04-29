@@ -130,7 +130,7 @@ public class PersonalActivity extends BackBaseActivity implements View.OnClickLi
         }
     }
 
-    @OnClick({R.id.rl_user_information, R.id.rl_protocol, R.id.rl_help, R.id.rl_app_authorization, R.id.rl_scan, R.id.bt_logout, R.id.tv_user_agreement, R.id.tv_protocol_privacy, R.id.rl_share})
+    @OnClick({R.id.rl_user_information,R.id.rl_delete_account, R.id.rl_protocol, R.id.rl_help, R.id.rl_app_authorization, R.id.rl_scan, R.id.bt_logout, R.id.tv_user_agreement, R.id.tv_protocol_privacy, R.id.rl_share})
     public void onClick(View v) {
         Intent i;
         switch (v.getId()) {
@@ -183,6 +183,9 @@ public class PersonalActivity extends BackBaseActivity implements View.OnClickLi
                         ToastUtils.showToast(context, getString(R.string.personal_aty_no_shareable));
                     }
                 }
+                break;
+            case R.id.rl_delete_account://删除账号
+                IlifeAli.getInstance().unRegisterAccount();
                 break;
         }
     }

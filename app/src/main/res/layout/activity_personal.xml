@@ -183,6 +183,40 @@
 
 
             <RelativeLayout
+                android:id="@+id/rl_delete_account"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/dp_60"
+                android:layout_marginStart="@dimen/dp_24"
+                android:background="@color/white">
+
+                <ImageView
+                    android:id="@+id/iv_delete_account"
+                    style="@style/Image_Style_24"
+                    android:background="@drawable/n_icon_protocol" />
+
+                <TextView
+                    style="@style/Text_16sp_33"
+                    android:layout_centerVertical="true"
+                    android:layout_marginStart="@dimen/dp_20"
+                    android:layout_toStartOf="@+id/image_forward_delete_account"
+                    android:layout_toEndOf="@+id/iv_delete_account"
+                    android:text="@string/delete_account"
+                    android:textColor="@color/color_33" />
+
+                <ImageView
+                    android:id="@+id/image_forward_delete_account"
+                    style="@style/Image_Style_Forward"
+                    android:layout_marginEnd="@dimen/dp_24" />
+            </RelativeLayout>
+
+
+            <View
+                style="@style/View_Line_Style"
+                android:layout_marginStart="@dimen/dp_70" />
+
+
+
+            <RelativeLayout
                 android:id="@+id/rl_app_authorization"
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/dp_60"

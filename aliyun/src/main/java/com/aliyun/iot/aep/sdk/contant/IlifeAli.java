@@ -3,6 +3,7 @@ package com.aliyun.iot.aep.sdk.contant;
 import android.os.Build;
 import android.text.TextUtils;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
@@ -1598,6 +1599,29 @@ public class IlifeAli {
 
                 }
 
+            }
+        }));
+    }
+
+    public void unRegisterAccount(){
+        JSONObject params = new JSONObject();
+        Map<String, Object> requestMap = params.getInnerMap();
+        IoTRequest ioTRequest = new IoTRequestBuilder()
+                .setAuthType(EnvConfigure.IOT_AUTH)
+                .setApiVersion("1.0.5")
+                .setPath("account/unregister")
+                .setParams(requestMap)
+                .setScheme(Scheme.HTTPS)
+                .build();
+        new IoTAPIClientFactory().getClient().send(ioTRequest, new IoTUIThreadCallback(new IoTCallback() {
+            @Override
+            public void onFailure(IoTRequest ioTRequest, Exception e) {
+                Log.d(TAG,"删除账号失败---------");
+            }
+
+            @Override
+            public void onResponse(IoTRequest ioTRequest, IoTResponse ioTResponse) {
+                Log.d(TAG,"删除账号成功---------");
             }
         }));
     }
