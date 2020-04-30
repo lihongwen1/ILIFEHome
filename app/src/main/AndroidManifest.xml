@@ -178,6 +178,10 @@
             android:launchMode="singleTop"
             android:screenOrientation="portrait" />
         <activity
+            android:name=".activity.SegmentationRoomActivity"
+            android:launchMode="singleTop"
+            android:screenOrientation="portrait" />
+        <activity
             android:name=".activity.ScheduleAreaActivity"
             android:launchMode="singleTop"
             android:screenOrientation="portrait" />

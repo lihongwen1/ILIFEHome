@@ -4,9 +4,11 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.DashPathEffect;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Path;
+import android.graphics.PathEffect;
 import android.graphics.PointF;
 import android.graphics.PorterDuff;
 import android.graphics.RectF;
@@ -29,6 +31,7 @@ import com.ilife.home.robot.utils.Utils;
 import com.ilife.home.robot.view.helper.CleanAreaHelper;
 import com.ilife.home.robot.view.helper.ForbiddenAreaHelper;
 import com.ilife.home.robot.view.helper.RoomHelper;
+import com.ilife.home.robot.view.helper.SegmentationRoomHelper;
 import com.ilife.home.robot.view.helper.VirtualWallHelper;
 
 import java.math.BigDecimal;
@@ -76,6 +79,7 @@ public class MapView extends View {
     private VirtualWallHelper mVirtualWallHelper;
     private ForbiddenAreaHelper mForbiddenHelper;//全局禁区
     private CleanAreaHelper mCleanHelper;
+    private SegmentationRoomHelper mSegmentHelper;//分割房间
     private RoomHelper mRoomHelper;
     private OT mOT = OT.NOON;//默认操作地图
     private int MAP_MODE;//标记操作地图的类型
@@ -83,7 +87,8 @@ public class MapView extends View {
     private final int DRAG = 3;
     private PaintManager mPaintManager;
     private PointF standPointF;//充电座
-    private boolean isChargingPortDisplay=false;//是否展示充电座
+    private boolean isChargingPortDisplay = false;//是否展示充电座
+
     /**
      * map operation type
      */
@@ -95,7 +100,8 @@ public class MapView extends View {
         MOP_FORBIDDEN_AREA(4),//抹地禁区
         SELECT_ROOM(5),//选房清扫
         PARTITION(6),//分区
-        CLEAN_AREA(7);//划区清扫
+        CLEAN_AREA(7),//划区清扫
+        SEGMENT_ROOM(8);//分割房间
         final int nativeType;
 
         OT(int type) {
@@ -155,6 +161,7 @@ public class MapView extends View {
         mPaintManager = new PaintManager();
         mVirtualWallHelper = new VirtualWallHelper(this);
         mForbiddenHelper = new ForbiddenAreaHelper(this);
+        mSegmentHelper = new SegmentationRoomHelper(this);
         mCleanHelper = new CleanAreaHelper(this);
         mRoomHelper = new RoomHelper(this);
         colors = new int[]{getResources().getColor(R.color.obstacle_color), getResources().getColor(R.color.slam_color),
@@ -547,12 +554,25 @@ public class MapView extends View {
                     }
                 }
             }
+            /**
+             * 绘制分割房间线
+             */
 
-
+            if (mOT == OT.MAP || mOT == OT.SEGMENT_ROOM) {
+                if (mSegmentHelper.isHaveLine() && mSegmentHelper.getGatePath() != null && mSegmentHelper.getGatePath() != null) {
+                    canvas.drawLines(mSegmentHelper.getmCoordinates(), mPaintManager.changeColor(mPaintManager.getDashPaint(), PaintColor.VIRTUAL));
+                    if (mSegmentHelper.isNeedCalculateGate()) {
+                        canvas.drawLines(mSegmentHelper.getGateCoordinates(), mPaintManager.changeColor(mPaintManager.getLinePaint(), PaintColor.ROOM_GATE));
+                    }
+                    canvas.drawPath(mSegmentHelper.getmBoundaryPath(), mPaintManager.changeColor(mPaintManager.getStrokePaint(), PaintColor.RECTANGLE_BOUNDARY));
+                    canvas.drawBitmap(pullBitmap, mSegmentHelper.getPullRect().left, mSegmentHelper.getPullRect().top, mPaintManager.getIconPaint());
+                }
+            }
             /**
              * draw room tag/绘制房间标记
+             * 选房清扫，分割房间清扫；
              */
-            if (mOT == OT.MAP || mOT == OT.SELECT_ROOM) {
+            if (mOT == OT.MAP || mOT == OT.SELECT_ROOM || mOT == OT.SEGMENT_ROOM) {
                 Paint paint = mPaintManager.getFillPaint();
                 paint.setTextSize(mRoomHelper.getTextSize());
                 for (PartitionBean room : mRoomHelper.getRooms()) {
@@ -570,7 +590,7 @@ public class MapView extends View {
             /**
              * 绘制充电座
              */
-            if (standPointF != null&&isChargingPortDisplay) {
+            if (standPointF != null && isChargingPortDisplay) {
                 float width = standBitmap.getWidth() / 2f;
                 canvas.drawBitmap(standBitmap, matrixCoordinateX(standPointF.x) - width, matrixCoordinateY(standPointF.y) - width, mPaintManager.getIconPaint());
             }
@@ -705,6 +725,9 @@ public class MapView extends View {
                 break;
             case CLEAN_AREA:
                 mCleanHelper.onTouch(event, (int) x, (int) y);
+                break;
+            case SEGMENT_ROOM:
+                mSegmentHelper.onTouch(event, (int) x, (int) y);
                 break;
         }
         return true;
@@ -863,11 +886,11 @@ public class MapView extends View {
      * @param x
      * @param y
      */
-    public void drawChargePort(int x, int y,boolean isDisplay) {
+    public void drawChargePort(int x, int y, boolean isDisplay) {
         if (standPointF == null) {
             standPointF = new PointF();
         }
-        isChargingPortDisplay=isDisplay;
+        isChargingPortDisplay = isDisplay;
         standPointF.set(x, y);
         invalidateUI();
     }
@@ -1058,7 +1081,7 @@ public class MapView extends View {
     }
 
     private class PaintManager {
-        private Paint slamPaint, linePaint, roadPaint, mapPaint, fillPaint, strokePaint, iconPaint, textPaint;
+        private Paint slamPaint, linePaint, roadPaint, mapPaint, fillPaint, strokePaint, iconPaint, textPaint, dashPaint;
 
         public PaintManager() {
             initPaint();
@@ -1076,6 +1099,11 @@ public class MapView extends View {
 
             linePaint = new Paint(Paint.ANTI_ALIAS_FLAG | Paint.DITHER_FLAG);
             buildPaint(linePaint, getResources().getColor(R.color.color_theme), Paint.Style.FILL_AND_STROKE, 10, Paint.Join.ROUND);
+
+            dashPaint = new Paint(Paint.ANTI_ALIAS_FLAG | Paint.DITHER_FLAG);
+            buildPaint(dashPaint, getResources().getColor(R.color.color_theme), Paint.Style.FILL_AND_STROKE, 10, Paint.Join.ROUND);
+            PathEffect pathEffect = new DashPathEffect(new float[]{20,20}, 0);
+            dashPaint.setPathEffect(pathEffect);
 
             roadPaint = new Paint(Paint.ANTI_ALIAS_FLAG | Paint.DITHER_FLAG);
             buildPaint(roadPaint, getResources().getColor(R.color.white), Paint.Style.STROKE, 4, Paint.Join.ROUND);
@@ -1145,6 +1173,10 @@ public class MapView extends View {
         public Paint toFillStyle(Paint paint) {
             paint.setStyle(Paint.Style.FILL_AND_STROKE);
             return paint;
+        }
+
+        public Paint getDashPaint() {
+            return dashPaint;
         }
 
         public Paint getTextPaint() {
@@ -1228,6 +1260,10 @@ public class MapView extends View {
             this.type = type;
             this.color = color;
         }
+    }
+
+    public float getSystemScale() {
+        return systemScale;
     }
 
     public float getBaseScare() {

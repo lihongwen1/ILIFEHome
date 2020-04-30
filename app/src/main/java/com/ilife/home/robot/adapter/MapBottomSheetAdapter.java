@@ -1,11 +1,8 @@
 package com.ilife.home.robot.adapter;
 
-import android.widget.TextView;
-
 import androidx.annotation.NonNull;
 
 import com.ilife.home.robot.R;
-import com.ilife.home.robot.app.MyApplication;
 import com.ilife.home.robot.base.BaseQuickAdapter;
 import com.ilife.home.robot.base.BaseViewHolder;
 import com.ilife.home.robot.utils.MyLogger;
@@ -36,6 +33,9 @@ public class MapBottomSheetAdapter extends BaseQuickAdapter<String, BaseViewHold
                 break;
             case 4:
                 iconId=R.drawable.operation_btn_location;
+                break;
+            case 5:
+                iconId = R.drawable.operation_btn_location;
                 break;
         }
         holder.setImageResource(R.id.iv_map_function,iconId);

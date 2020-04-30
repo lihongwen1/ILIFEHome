@@ -35,8 +35,8 @@ public class RoomHelper {
         this.mMapView = mapView;
         rooms = new ArrayList<>();
         selecRoom = new SparseIntArray();
-        radius = MyApplication.getInstance().getResources().getDimensionPixelSize(R.dimen.dp_40);
-        textSize = MyApplication.getInstance().getResources().getDimensionPixelSize(R.dimen.dp_40);
+        radius = MyApplication.getInstance().getResources().getDimensionPixelSize(R.dimen.dp_20);
+        textSize = MyApplication.getInstance().getResources().getDimensionPixelSize(R.dimen.dp_20);
     }
 
 
