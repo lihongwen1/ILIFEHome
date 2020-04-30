@@ -192,7 +192,7 @@
                 <ImageView
                     android:id="@+id/iv_delete_account"
                     style="@style/Image_Style_24"
-                    android:background="@drawable/n_icon_protocol" />
+                    android:background="@drawable/personal_icon_del" />
 
                 <TextView
                     style="@style/Text_16sp_33"
@@ -200,7 +200,7 @@
                     android:layout_marginStart="@dimen/dp_20"
                     android:layout_toStartOf="@+id/image_forward_delete_account"
                     android:layout_toEndOf="@+id/iv_delete_account"
-                    android:text="@string/delete_account"
+                    android:text="@string/dialog_delete_account"
                     android:textColor="@color/color_33" />
 
                 <ImageView

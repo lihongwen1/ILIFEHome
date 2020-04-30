@@ -1603,7 +1603,7 @@ public class IlifeAli {
         }));
     }
 
-    public void unRegisterAccount(){
+    public void unRegisterAccount(OnAliResponse<Boolean> onAliResponse){
         JSONObject params = new JSONObject();
         Map<String, Object> requestMap = params.getInnerMap();
         IoTRequest ioTRequest = new IoTRequestBuilder()
@@ -1617,11 +1617,13 @@ public class IlifeAli {
             @Override
             public void onFailure(IoTRequest ioTRequest, Exception e) {
                 Log.d(TAG,"删除账号失败---------");
+                onAliResponse.onFailed(0,e.getMessage());
             }
 
             @Override
             public void onResponse(IoTRequest ioTRequest, IoTResponse ioTResponse) {
                 Log.d(TAG,"删除账号成功---------");
+                onAliResponse.onSuccess(true);
             }
         }));
     }

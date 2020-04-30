@@ -357,5 +357,8 @@
     <string name="dialog_apply_map_hint">扫地机将按照应用的地图环境清扫</string>
     <string name="toast_schedule_already_exits">您设置的预约重复了</string>
     <string name="dialog_content_robot_moved">扫地机已被移动，请重新确认所选地图</string>
-    <string name="delete_account">删除账号</string>
+    <string name="dialog_delete_account">删除账号</string>
+    <string name="dialog_delete_account_title">确认删除账号？</string>
+    <string name="dialog_delete_account_hint">删除后该账号将无法使用</string>
+
 </resources>

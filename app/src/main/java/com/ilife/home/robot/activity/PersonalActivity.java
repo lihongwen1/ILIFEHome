@@ -185,11 +185,30 @@ public class PersonalActivity extends BackBaseActivity implements View.OnClickLi
                 }
                 break;
             case R.id.rl_delete_account://删除账号
-                IlifeAli.getInstance().unRegisterAccount();
+                showDeleteAcccountDialog();
                 break;
         }
     }
 
+    private void showDeleteAcccountDialog(){
+        UniversalDialog logoutDialog = new UniversalDialog();
+        logoutDialog.setDialogType(UniversalDialog.TYPE_NORMAL).
+                setTitle(Utils.getString(R.string.dialog_delete_account_title)).setHintTip(Utils.getString(R.string.dialog_delete_account_hint)).
+                setOnRightButtonClck(() -> {
+                    IlifeAli.getInstance().unRegisterAccount(new OnAliResponse<Boolean>() {
+                        @Override
+                        public void onSuccess(Boolean result) {
+                            startActivity(new Intent(PersonalActivity.this, FirstActivity.class));
+                            removeALLActivity();
+                        }
+
+                        @Override
+                        public void onFailed(int code, String message) {
+                            ToastUtils.showToast(message);
+                        }
+                    });
+                }).show(getSupportFragmentManager(), "delete_account");
+    }
     private void showLogoutDialog() {
         UniversalDialog logoutDialog = new UniversalDialog();
         logoutDialog.setDialogType(UniversalDialog.TYPE_NORMAL).
