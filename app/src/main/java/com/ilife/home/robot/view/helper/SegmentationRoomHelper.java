@@ -9,6 +9,8 @@ import android.graphics.Region;
 import android.util.Log;
 import android.view.MotionEvent;
 
+import com.ilife.home.robot.R;
+import com.ilife.home.robot.app.MyApplication;
 import com.ilife.home.robot.bean.Coordinate;
 import com.ilife.home.robot.utils.DataUtils;
 import com.ilife.home.robot.utils.MyLogger;
@@ -22,24 +24,25 @@ public class SegmentationRoomHelper {
     private MapView mMapView;
     private SROT smOT = SROT.NOON;
     private PointF downPoint;
-    private RectF pullRect;
     private Region boundaryRegion;//分割线外框
     private Path sgPath, mBoundaryPath;//房间分割线路径
-    private final int ICON_RADIUS = 50;
+    private final int ICON_RADIUS = 100;
     private Matrix mMatrix, mBoundaryMatix;
-    private int BOUNDARY_LENGTH = 80;
+    private int BOUNDARY_LENGTH = 100;
     private Path gatePath;
     private float[] mCoordinates = new float[4];
     private float[] gateCoordinates = new float[4];
     private float[] originalCoordinates = new float[4];
     private boolean isHaveLine = false;
     private boolean isNeedCalculateGate;
-
+    private RectF startCircle, endCircle;
+    private int radius;
     public enum SROT {
         NOON(61),
         DRAG(62),
-        PULL(63),
-        ADD(63);
+        PULL_START(63),
+        PULL_END(64),
+        ADD(65);
         final int nativeType;
 
         SROT(int type) {
@@ -59,8 +62,10 @@ public class SegmentationRoomHelper {
         this.mBoundaryPath = new Path();
         this.downPoint = new PointF();
         this.mMatrix = new Matrix();
-        this.pullRect = new RectF();
+        this.startCircle = new RectF();
+        this.endCircle = new RectF();
         this.mBoundaryMatix = new Matrix();
+        radius = MyApplication.getInstance().getResources().getDimensionPixelSize(R.dimen.dp_20);
     }
 
     /**
@@ -93,8 +98,11 @@ public class SegmentationRoomHelper {
             smOT = SROT.ADD;
             isHaveLine = true;
         } else {
-            if (pullRect.contains(mapX, mapY)) {//点击了拉长图标
-                smOT = SegmentationRoomHelper.SROT.PULL;
+            if (startCircle.contains(mapX, mapY)) {//点击了拉长图标
+                smOT = SROT.PULL_START;
+                Log.d(TAG, "拉伸分割线");
+            } else if (endCircle.contains(mapX, mapY)) {//点击了拉长图标
+                smOT = SROT.PULL_END;
                 Log.d(TAG, "拉伸分割线");
             } else if (boundaryRegion.contains(Math.round(mapX), Math.round(mapY))) {//drag
                 Log.d(TAG, "推拽分割线");
@@ -122,9 +130,14 @@ public class SegmentationRoomHelper {
                 mMatrix.mapPoints(mCoordinates);
                 updateVirtualWall();
                 break;
-            case PULL:
+            case PULL_END:
                 mCoordinates[2] = mapX;
                 mCoordinates[3] = mapY;
+                updateVirtualWall();
+                break;
+            case PULL_START:
+                mCoordinates[0] = mapX;
+                mCoordinates[1] = mapY;
                 updateVirtualWall();
                 break;
             default:
@@ -161,12 +174,12 @@ public class SegmentationRoomHelper {
         mBoundaryMatix.reset();
         mBoundaryPath.reset();
         float[] cooBoundary = new float[8];
+        float[] cooStrength=new float[4];
         float k = (mCoordinates[3] - mCoordinates[1]) / (mCoordinates[2]
                 - mCoordinates[0]);
         float degree = (float) (Math.atan(k) * 180 / Math.PI);
         mBoundaryMatix.setTranslate(-mCoordinates[0], -mCoordinates[1]);
         mBoundaryMatix.postRotate(-degree, 0, 0);
-
         mBoundaryMatix.mapPoints(mCoordinates);
         int x_direction = mCoordinates[0] < mCoordinates[2] ? 1 : -1;
         cooBoundary[0] = mCoordinates[0] - x_direction * BOUNDARY_LENGTH;
@@ -177,10 +190,19 @@ public class SegmentationRoomHelper {
         cooBoundary[5] = mCoordinates[3] + x_direction * BOUNDARY_LENGTH;
         cooBoundary[6] = mCoordinates[2] + x_direction * BOUNDARY_LENGTH;
         cooBoundary[7] = mCoordinates[3] - x_direction * BOUNDARY_LENGTH;
+
+        cooStrength[0]=mCoordinates[0] - x_direction * BOUNDARY_LENGTH;
+        cooStrength[1]=mCoordinates[1];
+        cooStrength[2]=mCoordinates[2] + x_direction * BOUNDARY_LENGTH;
+        cooStrength[3]=mCoordinates[3];
+
         mBoundaryMatix.invert(mBoundaryMatix);
         mBoundaryMatix.mapPoints(cooBoundary);
         mBoundaryMatix.mapPoints(mCoordinates);
+        mBoundaryMatix.mapPoints(cooStrength);
 
+        startCircle = new RectF(mCoordinates[0] - ICON_RADIUS, mCoordinates[1] - ICON_RADIUS, mCoordinates[0] + ICON_RADIUS, mCoordinates[1] + ICON_RADIUS);
+        endCircle = new RectF(mCoordinates[2] - ICON_RADIUS, mCoordinates[3] - ICON_RADIUS, mCoordinates[2] + ICON_RADIUS, mCoordinates[3] + ICON_RADIUS);
         float minx = cooBoundary[0], miny = cooBoundary[1], maxx = cooBoundary[0], maxy = cooBoundary[1];
         for (int i = 0; i < cooBoundary.length; i++) {
             float value = cooBoundary[i];
@@ -206,7 +228,6 @@ public class SegmentationRoomHelper {
         mBoundaryPath.lineTo(cooBoundary[4], cooBoundary[5]);
         mBoundaryPath.lineTo(cooBoundary[6], cooBoundary[7]);
         mBoundaryPath.close();
-        pullRect = new RectF(cooBoundary[4] - ICON_RADIUS, cooBoundary[5] - ICON_RADIUS, cooBoundary[4] + ICON_RADIUS, cooBoundary[5] + ICON_RADIUS);
         boundaryRegion.setPath(mBoundaryPath, boundaryRegion);
 
         if (!isNeedCalculateGate) {
@@ -262,16 +283,14 @@ public class SegmentationRoomHelper {
 
     }
 
-    public Path getmBoundaryPath() {
-        return mBoundaryPath;
+
+
+    public RectF getStartCircle() {
+        return startCircle;
     }
 
-    public Path getGatePath() {
-        return gatePath;
-    }
-
-    public RectF getPullRect() {
-        return pullRect;
+    public RectF getEndCircle() {
+        return endCircle;
     }
 
     public boolean isHaveLine() {
@@ -288,5 +307,9 @@ public class SegmentationRoomHelper {
 
     public boolean isNeedCalculateGate() {
         return isNeedCalculateGate;
+    }
+
+    public int getRadius() {
+        return radius;
     }
 }

@@ -559,13 +559,13 @@ public class MapView extends View {
              */
 
             if (mOT == OT.MAP || mOT == OT.SEGMENT_ROOM) {
-                if (mSegmentHelper.isHaveLine() && mSegmentHelper.getGatePath() != null && mSegmentHelper.getGatePath() != null) {
+                if (mSegmentHelper.isHaveLine()) {
                     canvas.drawLines(mSegmentHelper.getmCoordinates(), mPaintManager.changeColor(mPaintManager.getDashPaint(), PaintColor.VIRTUAL));
                     if (mSegmentHelper.isNeedCalculateGate()) {
                         canvas.drawLines(mSegmentHelper.getGateCoordinates(), mPaintManager.changeColor(mPaintManager.getLinePaint(), PaintColor.ROOM_GATE));
                     }
-                    canvas.drawPath(mSegmentHelper.getmBoundaryPath(), mPaintManager.changeColor(mPaintManager.getStrokePaint(), PaintColor.RECTANGLE_BOUNDARY));
-                    canvas.drawBitmap(pullBitmap, mSegmentHelper.getPullRect().left, mSegmentHelper.getPullRect().top, mPaintManager.getIconPaint());
+                    canvas.drawCircle(mSegmentHelper.getStartCircle().centerX(), mSegmentHelper.getStartCircle().centerY(),mSegmentHelper.getRadius(), mPaintManager.changeColor(mPaintManager.getFillPaint(), PaintColor.ROOM_GATE));
+                    canvas.drawCircle(mSegmentHelper.getEndCircle().centerX(), mSegmentHelper.getEndCircle().centerY(), mSegmentHelper.getRadius(), mPaintManager.changeColor(mPaintManager.getFillPaint(), PaintColor.ROOM_GATE));
                 }
             }
             /**
@@ -1102,7 +1102,7 @@ public class MapView extends View {
 
             dashPaint = new Paint(Paint.ANTI_ALIAS_FLAG | Paint.DITHER_FLAG);
             buildPaint(dashPaint, getResources().getColor(R.color.color_theme), Paint.Style.FILL_AND_STROKE, 10, Paint.Join.ROUND);
-            PathEffect pathEffect = new DashPathEffect(new float[]{20,20}, 0);
+            PathEffect pathEffect = new DashPathEffect(new float[]{20, 20}, 0);
             dashPaint.setPathEffect(pathEffect);
 
             roadPaint = new Paint(Paint.ANTI_ALIAS_FLAG | Paint.DITHER_FLAG);

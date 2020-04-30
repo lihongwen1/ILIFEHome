@@ -44,7 +44,7 @@
                 style="@style/map_text_button"
                 android:button="@null"
                 android:drawableTop="@drawable/selector_select_room"
-                android:text="分割房间" />
+                android:text="合并房间" />
         </RadioGroup>
     </FrameLayout>
 
