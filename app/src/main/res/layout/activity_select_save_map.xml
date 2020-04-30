@@ -7,11 +7,35 @@
 
     <include layout="@layout/template_top_title" />
 
-    <com.ilife.home.robot.view.SlideRecyclerView
-        android:id="@+id/rv_save_map"
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:layout_marginTop="@dimen/dp_24"
-        android:layout_gravity="center_horizontal"
-        />
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <com.ilife.home.robot.view.SlideRecyclerView
+            android:id="@+id/rv_save_map"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="@dimen/dp_24" />
+
+        <LinearLayout
+            android:visibility="gone"
+            android:id="@+id/ll_no_map"
+            android:layout_width="@dimen/dp_200"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="@dimen/dp_20"
+            android:orientation="vertical">
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/pic_no_map" />
+
+            <TextView
+                style="@style/Text_14sp_99"
+                android:layout_marginTop="@dimen/dp_8"
+                android:text="@string/map_tip_no_map_yet" />
+        </LinearLayout>
+    </FrameLayout>
 </LinearLayout>

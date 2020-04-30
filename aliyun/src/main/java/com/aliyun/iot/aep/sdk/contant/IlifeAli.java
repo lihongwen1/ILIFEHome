@@ -475,6 +475,9 @@ public class IlifeAli {
                                         LiveEventBus.get(EnvConfigure.KEY_AppRemind, Integer.class).post(appRemind);
                                     }
                                     getWorkingDevice().getDeviceInfo().setAppRemind(appRemind);
+                                } else if (items.containsKey(EnvConfigure.KEY_SAVE_MAP)) {
+                                    long selectMapId = items.getJSONObject(EnvConfigure.KEY_SAVE_MAP).getJSONObject(EnvConfigure.KEY_VALUE).getLongValue(EnvConfigure.KEY_SELECT_MAP_ID);
+                                    LiveEventBus.get(EnvConfigure.KEY_SELECT_MAP_ID, Long.class).post(selectMapId);
                                 } else if (items.containsKey(EnvConfigure.KEY_WATER_CONTROL)) {
                                     int water = items.getJSONObject(EnvConfigure.KEY_WATER_CONTROL).getIntValue(EnvConfigure.KEY_VALUE);
                                     getWorkingDevice().getDeviceInfo().setWaterLevel(water);
@@ -1603,7 +1606,7 @@ public class IlifeAli {
         }));
     }
 
-    public void unRegisterAccount(OnAliResponse<Boolean> onAliResponse){
+    public void unRegisterAccount(OnAliResponse<Boolean> onAliResponse) {
         JSONObject params = new JSONObject();
         Map<String, Object> requestMap = params.getInnerMap();
         IoTRequest ioTRequest = new IoTRequestBuilder()
@@ -1616,13 +1619,13 @@ public class IlifeAli {
         new IoTAPIClientFactory().getClient().send(ioTRequest, new IoTUIThreadCallback(new IoTCallback() {
             @Override
             public void onFailure(IoTRequest ioTRequest, Exception e) {
-                Log.d(TAG,"删除账号失败---------");
-                onAliResponse.onFailed(0,e.getMessage());
+                Log.d(TAG, "删除账号失败---------");
+                onAliResponse.onFailed(0, e.getMessage());
             }
 
             @Override
             public void onResponse(IoTRequest ioTRequest, IoTResponse ioTResponse) {
-                Log.d(TAG,"删除账号成功---------");
+                Log.d(TAG, "删除账号成功---------");
                 onAliResponse.onSuccess(true);
             }
         }));

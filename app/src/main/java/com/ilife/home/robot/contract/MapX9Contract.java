@@ -2,6 +2,7 @@ package com.ilife.home.robot.contract;
 
 import android.content.Context;
 
+import com.aliyun.iot.aep.sdk.bean.PropertyBean;
 import com.ilife.home.robot.base.BaseActivity;
 import com.ilife.home.robot.base.BaseView;
 import com.ilife.home.robot.bean.Coordinate;
@@ -161,6 +162,7 @@ public interface MapX9Contract {
 
         RobotConfigBean.RobotBean getRobotBean();
         void setAppRemind();
+        PropertyBean getMDevicePropertyBean();
     }
 
 }

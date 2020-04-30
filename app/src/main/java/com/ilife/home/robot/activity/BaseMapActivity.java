@@ -32,6 +32,7 @@ import com.app.hubert.guide.model.HighLight;
 import com.app.hubert.guide.model.RelativeGuide;
 import com.badoo.mobile.util.WeakHandler;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
+import com.huawei.android.hms.agent.common.UIUtils;
 import com.ilife.home.robot.R;
 import com.ilife.home.robot.able.DeviceUtils;
 import com.ilife.home.robot.adapter.MapBottomSheetAdapter;
@@ -309,7 +310,9 @@ public abstract class BaseMapActivity extends BackBaseActivity<MapX9Presenter> i
 
                     break;
                 case 1://选房清扫
-                    if (mPresenter.getCurStatus() == MsgCodeUtils.STATUE_CHARGING || mPresenter.getCurStatus() == MsgCodeUtils.STATUE_CHARGING_BASE_SLEEP) {
+                    if (mPresenter.getMDevicePropertyBean().getSelectedMapId() == 0) {
+                        ToastUtils.showToast(UiUtil.getString(R.string.map_tip_no_map_yet));
+                    } else if (mPresenter.getCurStatus() == MsgCodeUtils.STATUE_CHARGING || mPresenter.getCurStatus() == MsgCodeUtils.STATUE_CHARGING_BASE_SLEEP) {
                         startActivity(new Intent(BaseMapActivity.this, SelectRoomActivity.class));
                         weakHandler.sendEmptyMessageDelayed(5, 300);
                     } else {
@@ -317,7 +320,9 @@ public abstract class BaseMapActivity extends BackBaseActivity<MapX9Presenter> i
                     }
                     break;
                 case 2://划区清扫
-                    if (mPresenter.getCurStatus() == MsgCodeUtils.STATUE_CHARGING || mPresenter.getCurStatus() == MsgCodeUtils.STATUE_CHARGING_BASE_SLEEP) {
+                    if (mPresenter.getMDevicePropertyBean().getSelectedMapId() == 0) {
+                        ToastUtils.showToast(UiUtil.getString(R.string.map_tip_no_map_yet));
+                    } else if (mPresenter.getCurStatus() == MsgCodeUtils.STATUE_CHARGING || mPresenter.getCurStatus() == MsgCodeUtils.STATUE_CHARGING_BASE_SLEEP) {
                         startActivity(new Intent(BaseMapActivity.this, CleanAreaActivity.class));
                         weakHandler.sendEmptyMessageDelayed(5, 300);
                     } else {
@@ -347,7 +352,11 @@ public abstract class BaseMapActivity extends BackBaseActivity<MapX9Presenter> i
                     }
                     break;
                 case 5://分房
-                    startActivity(new Intent(BaseMapActivity.this, SegmentationRoomActivity.class));
+                    if (mPresenter.getMDevicePropertyBean().getSelectedMapId() == 0) {
+                        ToastUtils.showToast(UiUtil.getString(R.string.map_tip_no_map_yet));
+                    } else {
+                        startActivity(new Intent(BaseMapActivity.this, SegmentationRoomActivity.class));
+                    }
                     break;
             }
         });
@@ -417,8 +426,8 @@ public abstract class BaseMapActivity extends BackBaseActivity<MapX9Presenter> i
     }
 
     @Override
-    public void drawChargePort(int x, int y,boolean isDisplay) {
-        mMapView.drawChargePort(x, y,isDisplay);
+    public void drawChargePort(int x, int y, boolean isDisplay) {
+        mMapView.drawChargePort(x, y, isDisplay);
     }
 
     @Override
@@ -538,8 +547,6 @@ public abstract class BaseMapActivity extends BackBaseActivity<MapX9Presenter> i
             layout_recharge.setVisibility(View.GONE);
         }
     }
-
-
 
 
     @Override

@@ -647,6 +647,13 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
             }
 
         });
+        LiveEventBus.get(EnvConfigure.KEY_SELECT_MAP_ID, Integer.class).observe((BaseActivity) mView, selectMapId -> {
+            MyLogger.d(TAG, "选择地图改变");
+            if (mDevicePropertyBean!=null){
+                mDevicePropertyBean.setSelectedMapId(selectMapId);
+            }
+
+        });
 
         LiveEventBus.get(EnvConfigure.ChargerPiont, String.class).observe((BaseActivity) mView, chargingPort -> {
             if (!TextUtils.isEmpty(chargingPort) && isViewAttached() && isDrawMap()) {
@@ -939,6 +946,13 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
         MapDataBean dataBean = new MapDataBean(pointList, "", "", 0, 0
                 , minX, minY, maxX, maxY);
         return dataBean;
+    }
+
+
+
+    @Override
+    public PropertyBean getMDevicePropertyBean() {
+        return mDevicePropertyBean;
     }
 
     @Override

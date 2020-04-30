@@ -2,6 +2,8 @@ package com.ilife.home.robot.activity;
 
 import android.text.TextUtils;
 import android.util.Base64;
+import android.view.View;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -36,6 +38,8 @@ public class SelectSaveMapActivity extends BackBaseActivity {
     private static final String TAG = "SelectSaveMapActivity";
     @BindView(R.id.rv_save_map)
     SlideRecyclerView rv_save_map;
+    @BindView(R.id.ll_no_map)
+    LinearLayout ll_no_map;
     @BindView(R.id.tv_top_title)
     TextView tv_title;
     private SelectMapAdapter mAdapter;
@@ -62,7 +66,7 @@ public class SelectSaveMapActivity extends BackBaseActivity {
             selectPosition = position;
             switch (view.getId()) {
                 case R.id.tv_apply_this_map:
-                   onApplyMap();
+                    onApplyMap();
                     break;
                 case R.id.iv_delete_map:
                     onDeleteMap();
@@ -85,11 +89,16 @@ public class SelectSaveMapActivity extends BackBaseActivity {
             @Override
             public void onSuccess(PropertyBean result) {
                 selectMapId = result.getSelectedMapId();
+                if (selectMapId == 0) {
+                    rv_save_map.setVisibility(View.GONE);
+                    ll_no_map.setVisibility(View.VISIBLE);
+                    return;
+                }
                 mAdapter.setSelectMapId(selectMapId);
                 String saveMapId = result.getSaveMapId();
                 if (!TextUtils.isEmpty(saveMapId)) {
                     for (int mapId : decodeSaveMapId(saveMapId)) {
-                        if (mapId==0){
+                        if (mapId == 0) {
                             continue;
                         }
                         IlifeAli.getInstance().getSelectMap(mapId, new OnAliResponse<List<HistoryRecordBean>>() {
@@ -205,9 +214,9 @@ public class SelectSaveMapActivity extends BackBaseActivity {
         }
     }
 
-    private void onApplyMap(){
-        if (mApplyMapDialog==null){
-            mApplyMapDialog=new UniversalDialog();
+    private void onApplyMap() {
+        if (mApplyMapDialog == null) {
+            mApplyMapDialog = new UniversalDialog();
             mApplyMapDialog.setTitle(UiUtil.getString(R.string.map_apply_this_map))
                     .setHintTip(UiUtil.getString(R.string.dialog_apply_map_hint))
                     .setOnRightButtonClck(() -> {
@@ -226,8 +235,8 @@ public class SelectSaveMapActivity extends BackBaseActivity {
                     });
         }
 
-        if (!mApplyMapDialog.isAdded()){
-            mApplyMapDialog.show(getSupportFragmentManager(),"apply_map");
+        if (!mApplyMapDialog.isAdded()) {
+            mApplyMapDialog.show(getSupportFragmentManager(), "apply_map");
         }
     }
 }
