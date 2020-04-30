@@ -223,7 +223,7 @@
       "historyMapType": 2,
       "scheduleInDark": true,
       "waitForOpenPower":false,
-      "waterLevelType": 2,
+      "waterLevelType": 3,
       "suctionType": false,
       "newScheduleVersion":false
     }
