@@ -470,17 +470,17 @@ public abstract class BaseMapActivity extends BackBaseActivity<MapX9Presenter> i
 
     @Override
     public void showTipDialog() {
-//        if (tipDialog == null) {
-//            DialogFragmentUtil.Builder builder = new DialogFragmentUtil.Builder();
-//            tipDialog = builder.setLayoutId(R.layout.dialog_no_title).setCancelOutSide(false)
-//                    .addClickLister(R.id.tv_dialog_ok, v -> {
-//                        tipDialog.dismiss();
-//                        mPresenter.setAppRemind();
-//                    }).build();
-//        }
-//        if (!tipDialog.isAdded()) {
-//            tipDialog.show(getSupportFragmentManager(), "app_remind");
-//        }
+        if (tipDialog == null) {
+            DialogFragmentUtil.Builder builder = new DialogFragmentUtil.Builder();
+            tipDialog = builder.setLayoutId(R.layout.dialog_no_title).setCancelOutSide(false)
+                    .addClickLister(R.id.tv_dialog_ok, v -> {
+                        tipDialog.dismiss();
+                        mPresenter.setAppRemind();
+                    }).build();
+        }
+        if (!tipDialog.isAdded()) {
+            tipDialog.show(getSupportFragmentManager(), "app_remind");
+        }
     }
 
     /**

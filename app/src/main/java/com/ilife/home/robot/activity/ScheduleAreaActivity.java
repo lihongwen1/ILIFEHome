@@ -79,14 +79,12 @@ public class ScheduleAreaActivity extends BackBaseActivity {
                         map_schedule_area.setmOT(MapView.OT.SELECT_ROOM);
                         map_schedule_area.invalidateUI();
                         iv_schedule_clean_time.setVisibility(View.VISIBLE);
-                        times = 1;
                         updateLoopImage(false);
                         break;
                     case R.id.tv_schedule_area_clean_area:
                         map_schedule_area.setmOT(MapView.OT.CLEAN_AREA);
                         map_schedule_area.invalidateUI();
                         iv_schedule_clean_time.setVisibility(View.VISIBLE);
-                        times = 1;
                         updateLoopImage(false);
                         break;
                 }
@@ -108,6 +106,7 @@ public class ScheduleAreaActivity extends BackBaseActivity {
     @Override
     public void initData() {
         scheduleBean = getIntent().getParcelableExtra(ClockEditActivity.KEY_SCHEDULE_INFO);
+        times=scheduleBean.getLoop();
         IlifeAli.getInstance().getProperties(new OnAliResponse<PropertyBean>() {
             @Override
             public void onSuccess(PropertyBean result) {
