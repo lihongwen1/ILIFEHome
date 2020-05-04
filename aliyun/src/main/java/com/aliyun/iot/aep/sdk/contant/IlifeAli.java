@@ -434,6 +434,14 @@ public class IlifeAli {
                                     Log.d("LiveBus", "发送Live Bus 信息");
                                     LiveEventBus.get(EnvConfigure.KEY_MAX_MODE, Boolean.class).post(isMax);
                                     propertyResponse.onMaxChange(isMax);
+                                } else if (items.containsKey(EnvConfigure.KEY_CarpetControl)) {
+                                    int carpet = items.getJSONObject(EnvConfigure.KEY_CarpetControl).getIntValue(EnvConfigure.KEY_VALUE);
+                                    getWorkingDevice().getDeviceInfo().setCarpetControl(carpet);
+                                    LiveEventBus.get(EnvConfigure.KEY_CarpetControl, Integer.class).post(carpet);
+                                }else if (items.containsKey(EnvConfigure.KEY_WATER_CONTROL)) {
+                                    int water = items.getJSONObject(EnvConfigure.KEY_WATER_CONTROL).getIntValue(EnvConfigure.KEY_VALUE);
+                                    getWorkingDevice().getDeviceInfo().setWaterLevel(water);
+                                    LiveEventBus.get(EnvConfigure.KEY_WATER_CONTROL, Integer.class).post(water);
                                 }
                             }
                             break;
@@ -525,6 +533,37 @@ public class IlifeAli {
 //        }
     }
 
+
+    /**
+     * 设置主机的某一属性
+     *
+     * @param json       需为json格式的字符串
+     * @param onResponse
+     */
+    public void setProperties(JSONObject json, OnAliResponseSingle<Boolean> onResponse) {
+        HashMap<String, Object> params = new HashMap<>();
+        params.put(EnvConfigure.KEY_IOT_ID, iotId);
+        params.put(EnvConfigure.KEY_ITEMS, json);
+        Log.d(TAG, "set properties data : " + json.toString());
+        ioTAPIClient.send(buildRequest(EnvConfigure.PATH_SET_PROPERTIES, params), new IoTUIThreadCallback(new IoTCallback() {
+            @Override
+            public void onFailure(IoTRequest ioTRequest, Exception e) {
+                onResponse.onResponse(false);
+            }
+
+            @Override
+            public void onResponse(IoTRequest ioTRequest, IoTResponse ioTResponse) {
+                if (ioTResponse.getCode() == 200) {
+                    onResponse.onResponse(true);
+                } else {
+                    onResponse.onResponse(false);
+                    Log.d(TAG, "请求失败，错误信息： " + ioTResponse.getLocalizedMsg());
+                }
+            }
+        }));
+    }
+
+
     public void setProperties(HashMap<String, Object> params, OnAliSetPropertyResponse onAliResponse) {
         AliInterfaceDelegate.setPropertyToDevice(params, onAliResponse);
     }
@@ -565,7 +604,15 @@ public class IlifeAli {
                     } else {
                         Log.d(TAG, "数据无语音开关字段");
                     }
-                    onAliResponse.onSuccess(new PropertyBean(max, workMode, battery, waterLevel, startTimeLine, historyTimeLine, voiceOpen));
+                    PropertyBean bean =new PropertyBean(max, workMode, battery, waterLevel, startTimeLine, historyTimeLine, voiceOpen);
+                    /**
+                     * setting页面属性字段
+                     */
+                    if (jsonObject.containsKey(EnvConfigure.KEY_CarpetControl)) {//地毯增压
+                        int carpet = jsonObject.getJSONObject(EnvConfigure.KEY_CarpetControl).getIntValue(EnvConfigure.KEY_VALUE);
+                        bean.setCarpetControl(carpet);
+                    }
+                    onAliResponse.onSuccess(bean);
                 } else {
                     onAliResponse.onFailed(0, ioTResponse.getLocalizedMsg());
                 }

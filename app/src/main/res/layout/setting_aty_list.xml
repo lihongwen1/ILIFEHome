@@ -308,6 +308,30 @@
 
 
     <RelativeLayout
+        android:id="@+id/rl_set_carpet"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dp_60"
+        android:layout_marginStart="@dimen/dp_24">
+
+        <TextView
+            style="@style/Text_16sp_33"
+            android:text="@string/setting_carpet" />
+
+        <ImageView
+            android:id="@+id/image_carpet"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            android:layout_marginEnd="@dimen/dp_24"
+            android:background="@drawable/image_max_bg" />
+
+        <View
+            style="@style/View_Line_Style"
+            android:layout_alignParentBottom="true" />
+    </RelativeLayout>
+
+    <RelativeLayout
         android:id="@+id/rl_find"
         android:layout_width="match_parent"
         android:layout_height="@dimen/dp_60"

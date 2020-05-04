@@ -286,5 +286,7 @@
     <string name="adapter_error_gx">清扫环境光线不足,请开灯</string>
     <string name="taobao_authorization_succeeded">授权成功</string>
     <string name="taobao_authorization_failed">授权失败</string>
-    <string name="change_robot_name_suc">修改机器⼈昵称成功</string>
+    <string name="change_robot_name_suc">修改机器昵称成功</string>
+    <string name="setting_carpet">地毯增压</string>
+
 </resources>

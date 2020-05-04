@@ -288,4 +288,5 @@
     <string name="taobao_authorization_succeeded">Authorization succeeded</string>
     <string name="taobao_authorization_failed">Authorization failed</string>
     <string name="change_robot_name_suc">Nickname change completed</string>
+    <string name="setting_carpet">Carpet feature</string>
 </resources>

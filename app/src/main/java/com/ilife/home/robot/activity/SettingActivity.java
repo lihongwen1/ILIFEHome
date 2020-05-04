@@ -14,6 +14,7 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.alibaba.fastjson.JSONObject;
 import com.aliyun.iot.aep.sdk._interface.OnAliSetPropertyResponse;
 import com.aliyun.iot.aep.sdk.bean.DeviceInfoBean;
 import com.aliyun.iot.aep.sdk.contant.EnvConfigure;
@@ -133,6 +134,8 @@ public class SettingActivity extends BackBaseActivity implements OnAliSetPropert
     LinearLayout ll_mode;
     @BindView(R.id.iv_find_device)
     ImageView iv_find_device;
+    @BindView(R.id.image_carpet)
+    ImageView image_carpet;//地毯增压
     LayoutInflater inflater;
     Animation animation;
     private CompositeDisposable mDisposable;
@@ -174,9 +177,18 @@ public class SettingActivity extends BackBaseActivity implements OnAliSetPropert
         context = this;
         inflater = LayoutInflater.from(context);
         tv_top_title.setText(R.string.ap_aty_setting);
-        LiveEventBus.get(EnvConfigure.KEY_MAX_MODE, Boolean.class).observeSticky(this, max -> {
+        LiveEventBus.get(EnvConfigure.KEY_MAX_MODE, Boolean.class).observe(this, max -> {
             MyLogger.d("LiveBus", "收到Live Bus 信息");
             isMaxMode = max;
+            setStatus(waterLevel, isMaxMode, voiceOpen);
+        });
+        LiveEventBus.get(EnvConfigure.KEY_CarpetControl, Integer.class).observe(this, value -> {
+            MyLogger.d("LiveBus", "收到Live Bus 信息");
+            image_carpet.setSelected(value == 1);
+        });
+        LiveEventBus.get(EnvConfigure.KEY_WATER_CONTROL, Integer.class).observe(this, value -> {
+            MyLogger.d("LiveBus", "收到Live Bus 信息");
+            waterLevel = value;
             setStatus(waterLevel, isMaxMode, voiceOpen);
         });
     }
@@ -217,6 +229,7 @@ public class SettingActivity extends BackBaseActivity implements OnAliSetPropert
         rl_voice.setVisibility(rBean.isSettingVoice() ? View.VISIBLE : View.GONE);
         tv_type.setText(BuildConfig.BRAND + " " + rBean.getSettingRobot());
         image_product.setImageResource(product);
+        image_carpet.setSelected(infoBean.getDeviceInfo().getCarpetControl() == 1);
     }
 
     public void setMode(int mode) {
@@ -302,7 +315,7 @@ public class SettingActivity extends BackBaseActivity implements OnAliSetPropert
 
     @OnClick({R.id.rl_robot_head, R.id.rl_water, R.id.rl_clock, R.id.rl_record, R.id.rl_consume, R.id.rl_mode, R.id.rl_find,
             R.id.rl_plan, R.id.rl_random, R.id.rl_facReset, R.id.rl_voice, R.id.rl_update, R.id.rl_suction, R.id.rl_soft
-            , R.id.rl_standard, R.id.rl_strong})
+            , R.id.rl_standard, R.id.rl_strong, R.id.rl_set_carpet})
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.rl_robot_head:
@@ -323,6 +336,14 @@ public class SettingActivity extends BackBaseActivity implements OnAliSetPropert
                 intent = new Intent(context, ClockingActivity.class);
                 startActivity(intent);
                 break;
+            case R.id.rl_set_carpet:
+                String jsonStr = "{\"CarpetControl\":1}";
+                JSONObject jo = JSONObject.parseObject(jsonStr);
+                jo.put(EnvConfigure.KEY_CarpetControl, image_carpet.isSelected() ? 0 : 1);
+                showLoadingDialog();
+                IlifeAli.getInstance().setProperties(jo, aBoolean -> hideLoadingDialog());
+                break;
+
             case R.id.rl_record:
                 intent = new Intent(context, HistoryActivity_x9.class);
                 startActivity(intent);

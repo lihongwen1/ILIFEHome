@@ -144,6 +144,7 @@ public class EnvConfigure {
     public static final String KEY_TOTAL_TIME = "CleanTotalTime";
     public static final String KEY_TOTAL_AREA = "CleanTotalArea";
     public static final String KEY_CLEAN_MAP_DATA = "CleanMapData";
+    public static final String KEY_CarpetControl = "CarpetControl";//地毯增压
     public static final String KEY_VERSION = "version";
     /**
      * value

@@ -8,7 +8,7 @@ public class PropertyBean {
     private long realTimeMapTimeLine;
     private long historyMapTimeLine;
     private boolean voiceOpen;//0-代表开 1-代表关
-
+    private int carpetControl;//地毯增压
     public PropertyBean(){};
 
     public PropertyBean(boolean maxMode, int workMode, int battery, int waterLevel, long realTimeMapTimeLine, long historyMapTimeLine, boolean voiceOpen) {
@@ -76,7 +76,13 @@ public class PropertyBean {
     public void setVoiceOpen(boolean voiceOpen) {
         this.voiceOpen = voiceOpen;
     }
+    public int getCarpetControl() {
+        return carpetControl;
+    }
 
+    public void setCarpetControl(int carpetControl) {
+        this.carpetControl = carpetControl;
+    }
     @Override
     public String toString() {
         return "PropertyBean{" +
