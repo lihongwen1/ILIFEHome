@@ -67,7 +67,7 @@ public class RoomHelper {
             x = DataUtils.bytesToInt(bytes[i * 8 + 4], bytes[i * 8 + 5]);
             y = -DataUtils.bytesToInt(bytes[i * 8 + 6], bytes[i * 8 + 7]);
             rooms.add(new PartitionBean(partionId, x, y));
-            if ((checkedRoom & partionId) ==partionId) {
+            if (DataUtils.getBit((byte) checkedRoom,partionId-1)==1) {
                 selecRoom.put(partionId, partionId);
             }
         }

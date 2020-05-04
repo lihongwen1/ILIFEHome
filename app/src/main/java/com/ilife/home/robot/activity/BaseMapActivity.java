@@ -430,13 +430,19 @@ public abstract class BaseMapActivity extends BackBaseActivity<MapX9Presenter> i
         mMapView.drawChargePort(x, y, isDisplay);
     }
 
+    /**
+     * 该功能暂时用不到
+     * @param isDisplay
+     * @param cleanedTimes
+     * @param settingCleanTimes
+     */
     @Override
     public void updateCleanTimes(boolean isDisplay, int cleanedTimes, int settingCleanTimes) {
-        fl_clean_times.setVisibility(isDisplay ? View.VISIBLE : View.INVISIBLE);
-        if (isDisplay) {
-            tv_cleaned_times.setText(String.valueOf(cleanedTimes));
-            tv_setting_times.setText(String.valueOf(settingCleanTimes));
-        }
+//        fl_clean_times.setVisibility(isDisplay ? View.VISIBLE : View.INVISIBLE);
+//        if (isDisplay) {
+//            tv_cleaned_times.setText(String.valueOf(cleanedTimes));
+//            tv_setting_times.setText(String.valueOf(settingCleanTimes));
+//        }
     }
 
     /**

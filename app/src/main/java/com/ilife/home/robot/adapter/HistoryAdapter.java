@@ -6,6 +6,7 @@ import com.aliyun.iot.aep.sdk.bean.HistoryRecordBean;
 import com.ilife.home.robot.R;
 import com.ilife.home.robot.base.BaseQuickAdapter;
 import com.ilife.home.robot.base.BaseViewHolder;
+import com.ilife.home.robot.utils.DataUtils;
 import com.ilife.home.robot.utils.Utils;
 
 import java.text.SimpleDateFormat;
@@ -21,7 +22,7 @@ public class HistoryAdapter extends BaseQuickAdapter<HistoryRecordBean, BaseView
     protected void convert(@NonNull BaseViewHolder holder, int position) {
         HistoryRecordBean historyRecord = data.get(position);
         holder.setText(R.id.tv_duration, historyRecord.getCleanTotalTime()  + "min");
-        holder.setText(R.id.tv_area, historyRecord.getCleanTotalArea() + "㎡");
+        holder.setText(R.id.tv_area, DataUtils.formateArea(historyRecord.getCleanTotalArea()));
         long time_ = historyRecord.getStartTime();
         holder.setText(R.id.tv_date, generateTime(time_, Utils.getString(R.string.history_adapter_month_day)));
         holder.setText(R.id.tv_time, generateTime(time_,"HH:mm:ss"));

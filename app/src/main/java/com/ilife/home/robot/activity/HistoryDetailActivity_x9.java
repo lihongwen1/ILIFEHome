@@ -308,7 +308,7 @@ public class HistoryDetailActivity_x9 extends BackBaseActivity {
             tv_history_date.setText(date);
             tv_end_reason.setText(getResources().getString(R.string.setting_aty_end_reason, gerRealErrortTip(record.getStopCleanReason())));
             tv_clean_time.setText(record.getCleanTotalTime() + "min");
-            tv_lean_area.setText(record.getCleanTotalArea() + "㎡");
+            tv_lean_area.setText(DataUtils.formateArea(record.getCleanTotalArea()));
             iv_cleaning_flag.setImageResource(record.getStopCleanReason() == 1 ? R.drawable.annal_icon_finish : R.drawable.annal_icon_problem);
         }
 

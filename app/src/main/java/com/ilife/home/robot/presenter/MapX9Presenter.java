@@ -535,17 +535,11 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
     }
 
     private String getAreaValue() {
-        BigDecimal bg = new BigDecimal(cleanArea / 100.0f);
-        double area = bg.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue();
         if (curStatus == MsgCodeUtils.STATUE_WAIT || curStatus == MsgCodeUtils.STATUE_CHARGING || curStatus == MsgCodeUtils.STATUE_SLEEPING || curStatus == MsgCodeUtils.STATUE_CHARGING_ADAPTER_SLEEP ||
                 curStatus == MsgCodeUtils.STATUE_CHARGING_BASE_SLEEP || curStatus == MsgCodeUtils.STATUE_RECHARGE || !havMapData || (!isDrawMap() && curStatus != MsgCodeUtils.STATUE_RANDOM && curStatus != MsgCodeUtils.STATUE_TEMPORARY_POINT)) {
             return "——";
         } else {
-            String areaStr = area + "㎡";
-            if (areaStr.equals("0.0㎡")) {
-                areaStr = "0.00㎡";
-            }
-            return areaStr;
+            return DataUtils.formateArea(cleanArea / 100.0f);
         }
     }
 

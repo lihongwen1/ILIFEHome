@@ -11,6 +11,7 @@ import com.ilife.home.robot.app.MyApplication;
 import com.ilife.home.robot.bean.Coordinate;
 import com.ilife.home.robot.bean.MapDataBean;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -538,6 +539,15 @@ public class DataUtils {
         }
         return languages[language];
     }
-
+    /**
+     * 格式化清扫区域
+     *
+     * @param value
+     * @return
+     */
+    public static String formateArea(float value) {
+        DecimalFormat df = new DecimalFormat("0.00㎡");
+        return df.format(value);
+    }
 
 }

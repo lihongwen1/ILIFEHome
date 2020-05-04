@@ -14,7 +14,7 @@ public class CleaningDataX8 {
     private boolean haveClearFlag;
 
     public CleaningDataX8() {
-        coordinates=new ArrayList<>();
+        coordinates = new ArrayList<>();
     }
 
     public List<Coordinate> getCoordinates() {
@@ -57,8 +57,6 @@ public class CleaningDataX8 {
         if (coordinates == null) {
             coordinates = new ArrayList<>();
         }
-        if (!coordinates.contains(coordinate)) {
-            coordinates.add(coordinate);
-        }
+        coordinates.add(coordinate);
     }
 }
