@@ -33,7 +33,8 @@
       "waterLevelType": 1,
       "suctionType": false,
       "newScheduleVersion":true,
-      "needDivide100":false
+      "needDivide100":false,
+      "settingCarpet": false
     },
     {
       "productKey": "a1cdxiwZfP9",
@@ -66,7 +67,8 @@
       "waterLevelType": 1,
       "suctionType": false,
       "newScheduleVersion":true,
-      "needDivide100":false
+      "needDivide100":false,
+      "settingCarpet": false
     },
     {
       "productKey": "a1EBXRXFnvx",
@@ -99,7 +101,8 @@
       "waterLevelType": 1,
       "suctionType": false,
       "newScheduleVersion":true,
-      "needDivide100":false
+      "needDivide100":false,
+      "settingCarpet": false
     },
 
     {
@@ -133,7 +136,8 @@
       "waterLevelType": 2,
       "suctionType": false,
       "newScheduleVersion":false,
-      "needDivide100":true
+      "needDivide100":true,
+      "settingCarpet": false
     }
   ,{
       "productKey": "a1r76ksgLTV",
@@ -166,7 +170,8 @@
       "waterLevelType": 1,
       "suctionType": true,
       "newScheduleVersion":false,
-      "needDivide100":false
+      "needDivide100":false,
+      "settingCarpet": false
     },
     {
       "productKey": "a1JyoDFAJQT",
@@ -199,7 +204,8 @@
       "waterLevelType": 3,
       "suctionType": false,
       "newScheduleVersion":false,
-      "needDivide100":true
+      "needDivide100":true,
+      "settingCarpet": false
     },
     {
       "productKey": "a1ogWJdRVNo",
@@ -232,7 +238,8 @@
       "waterLevelType": 3,
       "suctionType": false,
       "newScheduleVersion":false,
-      "needDivide100":true
+      "needDivide100":true,
+      "settingCarpet": true
     }
   ]
 }

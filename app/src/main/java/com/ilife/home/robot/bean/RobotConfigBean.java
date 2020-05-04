@@ -134,6 +134,7 @@ public class RobotConfigBean {
         private boolean suctionType;
         private boolean newScheduleVersion;
         private boolean needDivide100;
+        private boolean settingCarpet;
         public String getProductKey() {
             return productKey;
         }
@@ -384,6 +385,14 @@ public class RobotConfigBean {
 
         public void setNeedDivide100(boolean needDivide100) {
             this.needDivide100 = needDivide100;
+        }
+
+        public boolean isSettingCarpet() {
+            return settingCarpet;
+        }
+
+        public void setSettingCarpet(boolean settingCarpet) {
+            this.settingCarpet = settingCarpet;
         }
     }
 }

@@ -136,6 +136,8 @@ public class SettingActivity extends BackBaseActivity implements OnAliSetPropert
     ImageView iv_find_device;
     @BindView(R.id.image_carpet)
     ImageView image_carpet;//地毯增压
+    @BindView(R.id.rl_set_carpet)
+    RelativeLayout rl_set_carpet;
     LayoutInflater inflater;
     Animation animation;
     private CompositeDisposable mDisposable;
@@ -227,6 +229,7 @@ public class SettingActivity extends BackBaseActivity implements OnAliSetPropert
         rl_update.setVisibility(rBean.isSettingUpdate() ? View.VISIBLE : View.GONE);
         rl_record.setVisibility(rBean.isSettingRecord() ? View.VISIBLE : View.GONE);
         rl_voice.setVisibility(rBean.isSettingVoice() ? View.VISIBLE : View.GONE);
+        rl_set_carpet.setVisibility(rBean.isSettingCarpet() ? View.VISIBLE : View.GONE);
         tv_type.setText(BuildConfig.BRAND + " " + rBean.getSettingRobot());
         image_product.setImageResource(product);
         image_carpet.setSelected(infoBean.getDeviceInfo().getCarpetControl() == 1);
