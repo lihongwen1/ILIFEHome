@@ -298,6 +298,9 @@ public class MapView extends View {
     }
 
     public void drawMapX8(List<Coordinate> dataList) {
+        if (dataList == null || dataList.size() == 0) {
+            return;
+        }
         MyLogger.d(TAG, "----------drawMapX8---------数据长度：   " + dataList.size());
         drawBoxMapX8(dataList);
         slamCanvas.drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR);
@@ -564,7 +567,7 @@ public class MapView extends View {
                     if (mSegmentHelper.isNeedCalculateGate()) {
                         canvas.drawLines(mSegmentHelper.getGateCoordinates(), mPaintManager.changeColor(mPaintManager.getLinePaint(), PaintColor.ROOM_GATE));
                     }
-                    canvas.drawCircle(mSegmentHelper.getStartCircle().centerX(), mSegmentHelper.getStartCircle().centerY(),mSegmentHelper.getRadius(), mPaintManager.changeColor(mPaintManager.getFillPaint(), PaintColor.ROOM_GATE));
+                    canvas.drawCircle(mSegmentHelper.getStartCircle().centerX(), mSegmentHelper.getStartCircle().centerY(), mSegmentHelper.getRadius(), mPaintManager.changeColor(mPaintManager.getFillPaint(), PaintColor.ROOM_GATE));
                     canvas.drawCircle(mSegmentHelper.getEndCircle().centerX(), mSegmentHelper.getEndCircle().centerY(), mSegmentHelper.getRadius(), mPaintManager.changeColor(mPaintManager.getFillPaint(), PaintColor.ROOM_GATE));
                 }
             }
