@@ -133,6 +133,7 @@ public class RobotConfigBean {
         private int waterLevelType;
         private boolean suctionType;
         private boolean newScheduleVersion;
+        private boolean needDivide100;
         public String getProductKey() {
             return productKey;
         }
@@ -375,6 +376,14 @@ public class RobotConfigBean {
 
         public void setNewScheduleVersion(boolean newScheduleVersion) {
             this.newScheduleVersion = newScheduleVersion;
+        }
+
+        public boolean isNeedDivide100() {
+            return needDivide100;
+        }
+
+        public void setNeedDivide100(boolean needDivide100) {
+            this.needDivide100 = needDivide100;
         }
     }
 }

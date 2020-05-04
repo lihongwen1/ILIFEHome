@@ -100,8 +100,9 @@ public class GetHistoryRecordDelegate {
                             Log.e("HISTORY_MAP", "新历史记录---" + generateTime(bean.getStartTime(), "MM月dd日HH:mm:ss") + "---------" + bean.getPackId() + "------------" + bean.getPackNum());
                             if (exitBean == null) {
                                 if (IlifeAli.getInstance().getWorkingDevice().getProductKey().equals(EnvConfigure.PRODUCT_KEY_X787)||
-                                        IlifeAli.getInstance().getWorkingDevice().getProductKey().equals(EnvConfigure.PRODUCT_KEY_X434)) {
-                                    //X787 X784清扫面积需要除去100.
+                                        IlifeAli.getInstance().getWorkingDevice().getProductKey().equals(EnvConfigure.PRODUCT_KEY_X434)||
+                                        IlifeAli.getInstance().getWorkingDevice().getProductKey().equals(EnvConfigure.PRODUCT_KEY_X787)) {
+                                    //X787 X434清扫面积需要除去100.
                                     bean.setCleanTotalArea(bean.getCleanTotalArea() / 100);
                                 }
                                 bean.addCleanData(bean.getPackNum(), bean.getPackId(), bean.getCleanMapData());

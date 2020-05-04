@@ -4,6 +4,8 @@ package com.ilife.home.robot.utils;
 import android.graphics.PointF;
 import android.view.MotionEvent;
 
+import java.math.BigDecimal;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 
 /**
@@ -29,7 +31,7 @@ public class DataUtils {
         return value;
     }
 
-    public static int byteToIntF(byte high,byte low){
+    public static int byteToIntF(byte high, byte low) {
         int value;
         value = (int) (((high & 0xFF) << 8)
                 | (low & 0xFF));
@@ -92,5 +94,16 @@ public class DataUtils {
         value = (int) (((src[offset] & 0xFF) << 8)
                 | (src[offset + 1] & 0xFF));
         return value;
+    }
+
+    /**
+     * 保留两位小数
+     *
+     * @param value
+     * @return
+     */
+    public static String scale2(float value) {
+        DecimalFormat df = new DecimalFormat("0.00㎡");
+        return df.format(value);
     }
 }

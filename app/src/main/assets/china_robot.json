@@ -32,7 +32,8 @@
       "waitForOpenPower":true,
       "waterLevelType": 1,
       "suctionType": false,
-      "newScheduleVersion":true
+      "newScheduleVersion":true,
+      "needDivide100":false
     },
     {
       "productKey": "a1cdxiwZfP9",
@@ -64,7 +65,8 @@
       "waitForOpenPower":true,
       "waterLevelType": 1,
       "suctionType": false,
-      "newScheduleVersion":true
+      "newScheduleVersion":true,
+      "needDivide100":false
     },
     {
       "productKey": "a1EBXRXFnvx",
@@ -96,7 +98,8 @@
       "waitForOpenPower":true,
       "waterLevelType": 1,
       "suctionType": false,
-      "newScheduleVersion":true
+      "newScheduleVersion":true,
+      "needDivide100":false
     },
 
     {
@@ -129,7 +132,8 @@
       "waitForOpenPower":false,
       "waterLevelType": 2,
       "suctionType": false,
-      "newScheduleVersion":false
+      "newScheduleVersion":false,
+      "needDivide100":true
     }
   ,{
       "productKey": "a1r76ksgLTV",
@@ -161,7 +165,8 @@
       "waitForOpenPower":false,
       "waterLevelType": 1,
       "suctionType": true,
-      "newScheduleVersion":false
+      "newScheduleVersion":false,
+      "needDivide100":false
     },
     {
       "productKey": "a1JyoDFAJQT",
@@ -193,7 +198,8 @@
       "waitForOpenPower":false,
       "waterLevelType": 3,
       "suctionType": false,
-      "newScheduleVersion":false
+      "newScheduleVersion":false,
+      "needDivide100":true
     },
     {
       "productKey": "a1ogWJdRVNo",
@@ -225,7 +231,8 @@
       "waitForOpenPower":false,
       "waterLevelType": 3,
       "suctionType": false,
-      "newScheduleVersion":false
+      "newScheduleVersion":false,
+      "needDivide100":true
     }
   ]
 }

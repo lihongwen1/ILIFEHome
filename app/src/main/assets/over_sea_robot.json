@@ -32,7 +32,8 @@
       "waitForOpenPower": false,
       "waterLevelType": 2,
       "suctionType": false,
-      "newScheduleVersion": false
+      "newScheduleVersion": false,
+      "needDivide100":true
     },
     {
       "productKey": "a2gylz5SVpC",
@@ -64,7 +65,8 @@
       "waitForOpenPower": false,
       "waterLevelType": 2,
       "suctionType": false,
-      "newScheduleVersion": false
+      "newScheduleVersion": false,
+      "needDivide100": true
     },
     {
       "productKey": "a2OrF0qnBjz",
@@ -96,7 +98,8 @@
       "waitForOpenPower":false,
       "waterLevelType": 1,
       "suctionType": true,
-      "newScheduleVersion":false
+      "newScheduleVersion":false,
+      "needDivide100":false
     }
   ]
 }
