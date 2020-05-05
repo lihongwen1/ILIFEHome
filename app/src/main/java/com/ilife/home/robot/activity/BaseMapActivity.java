@@ -186,6 +186,19 @@ public abstract class BaseMapActivity extends BackBaseActivity<MapX9Presenter> i
                     case 5:
                         mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
                         break;
+                    case 6:
+                        if (tipDialog == null) {
+                            DialogFragmentUtil.Builder builder = new DialogFragmentUtil.Builder();
+                            tipDialog = builder.setLayoutId(R.layout.dialog_no_title).setCancelOutSide(false)
+                                    .addClickLister(R.id.tv_dialog_ok, v -> {
+                                        tipDialog.dismiss();
+                                        mPresenter.setAppRemind();
+                                    }).build();
+                        }
+                        if (!tipDialog.isAdded()) {
+                            tipDialog.show(getSupportFragmentManager(), "app_remind");
+                        }
+                        break;
                 }
             }
 
@@ -432,6 +445,7 @@ public abstract class BaseMapActivity extends BackBaseActivity<MapX9Presenter> i
 
     /**
      * 该功能暂时用不到
+     *
      * @param isDisplay
      * @param cleanedTimes
      * @param settingCleanTimes
@@ -476,17 +490,10 @@ public abstract class BaseMapActivity extends BackBaseActivity<MapX9Presenter> i
 
     @Override
     public void showTipDialog() {
-        if (tipDialog == null) {
-            DialogFragmentUtil.Builder builder = new DialogFragmentUtil.Builder();
-            tipDialog = builder.setLayoutId(R.layout.dialog_no_title).setCancelOutSide(false)
-                    .addClickLister(R.id.tv_dialog_ok, v -> {
-                        tipDialog.dismiss();
-                        mPresenter.setAppRemind();
-                    }).build();
-        }
-        if (!tipDialog.isAdded()) {
-            tipDialog.show(getSupportFragmentManager(), "app_remind");
-        }
+        Message message = new Message();
+        message.what = 6;
+        weakHandler.removeMessages(6);
+        weakHandler.sendMessageDelayed(message, 1000);
     }
 
     /**

@@ -1,5 +1,6 @@
 package com.ilife.home.robot.activity;
 
+import android.content.Intent;
 import android.text.TextUtils;
 import android.util.Base64;
 import android.view.View;
@@ -16,6 +17,7 @@ import com.badoo.mobile.util.WeakHandler;
 import com.ilife.home.robot.R;
 import com.ilife.home.robot.adapter.SelectMapAdapter;
 import com.ilife.home.robot.base.BackBaseActivity;
+import com.ilife.home.robot.base.BaseQuickAdapter;
 import com.ilife.home.robot.bean.SaveMapBean;
 import com.ilife.home.robot.fragment.UniversalDialog;
 import com.ilife.home.robot.utils.MyLogger;
@@ -73,6 +75,11 @@ public class SelectSaveMapActivity extends BackBaseActivity {
                     rv_save_map.closeMenu();
                     break;
             }
+        });
+        mAdapter.setOnItemClickListener((adapter, view, position) -> {
+            Intent intent = new Intent(SelectSaveMapActivity.this, SegmentationRoomActivity.class);
+            intent.putExtra(SegmentationRoomActivity.KEY_MAP_ID, (int) saveMapBeans.get(position).getMapId());
+            startActivity(intent);
         });
         rv_save_map.setAdapter(mAdapter);
     }

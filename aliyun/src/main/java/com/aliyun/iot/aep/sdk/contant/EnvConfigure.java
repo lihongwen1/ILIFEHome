@@ -164,6 +164,10 @@ public class EnvConfigure {
     public static final String KEY_TOTAL_AREA = "CleanTotalArea";
     public static final String KEY_CLEAN_MAP_DATA = "CleanMapData";
     public static final String KEY_VERSION = "version";
+    public static final String KEY_SAVE_MAP_DATA_INFO1="SaveMapDataInfo1";
+    public static final String KEY_SAVE_MAP_DATA_INFO2="SaveMapDataInfo2";
+    public static final String KEY_SAVE_MAP_DATA_INFO3="SaveMapDataInfo3";
+    public static final String KEY_MAP_ID="MapId";
     /**
      * value
      */

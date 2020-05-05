@@ -4,6 +4,8 @@ import android.graphics.PointF;
 import android.graphics.RectF;
 import android.graphics.Region;
 
+import java.util.List;
+
 public class PartitionBean implements Comparable<PartitionBean>{
     private int partitionId;
     private int x;

@@ -1,6 +1,7 @@
 package com.ilife.home.robot.activity;
 
 import android.text.TextUtils;
+import android.util.Base64;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
@@ -22,6 +23,8 @@ import com.ilife.home.robot.utils.ToastUtils;
 import com.ilife.home.robot.utils.UiUtil;
 import com.ilife.home.robot.view.MapView;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import butterknife.BindView;
@@ -29,6 +32,7 @@ import butterknife.OnClick;
 
 public class SegmentationRoomActivity extends BackBaseActivity {
     private final String TAG = "SelectRoomActivity";
+    public static final String KEY_MAP_ID = "map_id";
     @BindView(R.id.tv_top_title)
     TextView tv_title;
     @BindView(R.id.map_segmentation_room)
@@ -58,7 +62,7 @@ public class SegmentationRoomActivity extends BackBaseActivity {
         iv_finish.setImageResource(R.drawable.nav_button_finish);
         fl_top_menu.setVisibility(View.VISIBLE);
         rg_segmentation_room.setOnCheckedChangeListener((group, checkedId) -> {
-            switch (checkedId){
+            switch (checkedId) {
                 case R.id.tv_move_map:
                     map_room.setmOT(MapView.OT.MAP);
                     break;
@@ -76,58 +80,116 @@ public class SegmentationRoomActivity extends BackBaseActivity {
     @Override
     public void initData() {
         super.initData();
-        IlifeAli.getInstance().getProperties(new OnAliResponse<PropertyBean>() {
-            @Override
-            public void onSuccess(PropertyBean result) {
-                long selectId = result.getSelectedMapId();
-                String roomData = result.getPartition();
-                String charging_port = result.getChargePort();
-                IlifeAli.getInstance().getSelectMap(selectId, new OnAliResponse<List<HistoryRecordBean>>() {
-                    @Override
-                    public void onSuccess(List<HistoryRecordBean> result) {
-                        if (result.size() == 0) {//应该只有一条数据
-                            return;
-                        }
-                        MapDataBean mapDataBean = DataUtils.parseSaveMapData(result.get(0).getMapDataArray());
-                        if (mapDataBean != null) {
-                            map_room.setLeftTopCoordinate(mapDataBean.getLeftX(), mapDataBean.getLeftY());
-                            map_room.updateSlam(mapDataBean.getMinX(), mapDataBean.getMaxX(), mapDataBean.getMinY(), mapDataBean.getMaxY());
-                            map_room.drawMapX8(mapDataBean.getCoordinates());
-                        }
-                        map_room.drawRoomTag(roomData);
-                        /**
-                         * 处理充电座
-                         */
-                        if (!TextUtils.isEmpty(charging_port)) {
-                            JSONObject jsonObject = JSONObject.parseObject(charging_port);
-                            boolean isDisplay = jsonObject.getIntValue("DisplaySwitch") == 1;
-                            if (isDisplay) {
-                                int xy = jsonObject.getIntValue("Piont");
-                                byte[] bytes = DataUtils.intToBytes4(xy);
-                                int x = DataUtils.bytesToInt(new byte[]{bytes[0], bytes[1]}, 0);
-                                int y = -DataUtils.bytesToInt(new byte[]{bytes[2], bytes[3]}, 0);
-                                map_room.drawChargePort(x, y,true);
+        int mapId = getIntent().getIntExtra(KEY_MAP_ID, 0);
+        if (mapId != 0) {
+            IlifeAli.getInstance().getProperties(new OnAliResponse<PropertyBean>() {
+                @Override
+                public void onSuccess(PropertyBean bean) {
+                    String roomData = bean.getPartition();
+
+                    IlifeAli.getInstance().getSelectMap(mapId, new OnAliResponse<List<HistoryRecordBean>>() {
+                        @Override
+                        public void onSuccess(List<HistoryRecordBean> result) {
+                            if (result.size() == 0) {//应该只有一条数据
+                                return;
                             }
+                            MapDataBean mapDataBean = DataUtils.parseSaveMapData(result.get(0).getMapDataArray());
+                            if (mapDataBean != null) {
+                                map_room.setLeftTopCoordinate(mapDataBean.getLeftX(), mapDataBean.getLeftY());
+                                map_room.updateSlam(mapDataBean.getMinX(), mapDataBean.getMaxX(), mapDataBean.getMinY(), mapDataBean.getMaxY());
+                                map_room.drawMapX8(mapDataBean.getCoordinates());
+                            }
+                            map_room.drawRoomTag(roomData);
+
+
+                            String saveMapDataInfoKey = "";
+                            if (mapId == bean.getSaveMapDataInfoMapId1()) {
+                                saveMapDataInfoKey = EnvConfigure.KEY_SAVE_MAP_DATA_INFO1;
+                            }
+                            if (mapId == bean.getSaveMapDataInfoMapId2()) {
+                                saveMapDataInfoKey = EnvConfigure.KEY_SAVE_MAP_DATA_INFO2;
+                            }
+                            if (mapId == bean.getSaveMapDataInfoMapId3()) {
+                                saveMapDataInfoKey = EnvConfigure.KEY_SAVE_MAP_DATA_INFO3;
+                            }
+                            if (!TextUtils.isEmpty(saveMapDataInfoKey)) {
+                                IlifeAli.getInstance().getSaveMapDataInfo(mapId, saveMapDataInfoKey, new OnAliResponse<String[]>() {
+                                    @Override
+                                    public void onSuccess(String[] result) {
+                                        if (result != null && result.length > 0) {
+                                            parseMapInfo(result);
+                                        }
+                                    }
+
+                                    @Override
+                                    public void onFailed(int code, String message) {
+
+                                    }
+                                });
+                            }
+
                         }
-                    }
 
-                    @Override
-                    public void onFailed(int code, String message) {
+                        @Override
+                        public void onFailed(int code, String message) {
 
-                    }
-                });
-            }
+                        }
+                    });
 
-            @Override
-            public void onFailed(int code, String message) {
 
-            }
-        });
+                }
+
+                @Override
+                public void onFailed(int code, String message) {
+
+                }
+            });
+        }
     }
 
 
     @OnClick({R.id.fl_top_menu})
     public void onClick(View view) {
+
+    }
+
+    private void parseMapInfo(String[] data) {
+        List<byte[]> bytesList = new ArrayList<>();
+        int bytesNumber = 0;
+        for (int i = 0; i < data.length; i++) {
+            byte[] bytes = Base64.decode(data[i], Base64.DEFAULT);
+            bytesNumber += bytes.length;
+            bytesList.add(bytes);
+        }
+        byte[] allBytes = new byte[bytesNumber];
+        int desPos = 0;
+        for (byte[] b : bytesList) {
+            System.arraycopy(b, 0, allBytes, desPos, b.length);
+            desPos += b.length;
+        }
+        MyLogger.d(TAG, "数据：   " + Arrays.toString(allBytes));
+//                充电座位置(4bytes) +
+//                房间数(1 byte)+
+//                房间 1 ID(4bytes) + 房间 1 坐标(4bytes) +
+//                房间 1 墙的坐标数(2bytes) + 房间墙坐标
+//                (4 * n bytes) +…+
+//                门条数(1 byte)+
+//                门 1 ID(1 byte)+门 1 坐标(8 byte)+…+
+//                虚拟墙条数(1 byte)+
+//                虚拟墙 1 坐标(8 byte)+…+
+//                禁区条数(1 byte)+
+//                禁区 1 类型(1 byte)+禁区 1 坐标
+
+        int index=0;
+        int chargeX=DataUtils.bytesToInt(allBytes[index],allBytes[index+1]);
+        index+=2;
+        int chargeY=DataUtils.bytesToInt(allBytes[index],allBytes[index+1]);
+        index+=2;
+        int roomNumber=allBytes[index]&0xff;
+        index++;
+        for (int i = 0; i <roomNumber; i++) {
+
+        }
 
     }
 

@@ -24,6 +24,9 @@ public class PropertyBean {
     private int carpetControl;//地毯增压
     private int virtualWallEn;//虚拟墙使能
     private int appRemind;//1-提示主机已被移动
+    private int saveMapDataInfoMapId1;
+    private int saveMapDataInfoMapId2;
+    private int saveMapDataInfoMapId3;
     public PropertyBean() {
     }
 
@@ -219,6 +222,30 @@ public class PropertyBean {
 
     public void setAppRemind(int appRemind) {
         this.appRemind = appRemind;
+    }
+
+    public int getSaveMapDataInfoMapId1() {
+        return saveMapDataInfoMapId1;
+    }
+
+    public void setSaveMapDataInfoMapId1(int saveMapDataInfoMapId1) {
+        this.saveMapDataInfoMapId1 = saveMapDataInfoMapId1;
+    }
+
+    public int getSaveMapDataInfoMapId2() {
+        return saveMapDataInfoMapId2;
+    }
+
+    public void setSaveMapDataInfoMapId2(int saveMapDataInfoMapId2) {
+        this.saveMapDataInfoMapId2 = saveMapDataInfoMapId2;
+    }
+
+    public int getSaveMapDataInfoMapId3() {
+        return saveMapDataInfoMapId3;
+    }
+
+    public void setSaveMapDataInfoMapId3(int saveMapDataInfoMapId3) {
+        this.saveMapDataInfoMapId3 = saveMapDataInfoMapId3;
     }
 
     @Override

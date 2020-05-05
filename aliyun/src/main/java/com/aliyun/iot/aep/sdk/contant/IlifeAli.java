@@ -719,6 +719,24 @@ public class IlifeAli {
                         bean.setCleanRoomData(cleanRoomData);
                         Log.d(TAG, "cleanRoomData: " + cleanRoomData);
                     }
+                    if (jsonObject.containsKey(EnvConfigure.KEY_SAVE_MAP_DATA_INFO1)) {
+                        int mapId = jsonObject.getJSONObject(EnvConfigure.KEY_SAVE_MAP_DATA_INFO1).getJSONObject(EnvConfigure.KEY_VALUE).
+                                getIntValue(EnvConfigure.KEY_MAP_ID);
+                        bean.setSaveMapDataInfoMapId1(mapId);
+                        Log.d(TAG, "saveMapDataInfoMapId1: " + mapId);
+                    }
+                    if (jsonObject.containsKey(EnvConfigure.KEY_SAVE_MAP_DATA_INFO2)) {
+                        int mapId = jsonObject.getJSONObject(EnvConfigure.KEY_SAVE_MAP_DATA_INFO2).getJSONObject(EnvConfigure.KEY_VALUE).
+                                getIntValue(EnvConfigure.KEY_MAP_ID);
+                        bean.setSaveMapDataInfoMapId2(mapId);
+                        Log.d(TAG, "saveMapDataInfoMapId2: " + mapId);
+                    }
+                    if (jsonObject.containsKey(EnvConfigure.KEY_SAVE_MAP_DATA_INFO3)) {
+                        int mapId = jsonObject.getJSONObject(EnvConfigure.KEY_SAVE_MAP_DATA_INFO3).getJSONObject(EnvConfigure.KEY_VALUE).
+                                getIntValue(EnvConfigure.KEY_MAP_ID);
+                        bean.setSaveMapDataInfoMapId3(mapId);
+                        Log.d(TAG, "saveMapDataInfoMapId3: " + mapId);
+                    }
                     onAliResponse.onSuccess(bean);
                 } else {
                     onAliResponse.onFailed(0, ioTResponse.getLocalizedMsg());
@@ -950,6 +968,50 @@ public class IlifeAli {
             }
         }));
     }
+
+    /**
+     * 超过200包处理
+     */
+    public void getSaveMapDataInfo(long selectMapId, String identifierKey, final OnAliResponse<String[]> onAliResponse) {
+        HashMap<String, Object> params = new HashMap<>();
+        params.clear();
+        params.put(EnvConfigure.KEY_IOT_ID, iotId);
+        params.put("identifier", identifierKey);
+        params.put("start", selectMapId * 1000);
+        params.put("end", System.currentTimeMillis());
+        params.put("pageSize", 200);
+        params.put("ordered", false);
+        ioTAPIClient.send(buildRequest(EnvConfigure.PATH_GET_PROPERTY_TIMELINE, params), new IoTUIThreadCallback(new IoTCallback() {
+            @Override
+            public void onFailure(IoTRequest ioTRequest, Exception e) {
+
+            }
+
+            @Override
+            public void onResponse(IoTRequest ioTRequest, IoTResponse ioTResponse) {
+                long timeSlamp = 0;
+                String[] infos = null;
+                if (ioTResponse.getCode() == 200) {
+                    JSONObject data = JSONObject.parseObject(ioTResponse.getData().toString());
+                    JSONArray jsonArray = data.getJSONArray(EnvConfigure.KEY_ITEMS);
+                    JSONObject jData;
+                    for (int i = 0; i < jsonArray.size(); i++) {
+                        jData = jsonArray.getJSONObject(i).getJSONObject(EnvConfigure.KEY_DATA);
+                        if (infos == null) {
+                            infos = new String[jData.getIntValue("PackNum")];
+                            timeSlamp = jData.getIntValue("TimeStamp");
+                        }
+                        if (timeSlamp == jData.getIntValue("TimeStamp")) {//分包时间戳相同
+                            int index = jData.getIntValue("PackId")-1;//packId和index差1
+                            infos[index] = jData.getString("MapInfo");
+                        }
+                    }
+                     onAliResponse.onSuccess(infos);
+                }
+            }
+        }));
+    }
+
 
     public void getSelectMap(long selectMapId, final OnAliResponse<List<HistoryRecordBean>> onAliResponse) {
         HashMap<String, Object> params = new HashMap<>();
