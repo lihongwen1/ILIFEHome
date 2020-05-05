@@ -26,7 +26,7 @@ public class SegmentationRoomHelper {
     private PointF downPoint;
     private Region boundaryRegion;//分割线外框
     private Path sgPath, mBoundaryPath;//房间分割线路径
-    private final int ICON_RADIUS = 100;
+    private static final int ICON_RADIUS = 100;
     private Matrix mMatrix, mBoundaryMatix;
     private int BOUNDARY_LENGTH = 100;
     private Path gatePath;

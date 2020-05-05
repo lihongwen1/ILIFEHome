@@ -662,6 +662,9 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
         });
 
 
+        /**
+         *延迟handler来控制初始化状态改变的作用
+         */
         LiveEventBus.get(EnvConfigure.KEY_INIT_STATUS, Integer.class).observe((BaseActivity) mView, initStatus -> {
             MyLogger.d(TAG, "初始化状态改变 init status：" + initStatus);
             if (initStatus == 0) {
