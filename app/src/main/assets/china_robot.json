@@ -167,7 +167,7 @@
       "historyMapType": 0,
       "scheduleInDark": true,
       "waitForOpenPower":false,
-      "waterLevelType": 1,
+      "waterLevelType": 3,
       "suctionType": true,
       "newScheduleVersion":false,
       "needDivide100":false,
