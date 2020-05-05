@@ -9,9 +9,14 @@ import android.graphics.Region;
 import android.util.Log;
 import android.view.MotionEvent;
 
+import androidx.lifecycle.Observer;
+
+import com.ilife.home.livebus.LiveEventBus;
 import com.ilife.home.robot.R;
 import com.ilife.home.robot.app.MyApplication;
 import com.ilife.home.robot.bean.Coordinate;
+import com.ilife.home.robot.bean.PartitionBean;
+import com.ilife.home.robot.model.bean.VirtualWallBean;
 import com.ilife.home.robot.utils.DataUtils;
 import com.ilife.home.robot.utils.MyLogger;
 import com.ilife.home.robot.view.MapView;
@@ -19,8 +24,12 @@ import com.ilife.home.robot.view.MapView;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * 分割房间帮助类， 门操作管理类
+ */
 public class SegmentationRoomHelper {
     private static final String TAG = "VirtualWallHelper";
+    public static final String KEY_SEGMENTATION_ROOM = "segmentation_room";
     private MapView mMapView;
     private SROT smOT = SROT.NOON;
     private PointF downPoint;
@@ -29,7 +38,6 @@ public class SegmentationRoomHelper {
     private static final int ICON_RADIUS = 100;
     private Matrix mMatrix, mBoundaryMatix;
     private int BOUNDARY_LENGTH = 100;
-    private Path gatePath;
     private float[] mCoordinates = new float[4];
     private float[] gateCoordinates = new float[4];
     private float[] originalCoordinates = new float[4];
@@ -37,12 +45,15 @@ public class SegmentationRoomHelper {
     private boolean isNeedCalculateGate;
     private RectF startCircle, endCircle;
     private int radius;
+    private VirtualWallBean room;
+
     public enum SROT {
         NOON(61),
         DRAG(62),
         PULL_START(63),
         PULL_END(64),
-        ADD(65);
+        ADD(65),
+        DELETE(65);
         final int nativeType;
 
         SROT(int type) {
@@ -58,14 +69,13 @@ public class SegmentationRoomHelper {
     public SegmentationRoomHelper(MapView mapView) {
         this.mMapView = mapView;
         this.sgPath = new Path();
-        this.gatePath = new Path();
         this.mBoundaryPath = new Path();
         this.downPoint = new PointF();
         this.mMatrix = new Matrix();
         this.startCircle = new RectF();
         this.endCircle = new RectF();
         this.mBoundaryMatix = new Matrix();
-        radius = MyApplication.getInstance().getResources().getDimensionPixelSize(R.dimen.dp_20);
+        radius = MyApplication.getInstance().getResources().getDimensionPixelSize(R.dimen.dp_10);
     }
 
     /**
@@ -119,7 +129,7 @@ public class SegmentationRoomHelper {
                 mCoordinates[1] = downPoint.y;
                 mCoordinates[2] = mapX;
                 mCoordinates[3] = mapY;
-                updateVirtualWall();
+                updateSegmentationLine();
                 break;
             case DRAG:
                 float tx = mapX - downPoint.x;//x轴平移距离
@@ -128,17 +138,17 @@ public class SegmentationRoomHelper {
                 mMatrix.postTranslate(tx, ty);
                 System.arraycopy(originalCoordinates, 0, mCoordinates, 0, originalCoordinates.length);
                 mMatrix.mapPoints(mCoordinates);
-                updateVirtualWall();
+                updateSegmentationLine();
                 break;
             case PULL_END:
                 mCoordinates[2] = mapX;
                 mCoordinates[3] = mapY;
-                updateVirtualWall();
+                updateSegmentationLine();
                 break;
             case PULL_START:
                 mCoordinates[0] = mapX;
                 mCoordinates[1] = mapY;
-                updateVirtualWall();
+                updateSegmentationLine();
                 break;
             default:
                 break;
@@ -151,8 +161,14 @@ public class SegmentationRoomHelper {
      * @param mapY
      */
     private void doOnActionUp(float mapX, float mapY) {
+        if (mapX == downPoint.x && mapY == downPoint.y) {//点击事件
+            mMapView.getmRoomHelper().clickRoomTag(mapX, mapY);
+            if (mCoordinates[0] == mCoordinates[2]) {
+                isHaveLine = false;
+            }
+        }
         isNeedCalculateGate = true;
-        updateVirtualWall();
+        updateSegmentationLine();
         smOT = SROT.NOON;
     }
 
@@ -161,9 +177,8 @@ public class SegmentationRoomHelper {
      * 绘制电子墙
      * 根据最新的缩放比例刷新虚拟墙
      */
-    public void updateVirtualWall() {
+    private void updateSegmentationLine() {
         sgPath.reset();
-        gatePath.reset();
         sgPath.moveTo(mCoordinates[0], mCoordinates[1]);
         sgPath.lineTo(mCoordinates[2], mCoordinates[3]);
 
@@ -174,7 +189,7 @@ public class SegmentationRoomHelper {
         mBoundaryMatix.reset();
         mBoundaryPath.reset();
         float[] cooBoundary = new float[8];
-        float[] cooStrength=new float[4];
+        float[] cooStrength = new float[4];
         float k = (mCoordinates[3] - mCoordinates[1]) / (mCoordinates[2]
                 - mCoordinates[0]);
         float degree = (float) (Math.atan(k) * 180 / Math.PI);
@@ -191,10 +206,10 @@ public class SegmentationRoomHelper {
         cooBoundary[6] = mCoordinates[2] + x_direction * BOUNDARY_LENGTH;
         cooBoundary[7] = mCoordinates[3] - x_direction * BOUNDARY_LENGTH;
 
-        cooStrength[0]=mCoordinates[0] - x_direction * BOUNDARY_LENGTH;
-        cooStrength[1]=mCoordinates[1];
-        cooStrength[2]=mCoordinates[2] + x_direction * BOUNDARY_LENGTH;
-        cooStrength[3]=mCoordinates[3];
+        cooStrength[0] = mCoordinates[0] - x_direction * BOUNDARY_LENGTH;
+        cooStrength[1] = mCoordinates[1];
+        cooStrength[2] = mCoordinates[2] + x_direction * BOUNDARY_LENGTH;
+        cooStrength[3] = mCoordinates[3];
 
         mBoundaryMatix.invert(mBoundaryMatix);
         mBoundaryMatix.mapPoints(cooBoundary);
@@ -238,8 +253,9 @@ public class SegmentationRoomHelper {
          * 计算分割线
          */
         List<Coordinate> containsCoo = new ArrayList<>();
-        for (Coordinate coo : mMapView.getPointList()) {
-            if (coo.getType() == 2) {
+        PartitionBean room = mMapView.getmRoomHelper().getSelectRoom();
+        if (room != null) {
+            for (Coordinate coo : room.getWallCoordinates()) {
                 if (boundaryRegion.contains((int) mMapView.matrixCoordinateX(coo.getX()), (int) mMapView.matrixCoordinateY(coo.getY()))) {
                     double space = DataUtils.lineToPointSpace(mCoordinates[0], mCoordinates[1], mCoordinates[2], mCoordinates[3],
                             mMapView.matrixCoordinateX(coo.getX()), mMapView.matrixCoordinateY(coo.getY()));
@@ -249,8 +265,8 @@ public class SegmentationRoomHelper {
                     }
 
                 }
-            }
 
+            }
         }
         float mind1 = -1, mind2 = -1;
         for (Coordinate coo : containsCoo) {
@@ -268,7 +284,6 @@ public class SegmentationRoomHelper {
                 }
             }
         }
-        gatePath.reset();
         PathMeasure pathMeasure = new PathMeasure();
         pathMeasure.setPath(sgPath, false);
         float[] pos = new float[2];
@@ -279,10 +294,8 @@ public class SegmentationRoomHelper {
         pathMeasure.getPosTan(pathMeasure.getLength() - mind2, pos, tan);
         gateCoordinates[2] = pos[0];
         gateCoordinates[3] = pos[1];
-        pathMeasure.getSegment(mind1, pathMeasure.getLength() - mind2, gatePath, true);
 
     }
-
 
 
     public RectF getStartCircle() {

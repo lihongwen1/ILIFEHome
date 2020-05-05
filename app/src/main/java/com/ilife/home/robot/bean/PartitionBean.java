@@ -4,6 +4,7 @@ import android.graphics.PointF;
 import android.graphics.RectF;
 import android.graphics.Region;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class PartitionBean implements Comparable<PartitionBean>{
@@ -13,10 +14,12 @@ public class PartitionBean implements Comparable<PartitionBean>{
     private String tag;
     private Region region;
     private RectF tagIcon;
+    private List<Coordinate> wallCoordinates;
     public PartitionBean(int partitionId, int x, int y) {
         this.partitionId = partitionId;
         this.x = x;
         this.y = y;
+        this.wallCoordinates=new ArrayList<>();
     }
 
     public int getPartitionId() {
@@ -65,6 +68,14 @@ public class PartitionBean implements Comparable<PartitionBean>{
 
     public void setTag(String tag) {
         this.tag = tag;
+    }
+
+    public List<Coordinate> getWallCoordinates() {
+        return wallCoordinates;
+    }
+
+    public void setWallCoordinates(List<Coordinate> wallCoordinates) {
+        this.wallCoordinates = wallCoordinates;
     }
 
     @Override

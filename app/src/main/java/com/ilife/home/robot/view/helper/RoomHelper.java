@@ -6,13 +6,12 @@ import android.graphics.Region;
 import android.util.Base64;
 import android.util.SparseIntArray;
 
-import com.huawei.android.hms.agent.common.UIUtils;
 import com.ilife.home.robot.R;
 import com.ilife.home.robot.app.MyApplication;
 import com.ilife.home.robot.bean.PartitionBean;
+import com.ilife.home.robot.model.bean.VirtualWallBean;
 import com.ilife.home.robot.utils.DataUtils;
 import com.ilife.home.robot.utils.MyLogger;
-import com.ilife.home.robot.utils.ToastUtils;
 import com.ilife.home.robot.utils.UiUtil;
 import com.ilife.home.robot.view.MapView;
 
@@ -30,6 +29,7 @@ public class RoomHelper {
     private int radius;//房间标记半径
     private int textSize;//房间标记半径
     private SparseIntArray selecRoom;
+    private boolean isSingleChoice;
 
     public RoomHelper(MapView mapView) {
         this.mMapView = mapView;
@@ -43,9 +43,9 @@ public class RoomHelper {
     public int getSelectRoomId() {
         int roomId = 0;
         for (int i = 0; i < selecRoom.size(); i++) {
-            roomId=DataUtils.setBitTo1(roomId,selecRoom.valueAt(i)-1);
+            roomId = DataUtils.setBitTo1(roomId, selecRoom.valueAt(i) - 1);
         }
-        MyLogger.d(TAG,"room id to send to server:"+roomId);
+        MyLogger.d(TAG, "room id to send to server:" + roomId);
         return roomId;
     }
 
@@ -60,20 +60,20 @@ public class RoomHelper {
         int partionId, x, y;
 
         for (int i = 0; i < num; i++) {
-            partionId = DataUtils.getRoomId(new byte[]{bytes[i * 8+3], bytes[i * 8 + 2], bytes[i * 8 + 1], bytes[i * 8]});
-            if (partionId==-1){
+            partionId = DataUtils.getRoomId(new byte[]{bytes[i * 8 + 3], bytes[i * 8 + 2], bytes[i * 8 + 1], bytes[i * 8]});
+            if (partionId == -1) {
                 continue;
             }
             x = DataUtils.bytesToInt(bytes[i * 8 + 4], bytes[i * 8 + 5]);
             y = -DataUtils.bytesToInt(bytes[i * 8 + 6], bytes[i * 8 + 7]);
             rooms.add(new PartitionBean(partionId, x, y));
-            if (DataUtils.getBit((byte) checkedRoom,partionId-1)==1) {
+            if (DataUtils.getBit((byte) checkedRoom, partionId - 1) == 1) {
                 selecRoom.put(partionId, partionId);
             }
         }
         Collections.sort(rooms);
-        int index=0;
-        String[] tags= UiUtil.getStringArray(R.array.array_room_tag);
+        int index = 0;
+        String[] tags = UiUtil.getStringArray(R.array.array_room_tag);
         for (PartitionBean room : rooms) {
             room.setTag(tags[index]);
             index++;
@@ -82,6 +82,31 @@ public class RoomHelper {
         Region region;
         int cx, cy;
         if (rooms != null && rooms.size() > 0) {
+            for (PartitionBean pb : rooms) {
+                cx = (int) mMapView.matrixCoordinateX(pb.getX());
+                cy = (int) mMapView.matrixCoordinateY(pb.getY());
+                circle.addCircle(cx, cy, radius, Path.Direction.CW);
+                region = new Region(cx - radius, cy - radius, cx + radius, cy + radius);
+                region.setPath(circle, region);
+                pb.setRegion(region);
+                pb.setTagIcon(new RectF(cx - radius, cy - radius, cx + radius, cy + radius));
+            }
+        }
+    }
+
+    public void drawRoom(List<PartitionBean> rooms) {
+        this.rooms.addAll(rooms);
+        Collections.sort(rooms);
+        int index = 0;
+        String[] tags = UiUtil.getStringArray(R.array.array_room_tag);
+        for (PartitionBean room : rooms) {
+            room.setTag(tags[index]);
+            index++;
+        }
+        Path circle = new Path();
+        Region region;
+        int cx, cy;
+        if (rooms.size() > 0) {
             for (PartitionBean pb : rooms) {
                 cx = (int) mMapView.matrixCoordinateX(pb.getX());
                 cy = (int) mMapView.matrixCoordinateY(pb.getY());
@@ -125,7 +150,10 @@ public class RoomHelper {
         for (PartitionBean room : rooms) {
             if (room.getRegion().contains((int) mapX, (int) mapY)) {
                 id = room.getPartitionId();
-                if (selecRoom.indexOfKey(id) >= 0) {
+                if (isSingleChoice) {
+                    selecRoom.clear();
+                    selecRoom.put(id, id);
+                } else if (selecRoom.indexOfKey(id) >= 0) {
                     selecRoom.delete(id);
                 } else {
                     selecRoom.put(id, id);
@@ -140,5 +168,24 @@ public class RoomHelper {
 
     }
 
+    public void setSingleChoice(boolean singleChoice) {
+        isSingleChoice = singleChoice;
+    }
 
+    /**
+     * single choose 模式可用
+     *
+     * @return
+     */
+    public PartitionBean getSelectRoom() {
+        PartitionBean chooseRoom = null;
+        int chooseId = selecRoom.valueAt(0);
+        for (PartitionBean room : rooms) {
+            if (room.getPartitionId() == chooseId) {
+                chooseRoom = room;
+                break;
+            }
+        }
+        return chooseRoom;
+    }
 }

@@ -16,7 +16,7 @@ public class VirtualWallBean {
     private RectF pullIcon;//pull virtual wall icon,change the wall's end point,may be change the virtual wall's size;
     private RectF rotateIcon;//rotate the virtual wall ,won't change the it size;
     private int state;//1-original   2-new added 3-may delete
-    private int type;//-1-virtual wall  0-global area 1-carpet area 2-sweep area 3-clean area
+    private int type;//-1-virtual wall  0-global area 1-carpet area 2-sweep area 3-clean area 4-room gate
     private Path boundaryPath;//虚拟墙边界框框path;
     private Region boundaryRegion;
     private Path path;

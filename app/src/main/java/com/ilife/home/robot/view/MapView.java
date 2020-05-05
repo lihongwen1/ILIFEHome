@@ -19,6 +19,7 @@ import android.view.View;
 
 import com.ilife.home.robot.R;
 import com.ilife.home.robot.app.MyApplication;
+import com.ilife.home.robot.base.BaseActivity;
 import com.ilife.home.robot.bean.Coordinate;
 import com.ilife.home.robot.bean.PartitionBean;
 import com.ilife.home.robot.model.bean.SlamLineBean;
@@ -30,12 +31,14 @@ import com.ilife.home.robot.utils.UiUtil;
 import com.ilife.home.robot.utils.Utils;
 import com.ilife.home.robot.view.helper.CleanAreaHelper;
 import com.ilife.home.robot.view.helper.ForbiddenAreaHelper;
+import com.ilife.home.robot.view.helper.GateHelper;
 import com.ilife.home.robot.view.helper.RoomHelper;
 import com.ilife.home.robot.view.helper.SegmentationRoomHelper;
 import com.ilife.home.robot.view.helper.VirtualWallHelper;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -80,6 +83,7 @@ public class MapView extends View {
     private ForbiddenAreaHelper mForbiddenHelper;//全局禁区
     private CleanAreaHelper mCleanHelper;
     private SegmentationRoomHelper mSegmentHelper;//分割房间
+    private GateHelper mGateHelper;
     private RoomHelper mRoomHelper;
     private OT mOT = OT.NOON;//默认操作地图
     private int MAP_MODE;//标记操作地图的类型
@@ -88,7 +92,6 @@ public class MapView extends View {
     private PaintManager mPaintManager;
     private PointF standPointF;//充电座
     private boolean isChargingPortDisplay = false;//是否展示充电座
-
     /**
      * map operation type
      */
@@ -162,6 +165,7 @@ public class MapView extends View {
         mVirtualWallHelper = new VirtualWallHelper(this);
         mForbiddenHelper = new ForbiddenAreaHelper(this);
         mSegmentHelper = new SegmentationRoomHelper(this);
+        mGateHelper = new GateHelper(this);
         mCleanHelper = new CleanAreaHelper(this);
         mRoomHelper = new RoomHelper(this);
         colors = new int[]{getResources().getColor(R.color.obstacle_color), getResources().getColor(R.color.slam_color),
@@ -565,10 +569,22 @@ public class MapView extends View {
                 if (mSegmentHelper.isHaveLine()) {
                     canvas.drawLines(mSegmentHelper.getmCoordinates(), mPaintManager.changeColor(mPaintManager.getDashPaint(), PaintColor.VIRTUAL));
                     if (mSegmentHelper.isNeedCalculateGate()) {
+                        MyLogger.d(TAG,"gate作标："+ Arrays.toString(mSegmentHelper.getGateCoordinates()));
                         canvas.drawLines(mSegmentHelper.getGateCoordinates(), mPaintManager.changeColor(mPaintManager.getLinePaint(), PaintColor.ROOM_GATE));
                     }
                     canvas.drawCircle(mSegmentHelper.getStartCircle().centerX(), mSegmentHelper.getStartCircle().centerY(), mSegmentHelper.getRadius(), mPaintManager.changeColor(mPaintManager.getFillPaint(), PaintColor.ROOM_GATE));
                     canvas.drawCircle(mSegmentHelper.getEndCircle().centerX(), mSegmentHelper.getEndCircle().centerY(), mSegmentHelper.getRadius(), mPaintManager.changeColor(mPaintManager.getFillPaint(), PaintColor.ROOM_GATE));
+                }
+            }
+            /**
+             * 绘制房间门
+             */
+            if (mGateHelper.getGtBeans().size() > 0) {
+                canvas.drawPath(mGateHelper.getGtPath(), mPaintManager.changeColor(mPaintManager.getLinePaint(), PaintColor.ROOM_GATE));
+                for (VirtualWallBean gate : mGateHelper.getGtBeans()) {
+                    if (gate.getDeleteIcon() != null) {
+                        canvas.drawBitmap(deleteBitmap, gate.getDeleteIcon().left, gate.getDeleteIcon().top, mPaintManager.getIconPaint());
+                    }
                 }
             }
             /**
@@ -870,6 +886,10 @@ public class MapView extends View {
         return mRoomHelper;
     }
 
+    public GateHelper getmGateHelper() {
+        return mGateHelper;
+    }
+
     /**
      * 查询到房间标记数据后，绘制房间标记
      *
@@ -1023,6 +1043,7 @@ public class MapView extends View {
                     case 1://已清扫
                         boxPath.addRect(matrixCoordinateX(x), matrixCoordinateY(y), matrixCoordinateX(x) + baseScare, matrixCoordinateY(y) + baseScare, Path.Direction.CCW);
                         break;
+                    case 5:
                     case 2://障碍物
                         obstaclePath.addRect(matrixCoordinateX(x), matrixCoordinateY(y), matrixCoordinateX(x) + baseScare, matrixCoordinateY(y) + baseScare, Path.Direction.CCW);
                         break;

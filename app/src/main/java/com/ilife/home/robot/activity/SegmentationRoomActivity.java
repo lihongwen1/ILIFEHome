@@ -8,7 +8,6 @@ import android.widget.ImageView;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 
-import com.alibaba.fastjson.JSONObject;
 import com.aliyun.iot.aep.sdk._interface.OnAliResponse;
 import com.aliyun.iot.aep.sdk.bean.HistoryRecordBean;
 import com.aliyun.iot.aep.sdk.bean.PropertyBean;
@@ -16,11 +15,12 @@ import com.aliyun.iot.aep.sdk.contant.EnvConfigure;
 import com.aliyun.iot.aep.sdk.contant.IlifeAli;
 import com.ilife.home.robot.R;
 import com.ilife.home.robot.base.BackBaseActivity;
+import com.ilife.home.robot.bean.Coordinate;
 import com.ilife.home.robot.bean.MapDataBean;
+import com.ilife.home.robot.bean.PartitionBean;
+import com.ilife.home.robot.model.bean.VirtualWallBean;
 import com.ilife.home.robot.utils.DataUtils;
 import com.ilife.home.robot.utils.MyLogger;
-import com.ilife.home.robot.utils.ToastUtils;
-import com.ilife.home.robot.utils.UiUtil;
 import com.ilife.home.robot.view.MapView;
 
 import java.util.ArrayList;
@@ -85,8 +85,6 @@ public class SegmentationRoomActivity extends BackBaseActivity {
             IlifeAli.getInstance().getProperties(new OnAliResponse<PropertyBean>() {
                 @Override
                 public void onSuccess(PropertyBean bean) {
-                    String roomData = bean.getPartition();
-
                     IlifeAli.getInstance().getSelectMap(mapId, new OnAliResponse<List<HistoryRecordBean>>() {
                         @Override
                         public void onSuccess(List<HistoryRecordBean> result) {
@@ -99,17 +97,12 @@ public class SegmentationRoomActivity extends BackBaseActivity {
                                 map_room.updateSlam(mapDataBean.getMinX(), mapDataBean.getMaxX(), mapDataBean.getMinY(), mapDataBean.getMaxY());
                                 map_room.drawMapX8(mapDataBean.getCoordinates());
                             }
-                            map_room.drawRoomTag(roomData);
-
-
                             String saveMapDataInfoKey = "";
                             if (mapId == bean.getSaveMapDataInfoMapId1()) {
                                 saveMapDataInfoKey = EnvConfigure.KEY_SAVE_MAP_DATA_INFO1;
-                            }
-                            if (mapId == bean.getSaveMapDataInfoMapId2()) {
+                            } else if (mapId == bean.getSaveMapDataInfoMapId2()) {
                                 saveMapDataInfoKey = EnvConfigure.KEY_SAVE_MAP_DATA_INFO2;
-                            }
-                            if (mapId == bean.getSaveMapDataInfoMapId3()) {
+                            } else if (mapId == bean.getSaveMapDataInfoMapId3()) {
                                 saveMapDataInfoKey = EnvConfigure.KEY_SAVE_MAP_DATA_INFO3;
                             }
                             if (!TextUtils.isEmpty(saveMapDataInfoKey)) {
@@ -180,17 +173,58 @@ public class SegmentationRoomActivity extends BackBaseActivity {
 //                禁区条数(1 byte)+
 //                禁区 1 类型(1 byte)+禁区 1 坐标
 
-        int index=0;
-        int chargeX=DataUtils.bytesToInt(allBytes[index],allBytes[index+1]);
-        index+=2;
-        int chargeY=DataUtils.bytesToInt(allBytes[index],allBytes[index+1]);
-        index+=2;
-        int roomNumber=allBytes[index]&0xff;
+        int index = 0;
+        int chargeX = DataUtils.bytesToInt(allBytes[index], allBytes[index + 1]);
+        index += 2;
+        int chargeY = DataUtils.bytesToInt(allBytes[index], allBytes[index + 1]);
+        index += 2;
+        int roomNumber = allBytes[index] & 0xff;
         index++;
-        for (int i = 0; i <roomNumber; i++) {
-
+        List<PartitionBean> rooms = new ArrayList<>();
+        PartitionBean room;
+        List<Coordinate> wallCoordinate;
+        for (int i = 0; i < roomNumber; i++) {
+            int roomId = DataUtils.getRoomId(new byte[]{allBytes[index + 3], allBytes[index + 2], allBytes[index + 1], allBytes[index]});
+            index += 4;
+            int roomX = DataUtils.bytesToInt(allBytes[index], allBytes[index + 1]);
+            index += 2;
+            int roomY = -DataUtils.bytesToInt(allBytes[index], allBytes[index + 1]);
+            index += 2;
+            int wallNumber = DataUtils.bytesToInt(allBytes[index], allBytes[index + 1]);
+            index += 2;
+            wallCoordinate = new ArrayList<>();
+            for (int j = 0; j < wallNumber; j++) {
+                int wallX = DataUtils.bytesToInt(allBytes[index], allBytes[index + 1]);
+                index += 2;
+                int wallY = -DataUtils.bytesToInt(allBytes[index], allBytes[index + 1]);
+                index += 2;
+                wallCoordinate.add(new Coordinate(wallX, wallY, 2));
+            }
+            room = new PartitionBean(roomId, roomX, roomY);
+            room.setWallCoordinates(wallCoordinate);
+            rooms.add(room);
         }
-
+        int gateNumber = allBytes[index] & 0xff;
+        index++;
+        List<VirtualWallBean> gates = new ArrayList<>();
+        for (int i = 0; i < gateNumber; i++) {
+            int gateId = allBytes[index] & 0xff;
+            index++;
+            int sx = DataUtils.bytesToInt(allBytes[index], allBytes[index + 1]);
+            index += 2;
+            int sy = -DataUtils.bytesToInt(allBytes[index], allBytes[index + 1]);
+            index += 2;
+            int ex = DataUtils.bytesToInt(allBytes[index], allBytes[index + 1]);
+            index += 2;
+            int ey = -DataUtils.bytesToInt(allBytes[index], allBytes[index + 1]);
+            index += 2;
+            gates.add(new VirtualWallBean(gateId,4,new float[]{sx, sy, ex, ey},1));
+        }
+        map_room.getmRoomHelper().drawRoom(rooms);
+        map_room.getmRoomHelper().setSingleChoice(true);
+        map_room.getmGateHelper().drawGate(gates);
+        map_room.invalidateUI();
     }
+
 
 }
