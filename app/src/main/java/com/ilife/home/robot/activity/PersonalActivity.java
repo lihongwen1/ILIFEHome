@@ -14,6 +14,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AlertDialog;
@@ -71,6 +72,8 @@ public class PersonalActivity extends BackBaseActivity implements View.OnClickLi
     ImageView image_forward;
     @BindView(R.id.tv_user_email)
     TextView tv_user_email;
+    @BindView(R.id.rl_app_authorization)
+    RelativeLayout rl_app_authorization;
     IntentIntegrator integrator;
     AlertDialog alertDialog;
     ArrayList<DeviceInfoBean> mDeviceList;
@@ -89,6 +92,7 @@ public class PersonalActivity extends BackBaseActivity implements View.OnClickLi
         ((TextView) findViewById(R.id.tv_top_title)).setTextColor(getResources().getColor(R.color.white));
         ((TextView) findViewById(R.id.tv_top_title)).setText(R.string.personal_aty_personal_center);
         findViewById(R.id.ll_title).setBackgroundColor(getResources().getColor(R.color.zxing_transparent));
+        rl_app_authorization.setVisibility(BuildConfig.BUILD_COUNTRY.equals("CHINA")?View.VISIBLE:View.GONE);
     }
 
     public void initData() {
@@ -109,7 +113,7 @@ public class PersonalActivity extends BackBaseActivity implements View.OnClickLi
         dialog_height_ = (int) getResources().getDimension(R.dimen.dp_146);
         String version = getVersion();
         if (!TextUtils.isEmpty(version)) {
-            tv_version.setText(getString(R.string.personal_aty_version, version, BuildConfig.Area == EnvConfigure.AREA_CHINA ? "" : ""));
+            tv_version.setText(getString(R.string.personal_aty_version, version, BuildConfig.Area == EnvConfigure.CHINA ? "" : ""));
         }
         /**
          * user contact information,email or phone number
@@ -125,7 +129,7 @@ public class PersonalActivity extends BackBaseActivity implements View.OnClickLi
     protected void onResume() {
         super.onResume();
         String userName = IlifeAli.getInstance().getUserInfo().userNick;
-        if (!TextUtils.isEmpty(userName)) {
+        if (!TextUtils.isEmpty(userName)&&!userName.toLowerCase().equals("null")) {
             tv_userName.setText(userName);
         }
     }

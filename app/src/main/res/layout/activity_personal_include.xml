@@ -15,29 +15,6 @@
         android:text="@string/personal_aty_support"
         android:textColor="@color/color_33" />
 
-    <LinearLayout
-        android:id="@+id/ll_area_container"
-        android:layout_width="match_parent"
-        android:layout_height="@dimen/dp_48"
-        android:gravity="center"
-        android:orientation="horizontal"
-        android:visibility="gone">
-
-        <TextView
-            android:id="@+id/tv_area"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="德国"
-            android:textColor="@color/color_33"
-            android:textSize="@dimen/dp_16" />
-
-        <ImageView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="@dimen/dp_8"
-            android:background="@drawable/help_icon_xiala" />
-    </LinearLayout>
-
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -45,6 +22,29 @@
         android:layout_marginTop="@dimen/dp_16"
         android:background="@drawable/shape_bg_round_radius"
         android:orientation="vertical">
+
+        <LinearLayout
+            android:id="@+id/ll_area_container"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/dp_48"
+            android:gravity="center"
+            android:orientation="horizontal"
+            android:visibility="gone">
+
+            <TextView
+                android:id="@+id/tv_area"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="德国"
+                android:textColor="@color/color_33"
+                android:textSize="@dimen/dp_16" />
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/dp_8"
+                android:background="@drawable/help_icon_xiala" />
+        </LinearLayout>
 
         <RelativeLayout
             android:id="@+id/area_contact1"
@@ -224,7 +224,6 @@
     </FrameLayout>
 
 
-
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="@dimen/dp_60"
@@ -247,9 +246,9 @@
     <com.ilife.home.robot.view.ShadowContainer
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/dp_24"
         android:layout_marginBottom="@dimen/dp_24"
         app:containerCornerRadius="@dimen/dp_25"
-        android:layout_marginTop="@dimen/dp_24"
         app:containerDeltaLength="@dimen/dp_8"
         app:containerShadowColor="@color/color_ff4d00_66"
         app:containerShadowRadius="@dimen/dp_6"

@@ -172,8 +172,8 @@
     <string name="consume_aty_side_time_reset">Reset side brush life</string>
     <string name="consume_aty_roll_time">Main brush</string>
     <string name="consume_aty_roll_time_reset">Reset main brush</string>
-    <string name="consume_aty_filter_time">High performance filter</string>
-    <string name="consume_detail_aty_filter_time">High performance filter</string>
+    <string name="consume_aty_filter_time">Filter</string>
+    <string name="consume_detail_aty_filter_time">Filter</string>
     <string name="consume_aty_filter_time_reset">Reset filter</string>
     <string name="consume_aty_resetSide">Reset side brush life</string>
     <string name="consume_aty_resetSide_over">Please confirm whether the new side brush has been replaced</string>

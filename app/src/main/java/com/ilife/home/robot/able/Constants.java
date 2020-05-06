@@ -27,6 +27,5 @@ public class Constants {
     public static final String BRAND_ILIFE = "ILIFE";
     public static final String BRAND_ZACO = "ZACO";
 
-    public static final int GLOBAL=2;
-    public static final int CHINA=1;
+
 }

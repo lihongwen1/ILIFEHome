@@ -2,6 +2,7 @@ package com.ilife.home.robot.able;
 
 import android.content.Context;
 
+import com.aliyun.iot.aep.sdk.contant.EnvConfigure;
 import com.aliyun.iot.aep.sdk.contant.MsgCodeUtils;
 import com.ilife.home.robot.BuildConfig;
 import com.ilife.home.robot.R;
@@ -160,7 +161,7 @@ public class DeviceUtils {
         String[] supportDevice;
         switch (BuildConfig.BRAND) {
             case Constants.BRAND_ILIFE:
-                if (BuildConfig.Area==Constants.GLOBAL) {//global
+                if (BuildConfig.Area== EnvConfigure.GLOBAL) {//global
                     supportDevice = MyApplication.getInstance().getResources().getStringArray(R.array.array_oversea_device_type);
                 } else {
                     supportDevice = MyApplication.getInstance().getResources().getStringArray(R.array.array_device_type);

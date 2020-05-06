@@ -36,10 +36,8 @@ public class EnvConfigure {
      * 区域/AREA
      */
 
-    public static final int AREA_CHINA = 1;
-    public static final int AREA_AMERICA = 2;
-    public static final int AREA_SOUTH_EAST = 3;
-    public static final int AREA_EUROPE = 4;
+    public static final int GLOBAL=2;
+    public static final int CHINA=1;
 
 
     /**
@@ -72,12 +70,6 @@ public class EnvConfigure {
      */
     public static final String METHOD_THING_PROP = "/thing/properties";
     public static final String METHOD_THING_EVENT = "/thing/events";
-
-    /**
-     * support country
-     */
-    public static final String CHINA = "china";
-    public static final String SINGAPORE = "singapore";
 
 
     /**

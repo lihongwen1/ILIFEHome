@@ -128,23 +128,12 @@ public class HelpActivity extends BackBaseActivity implements View.OnClickListen
         UserUtils.setInputFilter(et_content, 600);
         if (Utils.isIlife()) {
             switch (BuildConfig.Area) {
-                case EnvConfigure.AREA_CHINA:
+                case EnvConfigure.CHINA:
                     tv_telNum.setText("400-963-8886");
                     tv_phone_time.setText(Utils.getString(R.string.help_aty_time1));
                     tv_email.setText("support@iliferobot.com");
                     break;
-                case EnvConfigure.AREA_AMERICA://US
-                    tv_telNum.setText("1-800-631-9676");
-                    tv_phone_time.setText("(Mon-Fri 09:00-17:00,CST)");
-                    tv_email.setText("support@iliferobot.com");
-                    break;
-                case EnvConfigure.AREA_SOUTH_EAST:
-                    tv_telNum.setText("072-730-2277");
-                    tv_phone_time_pre.setText(Utils.getString(R.string.service_time_ja));
-                    tv_phone_time.setText(Utils.getString(R.string.service_time1_ja));
-                    tv_email.setText("support@iliferobot.com");
-                    break;
-                case EnvConfigure.AREA_EUROPE:
+                case EnvConfigure.GLOBAL:
                     tv_area.setText(getString(R.string.area_russia));
                     tv_telNum.setText("89299401228");
                     tv_phone_time.setText(Utils.getString(R.string.russia_phone_server_time));

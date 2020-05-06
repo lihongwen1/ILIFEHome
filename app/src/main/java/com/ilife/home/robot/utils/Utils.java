@@ -101,7 +101,7 @@ public class Utils {
      * 是否是国内环境
      */
     public static boolean isChinaEnvironment() {
-        return BuildConfig.Area == EnvConfigure.AREA_CHINA;
+        return BuildConfig.Area == EnvConfigure.CHINA;
     }
 
     /**

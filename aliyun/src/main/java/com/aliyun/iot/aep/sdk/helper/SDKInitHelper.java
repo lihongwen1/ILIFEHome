@@ -12,6 +12,7 @@ import com.aliyun.iot.aep.sdk.framework.config.GlobalConfig;
 import com.aliyun.iot.aep.sdk.log.ALog;
 import com.aliyun.iot.aep.sdk.login.LoginBusiness;
 import com.aliyun.iot.aep.sdk.login.oa.OALoginAdapter;
+import com.aliyun.iot.aep.sdk.page.AliEmailLoginActivity;
 import com.aliyun.iot.aep.sdk.page.AliLoginActivity;
 import com.aliyun.iot.aep.sdk.page.OAMobileCountrySelectorActivity;
 
@@ -23,17 +24,18 @@ public class SDKInitHelper {
 
     /**
      * 初始化阿里云SDK
+     *
      * @param app
      * @param buildCountry CHINA --REGION_CHINA_ONLY 其它 REGION_ALL
      */
-    public static void init(AApplication app,String buildCountry) {
+    public static void init(AApplication app, String buildCountry) {
         if (app == null) {
             return;
         }
         preInit(app);
-        onInit(app,buildCountry);
+        onInit(app, buildCountry);
         //onInitDefault(app);
-        postInit(app,buildCountry);
+        postInit(app, buildCountry);
     }
 
     /**
@@ -67,11 +69,11 @@ public class SDKInitHelper {
      *
      * @param app
      */
-    private static void onInit(AApplication app,String buildCountry) {
+    private static void onInit(AApplication app, String buildCountry) {
         // 默认的初始化参数
         IoTSmart.InitConfig initConfig = new IoTSmart.InitConfig()
                 // REGION_ALL: 支持连接中国大陆和海外多个接入点，REGION_CHINA_ONLY:直连中国大陆接入点，只在中国大陆出货选这个
-                .setRegionType(buildCountry.equals("CHINA")?REGION_CHINA_ONLY:REGION_ALL)
+                .setRegionType(buildCountry.equals("CHINA") ? REGION_CHINA_ONLY : REGION_ALL)
                 // 对应控制台上的测试版（PRODUCT_ENV_DEV）和正式版（PRODUCT_ENV_PROD）(默认)
                 .setProductEnv(IoTSmart.PRODUCT_ENV_PROD)
                 // 是否打开日志
@@ -109,13 +111,17 @@ public class SDKInitHelper {
      *
      * @param app application
      */
-    private static void postInit(@SuppressWarnings("unused") AApplication app,String buildCountry) {
+    private static void postInit(@SuppressWarnings("unused") AApplication app, String buildCountry) {
 
         OALoginAdapter adapter = (OALoginAdapter) LoginBusiness.getLoginAdapter();
+        boolean isSupportForeignMobile = buildCountry.equals("CHINA");
         if (adapter != null) {
-            adapter.setDefaultLoginClass(AliLoginActivity.class);
+            if (isSupportForeignMobile) {
+                adapter.setDefaultLoginClass(AliLoginActivity.class);
+            } else {
+                adapter.setDefaultLoginClass(AliEmailLoginActivity.class);
+            }
         }
-        boolean isSupportForeignMobile=!buildCountry.equals("CHINA");
         OpenAccountUIConfigs.AccountPasswordLoginFlow.supportForeignMobileNumbers = isSupportForeignMobile;
         OpenAccountUIConfigs.AccountPasswordLoginFlow.mobileCountrySelectorActvityClazz = OAMobileCountrySelectorActivity.class;
 

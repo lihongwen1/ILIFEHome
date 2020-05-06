@@ -16,6 +16,10 @@
             android:configChanges="orientation|screenSize|keyboardHidden|locale|layoutDirection|keyboard"
             android:theme="@style/ilife_ali_login" />
         <activity
+            android:name=".aep.sdk.page.AliEmailLoginActivity"
+            android:configChanges="orientation|screenSize|keyboardHidden|locale|layoutDirection|keyboard"
+            android:theme="@style/ilife_ali_login" />
+        <activity
             android:name=".aep.sdk.page.AliRegisterActivity"
             android:configChanges="orientation|screenSize|keyboardHidden|locale|layoutDirection|keyboard"
             android:theme="@style/ilife_ali_register" />
