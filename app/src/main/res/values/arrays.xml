@@ -53,7 +53,6 @@
         <item>@string/map_bottom_sheet_clean_area</item>
         <item>@string/map_bottom_sheet_select_map</item>
         <item>@string/map_bottom_sheet_find_robot</item>
-        <item>分割房间</item>
     </array>
     <string-array name="array_voice_language">
         <item>Čeština</item>

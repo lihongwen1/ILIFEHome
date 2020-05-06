@@ -350,6 +350,7 @@ public abstract class BaseMapActivity extends BackBaseActivity<MapX9Presenter> i
                         startActivity(new Intent(BaseMapActivity.this, SelectSaveMapActivity.class));
                         weakHandler.sendEmptyMessageDelayed(5, 300);
                     } else {
+                        startActivity(new Intent(BaseMapActivity.this, SelectSaveMapActivity.class));
                         ToastUtils.showToast(MyApplication.getInstance(), Utils.getString(R.string.toast_ensure_in_no_work_mode));
                     }
                     break;
@@ -362,13 +363,6 @@ public abstract class BaseMapActivity extends BackBaseActivity<MapX9Presenter> i
                         findRobotDialog.show(getSupportFragmentManager(), "find_robot");
                         weakHandler.sendEmptyMessageDelayed(4, 300);
                         IlifeAli.getInstance().findDevice(null);
-                    }
-                    break;
-                case 5://分房
-                    if (mPresenter.getMDevicePropertyBean().getSelectedMapId() == 0) {
-                        ToastUtils.showToast(UiUtil.getString(R.string.map_tip_no_map_yet));
-                    } else {
-                        startActivity(new Intent(BaseMapActivity.this, SegmentationRoomActivity.class));
                     }
                     break;
             }

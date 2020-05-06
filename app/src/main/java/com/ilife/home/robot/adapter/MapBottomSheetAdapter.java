@@ -17,28 +17,25 @@ public class MapBottomSheetAdapter extends BaseQuickAdapter<String, BaseViewHold
     @Override
     protected void convert(@NonNull BaseViewHolder holder, int position) {
         MyLogger.d("MapBottomSheetAdapter", "function：" + data.get(position));
-        int iconId=0;
-        switch (position){
+        int iconId = 0;
+        switch (position) {
             case 0:
-                iconId=R.drawable.operation_btn_virtual_wall;
+                iconId = R.drawable.operation_btn_virtual_wall;
                 break;
             case 1:
-                iconId=R.drawable.operation_btn_select_room;
+                iconId = R.drawable.operation_btn_select_room;
                 break;
             case 2:
-                iconId=R.drawable.operation_btn_edit;
+                iconId = R.drawable.operation_btn_edit;
                 break;
             case 3:
-                iconId=R.drawable.operation_btn_map;
+                iconId = R.drawable.operation_btn_map;
                 break;
             case 4:
-                iconId=R.drawable.operation_btn_location;
-                break;
-            case 5:
                 iconId = R.drawable.operation_btn_location;
                 break;
         }
-        holder.setImageResource(R.id.iv_map_function,iconId);
+        holder.setImageResource(R.id.iv_map_function, iconId);
         holder.setText(R.id.tv_map_function, data.get(position));
     }
 

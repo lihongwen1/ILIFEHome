@@ -549,5 +549,4 @@ public class DataUtils {
         DecimalFormat df = new DecimalFormat("0.00㎡");
         return df.format(value);
     }
-
 }

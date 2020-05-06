@@ -8,7 +8,9 @@ import android.widget.ImageView;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 
+import com.alibaba.fastjson.JSONObject;
 import com.aliyun.iot.aep.sdk._interface.OnAliResponse;
+import com.aliyun.iot.aep.sdk._interface.OnAliResponseSingle;
 import com.aliyun.iot.aep.sdk.bean.HistoryRecordBean;
 import com.aliyun.iot.aep.sdk.bean.PropertyBean;
 import com.aliyun.iot.aep.sdk.contant.EnvConfigure;
@@ -21,10 +23,12 @@ import com.ilife.home.robot.bean.PartitionBean;
 import com.ilife.home.robot.model.bean.VirtualWallBean;
 import com.ilife.home.robot.utils.DataUtils;
 import com.ilife.home.robot.utils.MyLogger;
+import com.ilife.home.robot.utils.ToastUtils;
 import com.ilife.home.robot.view.MapView;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 
 import butterknife.BindView;
@@ -49,6 +53,7 @@ public class SegmentationRoomActivity extends BackBaseActivity {
     ImageView iv_back;
     @BindView(R.id.image_menu)
     ImageView iv_finish;
+    private int mapId;
 
     @Override
     public int getLayoutId() {
@@ -68,11 +73,16 @@ public class SegmentationRoomActivity extends BackBaseActivity {
                     break;
                 case R.id.tv_segmentation_room://分割房间
                     map_room.setmOT(MapView.OT.SEGMENT_ROOM);
+                    map_room.getmGateHelper().revertGate();
                     break;
                 case R.id.tv_combine_room://合并房间
-                    map_room.setmOT(MapView.OT.SEGMENT_ROOM);
+                    map_room.setmOT(MapView.OT.MERGE_ROOM);
+                    map_room.getmRoomHelper().cleanSelectRoom();
+                    map_room.getmSegmentHelper().setHaveLine(false);
+                    map_room.getmSegmentHelper().setGateEffective(false);
                     break;
             }
+            map_room.invalidateUI();
         });
         rg_segmentation_room.check(R.id.tv_move_map);
     }
@@ -80,7 +90,7 @@ public class SegmentationRoomActivity extends BackBaseActivity {
     @Override
     public void initData() {
         super.initData();
-        int mapId = getIntent().getIntExtra(KEY_MAP_ID, 0);
+        mapId = getIntent().getIntExtra(KEY_MAP_ID, 0);
         if (mapId != 0) {
             IlifeAli.getInstance().getProperties(new OnAliResponse<PropertyBean>() {
                 @Override
@@ -143,6 +153,26 @@ public class SegmentationRoomActivity extends BackBaseActivity {
 
     @OnClick({R.id.fl_top_menu})
     public void onClick(View view) {
+        //TODO 发送合并房间数据
+        if (map_room.getmOT() == MapView.OT.SEGMENT_ROOM) {
+            String json = "{\"AddRoomDoor\":{\"ModifyResult\":0,\"CmdId\":1588726604,\"ModifyInfo\":\"AAAAAf///+v//wAE\",\"MapId\":1588571932}}";
+            JSONObject jsonObject = JSONObject.parseObject(json);
+            jsonObject.getJSONObject("AddRoomDoor").put("MapId", mapId);
+            jsonObject.getJSONObject("AddRoomDoor").put("CmdId", (int) (System.currentTimeMillis() / 1000f));
+            jsonObject.getJSONObject("AddRoomDoor").put("ModifyInfo", map_room.getmSegmentHelper().getSegmentationData());
+            IlifeAli.getInstance().setProperties(jsonObject, aBoolean -> {
+                ToastUtils.showToast(aBoolean ? "添加门成功" : "添加门失败");
+            });
+        } else {
+            String json = "{\"DeleteRoomDoor\":{\"ModifyResult\":0,\"CmdId\":1588726604,\"ModifyInfo\":\"AAAAAf///+v//wAE\",\"MapId\":1588571932}}";
+            JSONObject jsonObject = JSONObject.parseObject(json);
+            jsonObject.getJSONObject("DeleteRoomDoor").put("MapId", mapId);
+            jsonObject.getJSONObject("DeleteRoomDoor").put("CmdId", (int) (System.currentTimeMillis() / 1000f));
+            jsonObject.getJSONObject("DeleteRoomDoor").put("ModifyInfo", map_room.getmGateHelper().getDeleteGate());
+            IlifeAli.getInstance().setProperties(jsonObject, aBoolean -> {
+                ToastUtils.showToast(aBoolean ? "删除房间门成功" : "删除房间门失败");
+            });
+        }
 
     }
 
@@ -218,7 +248,7 @@ public class SegmentationRoomActivity extends BackBaseActivity {
             index += 2;
             int ey = -DataUtils.bytesToInt(allBytes[index], allBytes[index + 1]);
             index += 2;
-            gates.add(new VirtualWallBean(gateId,4,new float[]{sx, sy, ex, ey},1));
+            gates.add(new VirtualWallBean(gateId, 4, new float[]{sx, sy, ex, ey}, 1));
         }
         map_room.getmRoomHelper().drawRoom(rooms);
         map_room.getmRoomHelper().setSingleChoice(true);

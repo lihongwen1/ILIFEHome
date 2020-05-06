@@ -3,6 +3,7 @@ package com.ilife.home.robot.view.helper;
 import android.graphics.Path;
 import android.graphics.PointF;
 import android.graphics.RectF;
+import android.util.Base64;
 import android.view.MotionEvent;
 
 import com.ilife.home.robot.model.bean.VirtualWallBean;
@@ -88,6 +89,22 @@ public class GateHelper {
         }
     }
 
+    public void revertGate() {
+        for (VirtualWallBean gate:gtBeans) {
+            gate.setState(1);
+        }
+        updateGate();
+    }
+    public int getDeleteGate(){
+        int gateId=0;
+        for (VirtualWallBean gate:gtBeans) {
+            if (gate.getState()==3){
+                gateId= gate.getNumber();
+                break;
+            }
+        }
+        return gateId;
+    }
 
     /**
      * 查询到服务其电子墙数据后调用绘制电子墙

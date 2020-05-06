@@ -179,13 +179,19 @@ public class RoomHelper {
      */
     public PartitionBean getSelectRoom() {
         PartitionBean chooseRoom = null;
-        int chooseId = selecRoom.valueAt(0);
-        for (PartitionBean room : rooms) {
-            if (room.getPartitionId() == chooseId) {
-                chooseRoom = room;
-                break;
+        if (selecRoom.size() > 0) {
+            int chooseId = selecRoom.valueAt(0);
+            for (PartitionBean room : rooms) {
+                if (room.getPartitionId() == chooseId) {
+                    chooseRoom = room;
+                    break;
+                }
             }
         }
         return chooseRoom;
+    }
+
+    public void cleanSelectRoom() {
+        selecRoom.clear();
     }
 }

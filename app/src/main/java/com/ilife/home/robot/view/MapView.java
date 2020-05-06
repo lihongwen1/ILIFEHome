@@ -19,7 +19,6 @@ import android.view.View;
 
 import com.ilife.home.robot.R;
 import com.ilife.home.robot.app.MyApplication;
-import com.ilife.home.robot.base.BaseActivity;
 import com.ilife.home.robot.bean.Coordinate;
 import com.ilife.home.robot.bean.PartitionBean;
 import com.ilife.home.robot.model.bean.SlamLineBean;
@@ -38,7 +37,6 @@ import com.ilife.home.robot.view.helper.VirtualWallHelper;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -99,12 +97,13 @@ public class MapView extends View {
         NOON(0),
         MAP(1),//操作地图：缩放，移动
         VIRTUAL_WALL(2),//虚拟墙
-        GLOBAL_FORBIDDEN_AREA(3),//全局禁区
-        MOP_FORBIDDEN_AREA(4),//抹地禁区
-        SELECT_ROOM(5),//选房清扫
-        PARTITION(6),//分区
-        CLEAN_AREA(7),//划区清扫
-        SEGMENT_ROOM(8);//分割房间
+        GLOBAL_FORBIDDEN_AREA(4),//全局禁区
+        MOP_FORBIDDEN_AREA(8),//抹地禁区
+        SELECT_ROOM(16),//选房清扫
+        PARTITION(32),//分区
+        CLEAN_AREA(64),//划区清扫
+        SEGMENT_ROOM(128),//分割房间
+        MERGE_ROOM(256);
         final int nativeType;
 
         OT(int type) {
@@ -568,9 +567,8 @@ public class MapView extends View {
             if (mOT == OT.MAP || mOT == OT.SEGMENT_ROOM) {
                 if (mSegmentHelper.isHaveLine()) {
                     canvas.drawLines(mSegmentHelper.getmCoordinates(), mPaintManager.changeColor(mPaintManager.getDashPaint(), PaintColor.VIRTUAL));
-                    if (mSegmentHelper.isNeedCalculateGate()) {
-                        MyLogger.d(TAG,"gate作标："+ Arrays.toString(mSegmentHelper.getGateCoordinates()));
-                        canvas.drawLines(mSegmentHelper.getGateCoordinates(), mPaintManager.changeColor(mPaintManager.getLinePaint(), PaintColor.ROOM_GATE));
+                    if (mSegmentHelper.isGateEffective()) {
+                        canvas.drawLines(mSegmentHelper.getmGateCoordinates(), mPaintManager.changeColor(mPaintManager.getLinePaint(), PaintColor.ROOM_GATE));
                     }
                     canvas.drawCircle(mSegmentHelper.getStartCircle().centerX(), mSegmentHelper.getStartCircle().centerY(), mSegmentHelper.getRadius(), mPaintManager.changeColor(mPaintManager.getFillPaint(), PaintColor.ROOM_GATE));
                     canvas.drawCircle(mSegmentHelper.getEndCircle().centerX(), mSegmentHelper.getEndCircle().centerY(), mSegmentHelper.getRadius(), mPaintManager.changeColor(mPaintManager.getFillPaint(), PaintColor.ROOM_GATE));
@@ -581,9 +579,11 @@ public class MapView extends View {
              */
             if (mGateHelper.getGtBeans().size() > 0) {
                 canvas.drawPath(mGateHelper.getGtPath(), mPaintManager.changeColor(mPaintManager.getLinePaint(), PaintColor.ROOM_GATE));
-                for (VirtualWallBean gate : mGateHelper.getGtBeans()) {
-                    if (gate.getDeleteIcon() != null) {
-                        canvas.drawBitmap(deleteBitmap, gate.getDeleteIcon().left, gate.getDeleteIcon().top, mPaintManager.getIconPaint());
+                if (mOT == OT.MERGE_ROOM) {
+                    for (VirtualWallBean gate : mGateHelper.getGtBeans()) {
+                        if (gate.getDeleteIcon() != null) {
+                            canvas.drawBitmap(deleteBitmap, gate.getDeleteIcon().left, gate.getDeleteIcon().top, mPaintManager.getIconPaint());
+                        }
                     }
                 }
             }
@@ -591,7 +591,7 @@ public class MapView extends View {
              * draw room tag/绘制房间标记
              * 选房清扫，分割房间清扫；
              */
-            if (mOT == OT.MAP || mOT == OT.SELECT_ROOM || mOT == OT.SEGMENT_ROOM) {
+            if (mOT == OT.MAP || mOT == OT.SELECT_ROOM || mOT == OT.SEGMENT_ROOM || mOT == OT.MERGE_ROOM) {
                 Paint paint = mPaintManager.getFillPaint();
                 paint.setTextSize(mRoomHelper.getTextSize());
                 for (PartitionBean room : mRoomHelper.getRooms()) {
@@ -658,7 +658,6 @@ public class MapView extends View {
         switch (mOT) {
             case NOON:
             case SELECT_ROOM:
-
             case MAP://操作地图
                 switch (me) {
                     case MotionEvent.ACTION_CANCEL:
@@ -748,6 +747,8 @@ public class MapView extends View {
             case SEGMENT_ROOM:
                 mSegmentHelper.onTouch(event, (int) x, (int) y);
                 break;
+            case MERGE_ROOM:
+                mGateHelper.onTouch(event, (int) x, (int) y);
         }
         return true;
     }
@@ -888,6 +889,10 @@ public class MapView extends View {
 
     public GateHelper getmGateHelper() {
         return mGateHelper;
+    }
+
+    public SegmentationRoomHelper getmSegmentHelper() {
+        return mSegmentHelper;
     }
 
     /**
@@ -1294,7 +1299,7 @@ public class MapView extends View {
         return baseScare;
     }
 
-    public ArrayList<Coordinate> getPointList() {
-        return pointList;
+    public RectF getSlamRect() {
+        return slamRect;
     }
 }

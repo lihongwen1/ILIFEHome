@@ -6,12 +6,10 @@ import android.graphics.PathMeasure;
 import android.graphics.PointF;
 import android.graphics.RectF;
 import android.graphics.Region;
+import android.util.Base64;
 import android.util.Log;
 import android.view.MotionEvent;
 
-import androidx.lifecycle.Observer;
-
-import com.ilife.home.livebus.LiveEventBus;
 import com.ilife.home.robot.R;
 import com.ilife.home.robot.app.MyApplication;
 import com.ilife.home.robot.bean.Coordinate;
@@ -25,7 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * 分割房间帮助类， 门操作管理类
+ * 分割房间帮助类
  */
 public class SegmentationRoomHelper {
     private static final String TAG = "VirtualWallHelper";
@@ -39,30 +37,27 @@ public class SegmentationRoomHelper {
     private Matrix mMatrix, mBoundaryMatix;
     private int BOUNDARY_LENGTH = 100;
     private float[] mCoordinates = new float[4];
-    private float[] gateCoordinates = new float[4];
+    private float[] mGateCoordinates = new float[4];
     private float[] originalCoordinates = new float[4];
     private boolean isHaveLine = false;
     private boolean isNeedCalculateGate;
     private RectF startCircle, endCircle;
     private int radius;
     private VirtualWallBean room;
+    private boolean isGateEffective;
+    private PartitionBean mRoom;
 
     public enum SROT {
         NOON(61),
         DRAG(62),
         PULL_START(63),
         PULL_END(64),
-        ADD(65),
-        DELETE(65);
+        ADD(65);
         final int nativeType;
 
         SROT(int type) {
             this.nativeType = type;
         }
-    }
-
-    public Path getSgPath() {
-        return sgPath;
     }
 
 
@@ -76,6 +71,25 @@ public class SegmentationRoomHelper {
         this.endCircle = new RectF();
         this.mBoundaryMatix = new Matrix();
         radius = MyApplication.getInstance().getResources().getDimensionPixelSize(R.dimen.dp_10);
+    }
+
+
+    public String getSegmentationData() {
+        byte[] data = new byte[12];
+        if (isGateEffective) {
+            int roomId = mMapView.getSelectRoom();
+            byte[] rb = DataUtils.intToBytes4(roomId);
+            System.arraycopy(rb, 0, data, 0, rb.length);
+            int srcPos = 4;
+            for (float mGateCoordinate : mGateCoordinates) {
+                int value = (int) mGateCoordinate;
+                byte[] bs = DataUtils.intToBytes(value);
+                System.arraycopy(bs, 0, data, srcPos, bs.length);
+                srcPos += 2;
+            }
+        }
+
+        return Base64.encodeToString(data, Base64.NO_WRAP);
     }
 
     /**
@@ -105,8 +119,7 @@ public class SegmentationRoomHelper {
         downPoint.set(mapX, mapY);
         mMatrix.reset();
         if (!isHaveLine) {
-            smOT = SROT.ADD;
-            isHaveLine = true;
+//            smOT = SROT.ADD;//暂时不支持添加分割线
         } else {
             if (startCircle.contains(mapX, mapY)) {//点击了拉长图标
                 smOT = SROT.PULL_START;
@@ -125,11 +138,16 @@ public class SegmentationRoomHelper {
     private void doOnActionMove(float mapX, float mapY) {
         switch (smOT) {
             case ADD:
-                mCoordinates[0] = downPoint.x;
-                mCoordinates[1] = downPoint.y;
-                mCoordinates[2] = mapX;
-                mCoordinates[3] = mapY;
-                updateSegmentationLine();
+                if (downPoint.x != mapX) {
+                    mCoordinates[0] = downPoint.x;
+                    mCoordinates[1] = downPoint.y;
+                    mCoordinates[2] = mapX;
+                    mCoordinates[3] = mapY;
+                    if (!isHaveLine) {
+                        isHaveLine = true;
+                    }
+                    updateSegmentationLine();
+                }
                 break;
             case DRAG:
                 float tx = mapX - downPoint.x;//x轴平移距离
@@ -163,8 +181,18 @@ public class SegmentationRoomHelper {
     private void doOnActionUp(float mapX, float mapY) {
         if (mapX == downPoint.x && mapY == downPoint.y) {//点击事件
             mMapView.getmRoomHelper().clickRoomTag(mapX, mapY);
-            if (mCoordinates[0] == mCoordinates[2]) {
-                isHaveLine = false;
+            PartitionBean room = mMapView.getmRoomHelper().getSelectRoom();
+            if (room != null) {
+                if (mRoom == null || room.getPartitionId() != mRoom.getPartitionId()) {
+                    int minY = (int) mMapView.getSlamRect().top - 8;
+                    int maxY = (int) mMapView.getSlamRect().bottom + 8;
+                    mCoordinates[0] = mMapView.matrixCoordinateX(room.getX());
+                    mCoordinates[1] = mMapView.matrixCoordinateY(minY);
+                    mCoordinates[2] = mMapView.matrixCoordinateX(room.getX());
+                    mCoordinates[3] = mMapView.matrixCoordinateY(maxY);
+                    mRoom = room;
+                }
+                isHaveLine = true;
             }
         }
         isNeedCalculateGate = true;
@@ -246,6 +274,7 @@ public class SegmentationRoomHelper {
         boundaryRegion.setPath(mBoundaryPath, boundaryRegion);
 
         if (!isNeedCalculateGate) {
+            isGateEffective = false;
             return;
         }
 
@@ -253,13 +282,11 @@ public class SegmentationRoomHelper {
          * 计算分割线
          */
         List<Coordinate> containsCoo = new ArrayList<>();
-        PartitionBean room = mMapView.getmRoomHelper().getSelectRoom();
-        if (room != null) {
-            for (Coordinate coo : room.getWallCoordinates()) {
+        if (mRoom != null) {
+            for (Coordinate coo : mRoom.getWallCoordinates()) {
                 if (boundaryRegion.contains((int) mMapView.matrixCoordinateX(coo.getX()), (int) mMapView.matrixCoordinateY(coo.getY()))) {
                     double space = DataUtils.lineToPointSpace(mCoordinates[0], mCoordinates[1], mCoordinates[2], mCoordinates[3],
                             mMapView.matrixCoordinateX(coo.getX()), mMapView.matrixCoordinateY(coo.getY()));
-                    MyLogger.d(TAG, "点线距离：    " + space);
                     if (space < 10) {
                         containsCoo.add(coo);
                     }
@@ -270,6 +297,7 @@ public class SegmentationRoomHelper {
         }
         float mind1 = -1, mind2 = -1;
         for (Coordinate coo : containsCoo) {
+            MyLogger.d(TAG,"门点X坐标： "+coo.getX());
             float dis1 = DataUtils.distance(mCoordinates[0], mCoordinates[1], mMapView.matrixCoordinateX(coo.getX()), mMapView.matrixCoordinateY(coo.getY()));
             float dis2 = DataUtils.distance(mCoordinates[2], mCoordinates[3], mMapView.matrixCoordinateX(coo.getX()), mMapView.matrixCoordinateY(coo.getY()));
             if (mind1 == -1 && mind2 == -1) {
@@ -284,16 +312,21 @@ public class SegmentationRoomHelper {
                 }
             }
         }
+        if (mind1 == -1 || mind2 == -1) {
+            isGateEffective = false;
+            return;
+        }
+        isGateEffective = true;
         PathMeasure pathMeasure = new PathMeasure();
         pathMeasure.setPath(sgPath, false);
         float[] pos = new float[2];
         float[] tan = new float[2];
         pathMeasure.getPosTan(mind1, pos, tan);
-        gateCoordinates[0] = pos[0];
-        gateCoordinates[1] = pos[1];
+        mGateCoordinates[0] = pos[0];
+        mGateCoordinates[1] = pos[1];
         pathMeasure.getPosTan(pathMeasure.getLength() - mind2, pos, tan);
-        gateCoordinates[2] = pos[0];
-        gateCoordinates[3] = pos[1];
+        mGateCoordinates[2] = pos[0];
+        mGateCoordinates[3] = pos[1];
 
     }
 
@@ -310,19 +343,28 @@ public class SegmentationRoomHelper {
         return isHaveLine;
     }
 
+    public void setHaveLine(boolean haveLine) {
+        isHaveLine = haveLine;
+    }
+
+    public void setGateEffective(boolean gateEffective) {
+        isGateEffective = gateEffective;
+    }
+
     public float[] getmCoordinates() {
         return mCoordinates;
     }
 
-    public float[] getGateCoordinates() {
-        return gateCoordinates;
+    public float[] getmGateCoordinates() {
+        return mGateCoordinates;
     }
 
-    public boolean isNeedCalculateGate() {
-        return isNeedCalculateGate;
-    }
 
     public int getRadius() {
         return radius;
+    }
+
+    public boolean isGateEffective() {
+        return isGateEffective;
     }
 }
