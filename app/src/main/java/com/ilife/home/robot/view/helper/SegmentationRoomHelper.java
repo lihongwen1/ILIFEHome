@@ -20,6 +20,8 @@ import com.ilife.home.robot.utils.MyLogger;
 import com.ilife.home.robot.view.MapView;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -39,7 +41,6 @@ public class SegmentationRoomHelper {
     private float[] mCoordinates = new float[4];
     private float[] mGateCoordinates = new float[4];
     private float[] originalCoordinates = new float[4];
-    private float[] mapGateCoordinates = new float[4];
     private boolean isHaveLine = false;
     private boolean isNeedCalculateGate;
     private RectF startCircle, endCircle;
@@ -82,9 +83,15 @@ public class SegmentationRoomHelper {
             byte[] rb = DataUtils.intToBytes4(roomId);
             System.arraycopy(rb, 0, data, 0, rb.length);
             int srcPos = 4;
-            for (float mGateCoordinate : mapGateCoordinates) {
-                int value = (int) mGateCoordinate;
-                byte[] bs = DataUtils.intToBytes(value);
+            float[] coos = toRobotCoordinate(mGateCoordinates);
+            int coo;
+            for (int i = 0; i < coos.length; i++) {
+                if (i % 2 == 0) {
+                    coo = Math.round(coos[i]);
+                } else {
+                    coo = Math.round(-coos[i]);
+                }
+                byte[] bs = DataUtils.intToBytes(coo);
                 System.arraycopy(bs, 0, data, srcPos, bs.length);
                 srcPos += 2;
             }
@@ -274,10 +281,10 @@ public class SegmentationRoomHelper {
         mBoundaryPath.close();
         boundaryRegion.setPath(mBoundaryPath, boundaryRegion);
 
-        if (!isNeedCalculateGate) {
-            isGateEffective = false;
-            return;
-        }
+//        if (!isNeedCalculateGate) {
+//            isGateEffective = false;
+//            return;
+//        }
 
         /**
          * 计算分割线
@@ -296,45 +303,38 @@ public class SegmentationRoomHelper {
 
             }
         }
-        float mind1 = -1, mind2 = -1;
-        Coordinate wall1 = null, wall2 = null;
+        List<Float> distance = new ArrayList<>();
         for (Coordinate coo : containsCoo) {
-            MyLogger.d(TAG, "门点X坐标： " + coo.getX());
-            float dis1 = DataUtils.distance(mCoordinates[0], mCoordinates[1], mMapView.matrixCoordinateX(coo.getX()), mMapView.matrixCoordinateY(coo.getY()));
-            float dis2 = DataUtils.distance(mCoordinates[2], mCoordinates[3], mMapView.matrixCoordinateX(coo.getX()), mMapView.matrixCoordinateY(coo.getY()));
-            if (mind1 == -1 && mind2 == -1) {
-                mind1 = dis1;
-                mind2 = dis2;
-                wall1 = coo;
-                wall2 = coo;
-            } else {
-                if (dis1 < mind1) {
-                    mind1 = dis1;
-                    wall1 = coo;
-                }
-                if (dis2 < mind2) {
-                    mind2 = dis2;
-                    wall2 = coo;
-                }
-            }
+            float dis = DataUtils.distance(mCoordinates[0], mCoordinates[1], mMapView.matrixCoordinateX(coo.getX()), mMapView.matrixCoordinateY(coo.getY()));
+            distance.add(dis);
         }
-        if (mind1 == -1 || mind2 == -1) {
+        Collections.sort(distance, (o1, o2) -> smOT == SROT.PULL_START?(int) (o2 - o1): (int) (o1 - o2));
+
+        if (distance.size() < 2) {
             isGateEffective = false;
             return;
         }
-        mapGateCoordinates[0] = wall1.getX();
-        mapGateCoordinates[1] = wall1.getY();
-        mapGateCoordinates[2] = wall2.getX();
-        mapGateCoordinates[3] = wall2.getY();
+        float dis1 = distance.get(0);
+        float dis2 = 0;
+        for (float f : distance) {
+            if (Math.abs(f - dis1) > 200) {
+                dis2 = f;
+                break;
+            }
+        }
+        if (dis1==0||dis2==0){
+            isGateEffective = false;
+            return;
+        }
         isGateEffective = true;
         PathMeasure pathMeasure = new PathMeasure();
         pathMeasure.setPath(sgPath, false);
         float[] pos = new float[2];
         float[] tan = new float[2];
-        pathMeasure.getPosTan(mind1, pos, tan);
+        pathMeasure.getPosTan(dis1, pos, tan);
         mGateCoordinates[0] = pos[0];
         mGateCoordinates[1] = pos[1];
-        pathMeasure.getPosTan(pathMeasure.getLength() - mind2, pos, tan);
+        pathMeasure.getPosTan(dis2, pos, tan);
         mGateCoordinates[2] = pos[0];
         mGateCoordinates[3] = pos[1];
 

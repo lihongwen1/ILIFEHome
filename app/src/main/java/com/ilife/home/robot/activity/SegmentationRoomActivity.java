@@ -180,9 +180,11 @@ public class SegmentationRoomActivity extends BackBaseActivity {
         List<byte[]> bytesList = new ArrayList<>();
         int bytesNumber = 0;
         for (int i = 0; i < data.length; i++) {
-            byte[] bytes = Base64.decode(data[i], Base64.DEFAULT);
-            bytesNumber += bytes.length;
-            bytesList.add(bytes);
+            if (data[i] != null) {
+                byte[] bytes = Base64.decode(data[i], Base64.DEFAULT);
+                bytesNumber += bytes.length;
+                bytesList.add(bytes);
+            }
         }
         byte[] allBytes = new byte[bytesNumber];
         int desPos = 0;
