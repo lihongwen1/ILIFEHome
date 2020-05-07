@@ -39,6 +39,7 @@ public class SegmentationRoomHelper {
     private float[] mCoordinates = new float[4];
     private float[] mGateCoordinates = new float[4];
     private float[] originalCoordinates = new float[4];
+    private float[] mapGateCoordinates = new float[4];
     private boolean isHaveLine = false;
     private boolean isNeedCalculateGate;
     private RectF startCircle, endCircle;
@@ -81,7 +82,7 @@ public class SegmentationRoomHelper {
             byte[] rb = DataUtils.intToBytes4(roomId);
             System.arraycopy(rb, 0, data, 0, rb.length);
             int srcPos = 4;
-            for (float mGateCoordinate : mGateCoordinates) {
+            for (float mGateCoordinate : mapGateCoordinates) {
                 int value = (int) mGateCoordinate;
                 byte[] bs = DataUtils.intToBytes(value);
                 System.arraycopy(bs, 0, data, srcPos, bs.length);
@@ -296,19 +297,24 @@ public class SegmentationRoomHelper {
             }
         }
         float mind1 = -1, mind2 = -1;
+        Coordinate wall1 = null, wall2 = null;
         for (Coordinate coo : containsCoo) {
-            MyLogger.d(TAG,"门点X坐标： "+coo.getX());
+            MyLogger.d(TAG, "门点X坐标： " + coo.getX());
             float dis1 = DataUtils.distance(mCoordinates[0], mCoordinates[1], mMapView.matrixCoordinateX(coo.getX()), mMapView.matrixCoordinateY(coo.getY()));
             float dis2 = DataUtils.distance(mCoordinates[2], mCoordinates[3], mMapView.matrixCoordinateX(coo.getX()), mMapView.matrixCoordinateY(coo.getY()));
             if (mind1 == -1 && mind2 == -1) {
                 mind1 = dis1;
                 mind2 = dis2;
+                wall1 = coo;
+                wall2 = coo;
             } else {
                 if (dis1 < mind1) {
                     mind1 = dis1;
+                    wall1 = coo;
                 }
                 if (dis2 < mind2) {
                     mind2 = dis2;
+                    wall2 = coo;
                 }
             }
         }
@@ -316,6 +322,10 @@ public class SegmentationRoomHelper {
             isGateEffective = false;
             return;
         }
+        mapGateCoordinates[0] = wall1.getX();
+        mapGateCoordinates[1] = wall1.getY();
+        mapGateCoordinates[2] = wall2.getX();
+        mapGateCoordinates[3] = wall2.getY();
         isGateEffective = true;
         PathMeasure pathMeasure = new PathMeasure();
         pathMeasure.setPath(sgPath, false);
@@ -366,5 +376,25 @@ public class SegmentationRoomHelper {
 
     public boolean isGateEffective() {
         return isGateEffective;
+    }
+
+
+    /**
+     * 根据地图坐标计算主机坐标
+     *
+     * @param coordinate 地图坐标
+     */
+    private float[] toRobotCoordinate(float[] coordinate) {
+        float[] robotCoor = new float[coordinate.length];
+        int index = 0;
+        for (float coo : coordinate) {
+            if (index % 2 == 0) {
+                robotCoor[index] = mMapView.reMatrixCoordinateX(coo);
+            } else {
+                robotCoor[index] = mMapView.reMatrixCoordinateY(coo);
+            }
+            index++;
+        }
+        return robotCoor;
     }
 }
