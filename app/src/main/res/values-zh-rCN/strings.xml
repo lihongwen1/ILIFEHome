@@ -288,5 +288,8 @@
     <string name="taobao_authorization_failed">授权失败</string>
     <string name="change_robot_name_suc">修改机器昵称成功</string>
     <string name="setting_carpet">地毯增压</string>
+    <string name="dialog_delete_account">删除账号</string>
+    <string name="dialog_delete_account_title">确认删除账号？</string>
+    <string name="dialog_delete_account_hint">删除后该账号将无法使用</string>
 
 </resources>

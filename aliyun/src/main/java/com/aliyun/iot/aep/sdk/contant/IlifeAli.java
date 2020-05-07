@@ -1362,6 +1362,31 @@ public class IlifeAli {
         }));
     }
 
+    public void unRegisterAccount(OnAliResponse<Boolean> onAliResponse) {
+        JSONObject params = new JSONObject();
+        Map<String, Object> requestMap = params.getInnerMap();
+        IoTRequest ioTRequest = new IoTRequestBuilder()
+                .setAuthType(EnvConfigure.IOT_AUTH)
+                .setApiVersion("1.0.5")
+                .setPath("account/unregister")
+                .setParams(requestMap)
+                .setScheme(Scheme.HTTPS)
+                .build();
+        new IoTAPIClientFactory().getClient().send(ioTRequest, new IoTUIThreadCallback(new IoTCallback() {
+            @Override
+            public void onFailure(IoTRequest ioTRequest, Exception e) {
+                Log.d(TAG, "删除账号失败---------");
+                onAliResponse.onFailed(0, e.getMessage());
+            }
+
+            @Override
+            public void onResponse(IoTRequest ioTRequest, IoTResponse ioTResponse) {
+                Log.d(TAG, "删除账号成功---------");
+                onAliResponse.onSuccess(true);
+            }
+        }));
+    }
+
     public void checkTaobaoAuthorization(OnAliResponseSingle<Boolean> onaliResponse) {
         JSONObject params = new JSONObject();
         Map<String, Object> requestMap = params.getInnerMap();

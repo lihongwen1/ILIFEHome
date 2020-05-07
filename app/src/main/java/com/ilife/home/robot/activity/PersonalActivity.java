@@ -74,6 +74,8 @@ public class PersonalActivity extends BackBaseActivity implements View.OnClickLi
     TextView tv_user_email;
     @BindView(R.id.rl_app_authorization)
     RelativeLayout rl_app_authorization;
+    @BindView(R.id.rl_delete_account)
+    RelativeLayout rl_delete_account;
     IntentIntegrator integrator;
     AlertDialog alertDialog;
     ArrayList<DeviceInfoBean> mDeviceList;
@@ -92,7 +94,8 @@ public class PersonalActivity extends BackBaseActivity implements View.OnClickLi
         ((TextView) findViewById(R.id.tv_top_title)).setTextColor(getResources().getColor(R.color.white));
         ((TextView) findViewById(R.id.tv_top_title)).setText(R.string.personal_aty_personal_center);
         findViewById(R.id.ll_title).setBackgroundColor(getResources().getColor(R.color.zxing_transparent));
-        rl_app_authorization.setVisibility(BuildConfig.BUILD_COUNTRY.equals("CHINA")?View.VISIBLE:View.GONE);
+        rl_app_authorization.setVisibility(BuildConfig.BUILD_COUNTRY.equals("CHINA") ? View.VISIBLE : View.GONE);
+        rl_delete_account.setVisibility(BuildConfig.BUILD_COUNTRY.equals("CHINA") ? View.GONE : View.VISIBLE);
     }
 
     public void initData() {
@@ -129,12 +132,13 @@ public class PersonalActivity extends BackBaseActivity implements View.OnClickLi
     protected void onResume() {
         super.onResume();
         String userName = IlifeAli.getInstance().getUserInfo().userNick;
-        if (!TextUtils.isEmpty(userName)&&!userName.toLowerCase().equals("null")) {
+        if (!TextUtils.isEmpty(userName) && !userName.toLowerCase().equals("null")) {
             tv_userName.setText(userName);
         }
     }
 
-    @OnClick({R.id.rl_user_information, R.id.rl_help,R.id.rl_app_authorization, R.id.rl_scan, R.id.bt_logout, R.id.tv_user_agreement, R.id.tv_protocol_privacy, R.id.rl_share})
+    @OnClick({R.id.rl_user_information, R.id.rl_help, R.id.rl_app_authorization, R.id.rl_scan, R.id.bt_logout, R.id.tv_user_agreement, R.id.tv_protocol_privacy, R.id.rl_share
+    ,R.id.rl_delete_account})
     public void onClick(View v) {
         Intent i;
         switch (v.getId()) {
@@ -186,9 +190,30 @@ public class PersonalActivity extends BackBaseActivity implements View.OnClickLi
                     ToastUtils.showToast(context, getString(R.string.personal_aty_login_first));
                 }
                 break;
+            case R.id.rl_delete_account://删除账号
+                showDeleteAcccountDialog();
+                break;
         }
     }
+    private void showDeleteAcccountDialog(){
+        UniversalDialog logoutDialog = new UniversalDialog();
+        logoutDialog.setDialogType(UniversalDialog.TYPE_NORMAL).
+                setTitle(Utils.getString(R.string.dialog_delete_account_title)).setHintTip(Utils.getString(R.string.dialog_delete_account_hint)).
+                setOnRightButtonClck(() -> {
+                    IlifeAli.getInstance().unRegisterAccount(new OnAliResponse<Boolean>() {
+                        @Override
+                        public void onSuccess(Boolean result) {
+                            startActivity(new Intent(PersonalActivity.this, FirstActivity.class));
+                            removeALLActivity();
+                        }
 
+                        @Override
+                        public void onFailed(int code, String message) {
+                            ToastUtils.showToast(message);
+                        }
+                    });
+                }).show(getSupportFragmentManager(), "delete_account");
+    }
     private void showLogoutDialog() {
         UniversalDialog logoutDialog = new UniversalDialog();
         logoutDialog.setDialogType(UniversalDialog.TYPE_NORMAL).
@@ -276,9 +301,9 @@ public class PersonalActivity extends BackBaseActivity implements View.OnClickLi
             });
             mShareDialog = builder.build();
         }
-       if (mShareDialog!=null&&!mShareDialog.isAdded()){
-           mShareDialog.show(getSupportFragmentManager(),"share");
-       }
+        if (mShareDialog != null && !mShareDialog.isAdded()) {
+            mShareDialog.show(getSupportFragmentManager(), "share");
+        }
     }
 
 
