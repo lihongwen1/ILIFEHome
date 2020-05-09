@@ -12,6 +12,7 @@ import com.ilife.home.robot.utils.Utils;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.TimeZone;
 
 public class HistoryAdapter extends BaseQuickAdapter<HistoryRecordBean, BaseViewHolder> {
     public HistoryAdapter(int layoutId, @NonNull List<HistoryRecordBean> data) {
@@ -32,6 +33,7 @@ public class HistoryAdapter extends BaseQuickAdapter<HistoryRecordBean, BaseView
 
     public String generateTime(long time, String strFormat) {
         SimpleDateFormat format = new SimpleDateFormat(strFormat);
+        format.setTimeZone(TimeZone.getTimeZone("UTC"));
         String str = format.format(new Date(time * 1000));
         return str;
     }

@@ -21,6 +21,8 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
+import java.util.TimeZone;
 
 import butterknife.BindView;
 import io.reactivex.Single;
@@ -316,6 +318,7 @@ public class HistoryDetailActivity_x9 extends BackBaseActivity {
 
     public String generateTime(long time, String strFormat) {
         SimpleDateFormat format = new SimpleDateFormat(strFormat);
+        format.setTimeZone(TimeZone.getTimeZone("UTC"));
         String str = format.format(new Date((time + 10) * 1000));
         return str;
     }
