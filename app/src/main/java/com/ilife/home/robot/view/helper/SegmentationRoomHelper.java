@@ -16,12 +16,10 @@ import com.ilife.home.robot.bean.Coordinate;
 import com.ilife.home.robot.bean.PartitionBean;
 import com.ilife.home.robot.model.bean.VirtualWallBean;
 import com.ilife.home.robot.utils.DataUtils;
-import com.ilife.home.robot.utils.MyLogger;
 import com.ilife.home.robot.view.MapView;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -281,10 +279,10 @@ public class SegmentationRoomHelper {
         mBoundaryPath.close();
         boundaryRegion.setPath(mBoundaryPath, boundaryRegion);
 
-//        if (!isNeedCalculateGate) {
-//            isGateEffective = false;
-//            return;
-//        }
+        if (!isNeedCalculateGate) {
+            isGateEffective = false;
+            return;
+        }
 
         /**
          * 计算分割线

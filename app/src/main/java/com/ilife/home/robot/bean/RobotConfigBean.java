@@ -40,29 +40,32 @@ public class RobotConfigBean {
 
     /**
      * 通过robot type 获取配置
+     *
      * @param robotType
      * @return
      */
-    public RobotBean getRobotBeanByRt(String robotType){
-        RobotBean bean=null;
-        for (RobotBean rBean:robot) {
-            if (rBean.getRobotType().equals(robotType)){
-                bean=rBean;
+    public RobotBean getRobotBeanByRt(String robotType) {
+        RobotBean bean = null;
+        for (RobotBean rBean : robot) {
+            if (rBean.getRobotType().equals(robotType)) {
+                bean = rBean;
                 break;
             }
         }
         return bean;
     }
+
     /**
      * 通过product key 获取配置
+     *
      * @param productKey
      * @return
      */
-    public RobotBean getRobotBeanByPk(String productKey){
-        RobotBean bean=null;
-        for (RobotBean rBean:robot) {
-            if (rBean.getProductKey().equals(productKey)){
-                bean=rBean;
+    public RobotBean getRobotBeanByPk(String productKey) {
+        RobotBean bean = null;
+        for (RobotBean rBean : robot) {
+            if (rBean.getProductKey().equals(productKey)) {
+                bean = rBean;
                 break;
             }
         }
@@ -101,7 +104,7 @@ public class RobotConfigBean {
          * waterLevelType: 1  1-普通水量顺序（0-1-2），2-x787水量顺序（1-2-3）
          * suctionType: false false-不是吸口型 true-吸口型  （吸口型的机器没有滚刷）
          * newScheduleVersion:true X800系列是新协议版本 X787 V3x等是旧协议版本
-          */
+         */
 
         private String productKey;
         private String factoryType;
@@ -133,6 +136,8 @@ public class RobotConfigBean {
         private int waterLevelType;
         private boolean suctionType;
         private boolean newScheduleVersion;
+        private boolean needDivide100;
+
         public String getProductKey() {
             return productKey;
         }
@@ -331,6 +336,7 @@ public class RobotConfigBean {
 
         /**
          * 是否可以直接预约黑暗环境清扫
+         *
          * @return
          */
         public boolean isScheduleInDark() {
@@ -375,6 +381,14 @@ public class RobotConfigBean {
 
         public void setNewScheduleVersion(boolean newScheduleVersion) {
             this.newScheduleVersion = newScheduleVersion;
+        }
+
+        public boolean isNeedDivide100() {
+            return needDivide100;
+        }
+
+        public void setNeedDivide100(boolean needDivide100) {
+            this.needDivide100 = needDivide100;
         }
     }
 }

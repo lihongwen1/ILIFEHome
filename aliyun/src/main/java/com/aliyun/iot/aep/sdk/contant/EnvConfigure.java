@@ -14,6 +14,7 @@ import static android.content.Context.MODE_PRIVATE;
  * Created by wuwang on 2017/11/7.
  */
 public class EnvConfigure {
+    public static final String APP_KEY="25900868";
     public static final String API_VER = "1.0.2";
     public static final String IOT_AUTH = "iotAuth";
 

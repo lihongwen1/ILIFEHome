@@ -18,6 +18,7 @@ import com.aliyun.alink.linksdk.channel.mobile.api.IMobileConnectListener;
 import com.aliyun.alink.linksdk.channel.mobile.api.IMobileDownstreamListener;
 import com.aliyun.alink.linksdk.channel.mobile.api.IMobileSubscrbieListener;
 import com.aliyun.alink.linksdk.channel.mobile.api.MobileChannel;
+import com.aliyun.alink.linksdk.channel.mobile.api.MobileConnectConfig;
 import com.aliyun.iot.aep.sdk.IoTSmart;
 import com.aliyun.iot.aep.sdk._interface.OnAliBindDeviceResponse;
 import com.aliyun.iot.aep.sdk._interface.OnAliResponse;
@@ -585,15 +586,17 @@ public class IlifeAli {
      * aliyun level 8 方法已经不可用
      */
     public void checkAndReconnection() {
-//        if (CONNECTION_STATUS == -1) {
-//            return;
-//        }
-//        if (CONNECTION_STATUS == 2 || CONNECTION_STATUS == 4) {
-//            Log.e(TAG, "云服务器长连接已断开，正尝试重新连接。。。。。。。。");
-//            SDKManager.prepareForInitSdk(aApplication);
-//        } else {
-//            Log.d(TAG, "设备连接状态正常。。。。。。。。。。。。");
-//        }
+        if (CONNECTION_STATUS == -1) {
+            return;
+        }
+        if (CONNECTION_STATUS == 2 || CONNECTION_STATUS == 4) {
+            Log.e(TAG, "云服务器长连接已断开，正尝试重新连接。。。。。。。。");
+            MobileConnectConfig config = new MobileConnectConfig();
+            config.appkey = EnvConfigure.APP_KEY;
+            MobileChannel.getInstance().startConnect(aApplication, config, mConnectListener);
+        } else {
+            Log.d(TAG, "设备连接状态正常。。。。。。。。。。。。");
+        }
     }
 
     public void setProperties(HashMap<String, Object> params, OnAliSetPropertyResponse onAliResponse) {

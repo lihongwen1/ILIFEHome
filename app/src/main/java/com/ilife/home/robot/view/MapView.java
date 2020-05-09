@@ -90,6 +90,7 @@ public class MapView extends View {
     private PaintManager mPaintManager;
     private PointF standPointF;//充电座
     private boolean isChargingPortDisplay = false;//是否展示充电座
+
     /**
      * map operation type
      */
@@ -379,7 +380,7 @@ public class MapView extends View {
         /**
          * 计算坐标放大和缩放比例
          */
-        baseScare = 20.0f;
+        baseScare = 10.0f;
         if (xLength * baseScare > width * 0.75 || yLength * baseScare > sCenter.y * 2 * 0.75) {
             MyLogger.d(TAG, "SYSTEM SCALE MAP -------------");
             float systemW = (width * 0.75f) / ((xLength * baseScare));
@@ -1032,28 +1033,30 @@ public class MapView extends View {
         roadPath.reset();
         roomGatePath.reset();
         obstaclePath.reset();
-        int x, y, type;
+        float x, y;
+        int type;
         Coordinate coordinate;
         boolean isStartRoad = false;
         if (pointList.size() > 0) {
             for (int i = 0; i < pointList.size(); i++) {
                 coordinate = pointList.get(i);
-                x = coordinate.getX();
-                y = coordinate.getY();
+                x = matrixCoordinateX(coordinate.getX());
+                y = matrixCoordinateY(coordinate.getY());
                 type = coordinate.getType();
                 switch (type) {
                     case 0:
                         //未清扫区域
                         break;
                     case 1://已清扫
-                        boxPath.addRect(matrixCoordinateX(x), matrixCoordinateY(y), matrixCoordinateX(x) + baseScare, matrixCoordinateY(y) + baseScare, Path.Direction.CCW);
+                        boxPath.addRect(x, y, x + baseScare, y + baseScare, Path.Direction.CCW);
                         break;
                     case 5:
                     case 2://障碍物
-                        obstaclePath.addRect(matrixCoordinateX(x), matrixCoordinateY(y), matrixCoordinateX(x) + baseScare, matrixCoordinateY(y) + baseScare, Path.Direction.CCW);
+                        obstaclePath.addRect(x, y, x + baseScare, y + baseScare, Path.Direction.CCW);
+                        MyLogger.d(TAG,"("+x+","+y+")");
                         break;
                     case 3://房间门
-                        roomGatePath.addRect(matrixCoordinateX(x), matrixCoordinateY(y), matrixCoordinateX(x) + baseScare, matrixCoordinateY(y) + baseScare, Path.Direction.CCW);
+                        roomGatePath.addRect(x, y, x + baseScare, y + baseScare, Path.Direction.CCW);
                         break;
                     case -1://单包路径起点
                         roadPath.moveTo(matrixCoordinateX(x), matrixCoordinateY(y));
@@ -1061,12 +1064,12 @@ public class MapView extends View {
                     case 4://路径
                         if (!isStartRoad) {
                             isStartRoad = true;
-                            roadPath.moveTo(matrixCoordinateX(x), matrixCoordinateY(y));
+                            roadPath.moveTo(x, y);
                         } else {
-                            roadPath.lineTo(matrixCoordinateX(x), matrixCoordinateY(y));
+                            roadPath.lineTo(x, y);
                         }
-                        endX = matrixCoordinateX(x);
-                        endY = matrixCoordinateY(y);
+                        endX = x;
+                        endY = y;
                         break;
                 }
             }
