@@ -485,7 +485,6 @@ public class MapView extends View {
                 float width = standBitmap.getWidth() / 2f;
                 canvas.drawBitmap(standBitmap, matrixCoordinateX(standPointF.x) - width, matrixCoordinateY(standPointF.y) - width, mPaintManager.getIconPaint());
             }
-
             /**
              * draw  forbidden area,which contains global area and mop area
              */

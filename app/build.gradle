@@ -73,7 +73,7 @@ android {
             buildConfigField("String", "environment", "\"product\"")
             buildConfigField("String", "BRAND", "\"ILIFE\"")
             buildConfigField("String", "BUGKY_KEY", "\"2b09f20d-6fca-47de-9e45-3d14223e6731\"")
-            buildConfigField("String", "BUGLY_ID", "\"76637b4e00\"")
+            buildConfigField("String", "BUGLY_ID", "\"7caa78b9ea\"")
             buildConfigField("int", "Area", "1")
             buildConfigField "String", "BUILD_COUNTRY", "\"CHINA\""//国内
         }
@@ -87,7 +87,7 @@ android {
             buildConfigField("String", "environment", "\"product\"")
             buildConfigField("String", "BRAND", "\"ZACO\"")
             buildConfigField("String", "BUGKY_KEY", "\"2b09f20d-6fca-47de-9e45-3d14223e6731\"")
-            buildConfigField("String", "BUGLY_ID", "\"76637b4e00\"")
+            buildConfigField("String", "BUGLY_ID", "\"7caa78b9ea\"")
             buildConfigField("int", "Area", "2")
             buildConfigField "String", "BUILD_COUNTRY", "\"SINGAPORE\""//国外
         }

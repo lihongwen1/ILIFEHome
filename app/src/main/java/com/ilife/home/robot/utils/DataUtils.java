@@ -405,7 +405,7 @@ public class DataUtils {
         int index=-1;
         for (int i = 0; i <src.length; i++) {
             b=src[i];
-            for (int j = 0; j <7; j++) {
+            for (int j = 0; j <8; j++) {
                if (getBit(b,j)==1){
                    index=i*8+j+1;
                    return index;

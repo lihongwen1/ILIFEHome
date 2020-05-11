@@ -95,6 +95,7 @@ public class RoomHelper {
     }
 
     public void drawRoom(List<PartitionBean> rooms) {
+        this.rooms.clear();
         this.rooms.addAll(rooms);
         Collections.sort(rooms);
         int index = 0;

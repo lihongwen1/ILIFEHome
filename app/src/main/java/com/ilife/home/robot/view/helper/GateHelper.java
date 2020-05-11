@@ -139,7 +139,9 @@ public class GateHelper {
                         , mMapView.matrixCoordinateX(vir.getPointCoordinate()[2]), mMapView.matrixCoordinateY(vir.getPointCoordinate()[3])};
                 gtPath.moveTo(coordinate[0], coordinate[1]);
                 gtPath.lineTo(coordinate[2], coordinate[3]);
-                vir.setDeleteIcon(new RectF(coordinate[0] - ICON_RADIUS, coordinate[1] - ICON_RADIUS, coordinate[0] + ICON_RADIUS, coordinate[1] + ICON_RADIUS));
+                float cx=(coordinate[0]+coordinate[2])/2f;
+                float cy=(coordinate[1]+coordinate[3])/2f;
+                vir.setDeleteIcon(new RectF(cx - ICON_RADIUS, cy - ICON_RADIUS, cx + ICON_RADIUS, cy + ICON_RADIUS));
             }
         }
     }

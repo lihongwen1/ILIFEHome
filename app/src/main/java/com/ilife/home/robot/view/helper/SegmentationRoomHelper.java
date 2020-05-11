@@ -306,7 +306,7 @@ public class SegmentationRoomHelper {
             float dis = DataUtils.distance(mCoordinates[0], mCoordinates[1], mMapView.matrixCoordinateX(coo.getX()), mMapView.matrixCoordinateY(coo.getY()));
             distance.add(dis);
         }
-        Collections.sort(distance, (o1, o2) -> smOT == SROT.PULL_START?(int) (o2 - o1): (int) (o1 - o2));
+        Collections.sort(distance, (o1, o2) -> smOT == SROT.PULL_START ? (int) (o2 - o1) : (int) (o1 - o2));
 
         if (distance.size() < 2) {
             isGateEffective = false;
@@ -320,7 +320,7 @@ public class SegmentationRoomHelper {
                 break;
             }
         }
-        if (dis1==0||dis2==0){
+        if (dis1 == 0 || dis2 == 0) {
             isGateEffective = false;
             return;
         }
@@ -335,7 +335,6 @@ public class SegmentationRoomHelper {
         pathMeasure.getPosTan(dis2, pos, tan);
         mGateCoordinates[2] = pos[0];
         mGateCoordinates[3] = pos[1];
-
     }
 
 
@@ -394,5 +393,14 @@ public class SegmentationRoomHelper {
             index++;
         }
         return robotCoor;
+    }
+
+
+    public void reset() {
+        mMapView.getmRoomHelper().cleanSelectRoom();
+        mRoom = null;
+        isHaveLine = false;
+        isGateEffective = false;
+        isNeedCalculateGate = false;
     }
 }

@@ -36,10 +36,15 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import butterknife.BindView;
 import butterknife.OnClick;
 import io.reactivex.Observable;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.CompositeDisposable;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.functions.Consumer;
 
 /**
  * //todo 5s操作超时
@@ -64,6 +69,8 @@ public class SegmentationRoomActivity extends BackBaseActivity {
     @BindView(R.id.image_menu)
     ImageView iv_finish;
     private int mapId;
+    private String saveMapDataInfoKey = "";
+    private CompositeDisposable mDisposable;
 
     @Override
     public int getLayoutId() {
@@ -87,9 +94,7 @@ public class SegmentationRoomActivity extends BackBaseActivity {
                     break;
                 case R.id.tv_combine_room://合并房间
                     map_room.setmOT(MapView.OT.MERGE_ROOM);
-                    map_room.getmRoomHelper().cleanSelectRoom();
-                    map_room.getmSegmentHelper().setHaveLine(false);
-                    map_room.getmSegmentHelper().setGateEffective(false);
+                    map_room.getmSegmentHelper().reset();
                     break;
             }
             map_room.invalidateUI();
@@ -98,6 +103,7 @@ public class SegmentationRoomActivity extends BackBaseActivity {
         LiveEventBus.get(EnvConfigure.KEY_ADD_ROOM_DOOR, Integer.class).observe(this, new Observer<Integer>() {
             @Override
             public void onChanged(Integer value) {
+                disposableRx();
                 switch (value) {
                     case 1:
                         ToastUtils.showToast("设置成功");
@@ -115,23 +121,23 @@ public class SegmentationRoomActivity extends BackBaseActivity {
                     case 6:
                         ToastUtils.showToast("设置失败");
                         break;
-
-
                 }
+                map_room.getmSegmentHelper().reset();
                 hideLoadingDialog();
-                removeActivity();
+                fetchSaveMapDataInfo();
             }
         });
         LiveEventBus.get(EnvConfigure.KEY_DELETE_ROOM_DOOR, Integer.class).observe(this, new Observer<Integer>() {
             @Override
             public void onChanged(Integer value) {
+                disposableRx();
                 if (value == 1) {
                     ToastUtils.showToast("设置成功");
                 } else {
                     ToastUtils.showToast("设置失败");
                 }
                 hideLoadingDialog();
-                removeActivity();
+                fetchSaveMapDataInfo();
             }
         });
     }
@@ -139,6 +145,7 @@ public class SegmentationRoomActivity extends BackBaseActivity {
     @Override
     public void initData() {
         super.initData();
+        mDisposable = new CompositeDisposable();
         mapId = getIntent().getIntExtra(KEY_MAP_ID, 0);
         if (mapId != 0) {
             IlifeAli.getInstance().getProperties(new OnAliResponse<PropertyBean>() {
@@ -164,7 +171,7 @@ public class SegmentationRoomActivity extends BackBaseActivity {
                                 map_room.updateSlam(mapDataBean.getMinX(), mapDataBean.getMaxX(), mapDataBean.getMinY(), mapDataBean.getMaxY());
                                 map_room.drawMapX8(mapDataBean.getCoordinates());
                             }
-                            String saveMapDataInfoKey = "";
+
                             if (mapId == bean.getSaveMapDataInfoMapId1()) {
                                 saveMapDataInfoKey = EnvConfigure.KEY_SAVE_MAP_DATA_INFO1;
                             } else if (mapId == bean.getSaveMapDataInfoMapId2()) {
@@ -172,21 +179,7 @@ public class SegmentationRoomActivity extends BackBaseActivity {
                             } else if (mapId == bean.getSaveMapDataInfoMapId3()) {
                                 saveMapDataInfoKey = EnvConfigure.KEY_SAVE_MAP_DATA_INFO3;
                             }
-                            if (!TextUtils.isEmpty(saveMapDataInfoKey)) {
-                                IlifeAli.getInstance().getSaveMapDataInfo(mapId, saveMapDataInfoKey, new OnAliResponse<String[]>() {
-                                    @Override
-                                    public void onSuccess(String[] result) {
-                                        if (result != null && result.length > 0) {
-                                            parseMapInfo(result);
-                                        }
-                                    }
-
-                                    @Override
-                                    public void onFailed(int code, String message) {
-
-                                    }
-                                });
-                            }
+                            fetchSaveMapDataInfo();
 
                         }
 
@@ -206,6 +199,23 @@ public class SegmentationRoomActivity extends BackBaseActivity {
         }
     }
 
+    private void fetchSaveMapDataInfo() {
+        if (!TextUtils.isEmpty(saveMapDataInfoKey)) {
+            IlifeAli.getInstance().getSaveMapDataInfo(mapId, saveMapDataInfoKey, new OnAliResponse<String[]>() {
+                @Override
+                public void onSuccess(String[] result) {
+                    if (result != null && result.length > 0) {
+                        parseMapInfo(result);
+                    }
+                }
+
+                @Override
+                public void onFailed(int code, String message) {
+
+                }
+            });
+        }
+    }
 
     @OnClick({R.id.fl_top_menu})
     public void onClick(View view) {
@@ -216,8 +226,16 @@ public class SegmentationRoomActivity extends BackBaseActivity {
             jsonObject.getJSONObject(EnvConfigure.KEY_ADD_ROOM_DOOR).put("MapId", mapId);
             jsonObject.getJSONObject(EnvConfigure.KEY_ADD_ROOM_DOOR).put("CmdId", (int) (System.currentTimeMillis() / 1000f));
             jsonObject.getJSONObject(EnvConfigure.KEY_ADD_ROOM_DOOR).put("ModifyInfo", map_room.getmSegmentHelper().getSegmentationData());
+
             IlifeAli.getInstance().setProperties(jsonObject, aBoolean -> {
-                LiveEventBus.get(EnvConfigure.KEY_ADD_ROOM_DOOR, Integer.class).postDelay(6, 5000);
+                Disposable disposable = Observable.timer(5, TimeUnit.SECONDS).observeOn(AndroidSchedulers.mainThread()).subscribe(new Consumer<Long>() {
+                    @Override
+                    public void accept(Long aLong) throws Exception {
+                        hideLoadingDialog();
+                        ToastUtils.showToast("设置失败");
+                    }
+                });
+                mDisposable.add(disposable);
             });
         } else {
             String json = "{\"DeleteRoomDoor\":{\"ModifyResult\":0,\"CmdId\":1588726604,\"ModifyInfo\":\"AAAAAf///+v//wAE\",\"MapId\":1588571932}}";
@@ -226,8 +244,16 @@ public class SegmentationRoomActivity extends BackBaseActivity {
             jsonObject.getJSONObject(EnvConfigure.KEY_DELETE_ROOM_DOOR).put("CmdId", (int) (System.currentTimeMillis() / 1000f));
             jsonObject.getJSONObject(EnvConfigure.KEY_DELETE_ROOM_DOOR).put("ModifyInfo", map_room.getmGateHelper().getDeleteGate());
             IlifeAli.getInstance().setProperties(jsonObject, aBoolean -> {
-                LiveEventBus.get(EnvConfigure.KEY_DELETE_ROOM_DOOR, Integer.class).postDelay(2, 5000);
+                Disposable disposable = Observable.timer(5, TimeUnit.SECONDS).observeOn(AndroidSchedulers.mainThread()).subscribe(new Consumer<Long>() {
+                    @Override
+                    public void accept(Long aLong) throws Exception {
+                        hideLoadingDialog();
+                        ToastUtils.showToast("设置失败");
+                    }
+                });
+                mDisposable.add(disposable);
             });
+
         }
         showLoadingDialog();
     }
@@ -314,5 +340,15 @@ public class SegmentationRoomActivity extends BackBaseActivity {
         map_room.invalidateUI();
     }
 
+    private void disposableRx() {
+        if (mDisposable != null && !mDisposable.isDisposed()) {
+            mDisposable.dispose();
+        }
+    }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        disposableRx();
+    }
 }
