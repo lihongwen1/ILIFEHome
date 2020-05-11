@@ -488,6 +488,20 @@ public class IlifeAli {
                                     Log.d("LiveBus", "发送Live Bus 信息");
                                     LiveEventBus.get(EnvConfigure.KEY_MAX_MODE, Boolean.class).post(isMax);
                                     getWorkingDevice().getDeviceInfo().setMaxMode(isMax);
+                                } else if (items.containsKey(EnvConfigure.ChargerPiont)) {
+                                    String chargePort = items.getJSONObject(EnvConfigure.ChargerPiont).getString(EnvConfigure.KEY_VALUE);
+                                    getWorkingDevice().getDeviceInfo().setChargePort(chargePort);
+                                    LiveEventBus.get(EnvConfigure.ChargerPiont, String.class).post(chargePort);
+                                } else if (items.containsKey(EnvConfigure.KEY_ADD_ROOM_DOOR)) {
+                                    String result = items.getJSONObject(EnvConfigure.KEY_ADD_ROOM_DOOR).getString(EnvConfigure.KEY_VALUE);
+                                    JSONObject jsonObject = JSONObject.parseObject(result);
+                                    int value = jsonObject.getIntValue("ModifyResult");
+                                    LiveEventBus.get(EnvConfigure.KEY_ADD_ROOM_DOOR, Integer.class).postDelay(value,1000);
+                                } else if (items.containsKey(EnvConfigure.KEY_DELETE_ROOM_DOOR)) {
+                                    String result = items.getJSONObject(EnvConfigure.KEY_DELETE_ROOM_DOOR).getString(EnvConfigure.KEY_VALUE);
+                                    JSONObject jsonObject = JSONObject.parseObject(result);
+                                    int value = jsonObject.getIntValue("ModifyResult");
+                                    LiveEventBus.get(EnvConfigure.KEY_DELETE_ROOM_DOOR, Integer.class).postDelay(value,1000);
                                 } else if (data.contains(EnvConfigure.KEY_SCHEDULE)) {
                                     for (int i = 1; i <= 7; i++) {
                                         String key = EnvConfigure.KEY_SCHEDULE + i;
@@ -738,6 +752,24 @@ public class IlifeAli {
                         int mapId = jsonObject.getJSONObject(EnvConfigure.KEY_SAVE_MAP_DATA_INFO3).getJSONObject(EnvConfigure.KEY_VALUE).
                                 getIntValue(EnvConfigure.KEY_MAP_ID);
                         bean.setSaveMapDataInfoMapId3(mapId);
+                        Log.d(TAG, "saveMapDataInfoMapId3: " + mapId);
+                    }
+                    if (jsonObject.containsKey(EnvConfigure.KEY_SAVE_MAP_DATA_1)) {
+                        int mapId = jsonObject.getJSONObject(EnvConfigure.KEY_SAVE_MAP_DATA_1).getJSONObject(EnvConfigure.KEY_VALUE).
+                                getIntValue(EnvConfigure.KEY_MAP_ID);
+                        bean.setSaveMapDataMapId1(mapId);
+                        Log.d(TAG, "saveMapDataInfoMapId3: " + mapId);
+                    }
+                    if (jsonObject.containsKey(EnvConfigure.KEY_SAVE_MAP_DATA_2)) {
+                        int mapId = jsonObject.getJSONObject(EnvConfigure.KEY_SAVE_MAP_DATA_2).getJSONObject(EnvConfigure.KEY_VALUE).
+                                getIntValue(EnvConfigure.KEY_MAP_ID);
+                        bean.setSaveMapDataMapId2(mapId);
+                        Log.d(TAG, "saveMapDataInfoMapId3: " + mapId);
+                    }
+                    if (jsonObject.containsKey(EnvConfigure.KEY_SAVE_MAP_DATA_3)) {
+                        int mapId = jsonObject.getJSONObject(EnvConfigure.KEY_SAVE_MAP_DATA_3).getJSONObject(EnvConfigure.KEY_VALUE).
+                                getIntValue(EnvConfigure.KEY_MAP_ID);
+                        bean.setSaveMapDataMapId3(mapId);
                         Log.d(TAG, "saveMapDataInfoMapId3: " + mapId);
                     }
                     onAliResponse.onSuccess(bean);
@@ -1000,16 +1032,62 @@ public class IlifeAli {
                     JSONObject jData;
                     for (int i = 0; i < jsonArray.size(); i++) {
                         jData = jsonArray.getJSONObject(i).getJSONObject(EnvConfigure.KEY_DATA);
+
                         if (infos == null) {
                             infos = new String[jData.getIntValue("PackNum")];
                             timeSlamp = jData.getIntValue("TimeStamp");
                         }
                         if (timeSlamp == jData.getIntValue("TimeStamp")) {//分包时间戳相同
-                            int index = jData.getIntValue("PackId")-1;//packId和index差1
+                            int index = jData.getIntValue("PackId") - 1;//packId和index差1
                             infos[index] = jData.getString("MapInfo");
                         }
                     }
-                     onAliResponse.onSuccess(infos);
+                    onAliResponse.onSuccess(infos);
+                }
+            }
+        }));
+    }
+
+
+    /**
+     * 已保存地图数据
+     * 超过200包处理
+     */
+    public void getSaveMapData(long selectMapId, String identifierKey, final OnAliResponse<String[]> onAliResponse) {
+        HashMap<String, Object> params = new HashMap<>();
+        params.clear();
+        params.put(EnvConfigure.KEY_IOT_ID, iotId);
+        params.put("identifier", identifierKey);
+        params.put("start", selectMapId * 1000);
+        params.put("end", System.currentTimeMillis());
+        params.put("pageSize", 200);
+        params.put("ordered", false);
+        ioTAPIClient.send(buildRequest(EnvConfigure.PATH_GET_PROPERTY_TIMELINE, params), new IoTUIThreadCallback(new IoTCallback() {
+            @Override
+            public void onFailure(IoTRequest ioTRequest, Exception e) {
+
+            }
+
+            @Override
+            public void onResponse(IoTRequest ioTRequest, IoTResponse ioTResponse) {
+                long timeSlamp = 0;
+                String[] infos = null;
+                if (ioTResponse.getCode() == 200) {
+                    JSONObject data = JSONObject.parseObject(ioTResponse.getData().toString());
+                    JSONArray jsonArray = data.getJSONArray(EnvConfigure.KEY_ITEMS);
+                    JSONObject jData;
+                    for (int i = 0; i < jsonArray.size(); i++) {
+                        jData = jsonArray.getJSONObject(i).getJSONObject(EnvConfigure.KEY_DATA);
+                        if (infos == null) {
+                            infos = new String[jData.getIntValue("PackNum")];
+                            timeSlamp = jData.getIntValue("TimeStamp");
+                        }
+                        if (timeSlamp == jData.getIntValue("TimeStamp")) {//分包时间戳相同
+                            int index = jData.getIntValue("PackId") - 1;//packId和index差1
+                            infos[index] = jData.getString("MapData");
+                        }
+                    }
+                    onAliResponse.onSuccess(infos);
                 }
             }
         }));

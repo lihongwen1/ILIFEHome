@@ -8,6 +8,7 @@ import android.view.MotionEvent;
 
 import com.ilife.home.robot.model.bean.VirtualWallBean;
 import com.ilife.home.robot.utils.DataUtils;
+import com.ilife.home.robot.utils.ToastUtils;
 import com.ilife.home.robot.view.MapView;
 
 import java.util.ArrayList;
@@ -75,14 +76,18 @@ public class GateHelper {
         if ((mapX == downPoint.x && mapY == downPoint.y) || DataUtils.distance(downPoint.x, downPoint.y, mapX, mapY) < 10) {//点击事件
             for (VirtualWallBean vBean : gtBeans) {
                 if (vBean.getDeleteIcon() != null && vBean.getDeleteIcon().contains(downPoint.x, downPoint.y)) {//点击了删除键
-                    if (vBean.getState() == 2) {//新增的电子墙，还未保存到服务器，可以直接移除
-                        gtBeans.remove(vBean);
+                    if (getDeleteGate() == -1) {//未存在待删除的门
+                        if (vBean.getState() == 2) {//新增的门，还未保存到服务器，可以直接移除
+                            gtBeans.remove(vBean);
+                        }
+                        if (vBean.getState() == 1) {//服务器上的门，可能操作会被取消掉，只需要改变状态
+                            vBean.setState(3);
+                            vBean.clear();
+                        }
+                        updateGate();
+                    } else {
+                        ToastUtils.showToast("只能合并两个房间");
                     }
-                    if (vBean.getState() == 1) {//服务器上的电子墙，可能操作会被取消掉，只需要改变状态
-                        vBean.setState(3);
-                        vBean.clear();
-                    }
-                    updateGate();
                 }
 
             }
@@ -90,16 +95,17 @@ public class GateHelper {
     }
 
     public void revertGate() {
-        for (VirtualWallBean gate:gtBeans) {
+        for (VirtualWallBean gate : gtBeans) {
             gate.setState(1);
         }
         updateGate();
     }
-    public int getDeleteGate(){
-        int gateId=0;
-        for (VirtualWallBean gate:gtBeans) {
-            if (gate.getState()==3){
-                gateId= gate.getNumber();
+
+    public int getDeleteGate() {
+        int gateId = -1;
+        for (VirtualWallBean gate : gtBeans) {
+            if (gate.getState() == 3) {
+                gateId = gate.getNumber();
                 break;
             }
         }

@@ -12,6 +12,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import com.aliyun.iot.aep.sdk._interface.OnAliResponse;
 import com.aliyun.iot.aep.sdk.bean.HistoryRecordBean;
 import com.aliyun.iot.aep.sdk.bean.PropertyBean;
+import com.aliyun.iot.aep.sdk.contant.EnvConfigure;
 import com.aliyun.iot.aep.sdk.contant.IlifeAli;
 import com.badoo.mobile.util.WeakHandler;
 import com.ilife.home.robot.R;
@@ -68,7 +69,9 @@ public class SelectSaveMapActivity extends BackBaseActivity {
             selectPosition = position;
             switch (view.getId()) {
                 case R.id.tv_apply_this_map:
-                    onApplyMap();
+                    if (saveMapBeans.get(selectPosition).getMapId() != selectMapId) {
+                        onApplyMap();
+                    }
                     break;
                 case R.id.iv_delete_map:
                     onDeleteMap();
@@ -94,28 +97,36 @@ public class SelectSaveMapActivity extends BackBaseActivity {
 
         IlifeAli.getInstance().getProperties(new OnAliResponse<PropertyBean>() {
             @Override
-            public void onSuccess(PropertyBean result) {
-                selectMapId = result.getSelectedMapId();
+            public void onSuccess(PropertyBean bean) {
+                selectMapId = bean.getSelectedMapId();
                 if (selectMapId == 0) {
                     rv_save_map.setVisibility(View.GONE);
                     ll_no_map.setVisibility(View.VISIBLE);
                     return;
                 }
                 mAdapter.setSelectMapId(selectMapId);
-                String saveMapId = result.getSaveMapId();
+                String saveMapId = bean.getSaveMapId();
                 if (!TextUtils.isEmpty(saveMapId)) {
                     for (int mapId : decodeSaveMapId(saveMapId)) {
                         if (mapId == 0) {
                             continue;
                         }
-                        IlifeAli.getInstance().getSelectMap(mapId, new OnAliResponse<List<HistoryRecordBean>>() {
+                        String saveMapDataKey = "";
+                        if (mapId == bean.getSaveMapDataMapId1()) {
+                            saveMapDataKey = EnvConfigure.KEY_SAVE_MAP_DATA_1;
+                        } else if (mapId == bean.getSaveMapDataMapId2()) {
+                            saveMapDataKey = EnvConfigure.KEY_SAVE_MAP_DATA_2;
+                        } else if (mapId == bean.getSaveMapDataMapId3()) {
+                            saveMapDataKey = EnvConfigure.KEY_SAVE_MAP_DATA_3;
+                        }
+                        IlifeAli.getInstance().getSaveMapData(mapId, saveMapDataKey, new OnAliResponse<String[]>() {
                             @Override
-                            public void onSuccess(List<HistoryRecordBean> result) {
-                                if (result != null && result.size() > 0) {
+                            public void onSuccess(String[] result) {
+                                if (result != null && result.length > 0) {
                                     if (mapId == selectMapId) {
-                                        saveMapBeans.add(0, new SaveMapBean(result.get(0), mapId));
+                                        saveMapBeans.add(0, new SaveMapBean(result, mapId));
                                     } else {
-                                        saveMapBeans.add(new SaveMapBean(result.get(0), mapId));
+                                        saveMapBeans.add(new SaveMapBean(result, mapId));
                                     }
                                 }
                                 weakHandler.sendEmptyMessageDelayed(1, 200);

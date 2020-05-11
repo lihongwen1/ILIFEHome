@@ -651,6 +651,7 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
 
         LiveEventBus.get(EnvConfigure.ChargerPiont, String.class).observe((BaseActivity) mView, chargingPort -> {
             if (!TextUtils.isEmpty(chargingPort) && isViewAttached() && isDrawMap()) {
+                MyLogger.d(TAG,"充电座位置改变");
                 JSONObject jsonObject = JSONObject.parseObject(chargingPort);
                 boolean isDisplay = jsonObject.getIntValue("DisplaySwitch") == 1;
                 int xy = jsonObject.getIntValue("Piont");

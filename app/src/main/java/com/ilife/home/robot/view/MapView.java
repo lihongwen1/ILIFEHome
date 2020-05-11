@@ -1,6 +1,7 @@
 package com.ilife.home.robot.view;
 
 import android.content.Context;
+import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -90,6 +91,7 @@ public class MapView extends View {
     private PaintManager mPaintManager;
     private PointF standPointF;//充电座
     private boolean isChargingPortDisplay = false;//是否展示充电座
+    private boolean touchAble = true;
 
     /**
      * map operation type
@@ -131,11 +133,17 @@ public class MapView extends View {
 
     public MapView(Context context, AttributeSet attrs) {
         super(context, attrs);
+        TypedArray ta = context.obtainStyledAttributes(attrs, R.styleable.MapView);
+        touchAble = ta.getBoolean(R.styleable.MapView_touchable, true);
+        ta.recycle();  //注意回收
         init();
     }
 
     public MapView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
+        TypedArray ta = context.obtainStyledAttributes(attrs, R.styleable.MapView);
+        touchAble = ta.getBoolean(R.styleable.MapView_touchable, true);
+        ta.recycle();  //注意回收
         init();
     }
 
@@ -325,7 +333,7 @@ public class MapView extends View {
          */
         slamCanvas.drawPath(roadPath, mPaintManager.getRoadPaint());
         if (needEndPoint && endX != 0 && endY != 0) {
-            slamCanvas.drawCircle(endX, endY, Utils.dip2px(MyApplication.getInstance(), 12 * baseScare / 30f), mPaintManager.changeColor(mPaintManager.getMapPaint(), PaintColor.END_CIRCLE));
+            slamCanvas.drawCircle(endX, endY, 10f / getRealScare(), mPaintManager.changeColor(mPaintManager.getMapPaint(), PaintColor.END_CIRCLE));
         }
         invalidateUI();
     }
@@ -380,7 +388,7 @@ public class MapView extends View {
         /**
          * 计算坐标放大和缩放比例
          */
-        baseScare = 10.0f;
+        baseScare = 20.0f;
         if (xLength * baseScare > width * 0.75 || yLength * baseScare > sCenter.y * 2 * 0.75) {
             MyLogger.d(TAG, "SYSTEM SCALE MAP -------------");
             float systemW = (width * 0.75f) / ((xLength * baseScare));
@@ -469,6 +477,14 @@ public class MapView extends View {
             matrix.postScale(getRealScare(), getRealScare(), sCenter.x, sCenter.y);
             canvas.drawBitmap(slamBitmap, matrix, mPaintManager.getMapPaint());
             canvas.concat(matrix);//应用变换
+
+            /**
+             * 绘制充电座
+             */
+            if (baseScare != 1 && standPointF != null && isChargingPortDisplay) {
+                float width = standBitmap.getWidth() / 2f;
+                canvas.drawBitmap(standBitmap, matrixCoordinateX(standPointF.x) - width, matrixCoordinateY(standPointF.y) - width, mPaintManager.getIconPaint());
+            }
 
             /**
              * draw  forbidden area,which contains global area and mop area
@@ -607,13 +623,6 @@ public class MapView extends View {
                     canvas.drawText(room.getTag(), cx - textWidth / 2, cy + baseLineY, paint);
                 }
             }
-            /**
-             * 绘制充电座
-             */
-            if (standPointF != null && isChargingPortDisplay) {
-                float width = standBitmap.getWidth() / 2f;
-                canvas.drawBitmap(standBitmap, matrixCoordinateX(standPointF.x) - width, matrixCoordinateY(standPointF.y) - width, mPaintManager.getIconPaint());
-            }
         }
         super.onDraw(canvas);
     }
@@ -653,6 +662,9 @@ public class MapView extends View {
     //TODO 优化：删除电子墙的时候支持拖动,添加电子墙的时候支持缩放，NONE时支持缩放和拖动
     @Override
     public boolean onTouchEvent(MotionEvent event) {
+        if (!touchAble) {
+            return false;
+        }
         int me = event.getAction() & MotionEvent.ACTION_MASK;
         float x = event.getX() / getRealScare() + getOffsetX();
         float y = event.getY() / getRealScare() + getOffsetY();
@@ -1053,13 +1065,13 @@ public class MapView extends View {
                     case 5:
                     case 2://障碍物
                         obstaclePath.addRect(x, y, x + baseScare, y + baseScare, Path.Direction.CCW);
-                        MyLogger.d(TAG,"("+x+","+y+")");
+                        MyLogger.d(TAG, "(" + x + "," + y + ")");
                         break;
                     case 3://房间门
                         roomGatePath.addRect(x, y, x + baseScare, y + baseScare, Path.Direction.CCW);
                         break;
                     case -1://单包路径起点
-                        roadPath.moveTo(matrixCoordinateX(x), matrixCoordinateY(y));
+                        roadPath.moveTo(x, y);
                         break;
                     case 4://路径
                         if (!isStartRoad) {

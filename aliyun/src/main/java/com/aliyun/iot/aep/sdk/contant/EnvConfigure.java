@@ -168,6 +168,11 @@ public class EnvConfigure {
     public static final String KEY_SAVE_MAP_DATA_INFO1="SaveMapDataInfo1";
     public static final String KEY_SAVE_MAP_DATA_INFO2="SaveMapDataInfo2";
     public static final String KEY_SAVE_MAP_DATA_INFO3="SaveMapDataInfo3";
+    public static final String KEY_SAVE_MAP_DATA_1="SaveMapData1";
+    public static final String KEY_SAVE_MAP_DATA_2="SaveMapData2";
+    public static final String KEY_SAVE_MAP_DATA_3="SaveMapData3";
+    public static final String KEY_ADD_ROOM_DOOR="AddRoomDoor";
+    public static final String KEY_DELETE_ROOM_DOOR="DeleteRoomDoor";
     public static final String KEY_MAP_ID="MapId";
     /**
      * value

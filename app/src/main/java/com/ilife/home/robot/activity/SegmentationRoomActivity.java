@@ -1,5 +1,7 @@
 package com.ilife.home.robot.activity;
 
+import android.os.Handler;
+import android.os.Message;
 import android.text.TextUtils;
 import android.util.Base64;
 import android.view.View;
@@ -8,6 +10,8 @@ import android.widget.ImageView;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 
+import androidx.lifecycle.Observer;
+
 import com.alibaba.fastjson.JSONObject;
 import com.aliyun.iot.aep.sdk._interface.OnAliResponse;
 import com.aliyun.iot.aep.sdk._interface.OnAliResponseSingle;
@@ -15,6 +19,8 @@ import com.aliyun.iot.aep.sdk.bean.HistoryRecordBean;
 import com.aliyun.iot.aep.sdk.bean.PropertyBean;
 import com.aliyun.iot.aep.sdk.contant.EnvConfigure;
 import com.aliyun.iot.aep.sdk.contant.IlifeAli;
+import com.badoo.mobile.util.WeakHandler;
+import com.ilife.home.livebus.LiveEventBus;
 import com.ilife.home.robot.R;
 import com.ilife.home.robot.base.BackBaseActivity;
 import com.ilife.home.robot.bean.Coordinate;
@@ -33,7 +39,11 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.OnClick;
+import io.reactivex.Observable;
 
+/**
+ * //todo 5s操作超时
+ */
 public class SegmentationRoomActivity extends BackBaseActivity {
     private final String TAG = "SelectRoomActivity";
     public static final String KEY_MAP_ID = "map_id";
@@ -85,6 +95,45 @@ public class SegmentationRoomActivity extends BackBaseActivity {
             map_room.invalidateUI();
         });
         rg_segmentation_room.check(R.id.tv_move_map);
+        LiveEventBus.get(EnvConfigure.KEY_ADD_ROOM_DOOR, Integer.class).observe(this, new Observer<Integer>() {
+            @Override
+            public void onChanged(Integer value) {
+                switch (value) {
+                    case 1:
+                        ToastUtils.showToast("设置成功");
+                        break;
+                    case 2:
+                        ToastUtils.showToast("门的位置不在房间内");
+                        break;
+                    case 3:
+                        ToastUtils.showToast("分割后房间面积过小");
+                        break;
+                    case 4:
+                        ToastUtils.showToast("房间总数过多");
+                        break;
+                    case 5:
+                    case 6:
+                        ToastUtils.showToast("设置失败");
+                        break;
+
+
+                }
+                hideLoadingDialog();
+                removeActivity();
+            }
+        });
+        LiveEventBus.get(EnvConfigure.KEY_DELETE_ROOM_DOOR, Integer.class).observe(this, new Observer<Integer>() {
+            @Override
+            public void onChanged(Integer value) {
+                if (value == 1) {
+                    ToastUtils.showToast("设置成功");
+                } else {
+                    ToastUtils.showToast("设置失败");
+                }
+                hideLoadingDialog();
+                removeActivity();
+            }
+        });
     }
 
     @Override
@@ -95,13 +144,21 @@ public class SegmentationRoomActivity extends BackBaseActivity {
             IlifeAli.getInstance().getProperties(new OnAliResponse<PropertyBean>() {
                 @Override
                 public void onSuccess(PropertyBean bean) {
-                    IlifeAli.getInstance().getSelectMap(mapId, new OnAliResponse<List<HistoryRecordBean>>() {
+                    String saveMapDataKey = "";
+                    if (mapId == bean.getSaveMapDataMapId1()) {
+                        saveMapDataKey = EnvConfigure.KEY_SAVE_MAP_DATA_1;
+                    } else if (mapId == bean.getSaveMapDataMapId2()) {
+                        saveMapDataKey = EnvConfigure.KEY_SAVE_MAP_DATA_2;
+                    } else if (mapId == bean.getSaveMapDataMapId3()) {
+                        saveMapDataKey = EnvConfigure.KEY_SAVE_MAP_DATA_3;
+                    }
+                    IlifeAli.getInstance().getSaveMapData(mapId, saveMapDataKey, new OnAliResponse<String[]>() {
                         @Override
-                        public void onSuccess(List<HistoryRecordBean> result) {
-                            if (result.size() == 0) {//应该只有一条数据
+                        public void onSuccess(String[] result) {
+                            if (result.length == 0) {//应该只有一条数据
                                 return;
                             }
-                            MapDataBean mapDataBean = DataUtils.parseSaveMapData(result.get(0).getMapDataArray());
+                            MapDataBean mapDataBean = DataUtils.parseSaveMapData(result);
                             if (mapDataBean != null) {
                                 map_room.setLeftTopCoordinate(mapDataBean.getLeftX(), mapDataBean.getLeftY());
                                 map_room.updateSlam(mapDataBean.getMinX(), mapDataBean.getMaxX(), mapDataBean.getMinY(), mapDataBean.getMaxY());
@@ -139,7 +196,6 @@ public class SegmentationRoomActivity extends BackBaseActivity {
                         }
                     });
 
-
                 }
 
                 @Override
@@ -157,23 +213,23 @@ public class SegmentationRoomActivity extends BackBaseActivity {
         if (map_room.getmOT() == MapView.OT.SEGMENT_ROOM) {
             String json = "{\"AddRoomDoor\":{\"ModifyResult\":0,\"CmdId\":1588726604,\"ModifyInfo\":\"AAAAAf///+v//wAE\",\"MapId\":1588571932}}";
             JSONObject jsonObject = JSONObject.parseObject(json);
-            jsonObject.getJSONObject("AddRoomDoor").put("MapId", mapId);
-            jsonObject.getJSONObject("AddRoomDoor").put("CmdId", (int) (System.currentTimeMillis() / 1000f));
-            jsonObject.getJSONObject("AddRoomDoor").put("ModifyInfo", map_room.getmSegmentHelper().getSegmentationData());
+            jsonObject.getJSONObject(EnvConfigure.KEY_ADD_ROOM_DOOR).put("MapId", mapId);
+            jsonObject.getJSONObject(EnvConfigure.KEY_ADD_ROOM_DOOR).put("CmdId", (int) (System.currentTimeMillis() / 1000f));
+            jsonObject.getJSONObject(EnvConfigure.KEY_ADD_ROOM_DOOR).put("ModifyInfo", map_room.getmSegmentHelper().getSegmentationData());
             IlifeAli.getInstance().setProperties(jsonObject, aBoolean -> {
-                ToastUtils.showToast(aBoolean ? "添加门成功" : "添加门失败");
+                LiveEventBus.get(EnvConfigure.KEY_ADD_ROOM_DOOR, Integer.class).postDelay(6, 5000);
             });
         } else {
             String json = "{\"DeleteRoomDoor\":{\"ModifyResult\":0,\"CmdId\":1588726604,\"ModifyInfo\":\"AAAAAf///+v//wAE\",\"MapId\":1588571932}}";
             JSONObject jsonObject = JSONObject.parseObject(json);
-            jsonObject.getJSONObject("DeleteRoomDoor").put("MapId", mapId);
-            jsonObject.getJSONObject("DeleteRoomDoor").put("CmdId", (int) (System.currentTimeMillis() / 1000f));
-            jsonObject.getJSONObject("DeleteRoomDoor").put("ModifyInfo", map_room.getmGateHelper().getDeleteGate());
+            jsonObject.getJSONObject(EnvConfigure.KEY_DELETE_ROOM_DOOR).put("MapId", mapId);
+            jsonObject.getJSONObject(EnvConfigure.KEY_DELETE_ROOM_DOOR).put("CmdId", (int) (System.currentTimeMillis() / 1000f));
+            jsonObject.getJSONObject(EnvConfigure.KEY_DELETE_ROOM_DOOR).put("ModifyInfo", map_room.getmGateHelper().getDeleteGate());
             IlifeAli.getInstance().setProperties(jsonObject, aBoolean -> {
-                ToastUtils.showToast(aBoolean ? "删除房间门成功" : "删除房间门失败");
+                LiveEventBus.get(EnvConfigure.KEY_DELETE_ROOM_DOOR, Integer.class).postDelay(2, 5000);
             });
         }
-
+        showLoadingDialog();
     }
 
     private void parseMapInfo(String[] data) {
@@ -192,7 +248,6 @@ public class SegmentationRoomActivity extends BackBaseActivity {
             System.arraycopy(b, 0, allBytes, desPos, b.length);
             desPos += b.length;
         }
-        MyLogger.d(TAG, "数据：   " + Arrays.toString(allBytes));
 //                充电座位置(4bytes) +
 //                房间数(1 byte)+
 //                房间 1 ID(4bytes) + 房间 1 坐标(4bytes) +
@@ -252,6 +307,7 @@ public class SegmentationRoomActivity extends BackBaseActivity {
             index += 2;
             gates.add(new VirtualWallBean(gateId, 4, new float[]{sx, sy, ex, ey}, 1));
         }
+        map_room.drawChargePort(chargeX, chargeY, true);
         map_room.getmRoomHelper().drawRoom(rooms);
         map_room.getmRoomHelper().setSingleChoice(true);
         map_room.getmGateHelper().drawGate(gates);

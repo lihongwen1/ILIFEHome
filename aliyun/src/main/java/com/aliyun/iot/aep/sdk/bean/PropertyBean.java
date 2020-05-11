@@ -27,6 +27,9 @@ public class PropertyBean {
     private int saveMapDataInfoMapId1;
     private int saveMapDataInfoMapId2;
     private int saveMapDataInfoMapId3;
+    private int saveMapDataMapId1;
+    private int saveMapDataMapId2;
+    private int saveMapDataMapId3;
     public PropertyBean() {
     }
 
@@ -246,6 +249,30 @@ public class PropertyBean {
 
     public void setSaveMapDataInfoMapId3(int saveMapDataInfoMapId3) {
         this.saveMapDataInfoMapId3 = saveMapDataInfoMapId3;
+    }
+
+    public int getSaveMapDataMapId1() {
+        return saveMapDataMapId1;
+    }
+
+    public void setSaveMapDataMapId1(int saveMapDataMapId1) {
+        this.saveMapDataMapId1 = saveMapDataMapId1;
+    }
+
+    public int getSaveMapDataMapId2() {
+        return saveMapDataMapId2;
+    }
+
+    public void setSaveMapDataMapId2(int saveMapDataMapId2) {
+        this.saveMapDataMapId2 = saveMapDataMapId2;
+    }
+
+    public int getSaveMapDataMapId3() {
+        return saveMapDataMapId3;
+    }
+
+    public void setSaveMapDataMapId3(int saveMapDataMapId3) {
+        this.saveMapDataMapId3 = saveMapDataMapId3;
     }
 
     @Override

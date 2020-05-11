@@ -13,6 +13,8 @@ import com.ilife.home.robot.utils.UiUtil;
 import com.ilife.home.robot.utils.Utils;
 import com.ilife.home.robot.view.MapView;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
 public class SelectMapAdapter extends BaseQuickAdapter<SaveMapBean, BaseViewHolder> {
@@ -25,15 +27,15 @@ public class SelectMapAdapter extends BaseQuickAdapter<SaveMapBean, BaseViewHold
     @Override
     protected void convert(@NonNull BaseViewHolder holder, int position) {
         boolean isSelect = selectMapId == data.get(position).getMapId();
-        HistoryRecordBean historyRecordBean = data.get(position).getRecordBean();
-        MapDataBean mapDataBean = DataUtils.parseSaveMapData(historyRecordBean.getMapDataArray());
+        String[] mapData = data.get(position).getMapData();
+        MapDataBean mapDataBean = DataUtils.parseSaveMapData(mapData);
         if (mapDataBean != null) {
             MapView mapView = holder.getView(R.id.mv_save_map);
             mapView.post(() -> {
                 mapView.updateSlam(mapDataBean.getMinX(), mapDataBean.getMaxX(), mapDataBean.getMinY(), mapDataBean.getMaxY());
                 mapView.drawMapX8(mapDataBean.getCoordinates());
             });
-            String time = Utils.generateTime(historyRecordBean.getStartTime(), "yyyy-MM-dd HH:mm");
+            String time = Utils.generateTime(data.get(position).getMapId(), "yyyy-MM-dd HH:mm");
             holder.setText(R.id.tv_save_map_time, time);
             holder.setVisible(R.id.tv_apply_this_map, true);
             holder.setVisible(R.id.v_used_map, isSelect);

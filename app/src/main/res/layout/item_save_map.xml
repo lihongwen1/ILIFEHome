@@ -55,13 +55,12 @@
                         android:id="@+id/mv_save_map"
                         android:layout_width="match_parent"
                         android:layout_height="0dp"
-                        android:layout_marginTop="@dimen/dp_20"
-                        android:layout_weight="1" />
+                        android:layout_weight="1"
+                        app:touchable="false" />
 
                     <TextView
                         android:id="@+id/tv_apply_this_map"
                         style="@style/Text_14sp_them_color"
-                        android:layout_marginTop="@dimen/dp_20"
                         android:background="@drawable/selector_theme_cocor_rectangle"
                         android:paddingStart="@dimen/dp_30"
                         android:paddingTop="@dimen/dp_10"
