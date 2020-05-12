@@ -91,8 +91,6 @@ public abstract class BaseMapActivity extends BackBaseActivity<MapX9Presenter> i
     TextView tv_point;
     @BindView(R.id.tv_along_x9)
     TextView tv_along;
-    @BindView(R.id.tv_set_max)
-    TextView tv_set_max;
     @BindView(R.id.image_ele)
     ImageView image_ele;//battery
     @BindView(R.id.tv_control_x9)
@@ -100,25 +98,15 @@ public abstract class BaseMapActivity extends BackBaseActivity<MapX9Presenter> i
     @BindView(R.id.fl_top_menu)
     FrameLayout fl_setting;
     Animation animation, animation_alpha;
-    @BindView(R.id.layout_recharge)
-    View layout_recharge;
     @BindView(R.id.layout_remote_control)
     View layout_remote_control;
-    @BindView(R.id.tv_recharge_x9)
-    TextView tv_recharge_x9;
     @BindView(R.id.v_map)
     MapView mMapView;
     @BindView(R.id.fl_control_x9)
     FrameLayout fl_control_x9;
-    @BindView(R.id.fl_virtual_wall)
-    FrameLayout fl_virtual_wall;
     @BindView(R.id.image_center)
     ImageView image_center;
     PopupWindow errorPopup;
-    @BindView(R.id.tv_add_virtual_x9)
-    TextView tv_add_virtual;
-    @BindView(R.id.tv_delete_virtual_x9)
-    TextView tv_delete_virtual;
     @BindView(R.id.image_forward)
     ImageView image_forward;
     @BindView(R.id.image_left)
@@ -130,18 +118,7 @@ public abstract class BaseMapActivity extends BackBaseActivity<MapX9Presenter> i
     ImageView iv_extension;
     @BindView(R.id.tv_bottom_recharge)
     TextView tv_bottom_recharge;
-    @BindView(R.id.iv_recharge_model)
-    ImageView iv_recharge_model;
-    @BindView(R.id.iv_recharge_stand)
-    ImageView iv_recharge_stand;
-    @BindView(R.id.layout_point)
-    View layout_point;
-    @BindView(R.id.iv_point_robot)
-    ImageView iv_point_robot;
-    @BindView(R.id.layout_along)
-    View layout_along;
-    @BindView(R.id.iv_along_robot)
-    ImageView iv_along_robot;
+
     @BindView(R.id.rv_bottom_sheet)
     RecyclerView rv_bottom_sheet;
     @BindView(R.id.map_bottom_sheet)
@@ -390,9 +367,7 @@ public abstract class BaseMapActivity extends BackBaseActivity<MapX9Presenter> i
      */
     @Override
     public void updateStatue(String value) {
-        if (USE_MODE == USE_MODE_REMOTE_CONTROL || mPresenter.getCurStatus() == MsgCodeUtils.STATUE_RECHARGE
-                || mPresenter.getCurStatus() == MsgCodeUtils.STATUE_POINT || mPresenter.getCurStatus() == MsgCodeUtils.STATUE_TEMPORARY_POINT
-                || mPresenter.getCurStatus() == MsgCodeUtils.STATUE_ALONG) {
+        if (USE_MODE == USE_MODE_REMOTE_CONTROL) {
             tv_status.setTextColor(getResources().getColor(R.color.color_33));
         } else {
             tv_status.setTextColor(getResources().getColor(R.color.white));
@@ -521,16 +496,13 @@ public abstract class BaseMapActivity extends BackBaseActivity<MapX9Presenter> i
             case USE_MODE_NORMAL:
                 layout_remote_control.setVisibility(View.GONE);
                 fl_control_x9.setVisibility(View.GONE);
-                fl_virtual_wall.setVisibility(View.GONE);
                 setMapViewVisible(true);
                 ll_bottom_sheet.setVisibility(View.VISIBLE);
                 break;
             case USE_MODE_REMOTE_CONTROL:
-                fl_virtual_wall.setVisibility(View.GONE);
                 ll_bottom_sheet.setVisibility(View.GONE);
                 fl_control_x9.setVisibility(View.VISIBLE);
                 layout_remote_control.setVisibility(View.VISIBLE);
-                tv_set_max.setSelected(mPresenter.isMaxMode());
                 updateOperationViewStatue(mPresenter.getCurStatus());
                 setMapViewVisible(false);
                 break;
@@ -544,15 +516,6 @@ public abstract class BaseMapActivity extends BackBaseActivity<MapX9Presenter> i
      */
     @Override
     public void clearAll(int curStatus) {
-        if (curStatus != MsgCodeUtils.STATUE_VIRTUAL_EDIT) {
-//            mMapView.setMAP_MODE(MapView.MODE_NONE);
-//            mMapView.undoAllOperation();
-            hideVirtualEdit();
-        }
-        if (curStatus != MsgCodeUtils.STATUE_RECHARGE) {
-            tv_bottom_recharge.setSelected(false);
-            layout_recharge.setVisibility(View.GONE);
-        }
     }
 
 
@@ -586,10 +549,9 @@ public abstract class BaseMapActivity extends BackBaseActivity<MapX9Presenter> i
 
     }
 
-    @OnClick({R.id.image_center, R.id.ll_map_start, R.id.tv_control_x9, R.id.fl_top_menu, R.id.tv_recharge_x9, R.id.tv_along_x9,
-            R.id.tv_point_x9, R.id.tv_close_virtual_x9, R.id.ib_virtual_wall_tip
-            , R.id.tv_add_virtual_x9, R.id.tv_delete_virtual_x9, R.id.iv_control_close_x9, R.id.tv_bottom_recharge
-            , R.id.tv_set_max, R.id.iv_operation_help
+    @OnClick({R.id.image_center, R.id.ll_map_start, R.id.tv_control_x9, R.id.fl_top_menu, R.id.tv_along_x9,
+            R.id.tv_point_x9, R.id.iv_control_close_x9, R.id.tv_bottom_recharge
+            , R.id.iv_operation_help
     })
     public void onViewClick(View v) {
         switch (v.getId()) {
@@ -636,9 +598,6 @@ public abstract class BaseMapActivity extends BackBaseActivity<MapX9Presenter> i
                     showRemoteView();
                 }
                 break;
-            case R.id.ib_virtual_wall_tip://显示电子墙提示
-                showVirtualWallTip();
-                break;
             case R.id.iv_control_close_x9://退出二级操作界面
                 USE_MODE = USE_MODE_NORMAL;
                 if (mPresenter.getCurStatus() == MsgCodeUtils.STATUE_WAIT || mPresenter.getCurStatus() == MsgCodeUtils.STATUE_PAUSE) {
@@ -651,9 +610,6 @@ public abstract class BaseMapActivity extends BackBaseActivity<MapX9Presenter> i
                 Intent i = new Intent(this, SettingActivity.class);
                 startActivity(i);
                 break;
-            case R.id.tv_recharge_x9://回冲
-                mPresenter.enterRechargeMode();
-                break;
             case R.id.tv_along_x9:  //done
                 if (mPresenter.isLowPowerWorker()) {
                     ToastUtils.showToast(getString(R.string.low_power));
@@ -665,61 +621,6 @@ public abstract class BaseMapActivity extends BackBaseActivity<MapX9Presenter> i
                     ToastUtils.showToast(getString(R.string.low_power));
                 }
                 mPresenter.enterPointMode();
-
-                break;
-            case R.id.tv_set_max://预约
-                mPresenter.reverseMaxMode();
-                break;
-            case R.id.tv_add_virtual_x9://增加电子墙模式
-                if (mMapView.isInMode(MapView.MODE_ADD_VIRTUAL)) {
-                    tv_add_virtual.setSelected(false);
-                    mMapView.setMAP_MODE(MapView.MODE_NONE);
-                } else {
-//                    showAddWallDialog();
-                    tv_add_virtual.setSelected(true);
-                    tv_delete_virtual.setSelected(false);
-                    mMapView.setMAP_MODE(MapView.MODE_ADD_VIRTUAL);
-                }
-                break;
-            case R.id.tv_delete_virtual_x9://删除电子墙模式
-                if (mMapView.isInMode(MapView.MODE_DELETE_VIRTUAL)) {
-                    tv_delete_virtual.setSelected(false);
-                    mMapView.setMAP_MODE(MapView.MODE_NONE);
-                } else {
-//                    showDeleteWallDialog();
-                    tv_delete_virtual.setSelected(true);
-                    tv_add_virtual.setSelected(false);
-                    mMapView.setMAP_MODE(MapView.MODE_DELETE_VIRTUAL);
-                }
-                break;
-            case R.id.tv_close_virtual_x9://弹出退出电子墙的的pop
-                if (exitVirtualWallPop == null) {
-                    CustomPopupWindow.Builder builder = new CustomPopupWindow.Builder(this);
-                    exitVirtualWallPop = builder.enableOutsideTouchableDissmiss(false).setView(R.layout.pop_virtual_wall).
-                            size(getResources().getDimensionPixelOffset(R.dimen.dp_315), 0).setBgDarkAlpha(0.6f).create();
-                    exitVirtualWallPop.addViewOnclick(R.id.tv_cancel_virtual_x9, v1 -> {
-                        mMapView.undoAllOperation();
-                        /**
-                         * 退出电子墙编辑模式，相当于撤销所有操作，电子墙数据没有变化，无需发送数据到设备端
-                         */
-                        mPresenter.sendVirtualWallData(mMapView.getVirtualWallPointfs());
-                        if (exitVirtualWallPop != null && exitVirtualWallPop.isShowing()) {
-                            exitVirtualWallPop.dissmiss();
-                        }
-                    }).addViewOnclick(R.id.tv_ensure_virtual_x9, v12 -> {
-                        if (exitVirtualWallPop != null && exitVirtualWallPop.isShowing()) {
-                            exitVirtualWallPop.dissmiss();
-                        }
-                        mPresenter.sendVirtualWallData(mMapView.getVirtualWallPointfs());
-                    }).addViewOnclick(R.id.cancel_virtual_pop, v13 -> {
-                        if (exitVirtualWallPop != null && exitVirtualWallPop.isShowing()) {
-                            exitVirtualWallPop.dissmiss();
-                        }
-                    });
-                }
-                if (!exitVirtualWallPop.isShowing()) {
-                    exitVirtualWallPop.showAtLocation(findViewById(R.id.fl_map), Gravity.BOTTOM, 0, (int) getResources().getDimension(R.dimen.dp_10));
-                }
                 break;
             case R.id.iv_operation_help://操作提示弹框
                 onOperationHelpClick();
@@ -813,19 +714,14 @@ public abstract class BaseMapActivity extends BackBaseActivity<MapX9Presenter> i
 
     @Override
     public void updateMaxButton(boolean isMaXMode) {
-        if (layout_remote_control.getVisibility() == View.VISIBLE) {
-            tv_set_max.setSelected(isMaXMode);
-        }
     }
 
     @Override
     public void updateAlong(boolean isAlong) {
-        layout_remote_control.setVisibility(View.GONE);
     }
 
     @Override
     public void updatePoint(boolean isPoint) {
-        layout_remote_control.setVisibility(View.GONE);
     }
 
 
@@ -836,20 +732,11 @@ public abstract class BaseMapActivity extends BackBaseActivity<MapX9Presenter> i
 
     @Override
     public void showVirtualEdit() {
-//        startActivity(new Intent(BaseMapActivity.this, VirtualWallActivity.class));
     }
 
     @Override
     public void hideVirtualEdit() {
-        fl_virtual_wall.setVisibility(View.GONE);
-        tv_add_virtual.setSelected(false);
-        tv_delete_virtual.setSelected(false);
-        if (virtualWallTipDialog != null && virtualWallTipDialog.isAdded()) {
-            virtualWallTipDialog.dismiss();
-        }
-        if (exitVirtualWallPop != null && exitVirtualWallPop.isShowing()) {
-            exitVirtualWallPop.dissmiss();
-        }
+
     }
 
 
@@ -857,10 +744,7 @@ public abstract class BaseMapActivity extends BackBaseActivity<MapX9Presenter> i
     public void updateOperationViewStatue(int surStatues) {
         tv_point.setSelected(surStatues == MsgCodeUtils.STATUE_POINT || surStatues == MsgCodeUtils.STATUE_TEMPORARY_POINT);
         tv_along.setSelected(surStatues == MsgCodeUtils.STATUE_ALONG);
-        tv_recharge_x9.setSelected(surStatues == MsgCodeUtils.STATUE_RECHARGE);
-        layout_along.setVisibility(surStatues == MsgCodeUtils.STATUE_ALONG ? View.VISIBLE : View.GONE);
-        layout_point.setVisibility(surStatues == MsgCodeUtils.STATUE_POINT || surStatues == MsgCodeUtils.STATUE_TEMPORARY_POINT ? View.VISIBLE : View.GONE);
-
+        tv_bottom_recharge.setSelected(surStatues == MsgCodeUtils.STATUE_RECHARGE);
     }
 
     @Override

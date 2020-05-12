@@ -22,12 +22,6 @@ public class MapActivity_X8_ extends BaseMapActivity {
     @Override
     public void initView() {
         super.initView();
-        iv_recharge_stand.setImageResource(UiUtil.getDrawable(mPresenter.getRobotBean().getRechargeStand()));
-        int robotPic= UiUtil.getDrawable(mPresenter.getRobotBean().getFaceImg());
-        iv_recharge_model.setImageResource(robotPic);
-        iv_point_robot.setImageResource(robotPic);
-        iv_along_robot.setImageResource(robotPic);
-        tv_recharge_x9.setVisibility(View.GONE);
     }
 
     @Override
@@ -56,13 +50,9 @@ public class MapActivity_X8_ extends BaseMapActivity {
 
     @Override
     public void updateRecharge(boolean isRecharge) {
-        if (layout_recharge.getVisibility() == View.VISIBLE && isRecharge) {//避免重复刷新UI导致异常
-            return;
-        }
         layout_remote_control.setVisibility(View.GONE);
         tv_bottom_recharge.setSelected(isRecharge);
         tv_bottom_recharge.setSelected(isRecharge);
-        layout_recharge.setVisibility(View.VISIBLE);
     }
 
 }

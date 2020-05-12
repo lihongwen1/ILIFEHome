@@ -23,7 +23,6 @@ public class MapActivity_X9_ extends BaseMapActivity {
     @Override
     public void initView() {
         super.initView();
-        iv_recharge_model.setImageResource( UiUtil.getDrawable(mPresenter.getRobotBean().getFaceImg()));
     }
 
     @Override
@@ -72,13 +71,7 @@ public class MapActivity_X9_ extends BaseMapActivity {
 
     @Override
     public void updateRecharge(boolean isRecharge) {
-        if (layout_recharge.getVisibility() == View.VISIBLE && isRecharge) {//避免重复刷新UI导致异常
-            return;
-        }
         layout_remote_control.setVisibility(View.GONE);
         tv_bottom_recharge.setSelected(isRecharge);
-        if (USE_MODE == USE_MODE_REMOTE_CONTROL) {
-            layout_recharge.setVisibility(View.VISIBLE);
-        }
     }
 }

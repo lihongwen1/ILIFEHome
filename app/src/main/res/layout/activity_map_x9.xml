@@ -122,29 +122,29 @@
                 android:layout_height="match_parent"
                 android:visibility="gone" />
             <!--              回冲布局，延伸到底部-->
-            <include
-                android:id="@+id/layout_recharge"
-                layout="@layout/layout_recharge_x900"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:visibility="gone" />
+            <!--            <include-->
+            <!--                android:id="@+id/layout_recharge"-->
+            <!--                layout="@layout/layout_recharge_x900"-->
+            <!--                android:layout_width="match_parent"-->
+            <!--                android:layout_height="match_parent"-->
+            <!--                android:visibility="gone" />-->
 
-            <!--            重点布局-->
+            <!--            &lt;!&ndash;            重点布局&ndash;&gt;-->
 
-            <include
-                android:id="@+id/layout_point"
-                layout="@layout/layout_point"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:visibility="gone" />
+            <!--            <include-->
+            <!--                android:id="@+id/layout_point"-->
+            <!--                layout="@layout/layout_point"-->
+            <!--                android:layout_width="match_parent"-->
+            <!--                android:layout_height="match_parent"-->
+            <!--                android:visibility="gone" />-->
 
-            <!--            延边布局-->
-            <include
-                android:id="@+id/layout_along"
-                layout="@layout/layout_along"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:visibility="gone" />
+            <!--            &lt;!&ndash;            延边布局&ndash;&gt;-->
+            <!--            <include-->
+            <!--                android:id="@+id/layout_along"-->
+            <!--                layout="@layout/layout_along"-->
+            <!--                android:layout_width="match_parent"-->
+            <!--                android:layout_height="match_parent"-->
+            <!--                android:visibility="gone" />-->
 
             <!--            机器状态提示文字-->
             <TextView
@@ -194,19 +194,6 @@
                             android:text="@string/map_aty_point"
 
                             />
-
-                        <TextView
-                            android:id="@+id/tv_set_max"
-                            style="@style/map_text_button"
-                            android:drawableTop="@drawable/selector_btn_max"
-                            android:text="MAX"
-                            android:visibility="gone" />
-
-                        <TextView
-                            android:id="@+id/tv_recharge_x9"
-                            style="@style/map_text_button"
-                            android:drawableTop="@drawable/selector_recharge"
-                            android:text="@string/map_aty_recharge" />
                     </LinearLayout>
 
                     <ImageView
@@ -217,60 +204,6 @@
                         android:layout_marginTop="@dimen/dp_8"
                         android:layout_marginEnd="@dimen/dp_8"
                         android:src="@drawable/opration_button_back" />
-                </FrameLayout>
-                <!--电子墙-->
-                <FrameLayout
-                    android:id="@+id/fl_virtual_wall"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:background="@drawable/bg_shape_top_radius"
-                    android:paddingBottom="@dimen/dp_24"
-                    android:visibility="gone">
-
-                    <ImageButton
-                        android:id="@+id/ib_virtual_wall_tip"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="@dimen/dp_16"
-                        android:layout_marginTop="@dimen/dp_16"
-                        android:background="@drawable/virtual_wall_tip" />
-
-                    <TextView
-                        android:id="@+id/tv_close_virtual_x9"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="end"
-                        android:layout_marginTop="@dimen/dp_16"
-                        android:layout_marginEnd="@dimen/dp_16"
-                        android:textColor="@color/color_theme"
-                        android:textSize="16sp" />
-
-                    <TextView
-                        android:id="@+id/tv_add_virtual_x9"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="@dimen/dp_100"
-                        android:layout_marginTop="@dimen/dp_20"
-                        android:drawableTop="@drawable/n_image_add"
-                        android:drawablePadding="@dimen/dp_8"
-                        android:gravity="center"
-                        android:text="@string/add_virtual_wall"
-                        android:textColor="#ff333333"
-                        android:textSize="16sp" />
-
-                    <TextView
-                        android:id="@+id/tv_delete_virtual_x9"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="end"
-                        android:layout_marginTop="@dimen/dp_20"
-                        android:layout_marginEnd="@dimen/dp_100"
-                        android:drawableTop="@drawable/n_image_delete"
-                        android:drawablePadding="@dimen/dp_8"
-                        android:gravity="center"
-                        android:text="@string/delete"
-                        android:textColor="#ff333333"
-                        android:textSize="16sp" />
                 </FrameLayout>
             </FrameLayout>
 

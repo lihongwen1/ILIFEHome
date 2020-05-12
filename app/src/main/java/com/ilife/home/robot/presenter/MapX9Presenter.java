@@ -339,7 +339,10 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
                         }
                         queryVirtualWall();
                     } else {//x800系列
-                        if (curStatus == MsgCodeUtils.STATUE_CLEAN_ROOM || curStatus == MsgCodeUtils.STATUE_CLEAN_AREA || curStatus == MsgCodeUtils.STATUE_PLANNING || curStatus == MsgCodeUtils.STATUE_PAUSE) {
+                        if (curStatus == MsgCodeUtils.STATUE_CLEAN_ROOM || curStatus == MsgCodeUtils.STATUE_CLEAN_AREA || curStatus == MsgCodeUtils.STATUE_PLANNING
+                                || curStatus == MsgCodeUtils.STATUE_PAUSE||curStatus==MsgCodeUtils.STATUE_RECHARGE||
+                                curStatus==MsgCodeUtils.STATUE_ALONG||curStatus==MsgCodeUtils.STATUE_TEMPORARY_POINT||
+                        curStatus==MsgCodeUtils.STATUE_POINT) {
                             if (!isGetHistory && havMapData) {
                                 getHistoryDataX8();
                             }
@@ -395,16 +398,6 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
         return rBean.isIsSupportPause();
     }
 
-    private void refreshMap() {
-        if (slamBytes != null && realTimePoints != null && historyRoadList != null) {
-            if (isX900Series()) {
-                mView.drawMapX9(realTimePoints, historyRoadList, slamBytes);
-            } else {
-                mView.drawMapX8(pointList, slamPointList);
-            }
-        }
-    }
-
     @Override
     public void refreshStatus() {
         setStatus(curStatus, batteryNo);
@@ -421,11 +414,11 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
         if (batteryNo != -1) {//set battery icon
             mView.setBatteryImage(curStatus, batteryNo);
         }
-        if (curStatus == MsgCodeUtils.STATUE_RANDOM || curStatus == MsgCodeUtils.STATUE_PLANNING || curStatus == MsgCodeUtils.STATUE_CHARGING_ || curStatus == MsgCodeUtils.STATUE_CHARGING || (curStatus == MsgCodeUtils.STATUE_RECHARGE && !isX900Series())) {
+        if (curStatus == MsgCodeUtils.STATUE_RANDOM || curStatus == MsgCodeUtils.STATUE_PLANNING || curStatus == MsgCodeUtils.STATUE_CHARGING_ || curStatus == MsgCodeUtils.STATUE_CHARGING ||
+                curStatus == MsgCodeUtils.STATUE_POINT || curStatus == MsgCodeUtils.STATUE_ALONG||curStatus==MsgCodeUtils.STATUE_TEMPORARY_POINT) {
             mView.setCurrentBottom(BaseMapActivity.USE_MODE_NORMAL);//进入一级控制界面
         }
-        if (curStatus == MsgCodeUtils.STATUE_REMOTE_CONTROL || curStatus == MsgCodeUtils.STATUE_POINT
-                || curStatus == MsgCodeUtils.STATUE_ALONG) {//进入二级控制界面
+        if (curStatus == MsgCodeUtils.STATUE_REMOTE_CONTROL) {//进入二级控制界面
             mView.setCurrentBottom(BaseMapActivity.USE_MODE_REMOTE_CONTROL);
         }
         mView.clearAll(curStatus);//清空所有不常显示布局，以便根据status更新显示布局
@@ -434,13 +427,6 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
         mView.updateStartStatue(isWork, isWork ? Utils.getString(R.string.map_aty_stop) : Utils.getString(R.string.map_aty_start));
         mView.updateOperationViewStatue(curStatus);
         mView.showBottomView();
-//        if (haveMap && isViewAttached() && isDrawMap()) {
-//            mView.setMapViewVisible(true);
-//            refreshMap();
-//        } else {
-//            mView.cleanMapView();
-//            mView.setMapViewVisible(false);
-//        }
         if (curStatus != MsgCodeUtils.STATUE_CLEAN_AREA && curStatus != MsgCodeUtils.STATUE_CLEAN_ROOM && curStatus != MsgCodeUtils.STATUE_PAUSE) {//非划区，选房清扫清除数据
             mView.updateCleanTimes(false, 0, 0);
             mView.drawCleanArea("");
@@ -536,7 +522,7 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
 
     private String getAreaValue() {
         if (curStatus == MsgCodeUtils.STATUE_WAIT || curStatus == MsgCodeUtils.STATUE_CHARGING || curStatus == MsgCodeUtils.STATUE_SLEEPING || curStatus == MsgCodeUtils.STATUE_CHARGING_ADAPTER_SLEEP ||
-                curStatus == MsgCodeUtils.STATUE_CHARGING_BASE_SLEEP || curStatus == MsgCodeUtils.STATUE_RECHARGE || !havMapData || (!isDrawMap() && curStatus != MsgCodeUtils.STATUE_RANDOM && curStatus != MsgCodeUtils.STATUE_TEMPORARY_POINT)) {
+                curStatus == MsgCodeUtils.STATUE_CHARGING_BASE_SLEEP || !havMapData || (!isDrawMap() && curStatus != MsgCodeUtils.STATUE_RANDOM && curStatus != MsgCodeUtils.STATUE_TEMPORARY_POINT)) {
             return "——";
         } else {
             return DataUtils.formateArea(cleanArea / 100.0f);
@@ -546,7 +532,7 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
     private String getTimeValue() {
         int min = (int) (workTime / 60f);
         if (curStatus == MsgCodeUtils.STATUE_WAIT || curStatus == MsgCodeUtils.STATUE_CHARGING || curStatus == MsgCodeUtils.STATUE_SLEEPING || curStatus == MsgCodeUtils.STATUE_CHARGING_ADAPTER_SLEEP ||
-                curStatus == MsgCodeUtils.STATUE_CHARGING_BASE_SLEEP || curStatus == MsgCodeUtils.STATUE_RECHARGE || !havMapData || (!isDrawMap() && curStatus != MsgCodeUtils.STATUE_RANDOM && curStatus != MsgCodeUtils.STATUE_TEMPORARY_POINT)) {
+                curStatus == MsgCodeUtils.STATUE_CHARGING_BASE_SLEEP || !havMapData || (!isDrawMap() && curStatus != MsgCodeUtils.STATUE_RANDOM && curStatus != MsgCodeUtils.STATUE_TEMPORARY_POINT)) {
             return "——";
         } else {
             return min + "min";
@@ -643,7 +629,7 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
         });
         LiveEventBus.get(EnvConfigure.KEY_SELECT_MAP_ID, Integer.class).observe((BaseActivity) mView, selectMapId -> {
             MyLogger.d(TAG, "选择地图改变");
-            if (mDevicePropertyBean!=null){
+            if (mDevicePropertyBean != null) {
                 mDevicePropertyBean.setSelectedMapId(selectMapId);
             }
 
@@ -651,7 +637,7 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
 
         LiveEventBus.get(EnvConfigure.ChargerPiont, String.class).observe((BaseActivity) mView, chargingPort -> {
             if (!TextUtils.isEmpty(chargingPort) && isViewAttached() && isDrawMap()) {
-                MyLogger.d(TAG,"充电座位置改变");
+                MyLogger.d(TAG, "充电座位置改变");
                 JSONObject jsonObject = JSONObject.parseObject(chargingPort);
                 boolean isDisplay = jsonObject.getIntValue("DisplaySwitch") == 1;
                 int xy = jsonObject.getIntValue("Piont");
@@ -672,7 +658,7 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
                 slamPointList.clear();
                 mView.drawVirtualWall("");
                 mView.drawForbiddenArea("");
-                mView.drawChargePort(0, 0,false);
+                mView.drawChargePort(0, 0, false);
                 mView.drawMapX8(pointList, slamPointList);
             } else {
                 IlifeAli.getInstance().getProperties(new OnAliResponse<PropertyBean>() {
@@ -945,7 +931,6 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
                 , minX, minY, maxX, maxY);
         return dataBean;
     }
-
 
 
     @Override
