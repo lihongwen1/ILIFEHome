@@ -236,4 +236,14 @@ public class AliSkills {
         return params;
     }
 
+    public HashMap<String, Object> roomDataInfo(String iotId, String key, String roomData) {
+        params.clear();
+        HashMap<String, String> roomDataMap = new HashMap<>();
+        roomDataMap.put(key, roomData);
+        params.put(EnvConfigure.KEY_PATH, key);
+        params.put(EnvConfigure.KEY_IOT_ID, iotId);
+        params.put(EnvConfigure.KEY_ITEMS, roomDataMap);
+        params.put(EnvConfigure.KEY_TAG, "-1");
+        return params;
+    }
 }

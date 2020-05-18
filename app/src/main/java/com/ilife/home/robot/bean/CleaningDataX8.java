@@ -57,6 +57,10 @@ public class CleaningDataX8 {
         if (coordinates == null) {
             coordinates = new ArrayList<>();
         }
-        coordinates.add(coordinate);
+        if (coordinate.getType() == 1) {//矫正门点为已清扫和障碍物
+            coordinates.remove(coordinate);
+        } else {
+            coordinates.add(coordinate);
+        }
     }
 }

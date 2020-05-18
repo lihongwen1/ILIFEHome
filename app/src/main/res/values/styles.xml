@@ -127,6 +127,14 @@
         <item name="android:includeFontPadding">false</item>
         <item name="android:lineSpacingExtra">@dimen/dp_4</item>
     </style>
+    <style name="Text_12sp_ff">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textColor">@color/color_ff</item>
+        <item name="android:textSize">@dimen/sp_12</item>
+        <item name="android:includeFontPadding">false</item>
+        <item name="android:lineSpacingExtra">@dimen/dp_4</item>
+    </style>
 
     <style name="Text_18sp_33">
         <item name="android:layout_width">wrap_content</item>
@@ -230,6 +238,15 @@
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:textColor">@color/color_33</item>
+        <item name="android:textSize">@dimen/sp_16</item>
+        <item name="android:layout_centerVertical">true</item>
+        <item name="android:includeFontPadding">false</item>
+        <item name="android:paddingBottom">@dimen/dp_2</item>
+    </style>
+    <style name="Text_16sp_66">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textColor">@color/color_666666</item>
         <item name="android:textSize">@dimen/sp_16</item>
         <item name="android:layout_centerVertical">true</item>
         <item name="android:includeFontPadding">false</item>

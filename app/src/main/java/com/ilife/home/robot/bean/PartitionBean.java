@@ -15,6 +15,7 @@ public class PartitionBean implements Comparable<PartitionBean>{
     private Region region;
     private RectF tagIcon;
     private List<Coordinate> wallCoordinates;
+    private boolean isTagDefault;
     public PartitionBean(int partitionId, int x, int y) {
         this.partitionId = partitionId;
         this.x = x;
@@ -76,6 +77,14 @@ public class PartitionBean implements Comparable<PartitionBean>{
 
     public void setWallCoordinates(List<Coordinate> wallCoordinates) {
         this.wallCoordinates = wallCoordinates;
+    }
+
+    public boolean isTagDefault() {
+        return isTagDefault;
+    }
+
+    public void setTagDefault(boolean tagDefault) {
+        isTagDefault = tagDefault;
     }
 
     @Override

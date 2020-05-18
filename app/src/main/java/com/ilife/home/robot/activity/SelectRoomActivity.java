@@ -16,12 +16,16 @@ import com.aliyun.iot.aep.sdk.contant.IlifeAli;
 import com.ilife.home.robot.R;
 import com.ilife.home.robot.base.BackBaseActivity;
 import com.ilife.home.robot.bean.MapDataBean;
+import com.ilife.home.robot.bean.PartitionBean;
+import com.ilife.home.robot.bean.SaveMapDataInfoBean;
 import com.ilife.home.robot.utils.DataUtils;
 import com.ilife.home.robot.utils.MyLogger;
+import com.ilife.home.robot.utils.SpUtils;
 import com.ilife.home.robot.utils.ToastUtils;
 import com.ilife.home.robot.utils.UiUtil;
 import com.ilife.home.robot.view.MapView;
 
+import java.util.HashMap;
 import java.util.List;
 
 import butterknife.BindView;
@@ -50,6 +54,7 @@ public class SelectRoomActivity extends BackBaseActivity {
     @BindView(R.id.iv_clean_room_time)
     ImageView iv_clean_room_time;
     private int times = 1;//清扫次数
+    private HashMap<String, String> roomNames = new HashMap<>();
 
     @Override
     public int getLayoutId() {
@@ -63,14 +68,14 @@ public class SelectRoomActivity extends BackBaseActivity {
         iv_finish.setImageResource(R.drawable.nav_button_finish);
         fl_top_menu.setVisibility(View.VISIBLE);
         rg_select_room.setOnCheckedChangeListener((group, checkedId) -> {
-          switch (checkedId){
-              case R.id.tv_move_map:
-                  map_room.setmOT(MapView.OT.MAP);
-                  break;
-              case R.id.tv_select_room:
-                  map_room.setmOT(MapView.OT.SELECT_ROOM);
-                  break;
-          }
+            switch (checkedId) {
+                case R.id.tv_move_map:
+                    map_room.setmOT(MapView.OT.MAP);
+                    break;
+                case R.id.tv_select_room:
+                    map_room.setmOT(MapView.OT.SELECT_ROOM);
+                    break;
+            }
         });
         rg_select_room.check(R.id.tv_move_map);
     }
@@ -80,37 +85,47 @@ public class SelectRoomActivity extends BackBaseActivity {
         super.initData();
         IlifeAli.getInstance().getProperties(new OnAliResponse<PropertyBean>() {
             @Override
-            public void onSuccess(PropertyBean result) {
-                long selectId = result.getSelectedMapId();
-                String roomData = result.getPartition();
-                String charging_port = result.getChargePort();
-                IlifeAli.getInstance().getSelectMap(selectId, new OnAliResponse<List<HistoryRecordBean>>() {
+            public void onSuccess(PropertyBean bean) {
+                long mapId = bean.getSelectedMapId();
+                String saveMapDataKey = "";
+                if (mapId == bean.getSaveMapDataMapId1()) {
+                    saveMapDataKey = EnvConfigure.KEY_SAVE_MAP_DATA_1;
+                } else if (mapId == bean.getSaveMapDataMapId2()) {
+                    saveMapDataKey = EnvConfigure.KEY_SAVE_MAP_DATA_2;
+                } else if (mapId == bean.getSaveMapDataMapId3()) {
+                    saveMapDataKey = EnvConfigure.KEY_SAVE_MAP_DATA_3;
+                }
+                DataUtils.parseRoomInfo(String.valueOf(mapId), SpUtils.getSpString(SelectRoomActivity.this, "ROOM_NAME"), roomNames);
+                boolean isParseRoom = DataUtils.parseRoomInfo(String.valueOf(mapId), bean.getMapRoomInfo1(), roomNames);
+                if (!isParseRoom) {
+                    isParseRoom = DataUtils.parseRoomInfo(String.valueOf(mapId), bean.getMapRoomInfo2(), roomNames);
+                }
+                if (!isParseRoom) {
+                    DataUtils.parseRoomInfo(String.valueOf(mapId), bean.getMapRoomInfo3(), roomNames);
+                }
+
+                IlifeAli.getInstance().getSaveMapData(mapId, saveMapDataKey, new OnAliResponse<String[]>() {
                     @Override
-                    public void onSuccess(List<HistoryRecordBean> result) {
-                        if (result.size() == 0) {//应该只有一条数据
+                    public void onSuccess(String[] result) {
+                        if (result.length == 0) {//应该只有一条数据
                             return;
                         }
-                        MapDataBean mapDataBean = DataUtils.parseSaveMapData(result.get(0).getMapDataArray());
+                        MapDataBean mapDataBean = DataUtils.parseSaveMapData(result);
                         if (mapDataBean != null) {
                             map_room.setLeftTopCoordinate(mapDataBean.getLeftX(), mapDataBean.getLeftY());
                             map_room.updateSlam(mapDataBean.getMinX(), mapDataBean.getMaxX(), mapDataBean.getMinY(), mapDataBean.getMaxY());
                             map_room.drawMapX8(mapDataBean.getCoordinates());
                         }
-                        map_room.drawRoomTag(roomData);
-                        /**
-                         * 处理充电座
-                         */
-                        if (!TextUtils.isEmpty(charging_port)) {
-                            JSONObject jsonObject = JSONObject.parseObject(charging_port);
-                            boolean isDisplay = jsonObject.getIntValue("DisplaySwitch") == 1;
-                            if (isDisplay) {
-                                int xy = jsonObject.getIntValue("Piont");
-                                byte[] bytes = DataUtils.intToBytes4(xy);
-                                int x = DataUtils.bytesToInt(new byte[]{bytes[0], bytes[1]}, 0);
-                                int y = -DataUtils.bytesToInt(new byte[]{bytes[2], bytes[3]}, 0);
-                                map_room.drawChargePort(x, y,true);
-                            }
+                        String saveMapDataInfoKey = "";
+                        if (mapId == bean.getSaveMapDataInfoMapId1()) {
+                            saveMapDataInfoKey = EnvConfigure.KEY_SAVE_MAP_DATA_INFO1;
+                        } else if (mapId == bean.getSaveMapDataInfoMapId2()) {
+                            saveMapDataInfoKey = EnvConfigure.KEY_SAVE_MAP_DATA_INFO2;
+                        } else if (mapId == bean.getSaveMapDataInfoMapId3()) {
+                            saveMapDataInfoKey = EnvConfigure.KEY_SAVE_MAP_DATA_INFO3;
                         }
+                        fetchSaveMapDataInfo(saveMapDataInfoKey, (int) mapId);
+
                     }
 
                     @Override
@@ -127,6 +142,35 @@ public class SelectRoomActivity extends BackBaseActivity {
         });
     }
 
+
+    private void fetchSaveMapDataInfo(String saveMapDataInfoKey, int mapId) {
+        if (!TextUtils.isEmpty(saveMapDataInfoKey)) {
+            IlifeAli.getInstance().getSaveMapDataInfo(mapId, saveMapDataInfoKey, new OnAliResponse<String[]>() {
+                @Override
+                public void onSuccess(String[] result) {
+                    if (result != null && result.length > 0) {
+                        SaveMapDataInfoBean saveMapDataInfoBean = DataUtils.parseSaveMapInfo(result);
+                        for (PartitionBean room : saveMapDataInfoBean.getRooms()) {//绑定设置的用户名
+                            String roomName = roomNames.get(String.valueOf(room.getPartitionId()));
+                            if (roomName == null) {
+                                roomName = "";
+                            }
+                            room.setTag(roomName);
+                        }
+                        map_room.drawChargePort(saveMapDataInfoBean.getChargePoint().x, saveMapDataInfoBean.getChargePoint().y, true);
+                        map_room.getmGateHelper().drawGate(saveMapDataInfoBean.getGates());
+                        map_room.getmRoomHelper().drawRoom(saveMapDataInfoBean.getRooms());
+                        map_room.invalidateUI();
+                    }
+                }
+
+                @Override
+                public void onFailed(int code, String message) {
+
+                }
+            });
+        }
+    }
 
     @OnClick({R.id.fl_top_menu, R.id.iv_clean_room_time})
     public void onClick(View view) {

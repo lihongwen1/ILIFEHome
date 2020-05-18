@@ -104,4 +104,18 @@
         <item>A5</item>
         <item>A6</item>
     </string-array>
+    <string-array name="default_room_name">
+        <item>@string/room_name_living_room</item>
+        <item>@string/room_name_restaurant</item>
+        <item>@string/room_name_bed_room</item>
+        <item>@string/room_name_kitchen</item>
+        <item>@string/room_name_bath_room</item>
+        <item>@string/room_name_book_room</item>
+        <item>@string/room_name_laundary_room</item>
+        <item>@string/room_name_rest_room</item>
+        <item>@string/room_name_play_room</item>
+        <item>@string/room_name_child_room</item>
+        <item>@string/room_name_store_room</item>
+        <item>@string/room_name_other</item>
+    </string-array>
 </resources>

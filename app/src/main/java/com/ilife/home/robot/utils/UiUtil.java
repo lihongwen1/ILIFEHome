@@ -2,6 +2,7 @@ package com.ilife.home.robot.utils;
 
 import android.graphics.Color;
 
+import com.ilife.home.robot.R;
 import com.ilife.home.robot.app.MyApplication;
 
 public class UiUtil {
@@ -32,5 +33,4 @@ public class UiUtil {
     public static String[] getStringArray(int arrayId) {
         return MyApplication.getInstance().getResources().getStringArray(arrayId);
     }
-
 }

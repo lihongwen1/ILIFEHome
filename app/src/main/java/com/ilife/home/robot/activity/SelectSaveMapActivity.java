@@ -15,17 +15,23 @@ import com.aliyun.iot.aep.sdk.bean.PropertyBean;
 import com.aliyun.iot.aep.sdk.contant.EnvConfigure;
 import com.aliyun.iot.aep.sdk.contant.IlifeAli;
 import com.badoo.mobile.util.WeakHandler;
+import com.ilife.home.livebus.LiveEventBus;
 import com.ilife.home.robot.R;
 import com.ilife.home.robot.adapter.SelectMapAdapter;
 import com.ilife.home.robot.base.BackBaseActivity;
 import com.ilife.home.robot.base.BaseQuickAdapter;
+import com.ilife.home.robot.bean.PartitionBean;
 import com.ilife.home.robot.bean.SaveMapBean;
+import com.ilife.home.robot.bean.SaveMapDataInfoBean;
 import com.ilife.home.robot.fragment.UniversalDialog;
+import com.ilife.home.robot.utils.DataUtils;
 import com.ilife.home.robot.utils.MyLogger;
 import com.ilife.home.robot.utils.UiUtil;
 import com.ilife.home.robot.utils.Utils;
 import com.ilife.home.robot.view.SlideRecyclerView;
 import com.ilife.home.robot.view.SpaceItemDecoration;
+import com.scwang.smartrefresh.layout.SmartRefreshLayout;
+import com.scwang.smartrefresh.layout.header.ClassicsHeader;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -45,12 +51,16 @@ public class SelectSaveMapActivity extends BackBaseActivity {
     LinearLayout ll_no_map;
     @BindView(R.id.tv_top_title)
     TextView tv_title;
+    @BindView(R.id.refresh_map)
+    SmartRefreshLayout refresh_map;
     private SelectMapAdapter mAdapter;
     private long selectMapId;
     private UniversalDialog mDeleteMapDialog;
     private UniversalDialog mApplyMapDialog;
     private List<SaveMapBean> saveMapBeans = new ArrayList<>();
     private int selectPosition;
+    private boolean needCorrectMap;//是否需要校正服主机保存的地图数据
+    private List<Integer> mapIds = new ArrayList<>();
 
     @Override
     public int getLayoutId() {
@@ -77,24 +87,52 @@ public class SelectSaveMapActivity extends BackBaseActivity {
                     onDeleteMap();
                     rv_save_map.closeMenu();
                     break;
+                case R.id.tv_edit_this_map:
+                    Intent intent = new Intent(SelectSaveMapActivity.this, SegmentationRoomActivity.class);
+                    int chooseMapId = saveMapBeans.get(position).getMapId();
+                    intent.putExtra(SegmentationRoomActivity.KEY_MAP_ID, saveMapBeans.get(position).getMapId());
+                    int chooseMapIdIndex = 0;
+                    for (int i = 0; i < mapIds.size(); i++) {
+                        if (chooseMapId == mapIds.get(i)) {
+                            chooseMapIdIndex = i;
+                            break;
+                        }
+                    }
+                    intent.putExtra(SegmentationRoomActivity.KEY_MAP_ID_INDEX, chooseMapIdIndex);
+                    LiveEventBus.get(SegmentationRoomActivity.KEY_SAVE_MAP_DATA,SaveMapBean.class).post(saveMapBeans.get(selectPosition));
+                    startActivity(intent);
+                    break;
             }
         });
-        mAdapter.setOnItemClickListener((adapter, view, position) -> {
-            Intent intent = new Intent(SelectSaveMapActivity.this, SegmentationRoomActivity.class);
-            intent.putExtra(SegmentationRoomActivity.KEY_MAP_ID, (int) saveMapBeans.get(position).getMapId());
-            startActivity(intent);
-        });
         rv_save_map.setAdapter(mAdapter);
+        refresh_map.setRefreshHeader(new ClassicsHeader(this));
+        refresh_map.setOnRefreshListener(refreshLayout -> getSaveMapData(false));
     }
 
     @Override
     public void initData() {
         super.initData();
         weakHandler = new WeakHandler(msg -> {
-            mAdapter.notifyDataSetChanged();
+            if (!isDestroyed()) {
+                refresh_map.finishRefresh();
+                hideLoadingDialog();
+                mAdapter.notifyDataSetChanged();
+            }
             return false;
         });
+    }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        getSaveMapData(true);
+    }
+
+    private void getSaveMapData(boolean isShowLoading) {
+        if (isShowLoading) {
+            showLoadingDialog();
+        }
+        saveMapBeans.clear();
         IlifeAli.getInstance().getProperties(new OnAliResponse<PropertyBean>() {
             @Override
             public void onSuccess(PropertyBean bean) {
@@ -107,7 +145,9 @@ public class SelectSaveMapActivity extends BackBaseActivity {
                 mAdapter.setSelectMapId(selectMapId);
                 String saveMapId = bean.getSaveMapId();
                 if (!TextUtils.isEmpty(saveMapId)) {
-                    for (int mapId : decodeSaveMapId(saveMapId)) {
+                    mapIds = decodeSaveMapId(saveMapId);
+                    for (int i = 0; i < mapIds.size(); i++) {
+                        int mapId = mapIds.get(i);
                         if (mapId == 0) {
                             continue;
                         }
@@ -119,24 +159,30 @@ public class SelectSaveMapActivity extends BackBaseActivity {
                         } else if (mapId == bean.getSaveMapDataMapId3()) {
                             saveMapDataKey = EnvConfigure.KEY_SAVE_MAP_DATA_3;
                         }
-                        IlifeAli.getInstance().getSaveMapData(mapId, saveMapDataKey, new OnAliResponse<String[]>() {
-                            @Override
-                            public void onSuccess(String[] result) {
-                                if (result != null && result.length > 0) {
-                                    if (mapId == selectMapId) {
-                                        saveMapBeans.add(0, new SaveMapBean(result, mapId));
-                                    } else {
-                                        saveMapBeans.add(new SaveMapBean(result, mapId));
+                        if (TextUtils.isEmpty(saveMapDataKey)) {
+                            needCorrectMap = true;
+                            mapIds.set(i, 0);
+                        } else {
+                            IlifeAli.getInstance().getSaveMapData(mapId, saveMapDataKey, new OnAliResponse<String[]>() {
+                                @Override
+                                public void onSuccess(String[] result) {
+                                    String saveMapDataInfoKey = "";
+                                    if (mapId == bean.getSaveMapDataInfoMapId1()) {
+                                        saveMapDataInfoKey = EnvConfigure.KEY_SAVE_MAP_DATA_INFO1;
+                                    } else if (mapId == bean.getSaveMapDataInfoMapId2()) {
+                                        saveMapDataInfoKey = EnvConfigure.KEY_SAVE_MAP_DATA_INFO2;
+                                    } else if (mapId == bean.getSaveMapDataInfoMapId3()) {
+                                        saveMapDataInfoKey = EnvConfigure.KEY_SAVE_MAP_DATA_INFO3;
                                     }
+                                    fetchSaveMapDataInfo(saveMapDataInfoKey, mapId, result);
                                 }
-                                weakHandler.sendEmptyMessageDelayed(1, 200);
-                            }
 
-                            @Override
-                            public void onFailed(int code, String message) {
+                                @Override
+                                public void onFailed(int code, String message) {
 
-                            }
-                        });
+                                }
+                            });
+                        }
                     }
                 }
             }
@@ -147,6 +193,30 @@ public class SelectSaveMapActivity extends BackBaseActivity {
             }
         });
     }
+
+    private void fetchSaveMapDataInfo(String saveMapDataInfoKey, int mapId, String[] saveMapData) {
+        if (!TextUtils.isEmpty(saveMapDataInfoKey)) {
+            IlifeAli.getInstance().getSaveMapDataInfo(mapId, saveMapDataInfoKey, new OnAliResponse<String[]>() {
+                @Override
+                public void onSuccess(String[] saveMapDataInfo) {
+                    if (saveMapDataInfo != null && saveMapDataInfo.length > 0) {
+                        if (mapId == selectMapId) {
+                            saveMapBeans.add(0, new SaveMapBean(saveMapData, saveMapDataInfo, mapId));
+                        } else {
+                            saveMapBeans.add(new SaveMapBean(saveMapData, saveMapDataInfo, mapId));
+                        }
+                    }
+                    weakHandler.sendEmptyMessageDelayed(1, 200);
+                }
+
+                @Override
+                public void onFailed(int code, String message) {
+                    weakHandler.sendEmptyMessageDelayed(1, 200);
+                }
+            });
+        }
+    }
+
 
     /**
      * 解析保存地图ID
@@ -190,10 +260,10 @@ public class SelectSaveMapActivity extends BackBaseActivity {
         if (saveMapBeans == null || saveMapBeans.size() <= 0) {
             return result;
         }
-        byte[] bt = new byte[saveMapBeans.size() * 4];
+        byte[] bt = new byte[mapIds.size() * 4];
 
-        for (int i = 0; i < saveMapBeans.size(); i++) {
-            int item = (int) saveMapBeans.get(i).getMapId();
+        for (int i = 0; i < mapIds.size(); i++) {
+            int item = mapIds.get(i);
             bt[i * 4] = (byte) (item >>> 24);
             bt[i * 4 + 1] = (byte) (item >>> 16);
             bt[i * 4 + 2] = (byte) (item >>> 8);
@@ -255,6 +325,17 @@ public class SelectSaveMapActivity extends BackBaseActivity {
 
         if (!mApplyMapDialog.isAdded()) {
             mApplyMapDialog.show(getSupportFragmentManager(), "apply_map");
+        }
+    }
+
+    @Override
+    protected void beforeFinish() {
+        super.beforeFinish();
+        if (needCorrectMap) {
+            IlifeAli.getInstance().setSelectMapId(selectMapId, encodeSaveMap(), aBoolean -> {
+                MyLogger.d(TAG, "同步主机与服务器保存的地图" + aBoolean);
+                weakHandler.sendEmptyMessage(1);
+            });
         }
     }
 }

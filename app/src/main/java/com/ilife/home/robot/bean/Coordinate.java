@@ -45,7 +45,7 @@ public class Coordinate {
         if (!(o instanceof Coordinate)) return false;
         Coordinate that = (Coordinate) o;
         return getX() == that.getX() &&
-                getY() == that.getY()&&getType()==that.getType();
+                getY() == that.getY();
     }
 
     @Override

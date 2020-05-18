@@ -11,17 +11,24 @@
 
     <FrameLayout
 
-        android:layout_marginEnd="@dimen/dp_24"
-        android:layout_marginStart="@dimen/dp_24"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:layout_marginStart="@dimen/dp_24"
+        android:layout_marginEnd="@dimen/dp_24">
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:layout_marginTop="@dimen/dp_12"
-            android:id="@+id/recyclerView"
+        <com.scwang.smartrefresh.layout.SmartRefreshLayout
+            android:id="@+id/refreshLayout"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:visibility="visible" />
+            android:layout_height="match_parent">
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recyclerView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/dp_12"
+                android:visibility="visible" />
+        </com.scwang.smartrefresh.layout.SmartRefreshLayout>
+
 
         <LinearLayout
             android:id="@+id/ll_noRecord"
@@ -32,16 +39,16 @@
             android:visibility="gone">
 
             <ImageView
-                android:layout_marginTop="@dimen/dp_20"
                 android:layout_width="@dimen/dp_200"
                 android:layout_height="@dimen/dp_200"
+                android:layout_marginTop="@dimen/dp_20"
                 android:background="@drawable/pic_cleaning_record" />
 
             <TextView
-                android:layout_marginTop="@dimen/dp_16"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
+                android:layout_marginTop="@dimen/dp_16"
                 android:text="@string/history_aty_no_record"
                 android:textColor="@color/color_666666"
                 android:textSize="@dimen/sp_16"

@@ -3,16 +3,22 @@ package com.ilife.home.robot.utils;
 
 import android.graphics.Point;
 import android.graphics.PointF;
+import android.text.TextUtils;
 import android.util.Base64;
 import android.view.MotionEvent;
 
+import com.aliyun.iot.aep.sdk.contant.EnvConfigure;
 import com.ilife.home.robot.R;
 import com.ilife.home.robot.app.MyApplication;
 import com.ilife.home.robot.bean.Coordinate;
 import com.ilife.home.robot.bean.MapDataBean;
+import com.ilife.home.robot.bean.PartitionBean;
+import com.ilife.home.robot.bean.SaveMapDataInfoBean;
+import com.ilife.home.robot.model.bean.VirtualWallBean;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -253,6 +259,12 @@ public class DataUtils {
         return resultPoint;
     }
 
+    /**
+     * 已保存地图的slam，road，obstacle等数据
+     *
+     * @param mapArray
+     * @return
+     */
     public static MapDataBean parseSaveMapData(String[] mapArray) {
         int minX, minY, maxX, maxY;
         List<Coordinate> pointList = new ArrayList<>();
@@ -286,6 +298,9 @@ public class DataUtils {
                 length = byteList.get(i) & 0xff;
                 for (int j = 0; j < length; j++) {
                     if (type != 0) {
+                        if (type==3){//已保存地图中的门数据忽略掉,改变为已清扫
+                            type=1;
+                        }
                         coordinate = new Coordinate(x + leftX, y - leftY, type);
                         pointList.add(coordinate);
                     }
@@ -327,6 +342,126 @@ public class DataUtils {
             return bean;
         }
         return null;
+    }
+
+    /**
+     * 充电座位置(4bytes)+
+     * 房间数(1byte)+
+     * 房间 1ID(4bytes)+房间 1 坐标(4bytes)+ N
+     * 房间 1 墙的坐标数(2bytes)+房间墙坐标
+     * (4*n bytes)+…+
+     * 门条数(1byte)+
+     * 门 1ID(1byte)+门 1 坐标(8byte)+…+
+     * 虚拟墙条数(1byte)+
+     * 虚拟墙 1 坐标(8byte)+…+
+     * 禁区条数(1byte)+
+     * 禁区 1 类型(1byte)+禁区 1 坐标
+     * (4*4byte)
+     *
+     * @param data
+     */
+    public static SaveMapDataInfoBean parseSaveMapInfo(String[] data) {
+        List<byte[]> bytesList = new ArrayList<>();
+        int bytesNumber = 0;
+        for (int i = 0; i < data.length; i++) {
+            if (data[i] != null) {
+                byte[] bytes = Base64.decode(data[i], Base64.DEFAULT);
+                bytesNumber += bytes.length;
+                bytesList.add(bytes);
+            }
+        }
+        byte[] allBytes = new byte[bytesNumber];
+        int desPos = 0;
+        for (byte[] b : bytesList) {
+            System.arraycopy(b, 0, allBytes, desPos, b.length);
+            desPos += b.length;
+        }
+        int index = 0;
+        int chargeX = DataUtils.bytesToInt(allBytes[index], allBytes[index + 1]);
+        index += 2;
+        int chargeY = DataUtils.bytesToInt(allBytes[index], allBytes[index + 1]);
+        index += 2;
+        int roomNumber = allBytes[index] & 0xff;
+        index++;
+        List<PartitionBean> rooms = new ArrayList<>();
+        PartitionBean room;
+        List<Coordinate> wallCoordinate;
+        for (int i = 0; i < roomNumber; i++) {
+            int roomId = DataUtils.bytesToInt(new byte[]{allBytes[index], allBytes[index + 1], allBytes[index + 2], allBytes[index+3]});
+            index += 4;
+            int roomX = DataUtils.bytesToInt(allBytes[index], allBytes[index + 1]);
+            index += 2;
+            int roomY = -DataUtils.bytesToInt(allBytes[index], allBytes[index + 1]);
+            index += 2;
+            int wallNumber = DataUtils.bytesToInt(allBytes[index], allBytes[index + 1]);
+            index += 2;
+            wallCoordinate = new ArrayList<>();
+            for (int j = 0; j < wallNumber; j++) {
+                int wallX = DataUtils.bytesToInt(allBytes[index], allBytes[index + 1]);
+                index += 2;
+                int wallY = -DataUtils.bytesToInt(allBytes[index], allBytes[index + 1]);
+                index += 2;
+                wallCoordinate.add(new Coordinate(wallX, wallY, 2));
+            }
+            room = new PartitionBean(roomId, roomX, roomY);
+            room.setWallCoordinates(wallCoordinate);
+            rooms.add(room);
+        }
+        int gateNumber = allBytes[index] & 0xff;
+        index++;
+        List<VirtualWallBean> gates = new ArrayList<>();
+        for (int i = 0; i < gateNumber; i++) {
+            int gateId = allBytes[index] & 0xff;
+            index++;
+            int sx = DataUtils.bytesToInt(allBytes[index], allBytes[index + 1]);
+            index += 2;
+            int sy = -DataUtils.bytesToInt(allBytes[index], allBytes[index + 1]);
+            index += 2;
+            int ex = DataUtils.bytesToInt(allBytes[index], allBytes[index + 1]);
+            index += 2;
+            int ey = -DataUtils.bytesToInt(allBytes[index], allBytes[index + 1]);
+            index += 2;
+            gates.add(new VirtualWallBean(gateId, 4, new float[]{sx, sy, ex, ey}, 1));
+        }
+        SaveMapDataInfoBean saveMapDataInfoBean = new SaveMapDataInfoBean();
+        saveMapDataInfoBean.setChargePoint(new Point(chargeX, chargeY));
+        saveMapDataInfoBean.setGates(gates);
+        saveMapDataInfoBean.setRooms(rooms);
+        return saveMapDataInfoBean;
+    }
+
+    /**
+     * 解析房间名信息
+     *
+     * @param mapId
+     * @param roomInfo
+     * @return
+     */
+    public static boolean parseRoomInfo(String mapId, String roomInfo, HashMap<String, String> roomNames) {
+        if (!TextUtils.isEmpty(roomInfo)) {
+            byte[] roomBytes = Base64.decode(roomInfo, Base64.NO_WRAP);
+            String str_room = new String(roomBytes);
+            String[] str_rooms = str_room.split(",");
+            if (str_rooms.length > 0) {
+                String str_map_id = str_rooms[0];
+                if (str_map_id.equals(mapId)) {
+                    int roomNum = (str_rooms.length - 1) / 2;
+                    if (roomNum > 0) {
+                        for (int i = 0; i < roomNum; i++) {
+                            roomNames.put(str_rooms[i * 2 + 1], str_rooms[i * 2 + 2]);
+                        }
+                    }
+                    return true;
+                } else {
+                    return false;
+                }
+
+            } else {
+                return false;
+            }
+        } else {
+            return false;
+        }
     }
 
 
@@ -396,24 +531,24 @@ public class DataUtils {
     }
 
     /**
-     *
      * @param src 低位在前，高位在后
      * @return
      */
-    public static final int getRoomId(byte[] src){
+    public static final int getRoomId(byte[] src) {
         byte b;
-        int index=-1;
-        for (int i = 0; i <src.length; i++) {
-            b=src[i];
-            for (int j = 0; j <8; j++) {
-               if (getBit(b,j)==1){
-                   index=i*8+j+1;
-                   return index;
-               }
+        int index = -1;
+        for (int i = 0; i < src.length; i++) {
+            b = src[i];
+            for (int j = 0; j < 8; j++) {
+                if (getBit(b, j) == 1) {
+                    index = i * 8 + j + 1;
+                    return index;
+                }
             }
         }
         return index;
     }
+
     /**
      * b为传入的字节，i为第几位（范围0-7），如要获取bit0，则i=0
      *
@@ -439,11 +574,11 @@ public class DataUtils {
 
     public static String getScheduleWeek(int week) {
         StringBuilder weekStr = new StringBuilder();
-        int[] bitPosition=new int[]{6,0,1,2,3,4,5,7};
+        int[] bitPosition = new int[]{6, 0, 1, 2, 3, 4, 5, 7};
         int position;
-        for (int i = 0; i <bitPosition.length; i++) {
-            position=bitPosition[i];
-            if (DataUtils.getBit((byte) week,position) == 1) {
+        for (int i = 0; i < bitPosition.length; i++) {
+            position = bitPosition[i];
+            if (DataUtils.getBit((byte) week, position) == 1) {
                 switch (position) {
                     case 0:
                         weekStr.append(UiUtil.getString(R.string.week_monday));
@@ -478,10 +613,10 @@ public class DataUtils {
 
     public static String getScheduleWeekFull(int week) {
         StringBuilder weekStr = new StringBuilder();
-        int[] bitPosition=new int[]{6,0,1,2,3,4,5,7};
+        int[] bitPosition = new int[]{6, 0, 1, 2, 3, 4, 5, 7};
         int position;
-        for (int i = 0; i <bitPosition.length; i++) {
-            position=bitPosition[i];
+        for (int i = 0; i < bitPosition.length; i++) {
+            position = bitPosition[i];
             if (DataUtils.getBit((byte) week, position) == 1) {
                 switch (position) {
                     case 0:
@@ -539,6 +674,7 @@ public class DataUtils {
         }
         return languages[language];
     }
+
     /**
      * 格式化清扫区域
      *
@@ -548,5 +684,10 @@ public class DataUtils {
     public static String formateArea(float value) {
         DecimalFormat df = new DecimalFormat("0.00㎡");
         return df.format(value);
+    }
+
+    public static boolean isLetter(String value) {
+        char c = value.charAt(0);
+        return ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z'));
     }
 }

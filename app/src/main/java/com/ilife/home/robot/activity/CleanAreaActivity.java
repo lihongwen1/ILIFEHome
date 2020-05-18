@@ -17,8 +17,11 @@ import com.aliyun.iot.aep.sdk.contant.IlifeAli;
 import com.ilife.home.robot.R;
 import com.ilife.home.robot.base.BackBaseActivity;
 import com.ilife.home.robot.bean.MapDataBean;
+import com.ilife.home.robot.bean.PartitionBean;
+import com.ilife.home.robot.bean.SaveMapDataInfoBean;
 import com.ilife.home.robot.utils.DataUtils;
 import com.ilife.home.robot.utils.MyLogger;
+import com.ilife.home.robot.utils.SpUtils;
 import com.ilife.home.robot.utils.ToastUtils;
 import com.ilife.home.robot.utils.UiUtil;
 import com.ilife.home.robot.view.MapView;
@@ -48,9 +51,8 @@ public class CleanAreaActivity extends BackBaseActivity {
     ImageView iv_back;
     @BindView(R.id.image_menu)
     ImageView iv_finish;
-    private int times=1;//清扫次数
-    private int enable;//0-无效  1-开始 2-进行中
-    private String charging_port;
+    private int times = 1;//清扫次数
+
     @Override
     public int getLayoutId() {
         return R.layout.activity_clean_area;
@@ -80,50 +82,53 @@ public class CleanAreaActivity extends BackBaseActivity {
     public void initData() {
         IlifeAli.getInstance().getProperties(new OnAliResponse<PropertyBean>() {
             @Override
-            public void onSuccess(PropertyBean result) {
-                long selectId = result.getSelectedMapId();
-                String cleanAreaData = result.getCleanArea();
-                charging_port = result.getChargePort();
+            public void onSuccess(PropertyBean bean) {
+                long mapId = bean.getSelectedMapId();
+                String cleanAreaData = bean.getCleanArea();
                 MyLogger.d(TAG, "划区数据1111：" + cleanAreaData);
-                IlifeAli.getInstance().getSelectMap(selectId, new OnAliResponse<List<HistoryRecordBean>>() {
+                String saveMapDataKey = "";
+                if (mapId == bean.getSaveMapDataMapId1()) {
+                    saveMapDataKey = EnvConfigure.KEY_SAVE_MAP_DATA_1;
+                } else if (mapId == bean.getSaveMapDataMapId2()) {
+                    saveMapDataKey = EnvConfigure.KEY_SAVE_MAP_DATA_2;
+                } else if (mapId == bean.getSaveMapDataMapId3()) {
+                    saveMapDataKey = EnvConfigure.KEY_SAVE_MAP_DATA_3;
+                }
+                IlifeAli.getInstance().getSaveMapData(mapId, saveMapDataKey, new OnAliResponse<String[]>() {
                     @Override
-                    public void onSuccess(List<HistoryRecordBean> result) {
-                        if (result.size() == 0) {//应该只有一条数据
+                    public void onSuccess(String[] result) {
+                        if (result.length == 0) {//应该只有一条数据
                             return;
                         }
-                        MapDataBean mapDataBean = DataUtils.parseSaveMapData(result.get(0).getMapDataArray());
+                        MapDataBean mapDataBean = DataUtils.parseSaveMapData(result);
                         if (mapDataBean != null) {
                             map_clean_area.setLeftTopCoordinate(mapDataBean.getLeftX(), mapDataBean.getLeftY());
                             map_clean_area.updateSlam(mapDataBean.getMinX(), mapDataBean.getMaxX(), mapDataBean.getMinY(), mapDataBean.getMaxY());
                             map_clean_area.drawMapX8(mapDataBean.getCoordinates());
-                        }
-                        if (!TextUtils.isEmpty(cleanAreaData)) {
-                            JSONObject json = JSON.parseObject(cleanAreaData);
-                            boolean enable = json.getIntValue("Enable")!=0;
-                            String area = "";
-                            if (enable) {
-                                area = json.getString("AreaData");
-                                if (area.equals("AAAAAAAAAAAAAAAAAAAAAA==")) {
-                                    area = "";
+                            if (!TextUtils.isEmpty(cleanAreaData)) {
+                                JSONObject json = JSON.parseObject(cleanAreaData);
+                                boolean enable = json.getIntValue("Enable") != 0;
+                                String area = "";
+                                if (enable) {
+                                    area = json.getString("AreaData");
+                                    if (area.equals("AAAAAAAAAAAAAAAAAAAAAA==")) {
+                                        area = "";
+                                    }
                                 }
+                                map_clean_area.drawCleanArea(area);
                             }
-                            map_clean_area.drawCleanArea(area);
-                        }
 
-                        /**
-                         * 处理充电座
-                         */
-                        if (!TextUtils.isEmpty(charging_port)) {
-                            JSONObject jsonObject = JSONObject.parseObject(charging_port);
-                            boolean isDisplay = jsonObject.getIntValue("DisplaySwitch") == 1;
-                            if (isDisplay) {
-                                int xy = jsonObject.getIntValue("Piont");
-                                byte[] bytes = DataUtils.intToBytes4(xy);
-                                int x = DataUtils.bytesToInt(new byte[]{bytes[0], bytes[1]}, 0);
-                                int y = -DataUtils.bytesToInt(new byte[]{bytes[2], bytes[3]}, 0);
-                                map_clean_area.drawChargePort(x, y,true);
-                            }
                         }
+                        String saveMapDataInfoKey = "";
+                        if (mapId == bean.getSaveMapDataInfoMapId1()) {
+                            saveMapDataInfoKey = EnvConfigure.KEY_SAVE_MAP_DATA_INFO1;
+                        } else if (mapId == bean.getSaveMapDataInfoMapId2()) {
+                            saveMapDataInfoKey = EnvConfigure.KEY_SAVE_MAP_DATA_INFO2;
+                        } else if (mapId == bean.getSaveMapDataInfoMapId3()) {
+                            saveMapDataInfoKey = EnvConfigure.KEY_SAVE_MAP_DATA_INFO3;
+                        }
+                        fetchSaveMapDataInfo(saveMapDataInfoKey, (int) mapId);
+
                     }
 
                     @Override
@@ -140,6 +145,29 @@ public class CleanAreaActivity extends BackBaseActivity {
         });
 
     }
+
+
+    private void fetchSaveMapDataInfo(String saveMapDataInfoKey, int mapId) {
+        if (!TextUtils.isEmpty(saveMapDataInfoKey)) {
+            IlifeAli.getInstance().getSaveMapDataInfo(mapId, saveMapDataInfoKey, new OnAliResponse<String[]>() {
+                @Override
+                public void onSuccess(String[] result) {
+                    if (result != null && result.length > 0) {
+                        SaveMapDataInfoBean saveMapDataInfoBean = DataUtils.parseSaveMapInfo(result);
+                        map_clean_area.drawChargePort(saveMapDataInfoBean.getChargePoint().x, saveMapDataInfoBean.getChargePoint().y, true);
+                        map_clean_area.getmGateHelper().drawGate(saveMapDataInfoBean.getGates());
+                        map_clean_area.invalidateUI();
+                    }
+                }
+
+                @Override
+                public void onFailed(int code, String message) {
+
+                }
+            });
+        }
+    }
+
 
     /**
      * 更新循环次数图片
@@ -172,19 +200,19 @@ public class CleanAreaActivity extends BackBaseActivity {
         } else {
             String clenAreaData = "{\"CleanAreaData\":{\"AreaData\":\"\",\"CleanLoop\":0,\"Enable\":1}}";
             JSONObject caJson = JSONObject.parseObject(clenAreaData);
-            String cleanData=map_clean_area.getCleanAreaData();
+            String cleanData = map_clean_area.getCleanAreaData();
             if (cleanData.equals("AAAAAAAAAAAAAAAAAAAAAA==")) {
                 ToastUtils.showToast(UiUtil.getString(R.string.toast_set_clean_area_first));
-            }else {
-            caJson.getJSONObject(EnvConfigure.CleanAreaData).put("AreaData",cleanData);
-            caJson.getJSONObject(EnvConfigure.CleanAreaData).put("CleanLoop", times);
-            MyLogger.d(TAG, "划区数据2222：" + caJson.toString());
-            IlifeAli.getInstance().setProperties(caJson, aBoolean -> {
-                if (aBoolean) {
-                    ToastUtils.showToast(UiUtil.getString(R.string.setting_success));
-                    removeActivity();
-                }
-            });
+            } else {
+                caJson.getJSONObject(EnvConfigure.CleanAreaData).put("AreaData", cleanData);
+                caJson.getJSONObject(EnvConfigure.CleanAreaData).put("CleanLoop", times);
+                MyLogger.d(TAG, "划区数据2222：" + caJson.toString());
+                IlifeAli.getInstance().setProperties(caJson, aBoolean -> {
+                    if (aBoolean) {
+                        ToastUtils.showToast(UiUtil.getString(R.string.setting_success));
+                        removeActivity();
+                    }
+                });
             }
         }
     }

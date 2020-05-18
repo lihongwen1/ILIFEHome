@@ -49,6 +49,7 @@ import com.aliyun.iot.aep.sdk.framework.utils.SpUtil;
 import com.aliyun.iot.aep.sdk.helper.SDKInitHelper;
 import com.aliyun.iot.aep.sdk.login.ILoginCallback;
 import com.aliyun.iot.aep.sdk.login.ILogoutCallback;
+import com.aliyun.iot.aep.sdk.login.IRefreshSessionCallback;
 import com.aliyun.iot.aep.sdk.login.LoginBusiness;
 import com.aliyun.iot.aep.sdk.login.data.UserInfo;
 import com.google.gson.Gson;
@@ -241,6 +242,20 @@ public class IlifeAli {
         boolean isLogin = LoginBusiness.isLogin();
         Log.d(TAG, "是否已登录。。。" + isLogin);
         return isLogin;
+    }
+
+    public void refreshSession(OnAliResponse<Boolean> onAliResponse) {
+        LoginBusiness.refreshSession(true, new IRefreshSessionCallback() {
+            @Override
+            public void onRefreshSuccess() {
+                onAliResponse.onSuccess(true);
+            }
+
+            @Override
+            public void onRefreshFailed() {
+                onAliResponse.onSuccess(false);
+            }
+        });
     }
 
     /**
@@ -496,12 +511,12 @@ public class IlifeAli {
                                     String result = items.getJSONObject(EnvConfigure.KEY_ADD_ROOM_DOOR).getString(EnvConfigure.KEY_VALUE);
                                     JSONObject jsonObject = JSONObject.parseObject(result);
                                     int value = jsonObject.getIntValue("ModifyResult");
-                                    LiveEventBus.get(EnvConfigure.KEY_ADD_ROOM_DOOR, Integer.class).postDelay(value,1000);
+                                    LiveEventBus.get(EnvConfigure.KEY_ADD_ROOM_DOOR, Integer.class).postDelay(value, 2000);
                                 } else if (items.containsKey(EnvConfigure.KEY_DELETE_ROOM_DOOR)) {
                                     String result = items.getJSONObject(EnvConfigure.KEY_DELETE_ROOM_DOOR).getString(EnvConfigure.KEY_VALUE);
                                     JSONObject jsonObject = JSONObject.parseObject(result);
                                     int value = jsonObject.getIntValue("ModifyResult");
-                                    LiveEventBus.get(EnvConfigure.KEY_DELETE_ROOM_DOOR, Integer.class).postDelay(value,1000);
+                                    LiveEventBus.get(EnvConfigure.KEY_DELETE_ROOM_DOOR, Integer.class).postDelay(value, 2000);
                                 } else if (data.contains(EnvConfigure.KEY_SCHEDULE)) {
                                     for (int i = 1; i <= 7; i++) {
                                         String key = EnvConfigure.KEY_SCHEDULE + i;
@@ -772,6 +787,18 @@ public class IlifeAli {
                         bean.setSaveMapDataMapId3(mapId);
                         Log.d(TAG, "saveMapDataInfoMapId3: " + mapId);
                     }
+                    if (jsonObject.containsKey(EnvConfigure.KEY_SAVE_MAP_ROOM_INFO1)) {
+                        String room = jsonObject.getJSONObject(EnvConfigure.KEY_SAVE_MAP_ROOM_INFO1).getString(EnvConfigure.KEY_VALUE);
+                        bean.setMapRoomInfo1(room);
+                    }
+                    if (jsonObject.containsKey(EnvConfigure.KEY_SAVE_MAP_ROOM_INFO2)) {
+                        String room = jsonObject.getJSONObject(EnvConfigure.KEY_SAVE_MAP_ROOM_INFO2).getString(EnvConfigure.KEY_VALUE);
+                        bean.setMapRoomInfo2(room);
+                    }
+                    if (jsonObject.containsKey(EnvConfigure.KEY_SAVE_MAP_ROOM_INFO3)) {
+                        String room = jsonObject.getJSONObject(EnvConfigure.KEY_SAVE_MAP_ROOM_INFO3).getString(EnvConfigure.KEY_VALUE);
+                        bean.setMapRoomInfo1(room);
+                    }
                     onAliResponse.onSuccess(bean);
                 } else {
                     onAliResponse.onFailed(0, ioTResponse.getLocalizedMsg());
@@ -1026,6 +1053,7 @@ public class IlifeAli {
             public void onResponse(IoTRequest ioTRequest, IoTResponse ioTResponse) {
                 long timeSlamp = 0;
                 String[] infos = null;
+                int realPkgNum = 0;
                 if (ioTResponse.getCode() == 200) {
                     JSONObject data = JSONObject.parseObject(ioTResponse.getData().toString());
                     JSONArray jsonArray = data.getJSONArray(EnvConfigure.KEY_ITEMS);
@@ -1040,9 +1068,15 @@ public class IlifeAli {
                         if (timeSlamp == jData.getIntValue("TimeStamp")) {//分包时间戳相同
                             int index = jData.getIntValue("PackId") - 1;//packId和index差1
                             infos[index] = jData.getString("MapInfo");
+                            realPkgNum++;
                         }
                     }
-                    onAliResponse.onSuccess(infos);
+                    if (infos != null && infos.length == realPkgNum) {
+                        onAliResponse.onSuccess(infos);
+                    } else {
+                        Log.d(TAG,"the data obtained is incomplete.");
+                        onAliResponse.onFailed(0, "the data obtained is incomplete.");
+                    }
                 }
             }
         }));

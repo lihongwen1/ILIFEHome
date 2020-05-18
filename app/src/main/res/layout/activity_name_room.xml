@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:orientation="vertical"
+    android:background="@color/bg_color_f5f7fa"
+    android:layout_height="match_parent">
+
+    <include layout="@layout/template_top_title" />
+
+    <TextView
+        android:layout_marginTop="@dimen/dp_10"
+        android:background="@color/white"
+        style="@style/Text_16sp_33"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dp_60"
+        android:text="默认(A、B、C...)"
+        android:gravity="center|start"
+        android:paddingStart="@dimen/dp_20"
+        />
+      <androidx.recyclerview.widget.RecyclerView
+          android:id="@+id/rv_select_name"
+          android:paddingStart="@dimen/dp_20"
+          android:paddingEnd="@dimen/dp_16"
+          android:layout_marginTop="@dimen/dp_10"
+          android:layout_width="match_parent"
+          android:layout_height="match_parent"/>
+</LinearLayout>

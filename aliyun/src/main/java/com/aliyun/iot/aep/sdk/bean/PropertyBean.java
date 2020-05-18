@@ -30,6 +30,9 @@ public class PropertyBean {
     private int saveMapDataMapId1;
     private int saveMapDataMapId2;
     private int saveMapDataMapId3;
+    private String mapRoomInfo1;//地图房间信息
+    private String mapRoomInfo2;
+    private String mapRoomInfo3;
     public PropertyBean() {
     }
 
@@ -273,6 +276,30 @@ public class PropertyBean {
 
     public void setSaveMapDataMapId3(int saveMapDataMapId3) {
         this.saveMapDataMapId3 = saveMapDataMapId3;
+    }
+
+    public String getMapRoomInfo1() {
+        return mapRoomInfo1;
+    }
+
+    public void setMapRoomInfo1(String mapRoomInfo1) {
+        this.mapRoomInfo1 = mapRoomInfo1;
+    }
+
+    public String getMapRoomInfo2() {
+        return mapRoomInfo2;
+    }
+
+    public void setMapRoomInfo2(String mapRoomInfo2) {
+        this.mapRoomInfo2 = mapRoomInfo2;
+    }
+
+    public String getMapRoomInfo3() {
+        return mapRoomInfo3;
+    }
+
+    public void setMapRoomInfo3(String mapRoomInfo3) {
+        this.mapRoomInfo3 = mapRoomInfo3;
     }
 
     @Override

@@ -91,7 +91,7 @@
       "settingMode":false,
       "settingUpdate":true,
       "settingRecord":true,
-      "settingVoice":true,
+      "settingVoice":false,
       "historyMapType": 1,
       "scheduleInDark": false,
       "waitForOpenPower":true,

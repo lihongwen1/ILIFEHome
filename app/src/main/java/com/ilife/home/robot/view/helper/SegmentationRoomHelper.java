@@ -10,7 +10,9 @@ import android.util.Base64;
 import android.util.Log;
 import android.view.MotionEvent;
 
+import com.ilife.home.livebus.LiveEventBus;
 import com.ilife.home.robot.R;
+import com.ilife.home.robot.activity.SegmentationRoomActivity;
 import com.ilife.home.robot.app.MyApplication;
 import com.ilife.home.robot.bean.Coordinate;
 import com.ilife.home.robot.bean.PartitionBean;
@@ -103,7 +105,7 @@ public class SegmentationRoomHelper {
      * @param mapX  屏幕坐标转化后的地图坐标X
      * @param mapY  屏幕坐标转化后的地图坐标Y
      */
-    public void onTouch(MotionEvent event, float mapX, float mapY) {
+    public boolean onTouch(MotionEvent event, float mapX, float mapY) {
         int action = event.getAction() & MotionEvent.ACTION_MASK;
         switch (action) {
             case MotionEvent.ACTION_DOWN:
@@ -119,6 +121,7 @@ public class SegmentationRoomHelper {
                 break;
         }
         mMapView.invalidateUI();
+        return smOT!=SROT.NOON;
     }
 
     private void doOnActionDown(float mapX, float mapY) {
@@ -185,28 +188,35 @@ public class SegmentationRoomHelper {
      * @param mapY
      */
     private void doOnActionUp(float mapX, float mapY) {
-        if (mapX == downPoint.x && mapY == downPoint.y) {//点击事件
-            mMapView.getmRoomHelper().clickRoomTag(mapX, mapY);
-            PartitionBean room = mMapView.getmRoomHelper().getSelectRoom();
-            if (room != null) {
-                if (mRoom == null || room.getPartitionId() != mRoom.getPartitionId()) {
-                    int minY = (int) mMapView.getSlamRect().top - 8;
-                    int maxY = (int) mMapView.getSlamRect().bottom + 8;
-                    mCoordinates[0] = mMapView.matrixCoordinateX(room.getX());
-                    mCoordinates[1] = mMapView.matrixCoordinateY(minY);
-                    mCoordinates[2] = mMapView.matrixCoordinateX(room.getX());
-                    mCoordinates[3] = mMapView.matrixCoordinateY(maxY);
-                    mRoom = room;
-                }
-                isHaveLine = true;
-            }
-        }
         isNeedCalculateGate = true;
         updateSegmentationLine();
         smOT = SROT.NOON;
     }
 
+    public void onClick(int mapX, int mapY) {
+        mMapView.getmRoomHelper().clickRoomTag(mapX, mapY);
+        onRoomClick();
+    }
 
+    public void onRoomClick(){
+        PartitionBean room = mMapView.getmRoomHelper().getSelectRoom();
+        if (room != null) {
+            if (mRoom == null || room.getPartitionId() != mRoom.getPartitionId()) {
+                int minY = (int) mMapView.getSlamRect().top - 8;
+                int maxY = (int) mMapView.getSlamRect().bottom + 8;
+                mCoordinates[0] = mMapView.matrixCoordinateX(room.getX());
+                mCoordinates[1] = mMapView.matrixCoordinateY(minY);
+                mCoordinates[2] = mMapView.matrixCoordinateX(room.getX());
+                mCoordinates[3] = mMapView.matrixCoordinateY(maxY);
+                mRoom = room;
+            }
+            isHaveLine = true;
+        }
+        isNeedCalculateGate = true;
+        updateSegmentationLine();
+        smOT = SROT.NOON;
+        LiveEventBus.get(SegmentationRoomActivity.KEY_FUNCTION_WORKING,Boolean.class).post(isHaveLine);
+    }
     /**
      * 绘制电子墙
      * 根据最新的缩放比例刷新虚拟墙

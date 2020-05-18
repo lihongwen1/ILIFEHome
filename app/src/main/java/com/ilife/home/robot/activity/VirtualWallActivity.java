@@ -19,10 +19,13 @@ import com.ilife.home.robot.R;
 import com.ilife.home.robot.base.BackBaseActivity;
 import com.ilife.home.robot.bean.Coordinate;
 import com.ilife.home.robot.bean.MapDataBean;
+import com.ilife.home.robot.bean.PartitionBean;
+import com.ilife.home.robot.bean.SaveMapDataInfoBean;
 import com.ilife.home.robot.fragment.UniversalDialog;
 import com.ilife.home.robot.model.MapX9Model;
 import com.ilife.home.robot.utils.DataUtils;
 import com.ilife.home.robot.utils.MyLogger;
+import com.ilife.home.robot.utils.SpUtils;
 import com.ilife.home.robot.utils.ToastUtils;
 import com.ilife.home.robot.utils.UiUtil;
 import com.ilife.home.robot.view.MapView;
@@ -101,7 +104,7 @@ public class VirtualWallActivity extends BackBaseActivity {
                 } else {
                     isDrawSaveMap = bean.isInitStatus();
                 }
-                long selectId = bean.getSelectedMapId();
+                long mapId = bean.getSelectedMapId();
                 str_virtual = bean.getVirtualWall();
                 MyLogger.d(TAG, "服务器虚拟墙数据：" + str_virtual);
                 str_mopArea = bean.getForbiddenArea();
@@ -113,17 +116,34 @@ public class VirtualWallActivity extends BackBaseActivity {
                     MyLogger.d(TAG, "getHistoryDataX8-------------------------------success");
                     drawMap(cleaningDataX8.getCoordinates());
                 });
-                if (isDrawSaveMap && selectId != 0) {
-                    IlifeAli.getInstance().getSelectMap(selectId, new OnAliResponse<List<HistoryRecordBean>>() {
+                if (isDrawSaveMap && mapId != 0) {
+                    String saveMapDataKey = "";
+                    if (mapId == bean.getSaveMapDataMapId1()) {
+                        saveMapDataKey = EnvConfigure.KEY_SAVE_MAP_DATA_1;
+                    } else if (mapId == bean.getSaveMapDataMapId2()) {
+                        saveMapDataKey = EnvConfigure.KEY_SAVE_MAP_DATA_2;
+                    } else if (mapId == bean.getSaveMapDataMapId3()) {
+                        saveMapDataKey = EnvConfigure.KEY_SAVE_MAP_DATA_3;
+                    }
+                    IlifeAli.getInstance().getSaveMapData(mapId, saveMapDataKey, new OnAliResponse<String[]>() {
                         @Override
-                        public void onSuccess(List<HistoryRecordBean> result) {
-                            if (result.size() == 0) {//应该只有一条数据
+                        public void onSuccess(String[] result) {
+                            if (result.length == 0) {//应该只有一条数据
                                 return;
                             }
-                            MapDataBean mapDataBean = DataUtils.parseSaveMapData(result.get(0).getMapDataArray());
+                            MapDataBean mapDataBean = DataUtils.parseSaveMapData(result);
                             if (mapDataBean != null) {
                                 drawMap(mapDataBean.getCoordinates());
                             }
+                            String saveMapDataInfoKey = "";
+                            if (mapId == bean.getSaveMapDataInfoMapId1()) {
+                                saveMapDataInfoKey = EnvConfigure.KEY_SAVE_MAP_DATA_INFO1;
+                            } else if (mapId == bean.getSaveMapDataInfoMapId2()) {
+                                saveMapDataInfoKey = EnvConfigure.KEY_SAVE_MAP_DATA_INFO2;
+                            } else if (mapId == bean.getSaveMapDataInfoMapId3()) {
+                                saveMapDataInfoKey = EnvConfigure.KEY_SAVE_MAP_DATA_INFO3;
+                            }
+                            fetchSaveMapDataInfo(saveMapDataInfoKey, (int) mapId);
 
                         }
 
@@ -141,6 +161,29 @@ public class VirtualWallActivity extends BackBaseActivity {
             }
         });
     }
+
+
+    private void fetchSaveMapDataInfo(String saveMapDataInfoKey, int mapId) {
+        if (!TextUtils.isEmpty(saveMapDataInfoKey)) {
+            IlifeAli.getInstance().getSaveMapDataInfo(mapId, saveMapDataInfoKey, new OnAliResponse<String[]>() {
+                @Override
+                public void onSuccess(String[] result) {
+                    if (result != null && result.length > 0) {
+                        SaveMapDataInfoBean saveMapDataInfoBean = DataUtils.parseSaveMapInfo(result);
+                        mMapView.drawChargePort(saveMapDataInfoBean.getChargePoint().x, saveMapDataInfoBean.getChargePoint().y, true);
+                        mMapView.getmGateHelper().drawGate(saveMapDataInfoBean.getGates());
+                        mMapView.invalidateUI();
+                    }
+                }
+
+                @Override
+                public void onFailed(int code, String message) {
+
+                }
+            });
+        }
+    }
+
 
     private synchronized void drawMap(List<Coordinate> data) {
         coordinates.addAll(data);

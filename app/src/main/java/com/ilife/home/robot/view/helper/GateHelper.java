@@ -6,6 +6,8 @@ import android.graphics.RectF;
 import android.util.Base64;
 import android.view.MotionEvent;
 
+import com.ilife.home.livebus.LiveEventBus;
+import com.ilife.home.robot.activity.SegmentationRoomActivity;
 import com.ilife.home.robot.model.bean.VirtualWallBean;
 import com.ilife.home.robot.utils.DataUtils;
 import com.ilife.home.robot.utils.ToastUtils;
@@ -18,7 +20,6 @@ public class GateHelper {
     private static final String TAG = "VirtualWallHelper";
     private List<VirtualWallBean> gtBeans;
     private MapView mMapView;
-    private PointF downPoint;
     private Path gtPath;
     private final int ICON_RADIUS = 50;
 
@@ -36,64 +37,30 @@ public class GateHelper {
         gtBeans = new ArrayList<>();
         this.mMapView = mapView;
         this.gtPath = new Path();
-        this.downPoint = new PointF();
     }
 
-    /**
-     * @param event 触摸事件
-     * @param mapX  屏幕坐标转化后的地图坐标X
-     * @param mapY  屏幕坐标转化后的地图坐标Y
-     */
-    public void onTouch(MotionEvent event, float mapX, float mapY) {
-        int action = event.getAction() & MotionEvent.ACTION_MASK;
-        switch (action) {
-            case MotionEvent.ACTION_DOWN:
-                doOnActionDown(mapX, mapY);
-                break;
-            case MotionEvent.ACTION_MOVE:
-                doOnActionMove(mapX, mapY);
-                break;
-            case MotionEvent.ACTION_UP:
-                doOnActionUp(mapX, mapY);
-                break;
-        }
-        mMapView.invalidateUI();
-    }
 
-    private void doOnActionDown(float mapX, float mapY) {
-        downPoint.set(mapX, mapY);
-    }
 
-    private void doOnActionMove(float mapX, float mapY) {
-
-    }
-
-    /**
-     * @param mapX
-     * @param mapY
-     */
-    private void doOnActionUp(float mapX, float mapY) {
-        if ((mapX == downPoint.x && mapY == downPoint.y) || DataUtils.distance(downPoint.x, downPoint.y, mapX, mapY) < 10) {//点击事件
-            for (VirtualWallBean vBean : gtBeans) {
-                if (vBean.getDeleteIcon() != null && vBean.getDeleteIcon().contains(downPoint.x, downPoint.y)) {//点击了删除键
-                    if (getDeleteGate() == -1) {//未存在待删除的门
-                        if (vBean.getState() == 2) {//新增的门，还未保存到服务器，可以直接移除
-                            gtBeans.remove(vBean);
-                        }
-                        if (vBean.getState() == 1) {//服务器上的门，可能操作会被取消掉，只需要改变状态
-                            vBean.setState(3);
-                            vBean.clear();
-                        }
-                        updateGate();
-                    } else {
-                        ToastUtils.showToast("只能合并两个房间");
+    public void onClick(int x,int y){
+        for (VirtualWallBean vBean : gtBeans) {
+            if (vBean.getDeleteIcon() != null && vBean.getDeleteIcon().contains(x,y)) {//点击了删除键
+                if (getDeleteGate() == -1) {//未存在待删除的门
+                    if (vBean.getState() == 2) {//新增的门，还未保存到服务器，可以直接移除
+                        gtBeans.remove(vBean);
                     }
+                    if (vBean.getState() == 1) {//服务器上的门，可能操作会被取消掉，只需要改变状态
+                        vBean.setState(3);
+                        vBean.clear();
+                    }
+                    LiveEventBus.get(SegmentationRoomActivity.KEY_FUNCTION_WORKING,Boolean.class).post(true);
+                    updateGate();
+                    mMapView.invalidateUI();
+                } else {
+                    ToastUtils.showToast("只能合并两个房间");
                 }
-
             }
         }
     }
-
     public void revertGate() {
         for (VirtualWallBean gate : gtBeans) {
             gate.setState(1);

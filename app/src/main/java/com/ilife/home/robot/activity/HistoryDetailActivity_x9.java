@@ -210,6 +210,12 @@ public class HistoryDetailActivity_x9 extends BackBaseActivity {
                                 roadList.add(new Coordinate(x, -y, 4));
                             }
                         }
+                        if (bj==5){
+                           int x = DataUtils.bytesToInt(new byte[]{bytes[1], bytes[2]}, 0);
+                           int y = DataUtils.bytesToInt(new byte[]{bytes[3], bytes[4]}, 0);
+                           mapView.drawChargePort(x,y,true);
+
+                        }
                     }
                 }
             }

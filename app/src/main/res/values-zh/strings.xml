@@ -360,5 +360,17 @@
     <string name="dialog_delete_account">删除账号</string>
     <string name="dialog_delete_account_title">确认删除账号？</string>
     <string name="dialog_delete_account_hint">删除后该账号将无法使用</string>
+    <string name="room_name_living_room"> 客厅</string>
+    <string name="room_name_restaurant">餐厅</string>
+    <string name="room_name_bed_room">卧室</string>
+    <string name="room_name_kitchen">厨房</string>
+    <string name="room_name_bath_room">卫浴间</string>
+    <string name="room_name_book_room">书房</string>
+    <string name="room_name_laundary_room">洗衣房</string>
+    <string name="room_name_rest_room">休息室</string>
+    <string name="room_name_play_room">娱乐室</string>
+    <string name="room_name_child_room">儿童房</string>
+    <string name="room_name_store_room">储物室</string>
+    <string name="room_name_other">自定义</string>
 
 </resources>

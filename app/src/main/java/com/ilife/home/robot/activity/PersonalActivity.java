@@ -124,13 +124,23 @@ public class PersonalActivity extends BackBaseActivity implements View.OnClickLi
     @Override
     protected void onResume() {
         super.onResume();
-        String userName = IlifeAli.getInstance().getUserInfo().userNick;
-        if (!TextUtils.isEmpty(userName) && !userName.equals("null")) {
-            tv_userName.setText(userName);
-        }
+        IlifeAli.getInstance().refreshSession(new OnAliResponse<Boolean>() {
+            @Override
+            public void onSuccess(Boolean result) {
+                String userName = IlifeAli.getInstance().getUserInfo().userNick;
+                if (!TextUtils.isEmpty(userName) && !userName.equals("null")) {
+                    tv_userName.setText(userName);
+                }
+            }
+
+            @Override
+            public void onFailed(int code, String message) {
+
+            }
+        });
     }
 
-    @OnClick({R.id.rl_user_information,R.id.rl_delete_account, R.id.rl_protocol, R.id.rl_help, R.id.rl_app_authorization, R.id.rl_scan, R.id.bt_logout, R.id.tv_user_agreement, R.id.tv_protocol_privacy, R.id.rl_share})
+    @OnClick({R.id.rl_user_information, R.id.rl_delete_account, R.id.rl_protocol, R.id.rl_help, R.id.rl_app_authorization, R.id.rl_scan, R.id.bt_logout, R.id.tv_user_agreement, R.id.tv_protocol_privacy, R.id.rl_share})
     public void onClick(View v) {
         Intent i;
         switch (v.getId()) {
@@ -190,7 +200,7 @@ public class PersonalActivity extends BackBaseActivity implements View.OnClickLi
         }
     }
 
-    private void showDeleteAcccountDialog(){
+    private void showDeleteAcccountDialog() {
         UniversalDialog logoutDialog = new UniversalDialog();
         logoutDialog.setDialogType(UniversalDialog.TYPE_NORMAL).
                 setTitle(Utils.getString(R.string.dialog_delete_account_title)).setHintTip(Utils.getString(R.string.dialog_delete_account_hint)).
@@ -209,6 +219,7 @@ public class PersonalActivity extends BackBaseActivity implements View.OnClickLi
                     });
                 }).show(getSupportFragmentManager(), "delete_account");
     }
+
     private void showLogoutDialog() {
         UniversalDialog logoutDialog = new UniversalDialog();
         logoutDialog.setDialogType(UniversalDialog.TYPE_NORMAL).

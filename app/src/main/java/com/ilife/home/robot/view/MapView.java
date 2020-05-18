@@ -38,6 +38,7 @@ import com.ilife.home.robot.view.helper.VirtualWallHelper;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -106,7 +107,8 @@ public class MapView extends View {
         PARTITION(32),//分区
         CLEAN_AREA(64),//划区清扫
         SEGMENT_ROOM(128),//分割房间
-        MERGE_ROOM(256);
+        MERGE_ROOM(256),
+        NAME_ROOM(512);
         final int nativeType;
 
         OT(int type) {
@@ -321,13 +323,13 @@ public class MapView extends View {
          */
         slamCanvas.drawPath(boxPath, mPaintManager.changeColor(mPaintManager.getMapPaint(), PaintColor.SLAM));
         /**
-         * 绘制障碍物
-         */
-        slamCanvas.drawPath(obstaclePath, mPaintManager.changeColor(mPaintManager.getMapPaint(), PaintColor.OBSTACLE));
-        /**
          * 绘制room区域
          */
         slamCanvas.drawPath(roomGatePath, mPaintManager.changeColor(mPaintManager.getMapPaint(), PaintColor.ROOM_GATE));
+        /**
+         * 绘制障碍物
+         */
+        slamCanvas.drawPath(obstaclePath, mPaintManager.changeColor(mPaintManager.getMapPaint(), PaintColor.OBSTACLE));
         /**
          * 绘制路径
          */
@@ -595,7 +597,7 @@ public class MapView extends View {
              */
             if (mGateHelper.getGtBeans().size() > 0) {
                 canvas.drawPath(mGateHelper.getGtPath(), mPaintManager.changeColor(mPaintManager.getLinePaint(), PaintColor.ROOM_GATE));
-                if (mOT == OT.MERGE_ROOM) {
+                if (mOT == OT.MERGE_ROOM && mGateHelper.getDeleteGate() == -1) {
                     for (VirtualWallBean gate : mGateHelper.getGtBeans()) {
                         if (gate.getDeleteIcon() != null) {
                             canvas.drawBitmap(deleteBitmap, gate.getDeleteIcon().left, gate.getDeleteIcon().top, mPaintManager.getIconPaint());
@@ -607,19 +609,25 @@ public class MapView extends View {
              * draw room tag/绘制房间标记
              * 选房清扫，分割房间清扫；
              */
-            if (mOT == OT.MAP || mOT == OT.SELECT_ROOM || mOT == OT.SEGMENT_ROOM || mOT == OT.MERGE_ROOM) {
+            if (mOT == OT.MAP || mOT == OT.SELECT_ROOM || mOT == OT.SEGMENT_ROOM || mOT == OT.MERGE_ROOM || mOT == OT.NAME_ROOM) {
                 Paint paint = mPaintManager.getFillPaint();
                 paint.setTextSize(mRoomHelper.getTextSize());
                 for (PartitionBean room : mRoomHelper.getRooms()) {
                     int cx = (int) matrixCoordinateX(room.getX());
                     int cy = (int) matrixCoordinateY(room.getY());
                     canvas.drawCircle(cx, cy, mRoomHelper.getRadius(), mPaintManager.changeColor(mPaintManager.getFillPaint(), PaintColor.ROOM));
-                    mPaintManager.changeColor(paint, mRoomHelper.isRoomSelected(room.getPartitionId()) ? PaintColor.ROOM_TEXT_SELECT : PaintColor.ROOM_TEXT);
-                    // 文字宽
-                    float textWidth = paint.measureText(room.getTag());
-                    // 文字baseline在y轴方向的位置
-                    float baseLineY = Math.abs(paint.ascent() + paint.descent()) / 2;
-                    canvas.drawText(room.getTag(), cx - textWidth / 2, cy + baseLineY, paint);
+                    Bitmap roomBitmap = mRoomHelper.getRoomBitmap(room);
+                    if (roomBitmap != null) {
+                        float bitmapWidth = roomBitmap.getWidth();
+                        canvas.drawBitmap(roomBitmap, cx - bitmapWidth / 2f, cy - bitmapWidth / 2f, mPaintManager.getIconPaint());
+                    } else {
+                        mPaintManager.changeColor(paint, mRoomHelper.isRoomSelected(room.getPartitionId()) ? PaintColor.ROOM_TEXT_SELECT : PaintColor.ROOM_TEXT);
+                        // 文字宽
+                        float textWidth = paint.measureText(room.getTag());
+                        // 文字baseline在y轴方向的位置
+                        float baseLineY = Math.abs(paint.ascent() + paint.descent()) / 2;
+                        canvas.drawText(room.getTag(), cx - textWidth / 2, cy + baseLineY, paint);
+                    }
                 }
             }
         }
@@ -657,95 +665,25 @@ public class MapView extends View {
     }
 
 
-    // TODO 重绘事件不要太频繁，真正有需求的时候才能调用
-    //TODO 优化：删除电子墙的时候支持拖动,添加电子墙的时候支持缩放，NONE时支持缩放和拖动
+    //TODO 点击时间判断不准确，基本上抬起都会出发点击事件
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         if (!touchAble) {
             return false;
         }
-        int me = event.getAction() & MotionEvent.ACTION_MASK;
+        if (!dispatchMapEvent(event)) {
+            onMapEvent(event);
+        }
+
+        return true;
+    }
+
+
+    private boolean dispatchMapEvent(MotionEvent event) {
+        boolean isDispatched = true;
         float x = event.getX() / getRealScare() + getOffsetX();
         float y = event.getY() / getRealScare() + getOffsetY();
         switch (mOT) {
-            case NOON:
-            case SELECT_ROOM:
-            case MAP://操作地图
-                switch (me) {
-                    case MotionEvent.ACTION_CANCEL:
-                    case MotionEvent.ACTION_DOWN:
-                        if (isNeedRestore && restoreRunnable != null) {
-                            removeCallbacks(restoreRunnable);
-                        }
-                        downPoint.set(x, y);
-                        MAP_MODE = DRAG;
-                        break;
-                    case MotionEvent.ACTION_MOVE:
-                        switch (MAP_MODE) {
-                            case ZOOM:
-                                if (event.getPointerCount() == 2) {
-                                    calculateScale(event);
-                                }
-                                break;
-                            case DRAG:
-                                dragX += x - downPoint.x;
-                                dragY += y - downPoint.y;
-                                break;
-                        }
-                        invalidateUI();
-                        break;
-                    case MotionEvent.ACTION_UP:
-                        if (x == downPoint.x && y == downPoint.y) {//点击事件
-                            MAP_MODE = MODE_NONE;
-                            switch (mOT) {
-                                case SELECT_ROOM:
-                                    mRoomHelper.clickRoomTag(x, y);
-                                    break;
-                                case PARTITION:
-                                    break;
-
-                            }
-                        } else {
-                            boolean needResetChange = false;
-                            switch (MAP_MODE) {
-                                case ZOOM:
-                                    originalScale = userScale;
-                                    MAP_MODE = MODE_NONE;
-                                    needResetChange = true;
-                                    break;
-                                case DRAG:
-                                    needResetChange = true;
-                                    MAP_MODE = MODE_NONE;
-                                    break;
-                            }
-
-                            if (needResetChange) {
-                                if (isNeedRestore && restoreRunnable == null) {
-                                    restoreRunnable = () -> {
-                                        userScale = 1;
-                                        originalScale = 1;
-                                        dragX = 0;
-                                        dragY = 0;
-                                        invalidateUI();
-                                        MyLogger.d(TAG, "-------restore map to the original state----------");
-                                    };
-                                }
-                            }
-                        }
-                        break;
-                    case MotionEvent.ACTION_POINTER_UP:
-                        if (MAP_MODE == ZOOM) {
-                            userScale = new BigDecimal(userScale).setScale(1, BigDecimal.ROUND_HALF_UP).floatValue();
-                        }
-                        break;
-                    case MotionEvent.ACTION_POINTER_DOWN://多指DOWN
-                        if (event.getPointerCount() == 2) {//双指
-                            MAP_MODE = ZOOM;
-                            beforeDistance = distance(event);
-                        }
-                        break;
-                }
-                break;
             case VIRTUAL_WALL://虚拟墙
                 mVirtualWallHelper.onTouch(event, x, y);
                 break;
@@ -757,12 +695,107 @@ public class MapView extends View {
                 mCleanHelper.onTouch(event, (int) x, (int) y);
                 break;
             case SEGMENT_ROOM:
-                mSegmentHelper.onTouch(event, (int) x, (int) y);
+                isDispatched = mSegmentHelper.onTouch(event, (int) x, (int) y);
                 break;
+            case NOON:
             case MERGE_ROOM:
-                mGateHelper.onTouch(event, (int) x, (int) y);
+            case NAME_ROOM:
+            case SELECT_ROOM:
+            case MAP://操作地图
+                onMapEvent(event);
+                break;
         }
-        return true;
+        return isDispatched;
+    }
+
+    public void onMapEvent(MotionEvent event) {
+        float x = event.getX() / getRealScare() + getOffsetX();
+        float y = event.getY() / getRealScare() + getOffsetY();
+        int me = event.getAction() & MotionEvent.ACTION_MASK;
+        switch (me) {
+            case MotionEvent.ACTION_CANCEL:
+            case MotionEvent.ACTION_DOWN:
+                if (isNeedRestore && restoreRunnable != null) {
+                    removeCallbacks(restoreRunnable);
+                }
+                downPoint.set(x, y);
+                MAP_MODE = DRAG;
+                break;
+            case MotionEvent.ACTION_MOVE:
+                switch (MAP_MODE) {
+                    case ZOOM:
+                        if (event.getPointerCount() == 2) {
+                            calculateScale(event);
+                        }
+                        break;
+                    case DRAG:
+                        dragX += x - downPoint.x;
+                        dragY += y - downPoint.y;
+                        break;
+                }
+                invalidateUI();
+                break;
+            case MotionEvent.ACTION_UP:
+                if (x == downPoint.x && y == downPoint.y) {//点击事件
+                    onClick((int) x, (int) y);
+                } else {
+                    boolean needResetChange = false;
+                    switch (MAP_MODE) {
+                        case ZOOM:
+                            originalScale = userScale;
+                            MAP_MODE = MODE_NONE;
+                            needResetChange = true;
+                            break;
+                        case DRAG:
+                            needResetChange = true;
+                            MAP_MODE = MODE_NONE;
+                            break;
+                    }
+
+                    if (needResetChange) {
+                        if (isNeedRestore && restoreRunnable == null) {
+                            restoreRunnable = () -> {
+                                userScale = 1;
+                                originalScale = 1;
+                                dragX = 0;
+                                dragY = 0;
+                                invalidateUI();
+                                MyLogger.d(TAG, "-------restore map to the original state----------");
+                            };
+                        }
+                    }
+                }
+                break;
+            case MotionEvent.ACTION_POINTER_UP:
+                if (MAP_MODE == ZOOM) {
+                    userScale = new BigDecimal(userScale).setScale(1, BigDecimal.ROUND_HALF_UP).floatValue();
+                }
+                break;
+            case MotionEvent.ACTION_POINTER_DOWN://多指DOWN
+                if (event.getPointerCount() == 2) {//双指
+                    MAP_MODE = ZOOM;
+                    beforeDistance = distance(event);
+                }
+                break;
+        }
+    }
+
+    private void onClick(int x, int y) {
+        MAP_MODE = MODE_NONE;
+        switch (mOT) {
+            case MERGE_ROOM:
+                mGateHelper.onClick(x, y);
+                break;
+            case SELECT_ROOM:
+                mRoomHelper.clickRoomTag(x, y);
+                break;
+            case SEGMENT_ROOM:
+                mSegmentHelper.onClick(x, y);
+            case NAME_ROOM:
+                mRoomHelper.clickRoomTag(x, y);
+                break;
+
+        }
     }
 
     private void calculateScale(MotionEvent event) {

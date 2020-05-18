@@ -11,17 +11,22 @@ import com.aliyun.iot.aep.sdk._interface.OnAliResponse;
 import com.aliyun.iot.aep.sdk.bean.HistoryRecordBean;
 import com.aliyun.iot.aep.sdk.bean.PropertyBean;
 import com.aliyun.iot.aep.sdk.bean.ScheduleBean;
+import com.aliyun.iot.aep.sdk.contant.EnvConfigure;
 import com.aliyun.iot.aep.sdk.contant.IlifeAli;
 import com.ilife.home.livebus.LiveEventBus;
 import com.ilife.home.robot.R;
 import com.ilife.home.robot.base.BackBaseActivity;
 import com.ilife.home.robot.bean.MapDataBean;
+import com.ilife.home.robot.bean.PartitionBean;
+import com.ilife.home.robot.bean.SaveMapDataInfoBean;
 import com.ilife.home.robot.utils.DataUtils;
 import com.ilife.home.robot.utils.MyLogger;
+import com.ilife.home.robot.utils.SpUtils;
 import com.ilife.home.robot.utils.ToastUtils;
 import com.ilife.home.robot.utils.UiUtil;
 import com.ilife.home.robot.view.MapView;
 
+import java.util.HashMap;
 import java.util.List;
 
 import butterknife.BindView;
@@ -51,6 +56,7 @@ public class ScheduleAreaActivity extends BackBaseActivity {
     @BindView(R.id.fl_no_map)
     FrameLayout fl_no_map;
     private int times;
+    private HashMap<String, String> roomNames = new HashMap<>();
 
     @Override
     public int getLayoutId() {
@@ -106,27 +112,43 @@ public class ScheduleAreaActivity extends BackBaseActivity {
     @Override
     public void initData() {
         scheduleBean = getIntent().getParcelableExtra(ClockEditActivity.KEY_SCHEDULE_INFO);
-        times=scheduleBean.getLoop();
+        times = scheduleBean.getLoop();
         IlifeAli.getInstance().getProperties(new OnAliResponse<PropertyBean>() {
             @Override
-            public void onSuccess(PropertyBean result) {
-                long selectId = result.getSelectedMapId();
-                String partitionData = result.getPartition();
-                if (selectId == 0) {
+            public void onSuccess(PropertyBean bean) {
+                long mapId = bean.getSelectedMapId();
+                String partitionData = bean.getPartition();
+                if (mapId == 0) {
                     fl_no_map.setVisibility(View.VISIBLE);
                     return;
                 }
-                IlifeAli.getInstance().getSelectMap(selectId, new OnAliResponse<List<HistoryRecordBean>>() {
+                String saveMapDataKey = "";
+                if (mapId == bean.getSaveMapDataMapId1()) {
+                    saveMapDataKey = EnvConfigure.KEY_SAVE_MAP_DATA_1;
+                } else if (mapId == bean.getSaveMapDataMapId2()) {
+                    saveMapDataKey = EnvConfigure.KEY_SAVE_MAP_DATA_2;
+                } else if (mapId == bean.getSaveMapDataMapId3()) {
+                    saveMapDataKey = EnvConfigure.KEY_SAVE_MAP_DATA_3;
+                }
+                DataUtils.parseRoomInfo(String.valueOf(mapId), SpUtils.getSpString(ScheduleAreaActivity.this, "ROOM_NAME"), roomNames);
+                boolean isParseRoom = DataUtils.parseRoomInfo(String.valueOf(mapId), bean.getMapRoomInfo1(), roomNames);
+                if (!isParseRoom) {
+                    isParseRoom = DataUtils.parseRoomInfo(String.valueOf(mapId), bean.getMapRoomInfo2(), roomNames);
+                }
+                if (!isParseRoom) {
+                    DataUtils.parseRoomInfo(String.valueOf(mapId), bean.getMapRoomInfo3(), roomNames);
+                }
+                IlifeAli.getInstance().getSaveMapData(mapId, saveMapDataKey, new OnAliResponse<String[]>() {
                     @Override
-                    public void onSuccess(List<HistoryRecordBean> result) {
+                    public void onSuccess(String[] result) {
                         if (isDestroyed() || map_schedule_area == null) {
                             return;
                         }
-                        if (result.size() == 0) {//应该只有一条数据
+                        if (result == null || result.length == 0) {//应该只有一条数据
                             fl_no_map.setVisibility(View.VISIBLE);
                             return;
                         }
-                        MapDataBean mapDataBean = DataUtils.parseSaveMapData(result.get(0).getMapDataArray());
+                        MapDataBean mapDataBean = DataUtils.parseSaveMapData(result);
                         if (mapDataBean != null) {
                             map_schedule_area.setLeftTopCoordinate(mapDataBean.getLeftX(), mapDataBean.getLeftY());
                             map_schedule_area.updateSlam(mapDataBean.getMinX(), mapDataBean.getMaxX(), mapDataBean.getMinY(), mapDataBean.getMaxY());
@@ -139,6 +161,17 @@ public class ScheduleAreaActivity extends BackBaseActivity {
                         if (!TextUtils.isEmpty(cleanAreaData)) {
                             map_schedule_area.drawCleanArea(cleanAreaData);
                         }
+
+                        String saveMapDataInfoKey = "";
+                        if (mapId == bean.getSaveMapDataInfoMapId1()) {
+                            saveMapDataInfoKey = EnvConfigure.KEY_SAVE_MAP_DATA_INFO1;
+                        } else if (mapId == bean.getSaveMapDataInfoMapId2()) {
+                            saveMapDataInfoKey = EnvConfigure.KEY_SAVE_MAP_DATA_INFO2;
+                        } else if (mapId == bean.getSaveMapDataInfoMapId3()) {
+                            saveMapDataInfoKey = EnvConfigure.KEY_SAVE_MAP_DATA_INFO3;
+                        }
+                        fetchSaveMapDataInfo(saveMapDataInfoKey, (int) mapId);
+
                     }
 
                     @Override
@@ -156,6 +189,37 @@ public class ScheduleAreaActivity extends BackBaseActivity {
         });
 
     }
+
+
+    private void fetchSaveMapDataInfo(String saveMapDataInfoKey, int mapId) {
+        if (!TextUtils.isEmpty(saveMapDataInfoKey)) {
+            IlifeAli.getInstance().getSaveMapDataInfo(mapId, saveMapDataInfoKey, new OnAliResponse<String[]>() {
+                @Override
+                public void onSuccess(String[] result) {
+                    if (result != null && result.length > 0) {
+                        SaveMapDataInfoBean saveMapDataInfoBean = DataUtils.parseSaveMapInfo(result);
+                        for (PartitionBean room : saveMapDataInfoBean.getRooms()) {//绑定设置的用户名
+                            String roomName = roomNames.get(String.valueOf(room.getPartitionId()));
+                            if (roomName == null) {
+                                roomName = "";
+                            }
+                            room.setTag(roomName);
+                        }
+                        map_schedule_area.drawChargePort(saveMapDataInfoBean.getChargePoint().x, saveMapDataInfoBean.getChargePoint().y, true);
+                        map_schedule_area.getmGateHelper().drawGate(saveMapDataInfoBean.getGates());
+                        map_schedule_area.getmRoomHelper().drawRoom(saveMapDataInfoBean.getRooms());
+                        map_schedule_area.invalidateUI();
+                    }
+                }
+
+                @Override
+                public void onFailed(int code, String message) {
+
+                }
+            });
+        }
+    }
+
 
     @OnClick({R.id.fl_top_menu, R.id.iv_schedule_clean_time})
     public void onClick(View view) {

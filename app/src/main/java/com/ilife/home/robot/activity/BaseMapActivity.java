@@ -43,6 +43,7 @@ import com.ilife.home.robot.contract.MapX9Contract;
 import com.ilife.home.robot.fragment.DialogFragmentUtil;
 import com.ilife.home.robot.fragment.UniversalDialog;
 import com.ilife.home.robot.fragment.UseTipDialogFragment;
+import com.ilife.home.robot.model.bean.VirtualWallBean;
 import com.ilife.home.robot.presenter.MapX9Presenter;
 import com.ilife.home.robot.utils.MyLogger;
 import com.ilife.home.robot.utils.ToastUtils;
@@ -123,12 +124,6 @@ public abstract class BaseMapActivity extends BackBaseActivity<MapX9Presenter> i
     RecyclerView rv_bottom_sheet;
     @BindView(R.id.map_bottom_sheet)
     LinearLayout ll_bottom_sheet;
-    @BindView(R.id.fl_clean_times)
-    FrameLayout fl_clean_times;
-    @BindView(R.id.tv_cleaned_times)
-    TextView tv_cleaned_times;
-    @BindView(R.id.tv_setting_times)
-    TextView tv_setting_times;
     public static final int USE_MODE_NORMAL = 1;
     public static final int USE_MODE_REMOTE_CONTROL = 2;
     protected int USE_MODE = USE_MODE_NORMAL;
@@ -172,7 +167,7 @@ public abstract class BaseMapActivity extends BackBaseActivity<MapX9Presenter> i
                                         mPresenter.setAppRemind();
                                     }).build();
                         }
-                        if (!tipDialog.isAdded()) {
+                        if (!isDestroyed() && !tipDialog.isAdded()) {
                             tipDialog.show(getSupportFragmentManager(), "app_remind");
                         }
                         break;
@@ -393,6 +388,16 @@ public abstract class BaseMapActivity extends BackBaseActivity<MapX9Presenter> i
     }
 
     @Override
+    public void drawGates(List<VirtualWallBean> gates) {
+        mMapView.getmGateHelper().drawGate(gates);
+    }
+
+    @Override
+    public void invalidMap() {
+        mMapView.invalidateUI();
+    }
+
+    @Override
     public void drawVirtualWall(String vwStr) {
         mMapView.drawVirtualWall(vwStr);
     }
@@ -421,11 +426,6 @@ public abstract class BaseMapActivity extends BackBaseActivity<MapX9Presenter> i
      */
     @Override
     public void updateCleanTimes(boolean isDisplay, int cleanedTimes, int settingCleanTimes) {
-//        fl_clean_times.setVisibility(isDisplay ? View.VISIBLE : View.INVISIBLE);
-//        if (isDisplay) {
-//            tv_cleaned_times.setText(String.valueOf(cleanedTimes));
-//            tv_setting_times.setText(String.valueOf(settingCleanTimes));
-//        }
     }
 
     /**

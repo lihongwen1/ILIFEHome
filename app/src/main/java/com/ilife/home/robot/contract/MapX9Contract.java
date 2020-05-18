@@ -8,6 +8,7 @@ import com.ilife.home.robot.base.BaseView;
 import com.ilife.home.robot.bean.Coordinate;
 import com.ilife.home.robot.bean.MapDataBean;
 import com.ilife.home.robot.bean.RobotConfigBean;
+import com.ilife.home.robot.model.bean.VirtualWallBean;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -59,6 +60,8 @@ public interface MapX9Contract {
         void drawVirtualWall(String vwStr);
 
         void drawChargePort(int x,int y,boolean isDisplay);
+        void drawGates(List<VirtualWallBean> gates);
+        void invalidMap();
 
         void updateAlong(boolean isAlong);
 

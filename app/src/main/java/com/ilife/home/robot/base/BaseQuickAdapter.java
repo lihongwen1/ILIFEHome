@@ -22,6 +22,7 @@ public abstract class BaseQuickAdapter<T, K extends BaseViewHolder> extends Recy
     private OnItemChildClickListener mOnItemChildClickListener;
     private OnItemChildLongClickListener mOnItemChildLongClickListener;
     protected SparseIntArray selectPosition;
+    protected boolean isMultipleSelect;
     private boolean isMultiType;
     /**
      * layouts indexed with their types
@@ -133,7 +134,10 @@ public abstract class BaseQuickAdapter<T, K extends BaseViewHolder> extends Recy
     public void setOnItemClick(View v, int position) {
         getOnItemClickListener().onItemClick(BaseQuickAdapter.this, v, position);
         if (selectPosition != null) {
-            if (selectPosition.indexOfKey(position) >= 0) {
+            if (isMultipleSelect) {
+                selectPosition.clear();
+                selectPosition.put(position, position);
+            } else if (selectPosition.indexOfKey(position) >= 0) {
                 selectPosition.delete(position);
             } else {
                 selectPosition.put(position, position);

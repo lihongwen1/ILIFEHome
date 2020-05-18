@@ -1,15 +1,19 @@
 package com.ilife.home.robot.view.helper;
 
+import android.graphics.Bitmap;
 import android.graphics.Path;
 import android.graphics.RectF;
 import android.graphics.Region;
+import android.text.TextUtils;
 import android.util.Base64;
 import android.util.SparseIntArray;
 
+import com.ilife.home.livebus.LiveEventBus;
 import com.ilife.home.robot.R;
+import com.ilife.home.robot.activity.SegmentationRoomActivity;
 import com.ilife.home.robot.app.MyApplication;
 import com.ilife.home.robot.bean.PartitionBean;
-import com.ilife.home.robot.model.bean.VirtualWallBean;
+import com.ilife.home.robot.utils.BitmapUtils;
 import com.ilife.home.robot.utils.DataUtils;
 import com.ilife.home.robot.utils.MyLogger;
 import com.ilife.home.robot.utils.UiUtil;
@@ -17,7 +21,9 @@ import com.ilife.home.robot.view.MapView;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 选房清扫帮助类
@@ -30,6 +36,7 @@ public class RoomHelper {
     private int textSize;//房间标记半径
     private SparseIntArray selecRoom;
     private boolean isSingleChoice;
+    private Map<String, Bitmap> roomIcons, roomIconsWhite;
 
     public RoomHelper(MapView mapView) {
         this.mMapView = mapView;
@@ -37,15 +44,64 @@ public class RoomHelper {
         selecRoom = new SparseIntArray();
         radius = MyApplication.getInstance().getResources().getDimensionPixelSize(R.dimen.dp_20);
         textSize = MyApplication.getInstance().getResources().getDimensionPixelSize(R.dimen.dp_20);
+        roomIcons = new HashMap<>();
+        roomIcons.put(UiUtil.getString(R.string.room_name_living_room), decodeRoomBitmap(R.drawable.icon_name_living_room_orange));
+        roomIcons.put(UiUtil.getString(R.string.room_name_restaurant), decodeRoomBitmap(R.drawable.icon_name_restaurant_orange));
+        roomIcons.put(UiUtil.getString(R.string.room_name_bed_room), decodeRoomBitmap(R.drawable.icon_name_bedroom_orange));
+        roomIcons.put(UiUtil.getString(R.string.room_name_kitchen), decodeRoomBitmap(R.drawable.icon_name_kichten_orange));
+        roomIcons.put(UiUtil.getString(R.string.room_name_bath_room), decodeRoomBitmap(R.drawable.icon_name_bathe_orange));
+        roomIcons.put(UiUtil.getString(R.string.room_name_book_room), decodeRoomBitmap(R.drawable.icon_name_study_orange));
+        roomIcons.put(UiUtil.getString(R.string.room_name_laundary_room), decodeRoomBitmap(R.drawable.icon_name_laundry_orange));
+        roomIcons.put(UiUtil.getString(R.string.room_name_rest_room), decodeRoomBitmap(R.drawable.icon_name_rest_orange));
+        roomIcons.put(UiUtil.getString(R.string.room_name_play_room), decodeRoomBitmap(R.drawable.icon_name_play_orange));
+        roomIcons.put(UiUtil.getString(R.string.room_name_child_room), decodeRoomBitmap(R.drawable.icon_name_children_orange));
+        roomIcons.put(UiUtil.getString(R.string.room_name_store_room), decodeRoomBitmap(R.drawable.icon_name_storage_orange));
+        roomIcons.put(UiUtil.getString(R.string.room_name_other), decodeRoomBitmap(R.drawable.icon_name_other_orange));
+        roomIconsWhite = new HashMap<>();
+        roomIconsWhite.put(UiUtil.getString(R.string.room_name_living_room), decodeRoomBitmap(R.drawable.icon_name_living_room_white));
+        roomIconsWhite.put(UiUtil.getString(R.string.room_name_restaurant), decodeRoomBitmap(R.drawable.icon_name_restaurant_white));
+        roomIconsWhite.put(UiUtil.getString(R.string.room_name_bed_room), decodeRoomBitmap(R.drawable.icon_name_bedroom_white));
+        roomIconsWhite.put(UiUtil.getString(R.string.room_name_kitchen), decodeRoomBitmap(R.drawable.icon_name_kichten_white));
+        roomIconsWhite.put(UiUtil.getString(R.string.room_name_bath_room), decodeRoomBitmap(R.drawable.icon_name_bathe_white));
+        roomIconsWhite.put(UiUtil.getString(R.string.room_name_book_room), decodeRoomBitmap(R.drawable.icon_name_study_white));
+        roomIconsWhite.put(UiUtil.getString(R.string.room_name_laundary_room), decodeRoomBitmap(R.drawable.icon_name_laundry_white));
+        roomIconsWhite.put(UiUtil.getString(R.string.room_name_rest_room), decodeRoomBitmap(R.drawable.icon_name_rest_white));
+        roomIconsWhite.put(UiUtil.getString(R.string.room_name_play_room), decodeRoomBitmap(R.drawable.icon_name_play_white));
+        roomIconsWhite.put(UiUtil.getString(R.string.room_name_child_room), decodeRoomBitmap(R.drawable.icon_name_children_white));
+        roomIconsWhite.put(UiUtil.getString(R.string.room_name_store_room), decodeRoomBitmap(R.drawable.icon_name_storage_white));
+        roomIconsWhite.put(UiUtil.getString(R.string.room_name_other), decodeRoomBitmap(R.drawable.icon_name_other_white));
+    }
+
+
+    private Bitmap decodeRoomBitmap(int id) {
+        return BitmapUtils.decodeBitmapFromResource(MyApplication.getInstance().getResources(), id, radius * 2, radius * 2);
+    }
+
+    public Bitmap getRoomBitmap(PartitionBean room) {
+        Bitmap bitmap;
+        if (room.isTagDefault()) {
+            return null;
+        }
+        if (isRoomSelected(room.getPartitionId())) {
+            bitmap = roomIcons.get(room.getTag());
+            if (bitmap == null) {
+                bitmap = roomIcons.get(UiUtil.getString(R.string.room_name_other));
+            }
+        } else {
+            bitmap = roomIconsWhite.get(room.getTag());
+            if (bitmap == null) {
+                bitmap = roomIconsWhite.get(UiUtil.getString(R.string.room_name_other));
+            }
+        }
+        return bitmap;
     }
 
 
     public int getSelectRoomId() {
         int roomId = 0;
         for (int i = 0; i < selecRoom.size(); i++) {
-            roomId = DataUtils.setBitTo1(roomId, selecRoom.valueAt(i) - 1);
+            roomId += selecRoom.valueAt(i);
         }
-        MyLogger.d(TAG, "room id to send to server:" + roomId);
         return roomId;
     }
 
@@ -60,7 +116,7 @@ public class RoomHelper {
         int partionId, x, y;
 
         for (int i = 0; i < num; i++) {
-            partionId = DataUtils.getRoomId(new byte[]{bytes[i * 8 + 3], bytes[i * 8 + 2], bytes[i * 8 + 1], bytes[i * 8]});
+            partionId = DataUtils.bytesToInt(new byte[]{bytes[i * 8], bytes[i * 8 + 1], bytes[i * 8 + 2], bytes[i * 8 + 3]});
             if (partionId == -1) {
                 continue;
             }
@@ -101,7 +157,10 @@ public class RoomHelper {
         int index = 0;
         String[] tags = UiUtil.getStringArray(R.array.array_room_tag);
         for (PartitionBean room : rooms) {
-            room.setTag(tags[index]);
+            if (TextUtils.isEmpty(room.getTag())) {
+                room.setTag(tags[index]);
+                room.setTagDefault(true);
+            }
             index++;
         }
         Path circle = new Path();
@@ -148,8 +207,10 @@ public class RoomHelper {
 
     public void clickRoomTag(float mapX, float mapY) {
         int id;
+        boolean isClickedRoom = false;
         for (PartitionBean room : rooms) {
             if (room.getRegion().contains((int) mapX, (int) mapY)) {
+                isClickedRoom = true;
                 id = room.getPartitionId();
                 if (isSingleChoice) {
                     selecRoom.clear();
@@ -160,6 +221,9 @@ public class RoomHelper {
                     selecRoom.put(id, id);
                 }
             }
+        }
+        if (isClickedRoom && selecRoom.size() > 0) {
+            LiveEventBus.get(SegmentationRoomActivity.KEY_ROOM_SELECT, Boolean.class).post(true);
         }
         mMapView.invalidateUI();
     }

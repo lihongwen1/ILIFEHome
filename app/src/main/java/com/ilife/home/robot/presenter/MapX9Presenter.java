@@ -21,13 +21,16 @@ import com.ilife.home.livebus.LiveEventBus;
 import com.ilife.home.robot.R;
 import com.ilife.home.robot.able.DeviceUtils;
 import com.ilife.home.robot.activity.BaseMapActivity;
+import com.ilife.home.robot.activity.SelectRoomActivity;
 import com.ilife.home.robot.activity.SettingActivity;
 import com.ilife.home.robot.app.MyApplication;
 import com.ilife.home.robot.base.BaseActivity;
 import com.ilife.home.robot.base.BasePresenter;
 import com.ilife.home.robot.bean.Coordinate;
 import com.ilife.home.robot.bean.MapDataBean;
+import com.ilife.home.robot.bean.PartitionBean;
 import com.ilife.home.robot.bean.RobotConfigBean;
+import com.ilife.home.robot.bean.SaveMapDataInfoBean;
 import com.ilife.home.robot.contract.MapX9Contract;
 import com.ilife.home.robot.model.MapX9Model;
 import com.ilife.home.robot.utils.DataUtils;
@@ -340,9 +343,9 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
                         queryVirtualWall();
                     } else {//x800系列
                         if (curStatus == MsgCodeUtils.STATUE_CLEAN_ROOM || curStatus == MsgCodeUtils.STATUE_CLEAN_AREA || curStatus == MsgCodeUtils.STATUE_PLANNING
-                                || curStatus == MsgCodeUtils.STATUE_PAUSE||curStatus==MsgCodeUtils.STATUE_RECHARGE||
-                                curStatus==MsgCodeUtils.STATUE_ALONG||curStatus==MsgCodeUtils.STATUE_TEMPORARY_POINT||
-                        curStatus==MsgCodeUtils.STATUE_POINT) {
+                                || curStatus == MsgCodeUtils.STATUE_PAUSE || curStatus == MsgCodeUtils.STATUE_RECHARGE ||
+                                curStatus == MsgCodeUtils.STATUE_ALONG || curStatus == MsgCodeUtils.STATUE_TEMPORARY_POINT ||
+                                curStatus == MsgCodeUtils.STATUE_POINT) {
                             if (!isGetHistory && havMapData) {
                                 getHistoryDataX8();
                             }
@@ -352,7 +355,8 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
                         /**
                          * 处理保存地图
                          */
-                        if (mDevicePropertyBean.isInitStatus() && mDevicePropertyBean.getSelectedMapId() != 0) {
+
+                        if (!isWork(curStatus) || mDevicePropertyBean.isInitStatus() && mDevicePropertyBean.getSelectedMapId() != 0) {
                             doAboutSlam();
                         } else {
                             LiveEventBus.get(EnvConfigure.VirtualWallData, String.class).post(mDevicePropertyBean.getVirtualWall());
@@ -415,7 +419,7 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
             mView.setBatteryImage(curStatus, batteryNo);
         }
         if (curStatus == MsgCodeUtils.STATUE_RANDOM || curStatus == MsgCodeUtils.STATUE_PLANNING || curStatus == MsgCodeUtils.STATUE_CHARGING_ || curStatus == MsgCodeUtils.STATUE_CHARGING ||
-                curStatus == MsgCodeUtils.STATUE_POINT || curStatus == MsgCodeUtils.STATUE_ALONG||curStatus==MsgCodeUtils.STATUE_TEMPORARY_POINT) {
+                curStatus == MsgCodeUtils.STATUE_POINT || curStatus == MsgCodeUtils.STATUE_ALONG || curStatus == MsgCodeUtils.STATUE_TEMPORARY_POINT) {
             mView.setCurrentBottom(BaseMapActivity.USE_MODE_NORMAL);//进入一级控制界面
         }
         if (curStatus == MsgCodeUtils.STATUE_REMOTE_CONTROL) {//进入二级控制界面
@@ -658,6 +662,7 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
                 slamPointList.clear();
                 mView.drawVirtualWall("");
                 mView.drawForbiddenArea("");
+                mView.drawGates(new ArrayList<>());
                 mView.drawChargePort(0, 0, false);
                 mView.drawMapX8(pointList, slamPointList);
             } else {
@@ -678,22 +683,28 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
     }
 
     /**
-     * 处理SLAM
+     * 处理已保存地图
      */
     private void doAboutSlam() {
-        long selectId = mDevicePropertyBean.getSelectedMapId();
-        IlifeAli.getInstance().getSelectMap(selectId, new OnAliResponse<List<HistoryRecordBean>>() {
+        long mapId = mDevicePropertyBean.getSelectedMapId();
+        String saveMapDataKey = "";
+        if (mapId == mDevicePropertyBean.getSaveMapDataMapId1()) {
+            saveMapDataKey = EnvConfigure.KEY_SAVE_MAP_DATA_1;
+        } else if (mapId == mDevicePropertyBean.getSaveMapDataMapId2()) {
+            saveMapDataKey = EnvConfigure.KEY_SAVE_MAP_DATA_2;
+        } else if (mapId == mDevicePropertyBean.getSaveMapDataMapId3()) {
+            saveMapDataKey = EnvConfigure.KEY_SAVE_MAP_DATA_3;
+        }
+        IlifeAli.getInstance().getSaveMapData(mapId, saveMapDataKey, new OnAliResponse<String[]>() {
             @Override
-            public void onSuccess(List<HistoryRecordBean> result) {
+            public void onSuccess(String[] result) {
+                if (result.length == 0) {//应该只有一条数据
+                    return;
+                }
                 if (!isViewAttached()) {
                     return;
                 }
-                //只有一条记录才正确
-                if (result == null || result.size() == 0) {
-                    MyLogger.e(TAG, "保存地图数据错误！！！！！！！！！！");
-                    return;
-                }
-                MapDataBean mapDataBean = DataUtils.parseSaveMapData(result.get(0).getMapDataArray());
+                MapDataBean mapDataBean = DataUtils.parseSaveMapData(result);
                 if (mapDataBean != null) {
                     minX = mapDataBean.getMinX();
                     maxX = mapDataBean.getMaxX();
@@ -750,6 +761,16 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
                         }
                     }
                 }
+                String saveMapDataInfoKey = "";
+                if (mapId == mDevicePropertyBean.getSaveMapDataInfoMapId1()) {
+                    saveMapDataInfoKey = EnvConfigure.KEY_SAVE_MAP_DATA_INFO1;
+                } else if (mapId == mDevicePropertyBean.getSaveMapDataInfoMapId2()) {
+                    saveMapDataInfoKey = EnvConfigure.KEY_SAVE_MAP_DATA_INFO2;
+                } else if (mapId == mDevicePropertyBean.getSaveMapDataInfoMapId3()) {
+                    saveMapDataInfoKey = EnvConfigure.KEY_SAVE_MAP_DATA_INFO3;
+                }
+                fetchSaveMapDataInfo(saveMapDataInfoKey, (int) mapId);
+
             }
 
             @Override
@@ -758,6 +779,32 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
             }
         });
     }
+
+
+    private void fetchSaveMapDataInfo(String saveMapDataInfoKey, int mapId) {
+        if (!TextUtils.isEmpty(saveMapDataInfoKey)) {
+            IlifeAli.getInstance().getSaveMapDataInfo(mapId, saveMapDataInfoKey, new OnAliResponse<String[]>() {
+                @Override
+                public void onSuccess(String[] result) {
+                    if (!isViewAttached()) {
+                        return;
+                    }
+                    if (result != null && result.length > 0) {
+                        SaveMapDataInfoBean saveMapDataInfoBean = DataUtils.parseSaveMapInfo(result);
+//                        mView.drawChargePort(saveMapDataInfoBean.getChargePoint().x, saveMapDataInfoBean.getChargePoint().y, true);//该充电座位置与主机上报的位置不一致
+                        mView.drawGates(saveMapDataInfoBean.getGates());
+                        mView.invalidMap();
+                    }
+                }
+
+                @Override
+                public void onFailed(int code, String message) {
+
+                }
+            });
+        }
+    }
+
 
     /**
      * 解析X800系列地图数据子线程

@@ -22,9 +22,13 @@ import com.ilife.home.robot.utils.SpUtils;
 import com.ilife.home.robot.utils.ToastUtils;
 import com.ilife.home.robot.view.RecyclerViewDivider;
 import com.ilife.home.robot.R;
+import com.scwang.smartrefresh.layout.SmartRefreshLayout;
+import com.scwang.smartrefresh.layout.header.ClassicsHeader;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import butterknife.BindView;
 
 /**
  * Created by chenjiaping on 2017/8/18.
@@ -40,6 +44,7 @@ public class HistoryActivity_x9 extends BackBaseActivity implements View.OnClick
     HistoryAdapter adapter;
     LinearLayout fl_noRecord;
     TextView tv_title;
+    SmartRefreshLayout refreshLayout;
     private long start, end;
 
     @Override
@@ -47,6 +52,7 @@ public class HistoryActivity_x9 extends BackBaseActivity implements View.OnClick
         super.onCreate(savedInstanceState);
         start = IlifeAli.getInstance().getWorkingDevice().getDeviceInfo().getHistoryMapTimeLine();
         end = System.currentTimeMillis();
+        showLoadingDialog();
         getHistoryRecord();
 
     }
@@ -58,9 +64,13 @@ public class HistoryActivity_x9 extends BackBaseActivity implements View.OnClick
 
     public void initView() {
         context = this;
+
         fl_noRecord = findViewById(R.id.ll_noRecord);
         tv_title = findViewById(R.id.tv_top_title);
         tv_title.setText(R.string.setting_aty_clean_record);
+        refreshLayout = findViewById(R.id.refreshLayout);
+        refreshLayout.setRefreshHeader(new ClassicsHeader(this));
+        refreshLayout.setOnRefreshListener(refreshLayout -> getHistoryRecord());
         recordList = new ArrayList<>();
         recyclerView = (RecyclerView) findViewById(R.id.recyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(context));
@@ -90,16 +100,21 @@ public class HistoryActivity_x9 extends BackBaseActivity implements View.OnClick
         IlifeAli.getInstance().getHistoryRecords(start, end, new OnAliResponse<List<HistoryRecordBean>>() {
             @Override
             public void onSuccess(List<HistoryRecordBean> result) {
+                recordList.clear();
                 recordList.addAll(result);
                 showList(recordList);
+                hideLoadingDialog();
+                refreshLayout.finishRefresh();
             }
 
             @Override
             public void onFailed(int code, String message) {
-                if (code!= -1) {//-1 is a custom error,no need to handle it
+                if (code != -1) {//-1 is a custom error,no need to handle it
                     ToastUtils.showErrorToast(context, code);
                 }
                 showList(recordList);
+                hideLoadingDialog();
+                refreshLayout.finishRefresh();
             }
         });
     }

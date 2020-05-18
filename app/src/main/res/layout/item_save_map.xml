@@ -55,19 +55,39 @@
                         android:id="@+id/mv_save_map"
                         android:layout_width="match_parent"
                         android:layout_height="0dp"
+                        android:layout_marginTop="@dimen/dp_4"
+                        android:layout_marginBottom="@dimen/dp_4"
                         android:layout_weight="1"
                         app:touchable="false" />
 
-                    <TextView
-                        android:id="@+id/tv_apply_this_map"
-                        style="@style/Text_14sp_them_color"
-                        android:background="@drawable/selector_theme_cocor_rectangle"
-                        android:paddingStart="@dimen/dp_30"
-                        android:paddingTop="@dimen/dp_10"
-                        android:paddingEnd="@dimen/dp_30"
-                        android:paddingBottom="@dimen/dp_10"
-                        android:textColor="@drawable/selector_color_theme_white"
-                        android:visibility="invisible" />
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="@dimen/dp_36"
+                        android:paddingStart="@dimen/dp_24"
+                        android:paddingEnd="24dp">
+
+                        <TextView
+                            android:id="@+id/tv_apply_this_map"
+                            style="@style/Text_14sp_them_color"
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:layout_weight="1"
+                            android:background="@drawable/selector_theme_cocor_rectangle"
+                            android:gravity="center"
+                            android:textColor="@drawable/selector_color_theme_white" />
+
+                        <TextView
+                            android:id="@+id/tv_edit_this_map"
+                            style="@style/Text_14sp_33"
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:layout_marginStart="@dimen/dp_24"
+                            android:layout_weight="1"
+                            android:background="@drawable/bg_logout"
+                            android:gravity="center"
+                            android:text="编辑地图"/>
+                    </LinearLayout>
+
                 </LinearLayout>
             </FrameLayout>
         </androidx.cardview.widget.CardView>

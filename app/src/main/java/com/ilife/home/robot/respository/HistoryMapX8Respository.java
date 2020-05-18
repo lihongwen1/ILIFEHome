@@ -1,5 +1,6 @@
 package com.ilife.home.robot.respository;
 
+import android.os.Build;
 import android.text.TextUtils;
 import android.util.Base64;
 
@@ -16,6 +17,8 @@ import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.function.Predicate;
+import java.util.function.UnaryOperator;
 
 /**
  * query cleaning data form server ,and parse it with multithreading
@@ -63,18 +66,19 @@ public class HistoryMapX8Respository {
                         MyLogger.e(TAG, "数据已经处理完成，线程继续执行-------------------");
 
                         CleaningDataX8 wholeData = new CleaningDataX8();
-                        List<Coordinate> pointList = wholeData.getCoordinates();
                         for (CleaningDataX8 dataX8 : dataX8s) {
                             if (dataX8 == null) {
                                 continue;
                             }
                             if (dataX8.isHaveClearFlag()) {
-                                pointList.clear();
+                                wholeData.getCoordinates().clear();
                             }
                             wholeData.setWorkTime(dataX8.getWorkTime());
                             wholeData.setCleanArea(dataX8.getCleanArea());
                             if (dataX8.getCoordinates() != null) {
-                                pointList.addAll(dataX8.getCoordinates());
+                                for (Coordinate coo : dataX8.getCoordinates()) {
+                                    wholeData.addCoordinate(coo);
+                                }
                             }
                         }
                         onResponse.onResponse(wholeData);

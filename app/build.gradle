@@ -67,7 +67,7 @@ android {
             dimension "default"
             applicationId "com.ilife.home.robot_test"
             versionCode = 5
-            versionName = '1.0.2.5'
+            versionName = '1.0.2.6'
             signingConfig signingConfigs.ilife_home
             resValue "string", "app_name", "AliyunGN"
             buildConfigField("String", "environment", "\"product\"")
@@ -81,7 +81,7 @@ android {
             dimension "default"
             applicationId "com.zaco.home.robot"
             versionCode = 3
-            versionName = '1.0.2.18'
+            versionName = '1.0.2.19'
             signingConfig signingConfigs.ilife_home
             resValue "string", "app_name", "ZACOHome"
             buildConfigField("String", "environment", "\"product\"")

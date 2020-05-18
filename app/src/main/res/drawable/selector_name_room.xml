@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
-      <item android:state_checked="true" android:drawable="@drawable/operation_btn_rename_selected"/>
-      <item  android:drawable="@drawable/operation_btn_rename_default"/>
+    <item android:drawable="@drawable/operation_button_rename_selected" android:state_selected="true" />
+    <item android:drawable="@drawable/operation_button_rename_disable" android:state_enabled="false" />
+    <item android:drawable="@drawable/operation_button_rename_default" />
 </selector>
