@@ -35,7 +35,7 @@ import butterknife.OnClick;
 /**
  * 选择预约区域
  */
-public class ScheduleAreaActivity extends BackBaseActivity {
+public class ScheduleAreaActivity extends BaseSlamMapActivity {
     private static final String TAG = "ScheduleAreaActivity";
     public static final String KEY_SCHEDULE_AREA_BEAN = "schedule_area_bean";
     @BindView(R.id.rg_schedule_area)
@@ -110,114 +110,59 @@ public class ScheduleAreaActivity extends BackBaseActivity {
     }
 
     @Override
+    protected void onSaveMapBean() {
+        long mapId = propertyBean.getSelectedMapId();
+        if (mapId == 0) {
+            fl_no_map.setVisibility(View.VISIBLE);
+            return;
+        }
+        DataUtils.parseRoomInfo(String.valueOf(mapId), SpUtils.getSpString(ScheduleAreaActivity.this, "ROOM_NAME"), roomNames);
+        boolean isParseRoom = DataUtils.parseRoomInfo(String.valueOf(mapId), propertyBean.getMapRoomInfo1(), roomNames);
+        if (!isParseRoom) {
+            isParseRoom = DataUtils.parseRoomInfo(String.valueOf(mapId), propertyBean.getMapRoomInfo2(), roomNames);
+        }
+        if (!isParseRoom) {
+            DataUtils.parseRoomInfo(String.valueOf(mapId), propertyBean.getMapRoomInfo3(), roomNames);
+        }
+
+        if (isDestroyed() || map_schedule_area == null) {
+            return;
+        }
+        if (saveMapBean.getMapData() == null || saveMapBean.getMapData().length == 0) {
+            fl_no_map.setVisibility(View.VISIBLE);
+            return;
+        }
+        MapDataBean mapDataBean = DataUtils.parseSaveMapData(saveMapBean.getMapData());
+        if (mapDataBean != null) {
+            map_schedule_area.setLeftTopCoordinate(mapDataBean.getLeftX(), mapDataBean.getLeftY());
+            map_schedule_area.updateSlam(mapDataBean.getMinX(), mapDataBean.getMaxX(), mapDataBean.getMinY(), mapDataBean.getMaxY());
+            map_schedule_area.drawMapX8(mapDataBean.getCoordinates());
+        }
+        String cleanAreaData = scheduleBean.getType() == 1 ? scheduleBean.getArea() : "";
+        if (!TextUtils.isEmpty(cleanAreaData)) {
+            map_schedule_area.drawCleanArea(cleanAreaData);
+        }
+        SaveMapDataInfoBean saveMapDataInfoBean = DataUtils.parseSaveMapInfo(saveMapBean.getMapDataInfo());
+        if (saveMapDataInfoBean != null) {
+            for (PartitionBean room : saveMapDataInfoBean.getRooms()) {//绑定设置的用户名
+                String roomName = roomNames.get(String.valueOf(room.getPartitionId()));
+                if (roomName == null) {
+                    roomName = "";
+                }
+                room.setTag(roomName);
+            }
+            map_schedule_area.drawChargePort(saveMapDataInfoBean.getChargePoint().x, saveMapDataInfoBean.getChargePoint().y, true);
+            map_schedule_area.getmGateHelper().drawGate(saveMapDataInfoBean.getGates());
+            map_schedule_area.getmRoomHelper().drawRoom(saveMapDataInfoBean.getRooms(),scheduleBean.getRoom());
+            map_schedule_area.invalidateUI();
+        }
+    }
+
+    @Override
     public void initData() {
         scheduleBean = getIntent().getParcelableExtra(ClockEditActivity.KEY_SCHEDULE_INFO);
         times = scheduleBean.getLoop();
-        IlifeAli.getInstance().getProperties(new OnAliResponse<PropertyBean>() {
-            @Override
-            public void onSuccess(PropertyBean bean) {
-                long mapId = bean.getSelectedMapId();
-                String partitionData = bean.getPartition();
-                if (mapId == 0) {
-                    fl_no_map.setVisibility(View.VISIBLE);
-                    return;
-                }
-                String saveMapDataKey = "";
-                if (mapId == bean.getSaveMapDataMapId1()) {
-                    saveMapDataKey = EnvConfigure.KEY_SAVE_MAP_DATA_1;
-                } else if (mapId == bean.getSaveMapDataMapId2()) {
-                    saveMapDataKey = EnvConfigure.KEY_SAVE_MAP_DATA_2;
-                } else if (mapId == bean.getSaveMapDataMapId3()) {
-                    saveMapDataKey = EnvConfigure.KEY_SAVE_MAP_DATA_3;
-                }
-                DataUtils.parseRoomInfo(String.valueOf(mapId), SpUtils.getSpString(ScheduleAreaActivity.this, "ROOM_NAME"), roomNames);
-                boolean isParseRoom = DataUtils.parseRoomInfo(String.valueOf(mapId), bean.getMapRoomInfo1(), roomNames);
-                if (!isParseRoom) {
-                    isParseRoom = DataUtils.parseRoomInfo(String.valueOf(mapId), bean.getMapRoomInfo2(), roomNames);
-                }
-                if (!isParseRoom) {
-                    DataUtils.parseRoomInfo(String.valueOf(mapId), bean.getMapRoomInfo3(), roomNames);
-                }
-                IlifeAli.getInstance().getSaveMapData(mapId, saveMapDataKey, new OnAliResponse<String[]>() {
-                    @Override
-                    public void onSuccess(String[] result) {
-                        if (isDestroyed() || map_schedule_area == null) {
-                            return;
-                        }
-                        if (result == null || result.length == 0) {//应该只有一条数据
-                            fl_no_map.setVisibility(View.VISIBLE);
-                            return;
-                        }
-                        MapDataBean mapDataBean = DataUtils.parseSaveMapData(result);
-                        if (mapDataBean != null) {
-                            map_schedule_area.setLeftTopCoordinate(mapDataBean.getLeftX(), mapDataBean.getLeftY());
-                            map_schedule_area.updateSlam(mapDataBean.getMinX(), mapDataBean.getMaxX(), mapDataBean.getMinY(), mapDataBean.getMaxY());
-                            map_schedule_area.drawMapX8(mapDataBean.getCoordinates());
-                        }
-                        if (!TextUtils.isEmpty(partitionData)) {
-                            map_schedule_area.getmRoomHelper().drawRoom(partitionData, scheduleBean.getType() == 2 ? scheduleBean.getRoom() : 0);
-                        }
-                        String cleanAreaData = scheduleBean.getType() == 1 ? scheduleBean.getArea() : "";
-                        if (!TextUtils.isEmpty(cleanAreaData)) {
-                            map_schedule_area.drawCleanArea(cleanAreaData);
-                        }
-
-                        String saveMapDataInfoKey = "";
-                        if (mapId == bean.getSaveMapDataInfoMapId1()) {
-                            saveMapDataInfoKey = EnvConfigure.KEY_SAVE_MAP_DATA_INFO1;
-                        } else if (mapId == bean.getSaveMapDataInfoMapId2()) {
-                            saveMapDataInfoKey = EnvConfigure.KEY_SAVE_MAP_DATA_INFO2;
-                        } else if (mapId == bean.getSaveMapDataInfoMapId3()) {
-                            saveMapDataInfoKey = EnvConfigure.KEY_SAVE_MAP_DATA_INFO3;
-                        }
-                        fetchSaveMapDataInfo(saveMapDataInfoKey, (int) mapId);
-
-                    }
-
-                    @Override
-                    public void onFailed(int code, String message) {
-
-                    }
-                });
-            }
-
-            @Override
-            public void onFailed(int code, String message) {
-                fl_no_map.setVisibility(View.VISIBLE);
-                MyLogger.e(TAG, "获取清扫区域数据失败，reason: " + message);
-            }
-        });
-
-    }
-
-
-    private void fetchSaveMapDataInfo(String saveMapDataInfoKey, int mapId) {
-        if (!TextUtils.isEmpty(saveMapDataInfoKey)) {
-            IlifeAli.getInstance().getSaveMapDataInfo(mapId, saveMapDataInfoKey, new OnAliResponse<String[]>() {
-                @Override
-                public void onSuccess(String[] result) {
-                    if (result != null && result.length > 0) {
-                        SaveMapDataInfoBean saveMapDataInfoBean = DataUtils.parseSaveMapInfo(result);
-                        for (PartitionBean room : saveMapDataInfoBean.getRooms()) {//绑定设置的用户名
-                            String roomName = roomNames.get(String.valueOf(room.getPartitionId()));
-                            if (roomName == null) {
-                                roomName = "";
-                            }
-                            room.setTag(roomName);
-                        }
-                        map_schedule_area.drawChargePort(saveMapDataInfoBean.getChargePoint().x, saveMapDataInfoBean.getChargePoint().y, true);
-                        map_schedule_area.getmGateHelper().drawGate(saveMapDataInfoBean.getGates());
-                        map_schedule_area.getmRoomHelper().drawRoom(saveMapDataInfoBean.getRooms());
-                        map_schedule_area.invalidateUI();
-                    }
-                }
-
-                @Override
-                public void onFailed(int code, String message) {
-
-                }
-            });
-        }
+        super.initData();
     }
 
 

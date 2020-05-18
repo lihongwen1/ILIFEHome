@@ -20,6 +20,7 @@ import com.ilife.home.robot.base.BackBaseActivity;
 import com.ilife.home.robot.bean.Coordinate;
 import com.ilife.home.robot.bean.MapDataBean;
 import com.ilife.home.robot.bean.PartitionBean;
+import com.ilife.home.robot.bean.SaveMapBean;
 import com.ilife.home.robot.bean.SaveMapDataInfoBean;
 import com.ilife.home.robot.fragment.UniversalDialog;
 import com.ilife.home.robot.model.MapX9Model;
@@ -41,7 +42,7 @@ import butterknife.OnClick;
 /**
  * 编辑虚拟墙，禁区的界面
  */
-public class VirtualWallActivity extends BackBaseActivity {
+public class VirtualWallActivity extends BaseSlamMapActivity {
     private static final String TAG = "VirtualWallActivity";
     @BindView(R.id.tv_top_title)
     TextView tv_title;
@@ -94,96 +95,44 @@ public class VirtualWallActivity extends BackBaseActivity {
     @Override
     public void initData() {
         super.initData();
-        IlifeAli.getInstance().getProperties(new OnAliResponse<PropertyBean>() {
-            @Override
-            public void onSuccess(PropertyBean bean) {
-                boolean isDrawSaveMap = false;
-                int workMode = bean.getWorkMode();
-                if (workMode == MsgCodeUtils.STATUE_CHARGING || workMode == MsgCodeUtils.STATUE_CHARGING_BASE_SLEEP) {
-                    isDrawSaveMap = true;
-                } else {
-                    isDrawSaveMap = bean.isInitStatus();
-                }
-                long mapId = bean.getSelectedMapId();
-                str_virtual = bean.getVirtualWall();
-                MyLogger.d(TAG, "服务器虚拟墙数据：" + str_virtual);
-                str_mopArea = bean.getForbiddenArea();
-                charging_port = bean.getChargePort();
-                MyLogger.d(TAG, "服务器禁区数据：" + str_mopArea);
 
-                MapX9Model model = new MapX9Model();
-                model.queryHistoryData(bean.getRealTimeMapTimeLine(), cleaningDataX8 -> {
-                    MyLogger.d(TAG, "getHistoryDataX8-------------------------------success");
-                    drawMap(cleaningDataX8.getCoordinates());
-                });
-                if (isDrawSaveMap && mapId != 0) {
-                    String saveMapDataKey = "";
-                    if (mapId == bean.getSaveMapDataMapId1()) {
-                        saveMapDataKey = EnvConfigure.KEY_SAVE_MAP_DATA_1;
-                    } else if (mapId == bean.getSaveMapDataMapId2()) {
-                        saveMapDataKey = EnvConfigure.KEY_SAVE_MAP_DATA_2;
-                    } else if (mapId == bean.getSaveMapDataMapId3()) {
-                        saveMapDataKey = EnvConfigure.KEY_SAVE_MAP_DATA_3;
-                    }
-                    IlifeAli.getInstance().getSaveMapData(mapId, saveMapDataKey, new OnAliResponse<String[]>() {
-                        @Override
-                        public void onSuccess(String[] result) {
-                            if (result.length == 0) {//应该只有一条数据
-                                return;
-                            }
-                            MapDataBean mapDataBean = DataUtils.parseSaveMapData(result);
-                            if (mapDataBean != null) {
-                                drawMap(mapDataBean.getCoordinates());
-                            }
-                            String saveMapDataInfoKey = "";
-                            if (mapId == bean.getSaveMapDataInfoMapId1()) {
-                                saveMapDataInfoKey = EnvConfigure.KEY_SAVE_MAP_DATA_INFO1;
-                            } else if (mapId == bean.getSaveMapDataInfoMapId2()) {
-                                saveMapDataInfoKey = EnvConfigure.KEY_SAVE_MAP_DATA_INFO2;
-                            } else if (mapId == bean.getSaveMapDataInfoMapId3()) {
-                                saveMapDataInfoKey = EnvConfigure.KEY_SAVE_MAP_DATA_INFO3;
-                            }
-                            fetchSaveMapDataInfo(saveMapDataInfoKey, (int) mapId);
-
-                        }
-
-                        @Override
-                        public void onFailed(int code, String message) {
-
-                        }
-                    });
-                }
-            }
-
-            @Override
-            public void onFailed(int code, String message) {
-
-            }
-        });
     }
 
 
-    private void fetchSaveMapDataInfo(String saveMapDataInfoKey, int mapId) {
-        if (!TextUtils.isEmpty(saveMapDataInfoKey)) {
-            IlifeAli.getInstance().getSaveMapDataInfo(mapId, saveMapDataInfoKey, new OnAliResponse<String[]>() {
-                @Override
-                public void onSuccess(String[] result) {
-                    if (result != null && result.length > 0) {
-                        SaveMapDataInfoBean saveMapDataInfoBean = DataUtils.parseSaveMapInfo(result);
-                        mMapView.drawChargePort(saveMapDataInfoBean.getChargePoint().x, saveMapDataInfoBean.getChargePoint().y, true);
-                        mMapView.getmGateHelper().drawGate(saveMapDataInfoBean.getGates());
-                        mMapView.invalidateUI();
-                    }
-                }
+    @Override
+    protected void onSaveMapBean() {
+        boolean isDrawSaveMap;
+        int workMode = propertyBean.getWorkMode();
+        if (workMode == MsgCodeUtils.STATUE_CHARGING || workMode == MsgCodeUtils.STATUE_CHARGING_BASE_SLEEP) {
+            isDrawSaveMap = true;
+        } else {
+            isDrawSaveMap = propertyBean.isInitStatus();
+        }
+        long mapId = propertyBean.getSelectedMapId();
+        str_virtual = propertyBean.getVirtualWall();
+        MyLogger.d(TAG, "服务器虚拟墙数据：" + str_virtual);
+        str_mopArea = propertyBean.getForbiddenArea();
+        charging_port = propertyBean.getChargePort();
+        MyLogger.d(TAG, "服务器禁区数据：" + str_mopArea);
 
-                @Override
-                public void onFailed(int code, String message) {
-
-                }
-            });
+        MapX9Model model = new MapX9Model();
+        model.queryHistoryData(propertyBean.getRealTimeMapTimeLine(), cleaningDataX8 -> {
+            MyLogger.d(TAG, "getHistoryDataX8-------------------------------success");
+            drawMap(cleaningDataX8.getCoordinates());
+        });
+        if (isDrawSaveMap && mapId != 0) {
+            MapDataBean mapDataBean = DataUtils.parseSaveMapData(saveMapBean.getMapData());
+            if (mapDataBean != null) {
+                drawMap(mapDataBean.getCoordinates());
+            }
+            SaveMapDataInfoBean saveMapDataInfoBean = DataUtils.parseSaveMapInfo(saveMapBean.getMapDataInfo());
+            if (saveMapDataInfoBean != null) {
+                mMapView.drawChargePort(saveMapDataInfoBean.getChargePoint().x, saveMapDataInfoBean.getChargePoint().y, true);
+                mMapView.getmGateHelper().drawGate(saveMapDataInfoBean.getGates());
+                mMapView.invalidateUI();
+            }
         }
     }
-
 
     private synchronized void drawMap(List<Coordinate> data) {
         coordinates.addAll(data);
@@ -202,7 +151,7 @@ public class VirtualWallActivity extends BackBaseActivity {
                 byte[] bytes = DataUtils.intToBytes4(xy);
                 int x = DataUtils.bytesToInt(new byte[]{bytes[0], bytes[1]}, 0);
                 int y = -DataUtils.bytesToInt(new byte[]{bytes[2], bytes[3]}, 0);
-                mMapView.drawChargePort(x, y,true);
+                mMapView.drawChargePort(x, y, true);
             }
         }
     }

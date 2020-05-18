@@ -34,7 +34,7 @@ import butterknife.OnClick;
 /**
  * 划区清扫
  */
-public class CleanAreaActivity extends BackBaseActivity {
+public class CleanAreaActivity extends BaseSlamMapActivity {
     private static final String TAG = "CleanAreaActivity";
     @BindView(R.id.tv_top_title)
     TextView tv_title;
@@ -78,94 +78,38 @@ public class CleanAreaActivity extends BackBaseActivity {
         rg_clean_area.check(R.id.tv_clean_area_do_map);
     }
 
+
     @Override
-    public void initData() {
-        IlifeAli.getInstance().getProperties(new OnAliResponse<PropertyBean>() {
-            @Override
-            public void onSuccess(PropertyBean bean) {
-                long mapId = bean.getSelectedMapId();
-                String cleanAreaData = bean.getCleanArea();
-                MyLogger.d(TAG, "划区数据1111：" + cleanAreaData);
-                String saveMapDataKey = "";
-                if (mapId == bean.getSaveMapDataMapId1()) {
-                    saveMapDataKey = EnvConfigure.KEY_SAVE_MAP_DATA_1;
-                } else if (mapId == bean.getSaveMapDataMapId2()) {
-                    saveMapDataKey = EnvConfigure.KEY_SAVE_MAP_DATA_2;
-                } else if (mapId == bean.getSaveMapDataMapId3()) {
-                    saveMapDataKey = EnvConfigure.KEY_SAVE_MAP_DATA_3;
+    protected void onSaveMapBean() {
+        MapDataBean mapDataBean = DataUtils.parseSaveMapData(saveMapBean.getMapData());
+        if (mapDataBean != null) {
+            map_clean_area.setLeftTopCoordinate(mapDataBean.getLeftX(), mapDataBean.getLeftY());
+            map_clean_area.updateSlam(mapDataBean.getMinX(), mapDataBean.getMaxX(), mapDataBean.getMinY(), mapDataBean.getMaxY());
+            map_clean_area.drawMapX8(mapDataBean.getCoordinates());
+            if (!TextUtils.isEmpty(propertyBean.getCleanArea())) {
+                JSONObject json = JSON.parseObject(propertyBean.getCleanArea());
+                boolean enable = json.getIntValue("Enable") != 0;
+                String area = "";
+                if (enable) {
+                    area = json.getString("AreaData");
+                    if (area.equals("AAAAAAAAAAAAAAAAAAAAAA==")) {
+                        area = "";
+                    }
                 }
-                IlifeAli.getInstance().getSaveMapData(mapId, saveMapDataKey, new OnAliResponse<String[]>() {
-                    @Override
-                    public void onSuccess(String[] result) {
-                        if (result.length == 0) {//应该只有一条数据
-                            return;
-                        }
-                        MapDataBean mapDataBean = DataUtils.parseSaveMapData(result);
-                        if (mapDataBean != null) {
-                            map_clean_area.setLeftTopCoordinate(mapDataBean.getLeftX(), mapDataBean.getLeftY());
-                            map_clean_area.updateSlam(mapDataBean.getMinX(), mapDataBean.getMaxX(), mapDataBean.getMinY(), mapDataBean.getMaxY());
-                            map_clean_area.drawMapX8(mapDataBean.getCoordinates());
-                            if (!TextUtils.isEmpty(cleanAreaData)) {
-                                JSONObject json = JSON.parseObject(cleanAreaData);
-                                boolean enable = json.getIntValue("Enable") != 0;
-                                String area = "";
-                                if (enable) {
-                                    area = json.getString("AreaData");
-                                    if (area.equals("AAAAAAAAAAAAAAAAAAAAAA==")) {
-                                        area = "";
-                                    }
-                                }
-                                map_clean_area.drawCleanArea(area);
-                            }
-
-                        }
-                        String saveMapDataInfoKey = "";
-                        if (mapId == bean.getSaveMapDataInfoMapId1()) {
-                            saveMapDataInfoKey = EnvConfigure.KEY_SAVE_MAP_DATA_INFO1;
-                        } else if (mapId == bean.getSaveMapDataInfoMapId2()) {
-                            saveMapDataInfoKey = EnvConfigure.KEY_SAVE_MAP_DATA_INFO2;
-                        } else if (mapId == bean.getSaveMapDataInfoMapId3()) {
-                            saveMapDataInfoKey = EnvConfigure.KEY_SAVE_MAP_DATA_INFO3;
-                        }
-                        fetchSaveMapDataInfo(saveMapDataInfoKey, (int) mapId);
-
-                    }
-
-                    @Override
-                    public void onFailed(int code, String message) {
-
-                    }
-                });
+                map_clean_area.drawCleanArea(area);
             }
-
-            @Override
-            public void onFailed(int code, String message) {
-                MyLogger.e(TAG, "获取清扫区域数据失败，reason: " + message);
-            }
-        });
-
+        }
+        SaveMapDataInfoBean saveMapDataInfoBean = DataUtils.parseSaveMapInfo(saveMapBean.getMapDataInfo());
+        if (saveMapDataInfoBean != null) {
+            map_clean_area.drawChargePort(saveMapDataInfoBean.getChargePoint().x, saveMapDataInfoBean.getChargePoint().y, true);
+            map_clean_area.getmGateHelper().drawGate(saveMapDataInfoBean.getGates());
+            map_clean_area.invalidateUI();
+        }
     }
 
-
-    private void fetchSaveMapDataInfo(String saveMapDataInfoKey, int mapId) {
-        if (!TextUtils.isEmpty(saveMapDataInfoKey)) {
-            IlifeAli.getInstance().getSaveMapDataInfo(mapId, saveMapDataInfoKey, new OnAliResponse<String[]>() {
-                @Override
-                public void onSuccess(String[] result) {
-                    if (result != null && result.length > 0) {
-                        SaveMapDataInfoBean saveMapDataInfoBean = DataUtils.parseSaveMapInfo(result);
-                        map_clean_area.drawChargePort(saveMapDataInfoBean.getChargePoint().x, saveMapDataInfoBean.getChargePoint().y, true);
-                        map_clean_area.getmGateHelper().drawGate(saveMapDataInfoBean.getGates());
-                        map_clean_area.invalidateUI();
-                    }
-                }
-
-                @Override
-                public void onFailed(int code, String message) {
-
-                }
-            });
-        }
+    @Override
+    public void initData() {
+        super.initData();
     }
 
 

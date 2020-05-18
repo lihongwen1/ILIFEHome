@@ -123,7 +123,7 @@ public class RoomHelper {
             x = DataUtils.bytesToInt(bytes[i * 8 + 4], bytes[i * 8 + 5]);
             y = -DataUtils.bytesToInt(bytes[i * 8 + 6], bytes[i * 8 + 7]);
             rooms.add(new PartitionBean(partionId, x, y));
-            if (DataUtils.getBit((byte) checkedRoom, partionId - 1) == 1) {
+            if ((partionId & checkedRoom) == partionId) {
                 selecRoom.put(partionId, partionId);
             }
         }
@@ -150,7 +150,7 @@ public class RoomHelper {
         }
     }
 
-    public void drawRoom(List<PartitionBean> rooms) {
+    public void drawRoom(List<PartitionBean> rooms, int checkedRoom) {
         this.rooms.clear();
         this.rooms.addAll(rooms);
         Collections.sort(rooms);
@@ -168,6 +168,9 @@ public class RoomHelper {
         int cx, cy;
         if (rooms.size() > 0) {
             for (PartitionBean pb : rooms) {
+                if ((pb.getPartitionId() & checkedRoom) == pb.getPartitionId()) {
+                    selecRoom.put(pb.getPartitionId(), pb.getPartitionId());
+                }
                 cx = (int) mMapView.matrixCoordinateX(pb.getX());
                 cy = (int) mMapView.matrixCoordinateY(pb.getY());
                 circle.addCircle(cx, cy, radius, Path.Direction.CW);
@@ -177,6 +180,10 @@ public class RoomHelper {
                 pb.setTagIcon(new RectF(cx - radius, cy - radius, cx + radius, cy + radius));
             }
         }
+    }
+
+    public void drawRoom(List<PartitionBean> rooms) {
+        drawRoom(rooms, 0);
     }
 
     /**
@@ -254,6 +261,10 @@ public class RoomHelper {
             }
         }
         return chooseRoom;
+    }
+
+    public void putSelectRoom(int roomId) {
+        selecRoom.put(roomId, roomId);
     }
 
     public void cleanSelectRoom() {

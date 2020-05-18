@@ -33,6 +33,7 @@ import com.ilife.home.robot.base.BackBaseActivity;
 import com.ilife.home.robot.bean.Coordinate;
 import com.ilife.home.robot.bean.MapDataBean;
 import com.ilife.home.robot.bean.PartitionBean;
+import com.ilife.home.robot.bean.SaveMapBean;
 import com.ilife.home.robot.bean.SaveMapDataInfoBean;
 import com.ilife.home.robot.model.bean.VirtualWallBean;
 import com.ilife.home.robot.utils.DataUtils;
@@ -223,68 +224,63 @@ public class SegmentationRoomActivity extends BackBaseActivity {
     public void initData() {
         super.initData();
         mDisposable = new CompositeDisposable();
-        mapId = getIntent().getIntExtra(KEY_MAP_ID, 0);
         mapIdIndex = getIntent().getIntExtra(KEY_MAP_ID_INDEX, 0);
-
-        if (mapId != 0) {
-            IlifeAli.getInstance().getProperties(new OnAliResponse<PropertyBean>() {
-                @Override
-                public void onSuccess(PropertyBean bean) {
-                    String saveMapDataKey = "";
-                    if (mapId == bean.getSaveMapDataMapId1()) {
-                        saveMapDataKey = EnvConfigure.KEY_SAVE_MAP_DATA_1;
-                    } else if (mapId == bean.getSaveMapDataMapId2()) {
-                        saveMapDataKey = EnvConfigure.KEY_SAVE_MAP_DATA_2;
-                    } else if (mapId == bean.getSaveMapDataMapId3()) {
-                        saveMapDataKey = EnvConfigure.KEY_SAVE_MAP_DATA_3;
-                    }
-                    if (DataUtils.parseRoomInfo(String.valueOf(mapId), bean.getMapRoomInfo1(), roomNames)) {
-                        saveRoomInfoKey = EnvConfigure.KEY_SAVE_MAP_ROOM_INFO1;
-                    } else if (DataUtils.parseRoomInfo(String.valueOf(mapId), bean.getMapRoomInfo2(), roomNames)) {
-                        saveRoomInfoKey = EnvConfigure.KEY_SAVE_MAP_ROOM_INFO2;
-                    } else if (DataUtils.parseRoomInfo(String.valueOf(mapId), bean.getMapRoomInfo3(), roomNames)) {
-                        saveRoomInfoKey = EnvConfigure.KEY_SAVE_MAP_ROOM_INFO3;
-                    }
-
-                    IlifeAli.getInstance().getSaveMapData(mapId, saveMapDataKey, new OnAliResponse<String[]>() {
-                        @Override
-                        public void onSuccess(String[] result) {
-                            if (result.length == 0) {//应该只有一条数据
-                                return;
-                            }
-                            MapDataBean mapDataBean = DataUtils.parseSaveMapData(result);
-                            if (mapDataBean != null) {
-                                map_room.setLeftTopCoordinate(mapDataBean.getLeftX(), mapDataBean.getLeftY());
-                                map_room.updateSlam(mapDataBean.getMinX(), mapDataBean.getMaxX(), mapDataBean.getMinY(), mapDataBean.getMaxY());
-                                map_room.drawMapX8(mapDataBean.getCoordinates());
-                            }
-
-                            if (mapId == bean.getSaveMapDataInfoMapId1()) {
-                                saveMapDataInfoKey = EnvConfigure.KEY_SAVE_MAP_DATA_INFO1;
-                            } else if (mapId == bean.getSaveMapDataInfoMapId2()) {
-                                saveMapDataInfoKey = EnvConfigure.KEY_SAVE_MAP_DATA_INFO2;
-                            } else if (mapId == bean.getSaveMapDataInfoMapId3()) {
-                                saveMapDataInfoKey = EnvConfigure.KEY_SAVE_MAP_DATA_INFO3;
-                            }
-                            fetchSaveMapDataInfo();
-
+        LiveEventBus.get(SegmentationRoomActivity.KEY_SAVE_MAP_DATA, SaveMapBean.class).observeSticky(this, saveMapBean -> {
+            MyLogger.d(TAG, "received save map info data bean");
+            mapId=saveMapBean.getMapId();
+            if (mapId != 0) {
+                IlifeAli.getInstance().getProperties(new OnAliResponse<PropertyBean>() {
+                    @Override
+                    public void onSuccess(PropertyBean bean) {
+                        //保存地图信息KEY
+                        if (mapId == bean.getSaveMapDataInfoMapId1()) {
+                            saveMapDataInfoKey = EnvConfigure.KEY_SAVE_MAP_DATA_INFO1;
+                        } else if (mapId == bean.getSaveMapDataInfoMapId2()) {
+                            saveMapDataInfoKey = EnvConfigure.KEY_SAVE_MAP_DATA_INFO2;
+                        } else if (mapId == bean.getSaveMapDataInfoMapId3()) {
+                            saveMapDataInfoKey = EnvConfigure.KEY_SAVE_MAP_DATA_INFO3;
                         }
-
-                        @Override
-                        public void onFailed(int code, String message) {
-
+                        //解析房间信息
+                        if (DataUtils.parseRoomInfo(String.valueOf(mapId), bean.getMapRoomInfo1(), roomNames)) {
+                            saveRoomInfoKey = EnvConfigure.KEY_SAVE_MAP_ROOM_INFO1;
+                        } else if (DataUtils.parseRoomInfo(String.valueOf(mapId), bean.getMapRoomInfo2(), roomNames)) {
+                            saveRoomInfoKey = EnvConfigure.KEY_SAVE_MAP_ROOM_INFO2;
+                        } else if (DataUtils.parseRoomInfo(String.valueOf(mapId), bean.getMapRoomInfo3(), roomNames)) {
+                            saveRoomInfoKey = EnvConfigure.KEY_SAVE_MAP_ROOM_INFO3;
                         }
-                    });
+                        //解析地图信息
+                        MapDataBean mapDataBean = DataUtils.parseSaveMapData(saveMapBean.getMapData());
+                        if (mapDataBean != null) {
+                            map_room.setLeftTopCoordinate(mapDataBean.getLeftX(), mapDataBean.getLeftY());
+                            map_room.updateSlam(mapDataBean.getMinX(), mapDataBean.getMaxX(), mapDataBean.getMinY(), mapDataBean.getMaxY());
+                            map_room.drawMapX8(mapDataBean.getCoordinates());
+                        }
+                        //解析门，房间信息
+                        SaveMapDataInfoBean saveMapDataInfoBean = DataUtils.parseSaveMapInfo(saveMapBean.getMapDataInfo());
+                        if (saveMapDataInfoBean != null) {
+                            for (PartitionBean room : saveMapDataInfoBean.getRooms()) {//绑定设置的房间名
+                                String roomName = roomNames.get(String.valueOf(room.getPartitionId()));
+                                if (roomName == null) {
+                                    roomName = "";
+                                }
+                                room.setTag(roomName);
+                            }
+                            map_room.drawChargePort(saveMapDataInfoBean.getChargePoint().x, saveMapDataInfoBean.getChargePoint().y, true);
+                            map_room.getmGateHelper().drawGate(saveMapDataInfoBean.getGates());
+                            map_room.getmRoomHelper().drawRoom(saveMapDataInfoBean.getRooms());
+                            map_room.getmRoomHelper().setSingleChoice(true);
+                            map_room.invalidateUI();
+                        }
+                    }
 
-                }
-
-                @Override
-                public void onFailed(int code, String message) {
-
-                }
-            });
-        }
+                    @Override
+                    public void onFailed(int code, String message) {
+                    }
+                });
+            }
+        });
     }
+
 
     private void fetchSaveMapDataInfo() {
         if (!TextUtils.isEmpty(saveMapDataInfoKey)) {
@@ -293,6 +289,9 @@ public class SegmentationRoomActivity extends BackBaseActivity {
                 public void onSuccess(String[] result) {
                     if (result != null && result.length > 0) {
                         SaveMapDataInfoBean saveMapDataInfoBean = DataUtils.parseSaveMapInfo(result);
+                        if (saveMapDataInfoBean == null) {
+                            return;
+                        }
                         for (PartitionBean room : saveMapDataInfoBean.getRooms()) {//绑定设置的用户名
                             String roomName = roomNames.get(String.valueOf(room.getPartitionId()));
                             if (roomName == null) {
@@ -315,6 +314,7 @@ public class SegmentationRoomActivity extends BackBaseActivity {
             });
         }
     }
+
 
     @OnClick({R.id.iv_map_save_function, R.id.iv_map_cancel_function})
     public void onClick(View view) {

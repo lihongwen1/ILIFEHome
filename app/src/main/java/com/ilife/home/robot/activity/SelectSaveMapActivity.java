@@ -90,7 +90,6 @@ public class SelectSaveMapActivity extends BackBaseActivity {
                 case R.id.tv_edit_this_map:
                     Intent intent = new Intent(SelectSaveMapActivity.this, SegmentationRoomActivity.class);
                     int chooseMapId = saveMapBeans.get(position).getMapId();
-                    intent.putExtra(SegmentationRoomActivity.KEY_MAP_ID, saveMapBeans.get(position).getMapId());
                     int chooseMapIdIndex = 0;
                     for (int i = 0; i < mapIds.size(); i++) {
                         if (chooseMapId == mapIds.get(i)) {
@@ -99,8 +98,8 @@ public class SelectSaveMapActivity extends BackBaseActivity {
                         }
                     }
                     intent.putExtra(SegmentationRoomActivity.KEY_MAP_ID_INDEX, chooseMapIdIndex);
-                    LiveEventBus.get(SegmentationRoomActivity.KEY_SAVE_MAP_DATA,SaveMapBean.class).post(saveMapBeans.get(selectPosition));
                     startActivity(intent);
+                    LiveEventBus.get(SegmentationRoomActivity.KEY_SAVE_MAP_DATA, SaveMapBean.class).post(saveMapBeans.get(selectPosition));
                     break;
             }
         });

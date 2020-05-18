@@ -9,7 +9,7 @@ public class SaveMapBean implements Parcelable {
     private String[] mapData;
     private String[] mapDataInfo;
     private int mapId;
-
+    public SaveMapBean(){};
     public SaveMapBean(String[] mapData, String[] mapDataInfo, int mapId) {
         this.mapData = mapData;
         this.mapDataInfo = mapDataInfo;

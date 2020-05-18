@@ -8,6 +8,7 @@ import android.util.Base64;
 import android.view.MotionEvent;
 
 import com.aliyun.iot.aep.sdk.contant.EnvConfigure;
+import com.google.android.material.tabs.TabLayout;
 import com.ilife.home.robot.R;
 import com.ilife.home.robot.app.MyApplication;
 import com.ilife.home.robot.bean.Coordinate;
@@ -298,8 +299,8 @@ public class DataUtils {
                 length = byteList.get(i) & 0xff;
                 for (int j = 0; j < length; j++) {
                     if (type != 0) {
-                        if (type==3){//已保存地图中的门数据忽略掉,改变为已清扫
-                            type=1;
+                        if (type == 3) {//已保存地图中的门数据忽略掉,改变为已清扫
+                            type = 1;
                         }
                         coordinate = new Coordinate(x + leftX, y - leftY, type);
                         pointList.add(coordinate);
@@ -361,72 +362,77 @@ public class DataUtils {
      * @param data
      */
     public static SaveMapDataInfoBean parseSaveMapInfo(String[] data) {
-        List<byte[]> bytesList = new ArrayList<>();
-        int bytesNumber = 0;
-        for (int i = 0; i < data.length; i++) {
-            if (data[i] != null) {
-                byte[] bytes = Base64.decode(data[i], Base64.DEFAULT);
-                bytesNumber += bytes.length;
-                bytesList.add(bytes);
+        SaveMapDataInfoBean saveMapDataInfoBean=null;
+        try {
+            List<byte[]> bytesList = new ArrayList<>();
+            int bytesNumber = 0;
+            for (int i = 0; i < data.length; i++) {
+                if (data[i] != null) {
+                    byte[] bytes = Base64.decode(data[i], Base64.DEFAULT);
+                    bytesNumber += bytes.length;
+                    bytesList.add(bytes);
+                }
             }
-        }
-        byte[] allBytes = new byte[bytesNumber];
-        int desPos = 0;
-        for (byte[] b : bytesList) {
-            System.arraycopy(b, 0, allBytes, desPos, b.length);
-            desPos += b.length;
-        }
-        int index = 0;
-        int chargeX = DataUtils.bytesToInt(allBytes[index], allBytes[index + 1]);
-        index += 2;
-        int chargeY = DataUtils.bytesToInt(allBytes[index], allBytes[index + 1]);
-        index += 2;
-        int roomNumber = allBytes[index] & 0xff;
-        index++;
-        List<PartitionBean> rooms = new ArrayList<>();
-        PartitionBean room;
-        List<Coordinate> wallCoordinate;
-        for (int i = 0; i < roomNumber; i++) {
-            int roomId = DataUtils.bytesToInt(new byte[]{allBytes[index], allBytes[index + 1], allBytes[index + 2], allBytes[index+3]});
-            index += 4;
-            int roomX = DataUtils.bytesToInt(allBytes[index], allBytes[index + 1]);
-            index += 2;
-            int roomY = -DataUtils.bytesToInt(allBytes[index], allBytes[index + 1]);
-            index += 2;
-            int wallNumber = DataUtils.bytesToInt(allBytes[index], allBytes[index + 1]);
-            index += 2;
-            wallCoordinate = new ArrayList<>();
-            for (int j = 0; j < wallNumber; j++) {
-                int wallX = DataUtils.bytesToInt(allBytes[index], allBytes[index + 1]);
-                index += 2;
-                int wallY = -DataUtils.bytesToInt(allBytes[index], allBytes[index + 1]);
-                index += 2;
-                wallCoordinate.add(new Coordinate(wallX, wallY, 2));
+            byte[] allBytes = new byte[bytesNumber];
+            int desPos = 0;
+            for (byte[] b : bytesList) {
+                System.arraycopy(b, 0, allBytes, desPos, b.length);
+                desPos += b.length;
             }
-            room = new PartitionBean(roomId, roomX, roomY);
-            room.setWallCoordinates(wallCoordinate);
-            rooms.add(room);
-        }
-        int gateNumber = allBytes[index] & 0xff;
-        index++;
-        List<VirtualWallBean> gates = new ArrayList<>();
-        for (int i = 0; i < gateNumber; i++) {
-            int gateId = allBytes[index] & 0xff;
+            int index = 0;
+            int chargeX = DataUtils.bytesToInt(allBytes[index], allBytes[index + 1]);
+            index += 2;
+            int chargeY = DataUtils.bytesToInt(allBytes[index], allBytes[index + 1]);
+            index += 2;
+            int roomNumber = allBytes[index] & 0xff;
             index++;
-            int sx = DataUtils.bytesToInt(allBytes[index], allBytes[index + 1]);
-            index += 2;
-            int sy = -DataUtils.bytesToInt(allBytes[index], allBytes[index + 1]);
-            index += 2;
-            int ex = DataUtils.bytesToInt(allBytes[index], allBytes[index + 1]);
-            index += 2;
-            int ey = -DataUtils.bytesToInt(allBytes[index], allBytes[index + 1]);
-            index += 2;
-            gates.add(new VirtualWallBean(gateId, 4, new float[]{sx, sy, ex, ey}, 1));
+            List<PartitionBean> rooms = new ArrayList<>();
+            PartitionBean room;
+            List<Coordinate> wallCoordinate;
+            for (int i = 0; i < roomNumber; i++) {
+                int roomId = DataUtils.bytesToInt(new byte[]{allBytes[index], allBytes[index + 1], allBytes[index + 2], allBytes[index + 3]});
+                index += 4;
+                int roomX = DataUtils.bytesToInt(allBytes[index], allBytes[index + 1]);
+                index += 2;
+                int roomY = -DataUtils.bytesToInt(allBytes[index], allBytes[index + 1]);
+                index += 2;
+                int wallNumber = DataUtils.bytesToInt(allBytes[index], allBytes[index + 1]);
+                index += 2;
+                wallCoordinate = new ArrayList<>();
+                for (int j = 0; j < wallNumber; j++) {
+                    int wallX = DataUtils.bytesToInt(allBytes[index], allBytes[index + 1]);
+                    index += 2;
+                    int wallY = -DataUtils.bytesToInt(allBytes[index], allBytes[index + 1]);
+                    index += 2;
+                    wallCoordinate.add(new Coordinate(wallX, wallY, 2));
+                }
+                room = new PartitionBean(roomId, roomX, roomY);
+                room.setWallCoordinates(wallCoordinate);
+                rooms.add(room);
+            }
+            int gateNumber = allBytes[index] & 0xff;
+            index++;
+            List<VirtualWallBean> gates = new ArrayList<>();
+            for (int i = 0; i < gateNumber; i++) {
+                int gateId = allBytes[index] & 0xff;
+                index++;
+                int sx = DataUtils.bytesToInt(allBytes[index], allBytes[index + 1]);
+                index += 2;
+                int sy = -DataUtils.bytesToInt(allBytes[index], allBytes[index + 1]);
+                index += 2;
+                int ex = DataUtils.bytesToInt(allBytes[index], allBytes[index + 1]);
+                index += 2;
+                int ey = -DataUtils.bytesToInt(allBytes[index], allBytes[index + 1]);
+                index += 2;
+                gates.add(new VirtualWallBean(gateId, 4, new float[]{sx, sy, ex, ey}, 1));
+            }
+            saveMapDataInfoBean=new SaveMapDataInfoBean();
+            saveMapDataInfoBean.setChargePoint(new Point(chargeX, chargeY));
+            saveMapDataInfoBean.setGates(gates);
+            saveMapDataInfoBean.setRooms(rooms);
+        } catch (Exception e) {
+            MyLogger.d("DataUtils","data error ,array index out of bounds exception");
         }
-        SaveMapDataInfoBean saveMapDataInfoBean = new SaveMapDataInfoBean();
-        saveMapDataInfoBean.setChargePoint(new Point(chargeX, chargeY));
-        saveMapDataInfoBean.setGates(gates);
-        saveMapDataInfoBean.setRooms(rooms);
         return saveMapDataInfoBean;
     }
 

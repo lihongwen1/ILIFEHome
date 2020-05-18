@@ -792,8 +792,10 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
                     if (result != null && result.length > 0) {
                         SaveMapDataInfoBean saveMapDataInfoBean = DataUtils.parseSaveMapInfo(result);
 //                        mView.drawChargePort(saveMapDataInfoBean.getChargePoint().x, saveMapDataInfoBean.getChargePoint().y, true);//该充电座位置与主机上报的位置不一致
-                        mView.drawGates(saveMapDataInfoBean.getGates());
-                        mView.invalidMap();
+                        if (saveMapDataInfoBean != null) {
+                            mView.drawGates(saveMapDataInfoBean.getGates());
+                            mView.invalidMap();
+                        }
                     }
                 }
 

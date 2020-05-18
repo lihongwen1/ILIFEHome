@@ -35,8 +35,10 @@ public class SelectMapAdapter extends BaseQuickAdapter<SaveMapBean, BaseViewHold
             mapView.post(() -> {
                 mapView.updateSlam(mapDataBean.getMinX(), mapDataBean.getMaxX(), mapDataBean.getMinY(), mapDataBean.getMaxY());
                 mapView.drawMapX8(mapDataBean.getCoordinates());
-                mapView.drawChargePort(saveMapDataInfoBean.getChargePoint().x, saveMapDataInfoBean.getChargePoint().y, true);
-                mapView.getmGateHelper().drawGate(saveMapDataInfoBean.getGates());
+                if (saveMapDataInfoBean != null) {
+                    mapView.drawChargePort(saveMapDataInfoBean.getChargePoint().x, saveMapDataInfoBean.getChargePoint().y, true);
+                    mapView.getmGateHelper().drawGate(saveMapDataInfoBean.getGates());
+                }
             });
             String time = Utils.generateTime(data.get(position).getMapId(), "yyyy-MM-dd HH:mm");
             holder.setText(R.id.tv_save_map_time, time);

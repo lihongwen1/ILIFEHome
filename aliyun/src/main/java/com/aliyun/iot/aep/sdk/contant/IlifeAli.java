@@ -1071,7 +1071,7 @@ public class IlifeAli {
                             realPkgNum++;
                         }
                     }
-                    if (infos != null && infos.length == realPkgNum) {
+                    if (infos != null /*&& infos.length == realPkgNum*/) {
                         onAliResponse.onSuccess(infos);
                     } else {
                         Log.d(TAG,"the data obtained is incomplete.");
@@ -1099,7 +1099,7 @@ public class IlifeAli {
         ioTAPIClient.send(buildRequest(EnvConfigure.PATH_GET_PROPERTY_TIMELINE, params), new IoTUIThreadCallback(new IoTCallback() {
             @Override
             public void onFailure(IoTRequest ioTRequest, Exception e) {
-
+                onAliResponse.onFailed(0,e.getMessage());
             }
 
             @Override
@@ -1122,6 +1122,8 @@ public class IlifeAli {
                         }
                     }
                     onAliResponse.onSuccess(infos);
+                }else {
+                    onAliResponse.onFailed(0,ioTResponse.getLocalizedMsg());
                 }
             }
         }));
