@@ -64,9 +64,9 @@ public class BindSucActivity extends BaseActivity {
     }
 
     public void initData() {
-        RobotConfigBean.RobotBean rBean=MyApplication.getInstance().readRobotConfig().getRobotBeanByPk(IlifeAli.getInstance().getBindingProductKey());
+        RobotConfigBean.RobotBean rBean = MyApplication.getInstance().readRobotConfig().getRobotBeanByPk(IlifeAli.getInstance().getBindingProductKey());
         iv_bind_device.setImageResource(UiUtil.getDrawable(rBean.getFaceImg()));
-        et_devName.setText(BuildConfig.BRAND + " "+rBean.getSettingRobot());
+        et_devName.setText(BuildConfig.BRAND + " " + rBean.getSettingRobot());
         et_devName.setSelection(et_devName.getText().toString().trim().length());
         UserUtils.setInputFilter(et_devName, Utils.getInputMaxLength());
     }
@@ -81,19 +81,22 @@ public class BindSucActivity extends BaseActivity {
             }
             if (TextUtils.isEmpty(name)) {
                 ToastUtils.showToast(context, getString(R.string.setting_aty_hit));
-            } else {
-                IlifeAli.getInstance().reNameDevice(name, isSuccess -> {
-                    if (isSuccess) {
-                        ToastUtils.showToast(context, context.getString(R.string.bind_aty_reName_suc));
-                        Intent i = new Intent(context, MainActivity.class);
-                        startActivity(i);
-                        removeActivity();
-                    } else {//重命名失败,提示连接超时，需重新提交重命名；
-                        ToastUtils.showErrorToast(context, 0);
-                    }
-                });
-
+                return;
             }
+            if (UserUtils.isContainsSpecialCharacter(name)) {
+                ToastUtils.showToast(UiUtil.getString(R.string.toast_contains_special_character));
+                return;
+            }
+            IlifeAli.getInstance().reNameDevice(name, isSuccess -> {
+                if (isSuccess) {
+                    ToastUtils.showToast(context, context.getString(R.string.bind_aty_reName_suc));
+                    Intent i = new Intent(context, MainActivity.class);
+                    startActivity(i);
+                    removeActivity();
+                } else {//重命名失败,提示连接超时，需重新提交重命名；
+                    ToastUtils.showErrorToast(context, 0);
+                }
+            });
         }
     }
 }

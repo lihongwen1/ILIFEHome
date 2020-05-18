@@ -372,6 +372,7 @@
     <string name="room_name_child_room">儿童房</string>
     <string name="room_name_store_room">储物室</string>
     <string name="room_name_other">自定义</string>
+    <string name="toast_contains_special_character">Contains special characters, please modify and try again</string>
 
 
 </resources>

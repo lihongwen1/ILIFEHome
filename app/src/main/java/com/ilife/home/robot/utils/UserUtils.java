@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.text.InputFilter;
 import android.text.Spanned;
 import android.text.TextUtils;
+import android.util.Log;
 import android.widget.EditText;
 
 import com.ilife.home.robot.R;
@@ -111,6 +112,18 @@ public class UserUtils {
             }
         };
         return inputFilter;
+    }
+    /**
+     * 判断是否包含特殊字符
+     * @return  false:未包含 true：包含
+     */
+    public static boolean isContainsSpecialCharacter(String value) {
+        String speChat = "[`~!@#$%^&*()+=|{}':;',\\[\\].<>/?~！@#￥%……&*（）——+|{}【】‘；：”“’。，、？]";
+        Pattern pattern = Pattern.compile(speChat);
+        Log.d("inputJudge", "pattern: "+ pattern);
+        Matcher matcher = pattern.matcher(value);
+        Log.d("inputJudge", "matcher: "+ matcher);
+        return matcher.find();
     }
 
     public static boolean isMatch(String str) {

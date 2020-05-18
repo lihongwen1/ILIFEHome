@@ -11,6 +11,7 @@ import com.aliyun.iot.aep.sdk.contant.IlifeAli;
 import com.ilife.home.robot.R;
 import com.ilife.home.robot.base.BackBaseActivity;
 import com.ilife.home.robot.utils.ToastUtils;
+import com.ilife.home.robot.utils.UiUtil;
 import com.ilife.home.robot.utils.UserUtils;
 import com.ilife.home.robot.utils.Utils;
 
@@ -56,7 +57,6 @@ public class RenameActivity extends BackBaseActivity {
                 et_rename.setText(nickName);
             }
         } else {
-
             title.setText(R.string.personal_aty_rename);
             et_rename.setText(IlifeAli.getInstance().getUserInfo().userNick);
         }
@@ -100,6 +100,10 @@ public class RenameActivity extends BackBaseActivity {
         }
         if (name.length() > maxLength) {
             ToastUtils.showToast(getResources().getString(R.string.name_max_length, maxLength + ""));
+            return;
+        }
+        if (UserUtils.isContainsSpecialCharacter(name)){
+            ToastUtils.showToast(UiUtil.getString(R.string.toast_contains_special_character));
             return;
         }
         IlifeAli.getInstance().reNameDevice(name, isSuccess -> {
