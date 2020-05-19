@@ -66,5 +66,6 @@
     <declare-styleable name="MapView">
         <!--        是否支持touch时间-->
         <attr name="touchable" format="boolean" />
+        <attr name="systemScare" format="float"/>
     </declare-styleable>
 </resources>

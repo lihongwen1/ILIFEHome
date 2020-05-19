@@ -5,6 +5,7 @@ import android.util.SparseIntArray;
 import android.view.View;
 import android.widget.TextView;
 
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -18,6 +19,7 @@ import com.ilife.home.robot.base.BaseQuickAdapter;
 import com.ilife.home.robot.fragment.UniversalEditDialog;
 import com.ilife.home.robot.utils.ToastUtils;
 import com.ilife.home.robot.utils.UiUtil;
+import com.ilife.home.robot.view.RecyclerViewDivider;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -42,30 +44,35 @@ public class NameRoomActivity extends BackBaseActivity {
 
     @Override
     public void initView() {
-        tv_title.setText("房间命名");
+        tv_title.setText(R.string.name_room);
         names = UiUtil.getStringArray(R.array.default_room_name);
         List<String> nameList = new ArrayList<>(Arrays.asList(names));
         RoomNameAdapter adapter = new RoomNameAdapter(R.layout.item_room_name, nameList, new SparseIntArray());
-        rv_select_name.setLayoutManager(new LinearLayoutManager(this));
+        rv_select_name.setLayoutManager(new LinearLayoutManager(this,RecyclerView.VERTICAL,false));
+        rv_select_name.addItemDecoration(new RecyclerViewDivider(this, LinearLayoutManager.VERTICAL, getResources().getDimensionPixelOffset(R.dimen.dp_8),
+                ContextCompat.getColor(this, R.color.colorPrimary)));
         rv_select_name.setAdapter(adapter);
         adapter.setOnItemClickListener((adapter1, view, position) -> {
             if (position == names.length - 1) {
 
                 if (editDialog == null) {
                     editDialog = new UniversalEditDialog();
-                    editDialog.setTitle("房间命名").setHint("自定义").setOnRightButtonClick(new UniversalEditDialog.OnRightButtonClick() {
+                    editDialog.setTitle(UiUtil.getString(R.string.name_room)).setHint(UiUtil.getString(R.string.room_name_other)).setOnRightButtonClick(new UniversalEditDialog.OnRightButtonClick() {
                         @Override
-                        public void onClick(String value) {
-                            roomName = value;
-//                            if (roomName.getBytes().length>20){
-//                                ToastUtils.showToast("输入字符过长");
-//                            }
-                            nameList.set(position,value);
-                            adapter.notifyDataSetChanged();
+                        public boolean onClick(String value) {
+                            if (value.getBytes().length > 20) {
+                                roomName = value;
+                                ToastUtils.showToast(UiUtil.getString(R.string.toast_name_too_long));
+                                return false;
+                            } else {
+                                nameList.set(position, value);
+                                adapter.notifyDataSetChanged();
+                                return true;
+                            }
                         }
                     });
                 }
-                editDialog.show(getSupportFragmentManager(),"et_input_value");
+                editDialog.show(getSupportFragmentManager(), "et_input_value");
             } else {
                 roomName = names[position];
             }

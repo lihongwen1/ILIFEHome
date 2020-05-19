@@ -35,6 +35,7 @@ public class RoomNameAdapter extends BaseQuickAdapter<String, BaseViewHolder> {
         holder.setText(R.id.tv_room_name, data.get(position));
         holder.setImageResource(R.id.iv_room_icon,icons[position]);
         holder.setVisible(R.id.iv_room_selected, selectPosition.indexOfKey(position) >= 0);
+        holder.setVisible(R.id.iv_room_name_edit,position==data.size()-1);
     }
 
     @Override

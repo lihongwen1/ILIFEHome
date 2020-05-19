@@ -40,6 +40,7 @@ import com.ilife.home.robot.utils.DataUtils;
 import com.ilife.home.robot.utils.MyLogger;
 import com.ilife.home.robot.utils.SpUtils;
 import com.ilife.home.robot.utils.ToastUtils;
+import com.ilife.home.robot.utils.UiUtil;
 import com.ilife.home.robot.view.MapView;
 
 import java.util.ArrayList;
@@ -109,16 +110,16 @@ public class SegmentationRoomActivity extends BackBaseActivity {
 
     @Override
     public void initView() {
-        tv_title.setText("分割房间");
+        tv_title.setText(R.string.segmentation_room);
         iv_save_map_progress.setAnimation(AnimationUtils.loadAnimation(this, R.anim.anims_ni));
         rg_segmentation_room.setOnCheckedChangeListener((group, checkedId) -> {
             switch (checkedId) {
                 case R.id.tv_segmentation_room://分割房间
                     map_room.setmOT(MapView.OT.SEGMENT_ROOM);
                     map_room.getmSegmentHelper().onRoomClick();
-                    tv_map_function_name.setText("分割房间");
+                    tv_map_function_name.setText(R.string.segmentation_room);
                     map_room.invalidateUI();
-                    tv_map_function_tip.setText("请选择一个区域进行分割");
+                    tv_map_function_tip.setText(R.string.segmentation_room_tip);
                     tv_combine_room.setSelected(false);
                     tv_segmentation_room.setSelected(true);
                     tv_name_room.setSelected(false);
@@ -126,21 +127,21 @@ public class SegmentationRoomActivity extends BackBaseActivity {
                     break;
                 case R.id.tv_combine_room://合并房间
                     map_room.setmOT(MapView.OT.MERGE_ROOM);
-                    tv_map_function_name.setText("合并房间");
+                    tv_map_function_name.setText(R.string.merge_room);
                     map_room.invalidateUI();
-                    tv_map_function_tip.setText("请删除区域间的分割线");
+                    tv_map_function_tip.setText(R.string.merge_room_tip);
                     tv_combine_room.setSelected(true);
                     tv_segmentation_room.setSelected(false);
                     tv_name_room.setSelected(false);
                     break;
                 case R.id.tv_name_room:
                     map_room.setmOT(MapView.OT.NAME_ROOM);
-                    tv_map_function_name.setText("房间命名");
+                    tv_map_function_name.setText(R.string.name_room);
                     if (map_room.getmRoomHelper().getSelecRoom().size() > 0) {
                         LiveEventBus.get(SegmentationRoomActivity.KEY_ROOM_SELECT, Boolean.class).post(true);
                     }
                     map_room.invalidateUI();
-                    tv_map_function_tip.setText("请选择一个区域进行命名");
+                    tv_map_function_tip.setText(R.string.name_room_tip);
                     tv_combine_room.setSelected(false);
                     tv_segmentation_room.setSelected(false);
                     tv_name_room.setSelected(true);
@@ -156,20 +157,20 @@ public class SegmentationRoomActivity extends BackBaseActivity {
                     if (isWaitingForResult) {
                         switch (value) {
                             case 1:
-                                ToastUtils.showToast("设置成功");
+                                ToastUtils.showSettingSuccess(true);
                                 break;
                             case 2:
-                                ToastUtils.showToast("门的位置不在房间内");
+                                ToastUtils.showToast(UiUtil.getString(R.string.segmentation_room_error1));
                                 break;
                             case 3:
-                                ToastUtils.showToast("分割后房间面积过小");
+                                ToastUtils.showToast(UiUtil.getString(R.string.segmentation_room_error2));
                                 break;
                             case 4:
-                                ToastUtils.showToast("房间总数过多");
+                                ToastUtils.showToast(UiUtil.getString(R.string.segmentation_room_error3));
                                 break;
                             case 5:
                             case 6:
-                                ToastUtils.showToast("设置失败");
+                                ToastUtils.showSettingSuccess(false);
                                 break;
                         }
                     }
@@ -177,20 +178,17 @@ public class SegmentationRoomActivity extends BackBaseActivity {
                     switchBottomUi(-1);
                     fetchSaveMapDataInfo();
                 });
-        LiveEventBus.get(EnvConfigure.KEY_DELETE_ROOM_DOOR, Integer.class).observe(this, new Observer<Integer>() {
-            @Override
-            public void onChanged(Integer value) {
-                disposableRx();
-                if (isWaitingForResult) {
-                    if (value == 1) {
-                        ToastUtils.showToast("设置成功");
-                    } else {
-                        ToastUtils.showToast("设置失败");
-                    }
+        LiveEventBus.get(EnvConfigure.KEY_DELETE_ROOM_DOOR, Integer.class).observe(this, value -> {
+            disposableRx();
+            if (isWaitingForResult) {
+                if (value == 1) {
+                    ToastUtils.showSettingSuccess(true);
+                } else {
+                    ToastUtils.showSettingSuccess(false);
                 }
-                switchBottomUi(-1);
-                fetchSaveMapDataInfo();
             }
+            switchBottomUi(-1);
+            fetchSaveMapDataInfo();
         });
 
         LiveEventBus.get(KEY_ROOM_SELECT, Boolean.class).observe(this, value -> {
@@ -227,7 +225,7 @@ public class SegmentationRoomActivity extends BackBaseActivity {
         mapIdIndex = getIntent().getIntExtra(KEY_MAP_ID_INDEX, 0);
         LiveEventBus.get(SegmentationRoomActivity.KEY_SAVE_MAP_DATA, SaveMapBean.class).observeSticky(this, saveMapBean -> {
             MyLogger.d(TAG, "received save map info data bean");
-            mapId=saveMapBean.getMapId();
+            mapId = saveMapBean.getMapId();
             if (mapId != 0) {
                 IlifeAli.getInstance().getProperties(new OnAliResponse<PropertyBean>() {
                     @Override
@@ -243,9 +241,11 @@ public class SegmentationRoomActivity extends BackBaseActivity {
                         //解析房间信息
                         if (DataUtils.parseRoomInfo(String.valueOf(mapId), bean.getMapRoomInfo1(), roomNames)) {
                             saveRoomInfoKey = EnvConfigure.KEY_SAVE_MAP_ROOM_INFO1;
-                        } else if (DataUtils.parseRoomInfo(String.valueOf(mapId), bean.getMapRoomInfo2(), roomNames)) {
+                        }
+                        if (DataUtils.parseRoomInfo(String.valueOf(mapId), bean.getMapRoomInfo2(), roomNames)) {
                             saveRoomInfoKey = EnvConfigure.KEY_SAVE_MAP_ROOM_INFO2;
-                        } else if (DataUtils.parseRoomInfo(String.valueOf(mapId), bean.getMapRoomInfo3(), roomNames)) {
+                        }
+                        if (DataUtils.parseRoomInfo(String.valueOf(mapId), bean.getMapRoomInfo3(), roomNames)) {
                             saveRoomInfoKey = EnvConfigure.KEY_SAVE_MAP_ROOM_INFO3;
                         }
                         //解析地图信息
@@ -287,6 +287,9 @@ public class SegmentationRoomActivity extends BackBaseActivity {
             IlifeAli.getInstance().getSaveMapDataInfo(mapId, saveMapDataInfoKey, new OnAliResponse<String[]>() {
                 @Override
                 public void onSuccess(String[] result) {
+                    if (isDestroyed() || map_room == null) {
+                        return;
+                    }
                     if (result != null && result.length > 0) {
                         SaveMapDataInfoBean saveMapDataInfoBean = DataUtils.parseSaveMapInfo(result);
                         if (saveMapDataInfoBean == null) {
@@ -335,7 +338,7 @@ public class SegmentationRoomActivity extends BackBaseActivity {
                                 @Override
                                 public void accept(Long aLong) throws Exception {
                                     switchBottomUi(-1);
-                                    ToastUtils.showToast("设置失败");
+                                    ToastUtils.showSettingSuccess(false);
                                 }
                             });
                             mDisposable.add(disposable);
@@ -352,7 +355,7 @@ public class SegmentationRoomActivity extends BackBaseActivity {
                                 @Override
                                 public void accept(Long aLong) {
                                     switchBottomUi(-1);
-                                    ToastUtils.showToast("设置失败");
+                                    ToastUtils.showSettingSuccess(false);
                                 }
                             });
                             mDisposable.add(disposable);
@@ -389,13 +392,13 @@ public class SegmentationRoomActivity extends BackBaseActivity {
                         IlifeAli.getInstance().setProperties(AliSkills.get().roomDataInfo(IlifeAli.getInstance().getIotId(), saveRoomInfoKey, roomValue), new OnAliSetPropertyResponse() {
                             @Override
                             public void onSuccess(String path, int tag, int functionCode, int responseCode) {
-                                ToastUtils.showToast("修改成功");
+                                ToastUtils.showSettingSuccess(true);
                                 switchBottomUi(-1);
                             }
 
                             @Override
                             public void onFailed(String path, int tag, int code, String message) {
-                                ToastUtils.showToast("修改成功");
+                                ToastUtils.showSettingSuccess(true);
                                 switchBottomUi(-1);
 
                             }

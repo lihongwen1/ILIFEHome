@@ -447,6 +447,7 @@ public class DataUtils {
         if (!TextUtils.isEmpty(roomInfo)) {
             byte[] roomBytes = Base64.decode(roomInfo, Base64.NO_WRAP);
             String str_room = new String(roomBytes);
+            MyLogger.d("DataUtils","mapId: "+mapId+"房间信息：   "+str_room);
             String[] str_rooms = str_room.split(",");
             if (str_rooms.length > 0) {
                 String str_map_id = str_rooms[0];

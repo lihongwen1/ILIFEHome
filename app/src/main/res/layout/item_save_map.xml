@@ -58,6 +58,7 @@
                         android:layout_marginTop="@dimen/dp_4"
                         android:layout_marginBottom="@dimen/dp_4"
                         android:layout_weight="1"
+                        app:systemScare="1"
                         app:touchable="false" />
 
                     <LinearLayout
@@ -85,7 +86,7 @@
                             android:layout_weight="1"
                             android:background="@drawable/bg_logout"
                             android:gravity="center"
-                            android:text="编辑地图"/>
+                            android:text="@string/map_edit_map" />
                     </LinearLayout>
 
                 </LinearLayout>

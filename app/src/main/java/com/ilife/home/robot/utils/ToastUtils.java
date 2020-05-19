@@ -20,6 +20,13 @@ public class ToastUtils {
         Toasty.normal(MyApplication.getInstance(), msg).show();
     }
 
+    public static void showSettingSuccess(boolean isSuccess){
+       if (isSuccess){
+           showToast(UiUtil.getString(R.string.setting_success));
+       }else {
+           showToast(UiUtil.getString(R.string.setting_failed));
+       }
+    }
     public static void showErrorToast(Context context, int code) {
         //默认显示连接超时
         String msg = context.getString(R.string.error_toast_timeout);

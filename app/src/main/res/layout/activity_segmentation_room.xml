@@ -37,21 +37,21 @@
                 style="@style/map_text_button"
                 android:button="@null"
                 android:drawableTop="@drawable/selector_merge_room"
-                android:text="合并房间" />
+                android:text="@string/merge_room" />
 
             <RadioButton
                 android:id="@+id/tv_segmentation_room"
                 style="@style/map_text_button"
                 android:button="@null"
                 android:drawableTop="@drawable/selector_divide_room"
-                android:text="分割房间" />
+                android:text="@string/segmentation_room" />
 
             <RadioButton
                 android:id="@+id/tv_name_room"
                 style="@style/map_text_button"
                 android:button="@null"
                 android:drawableTop="@drawable/selector_name_room"
-                android:text="房间命名" />
+                android:text="@string/name_room" />
         </RadioGroup>
 
         <LinearLayout
@@ -79,7 +79,7 @@
                 android:layout_width="0dp"
                 android:layout_weight="1"
                 android:gravity="center"
-                android:text="分割区域" />
+                android:text="@string/segmentation_room" />
 
             <ImageView
                 android:id="@+id/iv_map_save_function"

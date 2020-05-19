@@ -93,7 +93,7 @@ public class MapView extends View {
     private PointF standPointF;//充电座
     private boolean isChargingPortDisplay = false;//是否展示充电座
     private boolean touchAble = true;
-
+    private float systemScareFactor;
     /**
      * map operation type
      */
@@ -137,6 +137,7 @@ public class MapView extends View {
         super(context, attrs);
         TypedArray ta = context.obtainStyledAttributes(attrs, R.styleable.MapView);
         touchAble = ta.getBoolean(R.styleable.MapView_touchable, true);
+        systemScareFactor = ta.getFloat(R.styleable.MapView_systemScare,0.75f);
         ta.recycle();  //注意回收
         init();
     }
@@ -391,10 +392,10 @@ public class MapView extends View {
          * 计算坐标放大和缩放比例
          */
         baseScare = 20.0f;
-        if (xLength * baseScare > width * 0.75 || yLength * baseScare > sCenter.y * 2 * 0.75) {
+        if (xLength * baseScare > width * systemScareFactor || yLength * baseScare > sCenter.y * 2 * systemScareFactor) {
             MyLogger.d(TAG, "SYSTEM SCALE MAP -------------");
-            float systemW = (width * 0.75f) / ((xLength * baseScare));
-            float systemH = (sCenter.y * 2 * 0.75f) / ((yLength * baseScare));
+            float systemW = (width * systemScareFactor) / ((xLength * baseScare));
+            float systemH = (sCenter.y * 2 * systemScareFactor) / ((yLength * baseScare));
             systemScale = Math.min(systemH, systemW);
             systemScale = new BigDecimal(systemScale).setScale(2, BigDecimal.ROUND_HALF_DOWN).floatValue();
             if (systemScale < 0.3f) {

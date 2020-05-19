@@ -2,8 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:paddingTop="@dimen/dp_20"
-    android:paddingBottom="@dimen/dp_20"
+    android:padding="@dimen/dp_20"
     android:orientation="horizontal">
 
     <ImageView
@@ -16,8 +15,15 @@
         android:id="@+id/tv_room_name"
         style="@style/Text_16sp_33"
         android:layout_marginStart="@dimen/dp_18"
-        android:text="卧室" />
-
+        android:text="@string/room_name_bed_room" />
+    <ImageView
+        android:visibility="gone"
+        android:layout_marginStart="@dimen/dp_8"
+        android:src="@drawable/operation_icon_edit"
+        android:id="@+id/iv_room_name_edit"
+        android:layout_width="@dimen/dp_24"
+        android:layout_height="@dimen/dp_24"
+        />
     <Space
         android:layout_width="0dp"
         android:layout_height="match_parent"

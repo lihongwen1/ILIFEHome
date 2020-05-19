@@ -372,5 +372,18 @@
     <string name="room_name_child_room">儿童房</string>
     <string name="room_name_store_room">储物室</string>
     <string name="room_name_other">自定义</string>
+    <string name="segmentation_room">分割房间</string>
+    <string name="segmentation_room_tip">请选择一个区域进行分割</string>
+    <string name="merge_room">合并房间</string>
+    <string name="merge_room_tip">请删除区域间的分割线</string>
+    <string name="name_room">房间命名</string>
+    <string name="name_room_tip">请选择一个区域进行命名</string>
+    <string name="segmentation_room_error1">门的位置不在房间内</string>
+    <string name="segmentation_room_error2">分割后房间面积过小</string>
+    <string name="segmentation_room_error3">房间总数过多</string>
+    <string name="setting_failed">设置失败</string>
     <string name="toast_contains_special_character">包含特殊字符，请修改后重试</string>
+    <string name="map_edit_map">编辑地图</string>
+    <string name="name_room_default_tip">默认(A、B、C…)</string>
+    <string name="toast_name_too_long">名称过长，请修改后重试</string>
 </resources>

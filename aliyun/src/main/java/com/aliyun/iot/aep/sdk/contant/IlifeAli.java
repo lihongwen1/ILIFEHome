@@ -797,7 +797,7 @@ public class IlifeAli {
                     }
                     if (jsonObject.containsKey(EnvConfigure.KEY_SAVE_MAP_ROOM_INFO3)) {
                         String room = jsonObject.getJSONObject(EnvConfigure.KEY_SAVE_MAP_ROOM_INFO3).getString(EnvConfigure.KEY_VALUE);
-                        bean.setMapRoomInfo1(room);
+                        bean.setMapRoomInfo3(room);
                     }
                     onAliResponse.onSuccess(bean);
                 } else {
@@ -1053,28 +1053,28 @@ public class IlifeAli {
             public void onResponse(IoTRequest ioTRequest, IoTResponse ioTResponse) {
                 long timeSlamp = 0;
                 String[] infos = null;
-                int realPkgNum = 0;
                 if (ioTResponse.getCode() == 200) {
                     JSONObject data = JSONObject.parseObject(ioTResponse.getData().toString());
                     JSONArray jsonArray = data.getJSONArray(EnvConfigure.KEY_ITEMS);
                     JSONObject jData;
-                    for (int i = 0; i < jsonArray.size(); i++) {
-                        jData = jsonArray.getJSONObject(i).getJSONObject(EnvConfigure.KEY_DATA);
+                    if (jsonArray != null) {
+                        for (int i = 0; i < jsonArray.size(); i++) {
+                            jData = jsonArray.getJSONObject(i).getJSONObject(EnvConfigure.KEY_DATA);
 
-                        if (infos == null) {
-                            infos = new String[jData.getIntValue("PackNum")];
-                            timeSlamp = jData.getIntValue("TimeStamp");
-                        }
-                        if (timeSlamp == jData.getIntValue("TimeStamp")) {//分包时间戳相同
-                            int index = jData.getIntValue("PackId") - 1;//packId和index差1
-                            infos[index] = jData.getString("MapInfo");
-                            realPkgNum++;
+                            if (infos == null) {
+                                infos = new String[jData.getIntValue("PackNum")];
+                                timeSlamp = jData.getIntValue("TimeStamp");
+                            }
+                            if (timeSlamp == jData.getIntValue("TimeStamp")) {//分包时间戳相同
+                                int index = jData.getIntValue("PackId") - 1;//packId和index差1
+                                infos[index] = jData.getString("MapInfo");
+                            }
                         }
                     }
                     if (infos != null /*&& infos.length == realPkgNum*/) {
                         onAliResponse.onSuccess(infos);
                     } else {
-                        Log.d(TAG,"the data obtained is incomplete.");
+                        Log.d(TAG, "the data obtained is incomplete.");
                         onAliResponse.onFailed(0, "the data obtained is incomplete.");
                     }
                 }
@@ -1099,7 +1099,7 @@ public class IlifeAli {
         ioTAPIClient.send(buildRequest(EnvConfigure.PATH_GET_PROPERTY_TIMELINE, params), new IoTUIThreadCallback(new IoTCallback() {
             @Override
             public void onFailure(IoTRequest ioTRequest, Exception e) {
-                onAliResponse.onFailed(0,e.getMessage());
+                onAliResponse.onFailed(0, e.getMessage());
             }
 
             @Override
@@ -1110,20 +1110,22 @@ public class IlifeAli {
                     JSONObject data = JSONObject.parseObject(ioTResponse.getData().toString());
                     JSONArray jsonArray = data.getJSONArray(EnvConfigure.KEY_ITEMS);
                     JSONObject jData;
-                    for (int i = 0; i < jsonArray.size(); i++) {
-                        jData = jsonArray.getJSONObject(i).getJSONObject(EnvConfigure.KEY_DATA);
-                        if (infos == null) {
-                            infos = new String[jData.getIntValue("PackNum")];
-                            timeSlamp = jData.getIntValue("TimeStamp");
-                        }
-                        if (timeSlamp == jData.getIntValue("TimeStamp")) {//分包时间戳相同
-                            int index = jData.getIntValue("PackId") - 1;//packId和index差1
-                            infos[index] = jData.getString("MapData");
+                    if (jsonArray != null) {
+                        for (int i = 0; i < jsonArray.size(); i++) {
+                            jData = jsonArray.getJSONObject(i).getJSONObject(EnvConfigure.KEY_DATA);
+                            if (infos == null) {
+                                infos = new String[jData.getIntValue("PackNum")];
+                                timeSlamp = jData.getIntValue("TimeStamp");
+                            }
+                            if (timeSlamp == jData.getIntValue("TimeStamp")) {//分包时间戳相同
+                                int index = jData.getIntValue("PackId") - 1;//packId和index差1
+                                infos[index] = jData.getString("MapData");
+                            }
                         }
                     }
                     onAliResponse.onSuccess(infos);
-                }else {
-                    onAliResponse.onFailed(0,ioTResponse.getLocalizedMsg());
+                } else {
+                    onAliResponse.onFailed(0, ioTResponse.getLocalizedMsg());
                 }
             }
         }));

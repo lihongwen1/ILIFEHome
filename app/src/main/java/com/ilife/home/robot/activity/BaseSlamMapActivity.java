@@ -83,7 +83,7 @@ public abstract class BaseSlamMapActivity extends BackBaseActivity {
 
                 @Override
                 public void onFailed(int code, String message) {
-
+                  onSaveMapBean();
                 }
             });
         }

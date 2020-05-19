@@ -50,8 +50,10 @@ public class UniversalEditDialog extends DialogFragment {
         tv_title.setText(title);
         et_input_value.setHint(hint);
         v.findViewById(R.id.tv_dialog_right).setOnClickListener(v1 -> {
-            dismiss();
-            onRightButtonClick.onClick(et_input_value.getText().toString().trim());
+            boolean isConsumed=onRightButtonClick.onClick(et_input_value.getText().toString().trim());
+            if (isConsumed){
+                dismiss();
+            }
         });
         v.findViewById(R.id.tv_dialog_left).setOnClickListener(v12 -> dismiss());
         return v;
@@ -59,7 +61,7 @@ public class UniversalEditDialog extends DialogFragment {
 
 
     public interface OnRightButtonClick {
-        void onClick(String value);
+        boolean onClick(String value);
     }
 
     public UniversalEditDialog setTitle(String title) {

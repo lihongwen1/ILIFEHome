@@ -13,15 +13,15 @@
         style="@style/Text_16sp_33"
         android:layout_width="match_parent"
         android:layout_height="@dimen/dp_60"
-        android:text="默认(A、B、C...)"
+        android:text="@string/name_room_default_tip"
         android:gravity="center|start"
         android:paddingStart="@dimen/dp_20"
         />
       <androidx.recyclerview.widget.RecyclerView
+          android:background="@color/white"
           android:id="@+id/rv_select_name"
-          android:paddingStart="@dimen/dp_20"
-          android:paddingEnd="@dimen/dp_16"
           android:layout_marginTop="@dimen/dp_10"
           android:layout_width="match_parent"
-          android:layout_height="match_parent"/>
+          android:layout_weight="1"
+          android:layout_height="0dp"/>
 </LinearLayout>

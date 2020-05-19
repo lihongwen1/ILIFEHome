@@ -34,6 +34,7 @@ import com.scwang.smartrefresh.layout.SmartRefreshLayout;
 import com.scwang.smartrefresh.layout.header.ClassicsHeader;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -61,6 +62,7 @@ public class SelectSaveMapActivity extends BackBaseActivity {
     private int selectPosition;
     private boolean needCorrectMap;//是否需要校正服主机保存的地图数据
     private List<Integer> mapIds = new ArrayList<>();
+    private int fetchMapTag = 0;//获取保存地图标记，为3代表所有地图获取完毕；
 
     @Override
     public int getLayoutId() {
@@ -113,6 +115,7 @@ public class SelectSaveMapActivity extends BackBaseActivity {
         super.initData();
         weakHandler = new WeakHandler(msg -> {
             if (!isDestroyed()) {
+                fetchMapTag = 0;
                 refresh_map.finishRefresh();
                 hideLoadingDialog();
                 mAdapter.notifyDataSetChanged();
@@ -131,6 +134,9 @@ public class SelectSaveMapActivity extends BackBaseActivity {
         if (isShowLoading) {
             showLoadingDialog();
         }
+        if (fetchMapTag != 0) {
+            return;
+        }
         saveMapBeans.clear();
         IlifeAli.getInstance().getProperties(new OnAliResponse<PropertyBean>() {
             @Override
@@ -139,6 +145,7 @@ public class SelectSaveMapActivity extends BackBaseActivity {
                 if (selectMapId == 0) {
                     rv_save_map.setVisibility(View.GONE);
                     ll_no_map.setVisibility(View.VISIBLE);
+                    hideLoadingDialog();
                     return;
                 }
                 mAdapter.setSelectMapId(selectMapId);
@@ -148,6 +155,7 @@ public class SelectSaveMapActivity extends BackBaseActivity {
                     for (int i = 0; i < mapIds.size(); i++) {
                         int mapId = mapIds.get(i);
                         if (mapId == 0) {
+                            updateFetchMapTag();
                             continue;
                         }
                         String saveMapDataKey = "";
@@ -178,7 +186,7 @@ public class SelectSaveMapActivity extends BackBaseActivity {
 
                                 @Override
                                 public void onFailed(int code, String message) {
-
+                                    updateFetchMapTag();
                                 }
                             });
                         }
@@ -205,17 +213,24 @@ public class SelectSaveMapActivity extends BackBaseActivity {
                             saveMapBeans.add(new SaveMapBean(saveMapData, saveMapDataInfo, mapId));
                         }
                     }
-                    weakHandler.sendEmptyMessageDelayed(1, 200);
+                    updateFetchMapTag();
                 }
 
                 @Override
                 public void onFailed(int code, String message) {
-                    weakHandler.sendEmptyMessageDelayed(1, 200);
+                    updateFetchMapTag();
                 }
             });
         }
     }
 
+
+    private void updateFetchMapTag() {
+        fetchMapTag++;
+        if (fetchMapTag == 3) {
+            weakHandler.sendEmptyMessageDelayed(1, 200);
+        }
+    }
 
     /**
      * 解析保存地图ID
@@ -225,26 +240,25 @@ public class SelectSaveMapActivity extends BackBaseActivity {
      */
     private List<Integer> decodeSaveMapId(String data) {
         List<Integer> result = new ArrayList<>();
+        result.add(0);//初始化3个mapId;
+        result.add(0);
+        result.add(0);
         byte[] bt = Base64.decode(data, Base64.DEFAULT);
-
         if (bt == null || bt.length <= 0) {
             return result;
         }
-
+        int index = 0;
         for (int i = 0, length = bt.length; i < length; i += 4) {
-
             int int1 = (bt[i] & 0xFF) << 24;
             int int2 = (bt[i + 1] & 0xFF) << 16;
             int int3 = (bt[i + 2] & 0xFF) << 8;
             int int4 = bt[i + 3] & 0xFF;
-
-
             int startTime = int1 + int2 + int3 + int4;
-
-            result.add(startTime);
+            result.set(index, startTime);
+            index++;
+            MyLogger.d(TAG, "save map id :    " + startTime);
         }
-        Collections.sort(result);
-
+        MyLogger.d(TAG, "select map id:" + selectMapId);
         return result;
 
     }

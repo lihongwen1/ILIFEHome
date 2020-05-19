@@ -562,6 +562,9 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
             }
             MyLogger.e(TAG, "registerPropReceiver----onStatusChange" + workMode);
             curStatus = workMode;
+            if (!isWork(curStatus)) {//非工作模式下，显示已保存地图
+                doAboutSlam();
+            }
             setStatus(curStatus, batteryNo);
         });
 
@@ -687,6 +690,9 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
      */
     private void doAboutSlam() {
         long mapId = mDevicePropertyBean.getSelectedMapId();
+        if (mapId == 0) {
+            return;
+        }
         String saveMapDataKey = "";
         if (mapId == mDevicePropertyBean.getSaveMapDataMapId1()) {
             saveMapDataKey = EnvConfigure.KEY_SAVE_MAP_DATA_1;
