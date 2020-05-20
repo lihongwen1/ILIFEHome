@@ -588,6 +588,7 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
             public void onChanged(Integer batteryLevel) {
                 batteryNo = batteryLevel;
                 IlifeAli.getInstance().getWorkingDevice().setBattery(batteryNo);
+                mDevicePropertyBean.setBattery(batteryNo);
                 setStatus(curStatus, batteryNo);
             }
         });
@@ -617,10 +618,12 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
         });
         LiveEventBus.get(EnvConfigure.KEY_FORBIDDEN_AREA, String.class).observe((BaseActivity) mView, fbdArea -> {
             MyLogger.d(TAG, "禁区改变:  " + fbdArea);
+            mDevicePropertyBean.setForbiddenArea(fbdArea);
             mView.drawForbiddenArea(fbdArea);
         });
         LiveEventBus.get(EnvConfigure.VirtualWallData, String.class).observe((BaseActivity) mView, virtualWall -> {
             MyLogger.d(TAG, "虚拟墙改变:  " + virtualWall);
+            mDevicePropertyBean.setVirtualWall(virtualWall);
             mView.drawVirtualWall(virtualWall);
         });
         LiveEventBus.get(EnvConfigure.CleanPartitionData, String.class).observe((BaseActivity) mView, cleanRoomData -> {
@@ -634,7 +637,7 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
             }
 
         });
-        LiveEventBus.get(EnvConfigure.KEY_SELECT_MAP_ID, Integer.class).observe((BaseActivity) mView, selectMapId -> {
+        LiveEventBus.get(EnvConfigure.KEY_SELECT_MAP_ID, Long.class).observe((BaseActivity) mView, selectMapId -> {
             MyLogger.d(TAG, "选择地图改变");
             if (mDevicePropertyBean != null) {
                 mDevicePropertyBean.setSelectedMapId(selectMapId);
