@@ -693,6 +693,26 @@ public class DataUtils {
         return df.format(value);
     }
 
+    public static String formatTimeNumber(int hour,int minute) {
+        DecimalFormat df_minute = new DecimalFormat("00");
+        DecimalFormat df_hour = new DecimalFormat("00");
+        return df_hour.format(hour)+":"+df_minute.format(minute);
+    }
+
+    /**
+     * time 09:00
+     * @param time
+     * @return
+     */
+    public static int[] parseTimeString(String time,String split){
+        if (!TextUtils.isEmpty(time)&&!TextUtils.isEmpty(split)){
+            String[] times=time.split(split);
+            if (times.length==2){
+                return new int[]{Integer.parseInt(times[0]),Integer.parseInt(times[1])};
+            }
+        }
+        return null;
+    }
     public static boolean isLetter(String value) {
         char c = value.charAt(0);
         return ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z'));

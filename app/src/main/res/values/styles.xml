@@ -127,6 +127,15 @@
         <item name="android:includeFontPadding">false</item>
         <item name="android:lineSpacingExtra">@dimen/dp_4</item>
     </style>
+
+    <style name="Text_12sp_99">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textColor">@color/color_999999</item>
+        <item name="android:textSize">@dimen/sp_12</item>
+        <item name="android:includeFontPadding">false</item>
+        <item name="android:lineSpacingExtra">@dimen/dp_4</item>
+    </style>
     <style name="Text_12sp_ff">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>

@@ -57,18 +57,15 @@ public class NameRoomActivity extends BackBaseActivity {
 
                 if (editDialog == null) {
                     editDialog = new UniversalEditDialog();
-                    editDialog.setTitle(UiUtil.getString(R.string.name_room)).setHint(UiUtil.getString(R.string.room_name_other)).setOnRightButtonClick(new UniversalEditDialog.OnRightButtonClick() {
-                        @Override
-                        public boolean onClick(String value) {
-                            if (value.getBytes().length > 20) {
-                                roomName = value;
-                                ToastUtils.showToast(UiUtil.getString(R.string.toast_name_too_long));
-                                return false;
-                            } else {
-                                nameList.set(position, value);
-                                adapter.notifyDataSetChanged();
-                                return true;
-                            }
+                    editDialog.setTitle(UiUtil.getString(R.string.name_room)).setHint(UiUtil.getString(R.string.room_name_other)).setOnRightButtonClick(value -> {
+                        if (value.getBytes().length > 20) {
+                            roomName = value;
+                            ToastUtils.showToast(UiUtil.getString(R.string.toast_name_too_long));
+                            return false;
+                        } else {
+                            nameList.set(position, value);
+                            adapter.notifyDataSetChanged();
+                            return true;
                         }
                     });
                 }

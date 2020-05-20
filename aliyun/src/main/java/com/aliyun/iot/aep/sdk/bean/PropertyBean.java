@@ -7,7 +7,8 @@ public class PropertyBean {
     private int waterLevel;
     private long realTimeMapTimeLine;
     private long historyMapTimeLine;
-    private boolean voiceOpen;//0-代表开 1-代表关
+    private boolean disturb;//0-代表开 1-代表关
+    private int disturbTime;
     private long selectedMapId;
     private String saveMapId;
     private String forbiddenArea;//禁区
@@ -43,7 +44,7 @@ public class PropertyBean {
         this.waterLevel = waterLevel;
         this.realTimeMapTimeLine = realTimeMapTimeLine;
         this.historyMapTimeLine = historyMapTimeLine;
-        this.voiceOpen = voiceOpen;
+        this.disturb = voiceOpen;
     }
 
     public boolean isMaxMode() {
@@ -150,12 +151,12 @@ public class PropertyBean {
         this.chargePort = chargePort;
     }
 
-    public boolean isVoiceOpen() {
-        return voiceOpen;
+    public boolean isDisturb() {
+        return disturb;
     }
 
-    public void setVoiceOpen(boolean voiceOpen) {
-        this.voiceOpen = voiceOpen;
+    public void setDisturb(boolean disturb) {
+        this.disturb = disturb;
     }
 
     public boolean isInitStatus() {
@@ -302,6 +303,14 @@ public class PropertyBean {
         this.mapRoomInfo3 = mapRoomInfo3;
     }
 
+    public int getDisturbTime() {
+        return disturbTime;
+    }
+
+    public void setDisturbTime(int disturbTime) {
+        this.disturbTime = disturbTime;
+    }
+
     @Override
     public String toString() {
         return "PropertyBean{" +
@@ -311,7 +320,7 @@ public class PropertyBean {
                 ", waterLevel=" + waterLevel +
                 ", realTimeMapTimeLine=" + realTimeMapTimeLine +
                 ", historyMapTimeLine=" + historyMapTimeLine +
-                ", voiceOpen=" + voiceOpen +
+                ", voiceOpen=" + disturb +
                 '}';
     }
 }

@@ -386,4 +386,14 @@
     <string name="map_edit_map">编辑地图</string>
     <string name="name_room_default_tip">默认(A、B、C…)</string>
     <string name="toast_name_too_long">名称过长，请修改后重试</string>
+    <string name="volume_adjust">音量调节</string>
+    <string name="no_disturb_mode">勿扰模式</string>
+    <string name="no_disturb_mode_tip">开启后，勿扰时间段内，不主动执行预约清扫和断点续扫，并关闭扫地机语音和灯光</string>
+    <string name="no_disturb_mode_time_bucket">勿扰时间段</string>
+    <string name="no_disturb_mode_start_time">开始时间</string>
+    <string name="no_disturb_mode_end_time">结束时间</string>
+    <string name="open">开启</string>
+    <string name="close">关闭</string>
+    <string name="setting_voice_setting">语音设置</string>
+
 </resources>

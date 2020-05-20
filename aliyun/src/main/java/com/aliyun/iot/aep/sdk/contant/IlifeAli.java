@@ -3,7 +3,6 @@ package com.aliyun.iot.aep.sdk.contant;
 import android.os.Build;
 import android.text.TextUtils;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
@@ -466,9 +465,11 @@ public class IlifeAli {
                                     getWorkingDevice().getDeviceInfo().setLanguageCode(beepType);
                                     LiveEventBus.get(EnvConfigure.KEY_BeepType, Integer.class).post(beepType);
                                 } else if (items.containsKey(EnvConfigure.KEY_BEEP_NO_DISTURB)) {
-                                    int distub = items.getJSONObject(EnvConfigure.KEY_BEEP_NO_DISTURB).getJSONObject(EnvConfigure.KEY_VALUE).getIntValue(EnvConfigure.KEY_SWITCH);
-                                    getWorkingDevice().getDeviceInfo().setVoiceOpen(distub == 0);
-//                                    LiveEventBus.get(EnvConfigure.KEY_BeepVolume, Integer.class).post(distub);
+                                    int disturb = items.getJSONObject(EnvConfigure.KEY_BEEP_NO_DISTURB).getJSONObject(EnvConfigure.KEY_VALUE).getIntValue(EnvConfigure.KEY_SWITCH);
+                                    int disturbTime = items.getJSONObject(EnvConfigure.KEY_BEEP_NO_DISTURB).getJSONObject(EnvConfigure.KEY_VALUE).getIntValue("Time");
+                                    getWorkingDevice().getDeviceInfo().setDisturb(disturb == 1);
+                                    getWorkingDevice().getDeviceInfo().setDisturbTime(disturbTime);
+                                    LiveEventBus.get(EnvConfigure.KEY_BEEP_NO_DISTURB, Boolean.class).post(disturb == 1);
                                 } else if (items.containsKey(EnvConfigure.KEY_BeepVolume)) {
                                     int beepVolume = items.getJSONObject(EnvConfigure.KEY_BeepVolume).getIntValue(EnvConfigure.KEY_VALUE);
                                     getWorkingDevice().getDeviceInfo().setVoiceVolume(beepVolume);
@@ -703,8 +704,10 @@ public class IlifeAli {
                      */
 
                     if (jsonObject.containsKey(EnvConfigure.KEY_BEEP_NO_DISTURB)) {
-                        int distub = jsonObject.getJSONObject(EnvConfigure.KEY_BEEP_NO_DISTURB).getJSONObject(EnvConfigure.KEY_VALUE).getIntValue(EnvConfigure.KEY_SWITCH);
-                        bean.setVoiceOpen(distub == 0);
+                        int disturb = jsonObject.getJSONObject(EnvConfigure.KEY_BEEP_NO_DISTURB).getJSONObject(EnvConfigure.KEY_VALUE).getIntValue(EnvConfigure.KEY_SWITCH);
+                        int disturbTime = jsonObject.getJSONObject(EnvConfigure.KEY_BEEP_NO_DISTURB).getJSONObject(EnvConfigure.KEY_VALUE).getIntValue("Time");
+                        bean.setDisturb(disturb == 1);
+                        bean.setDisturbTime(disturbTime);
                     }
                     if (jsonObject.containsKey(EnvConfigure.KEY_AppRemind)) {
                         int remind = jsonObject.getJSONObject(EnvConfigure.KEY_AppRemind).getIntValue(EnvConfigure.KEY_VALUE);

@@ -25,7 +25,6 @@ import com.ilife.home.robot.app.MyApplication;
 import com.ilife.home.robot.base.BackBaseActivity;
 import com.ilife.home.robot.bean.RobotConfigBean;
 import com.ilife.home.robot.fragment.UniversalDialog;
-import com.ilife.home.robot.utils.DataUtils;
 import com.ilife.home.robot.utils.MyLogger;
 import com.ilife.home.robot.utils.SpUtils;
 import com.ilife.home.robot.utils.ToastUtils;
@@ -133,16 +132,11 @@ public class SettingActivity extends BackBaseActivity implements OnAliSetPropert
     @BindView(R.id.iv_find_device)
     ImageView iv_find_device;
 
-    @BindView(R.id.tv_language)
-    TextView tv_language;//语言
     @BindView(R.id.tv_brush_speed_number)
     TextView tv_brush_speed_number;//边刷速度
 
     @BindView(R.id.tv_max_number)
     TextView tv_max_number;//吸力强度
-
-    @BindView(R.id.tv_volume_number)
-    TextView tv_volume_number;
 
     @BindView(R.id.image_carpet)
     ImageView image_carpet;//地毯增压
@@ -177,17 +171,10 @@ public class SettingActivity extends BackBaseActivity implements OnAliSetPropert
             isMaxMode = max;
             setStatus(waterLevel, isMaxMode, voiceOpen);
         });
-        LiveEventBus.get(EnvConfigure.KEY_BeepVolume, Integer.class).observe(this, value -> {
-            MyLogger.d("LiveBus", "收到Live Bus 信息");
-            tv_volume_number.setText(String.valueOf(value));
-        });
+
         LiveEventBus.get(EnvConfigure.KEY_SideBrushPower, Integer.class).observe(this, value -> {
             MyLogger.d("LiveBus", "收到Live Bus 信息");
             tv_brush_speed_number.setText(String.valueOf(value));
-        });
-        LiveEventBus.get(EnvConfigure.KEY_BeepType, Integer.class).observe(this, value -> {
-            MyLogger.d("LiveBus", "收到Live Bus 信息");
-            tv_language.setText(String.valueOf(DataUtils.getLanguageByCode(value)));
         });
         LiveEventBus.get(EnvConfigure.KEY_CarpetControl, Integer.class).observe(this, value -> {
             MyLogger.d("LiveBus", "收到Live Bus 信息");
@@ -228,12 +215,10 @@ public class SettingActivity extends BackBaseActivity implements OnAliSetPropert
         mode = SpUtils.getInt(context, productKey + KEY_MODE);
         waterLevel = infoBean.getDeviceInfo().getWaterLevel();
         isMaxMode = infoBean.getDeviceInfo().isMaxMode();
-        voiceOpen = infoBean.getDeviceInfo().isVoiceOpen();
+        voiceOpen = infoBean.getDeviceInfo().isDisturb();
         setMode(mode);
         tv_brush_speed_number.setText(String.valueOf(infoBean.getDeviceInfo().getBrushSpeed()));
-        tv_language.setText(DataUtils.getLanguageByCode(infoBean.getDeviceInfo().getLanguageCode()));
         tv_max_number.setText(String.valueOf(infoBean.getDeviceInfo().getSuctionNumber()));
-        tv_volume_number.setText(String.valueOf(infoBean.getDeviceInfo().getVoiceVolume()));
         image_carpet.setSelected(infoBean.getDeviceInfo().getCarpetControl() == 1);
         robotType = rBean.getRobotType();
         setStatus(waterLevel, isMaxMode, voiceOpen);
@@ -314,7 +299,7 @@ public class SettingActivity extends BackBaseActivity implements OnAliSetPropert
 
     @OnClick({R.id.rl_robot_head, R.id.rl_water, R.id.rl_clock, R.id.rl_record, R.id.rl_consume, R.id.rl_mode, R.id.rl_find,
             R.id.rl_plan, R.id.rl_random, R.id.rl_facReset, R.id.rl_voice, R.id.rl_update, R.id.rl_suction, R.id.rl_soft
-            , R.id.rl_standard, R.id.rl_strong, R.id.rl_set_language, R.id.rl_set_volume, R.id.rl_set_brush_speed, R.id.rl_set_max, R.id.rl_set_carpet})
+            , R.id.rl_standard, R.id.rl_strong, R.id.rl_set_voice, R.id.rl_set_brush_speed, R.id.rl_set_max, R.id.rl_set_carpet})
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.rl_robot_head:
@@ -335,12 +320,8 @@ public class SettingActivity extends BackBaseActivity implements OnAliSetPropert
                 intent = new Intent(context, ClockingActivity.class);
                 startActivity(intent);
                 break;
-            case R.id.rl_set_language:
-                intent = new Intent(context, VoiceLanguageActivity.class);
-                startActivity(intent);
-                break;
-            case R.id.rl_set_volume:
-                intent = new Intent(context, VoiceVolumeActivity.class);
+            case R.id.rl_set_voice:
+                intent = new Intent(context, VolumeSettingActivity.class);
                 startActivity(intent);
                 break;
             case R.id.rl_set_brush_speed:

@@ -59,7 +59,7 @@ public class VoiceVolumeActivity extends BackBaseActivity {
     public void initData() {
         super.initData();
         int volume = IlifeAli.getInstance().getWorkingDevice().getDeviceInfo().getVoiceVolume();
-        boolean isOpen = IlifeAli.getInstance().getWorkingDevice().getDeviceInfo().isVoiceOpen();
+        boolean isOpen = IlifeAli.getInstance().getWorkingDevice().getDeviceInfo().isDisturb();
         sk_voice_volume.setProgress(volume);
         tv_voice_volume.setText(volume + "%");
         iv_volume_switch.setSelected(isOpen);

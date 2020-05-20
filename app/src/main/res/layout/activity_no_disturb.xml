@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/bg_color_f5f7fa"
+    android:orientation="vertical">
+
+    <include layout="@layout/template_top_title" />
+
+    <LinearLayout
+        android:layout_marginTop="1dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/white"
+        android:gravity="center"
+        android:orientation="horizontal"
+        android:paddingStart="@dimen/dp_20"
+        android:paddingTop="@dimen/dp_16"
+        android:paddingEnd="@dimen/dp_20"
+        android:paddingBottom="@dimen/dp_16">
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                style="@style/Text_16sp_33"
+                android:text="@string/no_disturb_mode" />
+
+            <TextView
+                style="@style/Text_12sp_99"
+                android:text="@string/no_disturb_mode_tip" />
+        </LinearLayout>
+
+        <ImageView
+            android:id="@+id/iv_no_disturb"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/dp_20"
+            android:background="@drawable/image_max_bg" />
+    </LinearLayout>
+
+    <TextView
+        style="@style/Text_12sp_99"
+        android:layout_marginStart="@dimen/dp_20"
+        android:paddingTop="@dimen/dp_8"
+        android:paddingBottom="@dimen/dp_8"
+        android:text="@string/no_disturb_mode_time_bucket" />
+
+    <LinearLayout
+        android:id="@+id/ll_no_disturb_start_time"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/white"
+        android:gravity="center_vertical"
+        android:minHeight="@dimen/dp_60"
+        android:orientation="horizontal"
+        android:paddingStart="@dimen/dp_20"
+        android:paddingEnd="@dimen/dp_20">
+
+        <TextView
+            style="@style/Text_16sp_33"
+            android:text="@string/no_disturb_mode_start_time" />
+
+        <Space
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1" />
+
+        <TextView
+            android:id="@+id/tv_no_disturb_start_time"
+            style="@style/Text_14sp_66"
+            android:text="00:00" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/ll_no_disturb_end_time"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="1dp"
+        android:background="@color/white"
+        android:gravity="center_vertical"
+        android:minHeight="@dimen/dp_60"
+        android:orientation="horizontal"
+        android:paddingStart="@dimen/dp_20"
+        android:paddingEnd="@dimen/dp_20">
+
+        <TextView
+            style="@style/Text_16sp_33"
+            android:text="@string/no_disturb_mode_end_time" />
+
+        <Space
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1" />
+
+        <TextView
+            android:id="@+id/tv_no_disturb_end_time"
+            style="@style/Text_14sp_66"
+            android:text="00:00" />
+    </LinearLayout>
+
+    <Space
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1" />
+
+    <com.ilife.home.robot.view.ShadowContainer
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/dp_30"
+        app:containerCornerRadius="@dimen/dp_25"
+        app:containerDeltaLength="@dimen/dp_8"
+        app:containerShadowColor="@color/color_theme_66"
+        app:containerShadowRadius="@dimen/dp_6"
+        app:deltaY="@dimen/dp_2"
+        app:enable="true">
+
+        <Button
+            android:id="@+id/bt_save_no_disturb"
+            style="@style/Button_Style"
+            android:text="@string/btn_save" />
+    </com.ilife.home.robot.view.ShadowContainer>
+</LinearLayout>

@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/bg_color_f5f7fa"
+    android:orientation="vertical">
+
+    <include layout="@layout/template_top_title" />
+
+    <LinearLayout
+        android:id="@+id/ll_volume_adjust"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dp_60"
+        android:layout_marginTop="1dp"
+        android:background="@color/white"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingStart="@dimen/dp_20"
+        android:paddingEnd="@dimen/dp_12">
+
+        <TextView
+            style="@style/Text_16sp_33"
+            android:gravity="center"
+            android:text="@string/volume_adjust" />
+
+        <Space
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1" />
+
+        <TextView
+            android:id="@+id/tv_volume_number"
+            style="@style/Text_14sp_66"
+            android:text="50" />
+
+        <ImageView
+            style="@style/Image_Style_Forward" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/ll_no_disturb_mode"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dp_60"
+        android:layout_marginTop="1dp"
+        android:background="@color/white"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingStart="@dimen/dp_20"
+        android:paddingEnd="@dimen/dp_12">
+
+        <TextView
+            style="@style/Text_16sp_33"
+            android:gravity="center"
+            android:text="@string/no_disturb_mode" />
+
+        <Space
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1" />
+
+        <TextView
+            android:id="@+id/tv_no_disturb_state"
+            style="@style/Text_14sp_66"
+            android:text="@string/open" />
+
+        <ImageView
+            style="@style/Image_Style_Forward" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/ll_volume_language"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dp_60"
+        android:layout_marginTop="1dp"
+        android:background="@color/white"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingStart="@dimen/dp_20"
+        android:paddingEnd="@dimen/dp_12">
+
+        <TextView
+            style="@style/Text_16sp_33"
+            android:gravity="center"
+            android:text="@string/setting_set_language" />
+
+        <Space
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1" />
+
+        <TextView
+            android:id="@+id/tv_volume_language"
+            style="@style/Text_14sp_66"
+            android:text="English" />
+
+        <ImageView
+            style="@style/Image_Style_Forward" />
+    </LinearLayout>
+</LinearLayout>

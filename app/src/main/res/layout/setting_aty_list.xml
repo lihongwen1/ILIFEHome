@@ -345,7 +345,7 @@
 
 
     <RelativeLayout
-        android:id="@+id/rl_set_volume"
+        android:id="@+id/rl_set_voice"
         android:layout_width="match_parent"
         android:layout_height="@dimen/dp_60"
         android:layout_marginStart="@dimen/dp_24">
@@ -353,14 +353,7 @@
         <TextView
             android:id="@+id/tv_set_volume"
             style="@style/Text_16sp_33"
-            android:text="@string/setting_set_volumn" />
-
-        <TextView
-            android:id="@+id/tv_volume_number"
-            style="@style/Text_14sp_66"
-            android:layout_toStartOf="@id/iv_forward_volume"
-            android:text="0"
-            android:gravity="end" />
+            android:text="@string/setting_voice_setting" />
 
         <ImageView
             android:id="@+id/iv_forward_volume"
@@ -371,39 +364,6 @@
             style="@style/View_Line_Style"
             android:layout_alignParentBottom="true" />
     </RelativeLayout>
-
-
-    <RelativeLayout
-        android:id="@+id/rl_set_language"
-        android:layout_width="match_parent"
-        android:layout_height="@dimen/dp_60"
-        android:layout_marginStart="@dimen/dp_24">
-
-        <TextView
-            android:id="@+id/tv_set_language"
-            style="@style/Text_16sp_33"
-            android:text="@string/setting_set_language" />
-
-        <TextView
-            android:id="@+id/tv_language"
-            style="@style/Text_14sp_66"
-            android:gravity="end"
-            android:layout_toStartOf="@id/iv_forward_language"
-            android:text="0" />
-
-        <ImageView
-            android:id="@+id/iv_forward_language"
-            style="@style/Image_Style_Forward"
-            android:layout_marginEnd="@dimen/dp_24" />
-
-        <View
-            style="@style/View_Line_Style"
-            android:layout_alignParentBottom="true" />
-    </RelativeLayout>
-
-
-
-
     <RelativeLayout
         android:visibility="gone"
         android:id="@+id/rl_voice"
