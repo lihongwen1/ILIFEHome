@@ -382,7 +382,7 @@ public class DataUtils {
             int index = 0;
             int chargeX = DataUtils.bytesToInt(allBytes[index], allBytes[index + 1]);
             index += 2;
-            int chargeY = DataUtils.bytesToInt(allBytes[index], allBytes[index + 1]);
+            int chargeY = -DataUtils.bytesToInt(allBytes[index], allBytes[index + 1]);
             index += 2;
             int roomNumber = allBytes[index] & 0xff;
             index++;
