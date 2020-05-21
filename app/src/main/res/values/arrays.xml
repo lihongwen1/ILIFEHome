@@ -38,7 +38,7 @@
         <item>@string/week_friday</item>
         <item>@string/week_saturday</item>
     </array>
-    <array name="text_mode">
+    <array name="text_work_mode">
         <item>@string/setting_aty_nav_clean</item>
         <item>@string/setting_aty_random_clean</item>
     </array>
@@ -118,4 +118,9 @@
         <item>@string/room_name_store_room</item>
         <item>@string/room_name_other</item>
     </string-array>
+    <array name="water_level">
+        <item>@string/setting_aty_soft</item>
+        <item>@string/setting_aty_standard</item>
+        <item>@string/setting_aty_strong</item>
+    </array>
 </resources>

@@ -157,7 +157,7 @@ public class ClockEditActivity extends BackBaseActivity {
                 break;
             case R.id.ll_schedule_mode://预约清扫模式
                 mTextSelectorType = 2;
-                showTextSelectorDialog(false, "", R.array.text_mode, tv_schedule_mode.getText().toString().trim());
+                showTextSelectorDialog(false, "", R.array.text_work_mode, tv_schedule_mode.getText().toString().trim());
                 break;
             case R.id.ll_schedule_times://预约清扫次数
                 mTextSelectorType = 3;

@@ -26,8 +26,6 @@ public class VoiceVolumeActivity extends BackBaseActivity {
     SeekBar sk_voice_volume;
     @BindView(R.id.tv_voice_volume)
     TextView tv_voice_volume;
-    @BindView(R.id.iv_volume_switch)
-    ImageView iv_volume_switch;
 
     @Override
     public int getLayoutId() {
@@ -59,44 +57,22 @@ public class VoiceVolumeActivity extends BackBaseActivity {
     public void initData() {
         super.initData();
         int volume = IlifeAli.getInstance().getWorkingDevice().getDeviceInfo().getVoiceVolume();
-        boolean isOpen = IlifeAli.getInstance().getWorkingDevice().getDeviceInfo().isDisturb();
         sk_voice_volume.setProgress(volume);
         tv_voice_volume.setText(volume + "%");
-        iv_volume_switch.setSelected(isOpen);
-        sk_voice_volume.setEnabled(isOpen);
-        tv_voice_volume.setEnabled(isOpen);
-
     }
 
-    @OnClick({R.id.bt_save_volume, R.id.iv_volume_switch})
+    @OnClick({R.id.bt_save_volume})
     public void onClick(View view) {
-        switch (view.getId()) {
-            case R.id.bt_save_volume:
-                showLoadingDialog();
-                String jsonStr = "{\"BeepVolume\":1}";
-                JSONObject jo = JSONObject.parseObject(jsonStr);
-                jo.put(EnvConfigure.KEY_BeepVolume, sk_voice_volume.getProgress());
-
-                String beepJson = "{\"BeepNoDisturb\":{\"Switch\":1,\"Time\":0}}";
-                JSONObject bj = JSONObject.parseObject(beepJson);
-                bj.getJSONObject(EnvConfigure.KEY_BEEP_NO_DISTURB).put(EnvConfigure.KEY_SWITCH, iv_volume_switch.isSelected()?0:1);
-                IlifeAli.getInstance().setProperties(bj, value -> IlifeAli.getInstance().setProperties(jo, aBoolean -> {
-                    if (aBoolean) {
-                        ToastUtils.showToast(UiUtil.getString(R.string.setting_success));
-                        removeActivity();
-                    }
-                }));
-
-                break;
-            case R.id.iv_volume_switch:
-                boolean isOpen = !iv_volume_switch.isSelected();
-                iv_volume_switch.setSelected(isOpen);
-                sk_voice_volume.setEnabled(isOpen);
-                tv_voice_volume.setEnabled(isOpen);
-                break;
-
-
-        }
+        showLoadingDialog();
+        String jsonStr = "{\"BeepVolume\":1}";
+        JSONObject jo = JSONObject.parseObject(jsonStr);
+        jo.put(EnvConfigure.KEY_BeepVolume, sk_voice_volume.getProgress());
+        IlifeAli.getInstance().setProperties(jo, aBoolean -> {
+            if (aBoolean) {
+                ToastUtils.showToast(UiUtil.getString(R.string.setting_success));
+                removeActivity();
+            }
+        });
     }
 
 

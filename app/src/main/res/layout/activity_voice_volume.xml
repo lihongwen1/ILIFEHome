@@ -13,27 +13,6 @@
         android:orientation="vertical">
 
         <include layout="@layout/template_top_title" />
-
-        <RelativeLayout
-            android:id="@+id/rl_voice"
-            android:layout_width="match_parent"
-            android:layout_height="@dimen/dp_60">
-
-            <TextView
-                style="@style/Text_16sp_33"
-                android:layout_marginStart="@dimen/dp_24"
-                android:text="@string/setting_aty_voice_mode" />
-
-            <ImageView
-                android:id="@+id/iv_volume_switch"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentEnd="true"
-                android:layout_centerVertical="true"
-                android:layout_marginEnd="@dimen/dp_30"
-                android:background="@drawable/image_max_bg" />
-        </RelativeLayout>
-
         <TextView
             style="@style/Text_16sp_33"
             android:layout_height="@dimen/dp_60"

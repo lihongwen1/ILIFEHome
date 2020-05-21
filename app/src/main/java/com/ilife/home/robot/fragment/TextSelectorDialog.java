@@ -89,7 +89,9 @@ public class TextSelectorDialog extends DialogFragment {
             dismissAllowingStateLoss();
         });
         ll_cancel = view.findViewById(R.id.ll_cancel);
-        ll_cancel.setOnClickListener(v -> dismissAllowingStateLoss());
+        ll_cancel.setOnClickListener(v -> {
+            dismissAllowingStateLoss();
+        });
     }
 
 

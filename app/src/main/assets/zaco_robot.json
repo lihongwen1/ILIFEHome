@@ -23,7 +23,7 @@
       "alongToPoint": true,
       "planningToAlong": false,
       "pointAlongToRecharge": false,
-      "settingMode":false,
+      "settingMode":true,
       "settingUpdate":true,
       "settingRecord":true,
       "settingVoice":false,

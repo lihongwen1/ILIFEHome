@@ -386,14 +386,15 @@
     <string name="map_edit_map">Edit map</string>
     <string name="name_room_default_tip">Default (A, B, C …)</string>
     <string name="toast_name_too_long">The name is too long, please modify it and try again</string>
-    <string name="volume_adjust">音量调节</string>
-    <string name="no_disturb_mode">勿扰模式</string>
-    <string name="no_disturb_mode_tip">开启后，勿扰时间段内，不主动执行预约清扫和断点续扫，并关闭扫地机语音和灯光</string>
-    <string name="no_disturb_mode_time_bucket">勿扰时间段</string>
-    <string name="no_disturb_mode_start_time">开始时间</string>
-    <string name="no_disturb_mode_end_time">结束时间</string>
-    <string name="open">开启</string>
-    <string name="close">关闭</string>
-    <string name="setting_voice_setting">语音设置</string>
+    <string name="volume_adjust">Volume setting</string>
+    <string name="no_disturb_mode">Do not disturb mode</string>
+    <string name="no_disturb_mode_tip">After turning on, do not actively perform scheduled cleaning and breakpoint continued scanning within the time period, and turn off the sweeper voice and lights</string>
+    <string name="no_disturb_mode_time_bucket">Do not disturb time period</string>
+    <string name="no_disturb_mode_start_time">Starting time</string>
+    <string name="no_disturb_mode_end_time">End Time</string>
+    <string name="open">On</string>
+    <string name="close">Off</string>
+    <string name="setting_voice_setting">Voice settings</string>
+
 
 </resources>

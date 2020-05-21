@@ -8,7 +8,6 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.view.animation.LinearInterpolator;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -24,6 +23,7 @@ import com.ilife.home.robot.R;
 import com.ilife.home.robot.app.MyApplication;
 import com.ilife.home.robot.base.BackBaseActivity;
 import com.ilife.home.robot.bean.RobotConfigBean;
+import com.ilife.home.robot.fragment.TextSelectorDialog;
 import com.ilife.home.robot.fragment.UniversalDialog;
 import com.ilife.home.robot.utils.MyLogger;
 import com.ilife.home.robot.utils.SpUtils;
@@ -55,38 +55,18 @@ public class SettingActivity extends BackBaseActivity implements OnAliSetPropert
     private String productKey;
     Intent intent;
     String devName, name;
-    @BindView(R.id.image_soft)
-    ImageView image_soft;
-    @BindView(R.id.image_standard)
-    ImageView image_standard;
-    @BindView(R.id.image_strong)
-    ImageView image_strong;
     @BindView(R.id.image_max)
     ImageView image_max;
     @BindView(R.id.image_voice)
     ImageView image_voice;
-    @BindView(R.id.image_plan)
-    ImageView image_plan;
-    @BindView(R.id.image_random)
-    ImageView image_random;
     @BindView(R.id.image_product)
     ImageView image_product;
     @BindView(R.id.tv_name)
     TextView tv_name;
     @BindView(R.id.tv_type)
     TextView tv_type;
-    @BindView(R.id.tv_soft)
-    TextView tv_soft;
-    @BindView(R.id.tv_standard)
-    TextView tv_standard;
-    @BindView(R.id.tv_strong)
-    TextView tv_strong;
     @BindView(R.id.tv_water)
     TextView tv_water;
-    @BindView(R.id.tv_plan)
-    TextView tv_plan;
-    @BindView(R.id.tv_random)
-    TextView tv_random;
     @BindView(R.id.tv_mode)
     TextView tv_mode;
     @BindView(R.id.tv_top_title)
@@ -109,26 +89,12 @@ public class SettingActivity extends BackBaseActivity implements OnAliSetPropert
     RelativeLayout rl_suction;
     @BindView(R.id.rl_find)
     RelativeLayout rl_find;
-    @BindView(R.id.rl_soft)
-    RelativeLayout rl_soft;
-    @BindView(R.id.rl_standard)
-    RelativeLayout rl_standard;
-    @BindView(R.id.rl_strong)
-    RelativeLayout rl_strong;
-    @BindView(R.id.rl_plan)
-    RelativeLayout rl_plan;
-    @BindView(R.id.rl_random)
-    RelativeLayout rl_random;
     @BindView(R.id.rl_facReset)
     RelativeLayout rl_facReset;
     @BindView(R.id.rl_voice)
     RelativeLayout rl_voice;
     @BindView(R.id.rl_update)
     RelativeLayout rl_update;
-    @BindView(R.id.ll_water)
-    LinearLayout ll_water;
-    @BindView(R.id.ll_mode)
-    LinearLayout ll_mode;
     @BindView(R.id.iv_find_device)
     ImageView iv_find_device;
 
@@ -145,7 +111,6 @@ public class SettingActivity extends BackBaseActivity implements OnAliSetPropert
     private CompositeDisposable mDisposable;
     private RenameActivity renameFragment;
     private UniversalDialog resetDialog;
-    private String robotType;
     private RobotConfigBean.RobotBean rBean;
 
 
@@ -220,7 +185,6 @@ public class SettingActivity extends BackBaseActivity implements OnAliSetPropert
         tv_brush_speed_number.setText(String.valueOf(infoBean.getDeviceInfo().getBrushSpeed()));
         tv_max_number.setText(String.valueOf(infoBean.getDeviceInfo().getSuctionNumber()));
         image_carpet.setSelected(infoBean.getDeviceInfo().getCarpetControl() == 1);
-        robotType = rBean.getRobotType();
         setStatus(waterLevel, isMaxMode, voiceOpen);
         int product = UiUtil.getDrawable(rBean.getFaceImg());
         /**
@@ -238,49 +202,44 @@ public class SettingActivity extends BackBaseActivity implements OnAliSetPropert
         boolean isRandom = mode == MsgCodeUtils.STATUE_RANDOM;
         tv_mode.setText(isRandom ? getString(R.string.setting_aty_random_clean)
                 : getString(R.string.setting_aty_nav_clean));
-        image_plan.setSelected(!isRandom);
-        image_random.setSelected(isRandom);
-        tv_plan.setSelected(!isRandom);
-        tv_random.setSelected(isRandom);
     }
 
     public void setStatus(int water, boolean isMaxMode, boolean isoVoiceOpen) {
         image_max.setSelected(isMaxMode);
         image_voice.setSelected(voiceOpen);
-        clearAll();
         if (rBean.getWaterLevelType() == 2) {//1轻柔 2标准 3强力 目前只有X787是该顺序
             switch (water) {
                 case 1:
-                    tv_soft.setSelected(true);
-                    image_soft.setSelected(true);
                     tv_water.setText(getString(R.string.setting_aty_soft));
                     break;
                 case 2:
-                    tv_standard.setSelected(true);
-                    image_standard.setSelected(true);
                     tv_water.setText(getString(R.string.setting_aty_standard));
                     break;
                 case 3:
-                    tv_strong.setSelected(true);
-                    image_strong.setSelected(true);
                     tv_water.setText(getString(R.string.setting_aty_strong));
                     break;
             }
-        } else {
+        } else if (rBean.getWaterLevelType() == 3) {// X3 X4 X6 X9
             switch (water) {
                 case 0:
-                    tv_standard.setSelected(true);
-                    image_standard.setSelected(true);
                     tv_water.setText(getString(R.string.setting_aty_standard));
                     break;
                 case 1:
-                    tv_soft.setSelected(true);
-                    image_soft.setSelected(true);
                     tv_water.setText(getString(R.string.setting_aty_soft));
                     break;
                 case 2:
-                    tv_strong.setSelected(true);
-                    image_strong.setSelected(true);
+                    tv_water.setText(getString(R.string.setting_aty_strong));
+                    break;
+            }
+        } else {//x8
+            switch (water) {
+                case 0:
+                    tv_water.setText(getString(R.string.setting_aty_soft));
+                    break;
+                case 1:
+                    tv_water.setText(getString(R.string.setting_aty_standard));
+                    break;
+                case 2:
                     tv_water.setText(getString(R.string.setting_aty_strong));
                     break;
             }
@@ -288,33 +247,14 @@ public class SettingActivity extends BackBaseActivity implements OnAliSetPropert
         }
     }
 
-    public void clearAll() {
-        tv_soft.setSelected(false);
-        tv_standard.setSelected(false);
-        tv_strong.setSelected(false);
-        image_soft.setSelected(false);
-        image_standard.setSelected(false);
-        image_strong.setSelected(false);
-    }
-
     @OnClick({R.id.rl_robot_head, R.id.rl_water, R.id.rl_clock, R.id.rl_record, R.id.rl_consume, R.id.rl_mode, R.id.rl_find,
-            R.id.rl_plan, R.id.rl_random, R.id.rl_facReset, R.id.rl_voice, R.id.rl_update, R.id.rl_suction, R.id.rl_soft
-            , R.id.rl_standard, R.id.rl_strong, R.id.rl_set_voice, R.id.rl_set_brush_speed, R.id.rl_set_max, R.id.rl_set_carpet})
+            R.id.rl_facReset, R.id.rl_voice, R.id.rl_update, R.id.rl_suction, R.id.rl_set_voice, R.id.rl_set_brush_speed, R.id.rl_set_max, R.id.rl_set_carpet})
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.rl_robot_head:
                 Intent intent = new Intent(SettingActivity.this, RenameActivity.class);
                 intent.putExtra(RenameActivity.KEY_RENAME_TYPE, 1);
                 startActivity(intent);
-                break;
-            case R.id.rl_water:
-                if (ll_water.getVisibility() == View.GONE) {
-                    image_down_1.setRotation(-90);
-                    ll_water.setVisibility(View.VISIBLE);
-                } else {
-                    image_down_1.setRotation(90);
-                    ll_water.setVisibility(View.GONE);
-                }
                 break;
             case R.id.rl_clock:
                 intent = new Intent(context, ClockingActivity.class);
@@ -350,33 +290,26 @@ public class SettingActivity extends BackBaseActivity implements OnAliSetPropert
                 startActivity(intent);
                 break;
             case R.id.rl_mode:
-                if (ll_mode.getVisibility() == View.GONE) {
-                    ll_mode.setVisibility(View.VISIBLE);
-                    image_down_2.setRotation(-90);
-                } else {
-                    image_down_2.setRotation(90);
-                    ll_mode.setVisibility(View.GONE);
-                }
+                TextSelectorDialog.Builder builder = new TextSelectorDialog.Builder();
+                builder.setArray(UiUtil.getStringArray(R.array.text_work_mode)).setOnTextSelect((position, text) -> {
+                    if (position == 0) {
+                        SpUtils.saveInt(context, productKey + KEY_MODE, MsgCodeUtils.STATUE_PLANNING);
+                        mode = MsgCodeUtils.STATUE_PLANNING;
+                        setMode(mode);
+                    } else {
+                        SpUtils.saveInt(context, productKey + KEY_MODE, MsgCodeUtils.STATUE_RANDOM);
+                        mode = MsgCodeUtils.STATUE_RANDOM;
+                        setMode(mode);
+                    }
+                });
+                TextSelectorDialog workModeDialog = builder.build();
+                workModeDialog.show(getSupportFragmentManager(), "select_work_mode");
                 break;
             case R.id.rl_find:
                 IlifeAli.getInstance().findDevice(this);
                 rl_find.setClickable(false);
                 iv_find_device.setSelected(true);
                 iv_find_device.startAnimation(animation);
-                break;
-            case R.id.rl_plan:
-                if (!image_plan.isSelected()) {
-                    SpUtils.saveInt(context, productKey + KEY_MODE, MsgCodeUtils.STATUE_PLANNING);
-                    mode = MsgCodeUtils.STATUE_PLANNING;
-                    setMode(mode);
-                }
-                break;
-            case R.id.rl_random:
-                if (!image_random.isSelected()) {
-                    SpUtils.saveInt(context, productKey + KEY_MODE, MsgCodeUtils.STATUE_RANDOM);
-                    mode = MsgCodeUtils.STATUE_RANDOM;
-                    setMode(mode);
-                }
                 break;
             case R.id.rl_facReset:
                 if (IlifeAli.getInstance().getWorkingDevice().getOwned() == 1) {
@@ -396,26 +329,39 @@ public class SettingActivity extends BackBaseActivity implements OnAliSetPropert
                     ToastUtils.showToast(Utils.getString(R.string.settiing_change_suction_tip));
                 }
                 break;
-            case R.id.rl_standard:
-                if (rBean.getWaterLevelType() == 2) {
-                    IlifeAli.getInstance().waterControl(2, this);
-                } else {
-                    IlifeAli.getInstance().waterControl(0, this);
-                }
-                break;
-            case R.id.rl_soft:
-                if (rBean.getWaterLevelType() == 2) {
-                    IlifeAli.getInstance().waterControl(1, this);
-                } else {
-                    IlifeAli.getInstance().waterControl(1, this);
-                }
-                break;
-            case R.id.rl_strong:
-                if (rBean.getWaterLevelType() == 2) {
-                    IlifeAli.getInstance().waterControl(3, this);
-                } else {
-                    IlifeAli.getInstance().waterControl(2, this);
-                }
+            case R.id.rl_water:
+                TextSelectorDialog.Builder waterBuilder = new TextSelectorDialog.Builder();
+                waterBuilder.setArray(UiUtil.getStringArray(R.array.water_level)).setOnTextSelect((position, text) -> {
+                    switch (position) {
+                        case 0://轻柔
+                            if (rBean.getWaterLevelType() == 2) {
+                                IlifeAli.getInstance().waterControl(1, this);
+                            } else if (rBean.getWaterLevelType() == 3) {
+                                IlifeAli.getInstance().waterControl(1, this);
+                            } else {
+                                IlifeAli.getInstance().waterControl(0, this);
+                            }
+                            break;
+                        case 1://标准
+                            if (rBean.getWaterLevelType() == 2) {
+                                IlifeAli.getInstance().waterControl(2, this);
+                            } else if (rBean.getWaterLevelType() == 3) {
+                                IlifeAli.getInstance().waterControl(0, this);
+                            } else {
+                                IlifeAli.getInstance().waterControl(1, this);
+                            }
+                            break;
+                        case 2://强力
+                            if (rBean.getWaterLevelType() == 2) {
+                                IlifeAli.getInstance().waterControl(3, this);
+                            } else {
+                                IlifeAli.getInstance().waterControl(2, this);
+                            }
+                            break;
+                    }
+                });
+                TextSelectorDialog waterLevelDialog=waterBuilder.build();
+                waterLevelDialog.show(getSupportFragmentManager(),"water_level");
                 break;
             case R.id.rl_update:
                 if (IlifeAli.getInstance().getWorkingDevice().getOwned() == 1) {
