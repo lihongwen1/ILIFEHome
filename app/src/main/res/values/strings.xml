@@ -359,7 +359,7 @@
     <string name="dialog_content_robot_moved">The robot has been moved, please confirm the map</string>
     <string name="dialog_delete_account">Delete account</string>
     <string name="dialog_delete_account_title">Delete account now?</string>
-    <string name="dialog_delete_account_hint">The account will be unavailable after deletion</string>
+    <string name="dialog_delete_account_hint">After deletion, all data of the account will be cleared</string>
     <string name="room_name_living_room">Living room</string>
     <string name="room_name_restaurant">Restaurant</string>
     <string name="room_name_bed_room">Bedroom</string>
@@ -388,7 +388,7 @@
     <string name="toast_name_too_long">The name is too long, please modify it and try again</string>
     <string name="volume_adjust">Volume setting</string>
     <string name="no_disturb_mode">Do not disturb mode</string>
-    <string name="no_disturb_mode_tip">After turning on, do not actively perform scheduled cleaning and breakpoint continued scanning within the time period, and turn off the sweeper voice and lights</string>
+    <string name="no_disturb_mode_tip">After opening, do not disturb the scheduled cleaning and breakpoint continued scanning, and turn off the sweeper voice during the time</string>
     <string name="no_disturb_mode_time_bucket">Do not disturb time period</string>
     <string name="no_disturb_mode_start_time">Starting time</string>
     <string name="no_disturb_mode_end_time">End Time</string>
