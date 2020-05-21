@@ -77,7 +77,7 @@ public class SelectActivity_x extends BackBaseActivity {
         }
         adapter = new XAdapter(R.layout.x_series_item, robots);
         adapter.setOnItemClickListener((adapter, view, position) -> {
-            Intent i = new Intent(context, ConnectHomeWifiActivity.class);
+            Intent i = new Intent(context, ApGuideOpenPowerActivity.class);
             IlifeAli.getInstance().setBindingProductKey(robots.get(position).getProductKey());
             startActivity(i);
         });

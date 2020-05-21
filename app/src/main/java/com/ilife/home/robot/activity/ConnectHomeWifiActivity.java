@@ -158,7 +158,7 @@ public class ConnectHomeWifiActivity extends BackBaseActivity {
                         } else {
                             SpUtils.put(this, EXTRA_SSID, ssid);
                             SpUtils.put(this, EXTRA_PASS, pass);
-                            Intent i_ap = new Intent(context, ApGuideOpenPowerActivity.class);
+                            Intent i_ap = new Intent(context, ApWifiActivity.class);
                             startActivity(i_ap);
                         }
                     }

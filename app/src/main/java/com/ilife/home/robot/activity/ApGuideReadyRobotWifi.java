@@ -80,6 +80,6 @@ public class ApGuideReadyRobotWifi extends BackBaseActivity {
 
     @OnClick({R.id.bt_next})
     public void onViewClick() {
-        startActivity(new Intent(ApGuideReadyRobotWifi.this, ApWifiActivity.class));
+        startActivity(new Intent(ApGuideReadyRobotWifi.this, ConnectHomeWifiActivity.class));
     }
 }

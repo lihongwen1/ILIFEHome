@@ -23,14 +23,14 @@
             android:layout_height="match_parent"
             android:layout_marginStart="1dp"
             android:layout_weight="1"
-            android:background="@drawable/shape_indicator_gray" />
+            android:background="@drawable/shape_indicator_orange" />
 
         <View
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_marginStart="1dp"
             android:layout_weight="1"
-            android:background="@drawable/shape_indicator_gray" />
+            android:background="@drawable/shape_indicator_orange" />
 
     </LinearLayout>
 
@@ -141,7 +141,7 @@
                 android:id="@+id/bt_next"
                 style="@style/Button_Style_quick_login"
                 android:shadowColor="@color/clock_aty_tv_unpressed"
-                android:text="@string/guide_aty_next" />
+                android:text="@string/add_aty_start_connect" />
         </com.ilife.home.robot.view.ShadowContainer>
     </LinearLayout>
 </LinearLayout>

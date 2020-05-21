@@ -30,7 +30,7 @@
             android:layout_height="match_parent"
             android:layout_marginStart="1dp"
             android:layout_weight="1"
-            android:background="@drawable/shape_indicator_orange" />
+            android:background="@drawable/shape_indicator_gray" />
     </LinearLayout>
 
 
@@ -96,7 +96,7 @@
             <Button
                 android:id="@+id/bt_next"
                 style="@style/Button_Style_quick_login"
-                android:text="@string/add_aty_start_connect" />
+                android:text="@string/guide_aty_next" />
         </com.ilife.home.robot.view.ShadowContainer>
     </LinearLayout>
 </LinearLayout>
