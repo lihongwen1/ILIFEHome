@@ -148,6 +148,9 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
         int x, y;
         for (int i = 0; i < src.size(); i++) {
             coordinate = src.get(i);
+            if (coordinate.getType() == 0) {//未清扫数据不计算
+                continue;
+            }
             x = coordinate.getX();
             y = coordinate.getY();
             if (minX > x) {
@@ -227,8 +230,8 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
             if (bytes != null && bytes.length > 0) {
                 for (int i = 4; i < bytes.length; i += 5) {
                     int type = bytes[i];
-                    if (type == 0) {
-                        continue;
+                    if (type == 1) {//实时地图已清扫不绘制
+                        type=0;
                     }
                     pointCoor[0] = bytes[i - 4];
                     pointCoor[1] = bytes[i - 3];

@@ -105,6 +105,9 @@ public class SelectSaveMapActivity extends BackBaseActivity {
                     break;
             }
         });
+        mAdapter.setOnItemClickListener((adapter, view, position) -> {
+
+        });
         rv_save_map.setAdapter(mAdapter);
         refresh_map.setRefreshHeader(new ClassicsHeader(this));
         refresh_map.setOnRefreshListener(refreshLayout -> getSaveMapData(false));

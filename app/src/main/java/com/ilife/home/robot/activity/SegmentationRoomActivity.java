@@ -302,6 +302,7 @@ public class SegmentationRoomActivity extends BackBaseActivity {
                             }
                             room.setTag(roomName);
                         }
+
                         map_room.drawChargePort(saveMapDataInfoBean.getChargePoint().x, saveMapDataInfoBean.getChargePoint().y, true);
                         map_room.getmGateHelper().drawGate(saveMapDataInfoBean.getGates());
                         map_room.getmRoomHelper().drawRoom(saveMapDataInfoBean.getRooms());
@@ -334,9 +335,9 @@ public class SegmentationRoomActivity extends BackBaseActivity {
                         jsonObject.getJSONObject(EnvConfigure.KEY_ADD_ROOM_DOOR).put("ModifyInfo", map_room.getmSegmentHelper().getSegmentationData());
 
                         IlifeAli.getInstance().setProperties(jsonObject, aBoolean -> {
-                            Disposable disposable = Observable.timer(5, TimeUnit.SECONDS).observeOn(AndroidSchedulers.mainThread()).subscribe(new Consumer<Long>() {
+                            Disposable disposable = Observable.timer(10, TimeUnit.SECONDS).observeOn(AndroidSchedulers.mainThread()).subscribe(new Consumer<Long>() {
                                 @Override
-                                public void accept(Long aLong) throws Exception {
+                                public void accept(Long aLong) {
                                     switchBottomUi(-1);
                                     ToastUtils.showSettingSuccess(false);
                                 }
@@ -351,7 +352,7 @@ public class SegmentationRoomActivity extends BackBaseActivity {
                         merge_jo.getJSONObject(EnvConfigure.KEY_DELETE_ROOM_DOOR).put("CmdId", (int) (System.currentTimeMillis() / 1000f));
                         merge_jo.getJSONObject(EnvConfigure.KEY_DELETE_ROOM_DOOR).put("ModifyInfo", map_room.getmGateHelper().getDeleteGate());
                         IlifeAli.getInstance().setProperties(merge_jo, aBoolean -> {
-                            Disposable disposable = Observable.timer(5, TimeUnit.SECONDS).observeOn(AndroidSchedulers.mainThread()).subscribe(new Consumer<Long>() {
+                            Disposable disposable = Observable.timer(10, TimeUnit.SECONDS).observeOn(AndroidSchedulers.mainThread()).subscribe(new Consumer<Long>() {
                                 @Override
                                 public void accept(Long aLong) {
                                     switchBottomUi(-1);

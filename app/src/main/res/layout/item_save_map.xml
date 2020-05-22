@@ -58,7 +58,7 @@
                         android:layout_marginTop="@dimen/dp_4"
                         android:layout_marginBottom="@dimen/dp_4"
                         android:layout_weight="1"
-                        app:systemScare="1"
+                        app:systemScare="0.9"
                         app:touchable="false" />
 
                     <LinearLayout

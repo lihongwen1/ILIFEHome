@@ -31,8 +31,12 @@ public abstract class BaseSlamMapActivity extends BackBaseActivity {
         IlifeAli.getInstance().getProperties(new OnAliResponse<PropertyBean>() {
             @Override
             public void onSuccess(PropertyBean bean) {
-                propertyBean=bean;
+                propertyBean = bean;
                 long mapId = bean.getSelectedMapId();
+                if (mapId == 0) {
+                    onSaveMapBean();
+                    return;
+                }
                 saveMapBean.setMapId((int) mapId);
                 String saveMapDataKey = "";
                 if (mapId == bean.getSaveMapDataMapId1()) {
@@ -41,6 +45,10 @@ public abstract class BaseSlamMapActivity extends BackBaseActivity {
                     saveMapDataKey = EnvConfigure.KEY_SAVE_MAP_DATA_2;
                 } else if (mapId == bean.getSaveMapDataMapId3()) {
                     saveMapDataKey = EnvConfigure.KEY_SAVE_MAP_DATA_3;
+                }
+                if (TextUtils.isEmpty(saveMapDataKey)) {
+                    onSaveMapBean();
+                    return;
                 }
                 IlifeAli.getInstance().getSaveMapData(mapId, saveMapDataKey, new OnAliResponse<String[]>() {
                     @Override
@@ -59,14 +67,13 @@ public abstract class BaseSlamMapActivity extends BackBaseActivity {
 
                     @Override
                     public void onFailed(int code, String message) {
-
+                        onSaveMapBean();
                     }
                 });
             }
 
             @Override
             public void onFailed(int code, String message) {
-
             }
         });
     }
@@ -83,7 +90,7 @@ public abstract class BaseSlamMapActivity extends BackBaseActivity {
 
                 @Override
                 public void onFailed(int code, String message) {
-                  onSaveMapBean();
+                    onSaveMapBean();
                 }
             });
         }

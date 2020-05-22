@@ -39,6 +39,7 @@ import com.ilife.home.robot.view.helper.VirtualWallHelper;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -94,6 +95,7 @@ public class MapView extends View {
     private boolean isChargingPortDisplay = false;//是否展示充电座
     private boolean touchAble = true;
     private float systemScareFactor;
+
     /**
      * map operation type
      */
@@ -137,7 +139,7 @@ public class MapView extends View {
         super(context, attrs);
         TypedArray ta = context.obtainStyledAttributes(attrs, R.styleable.MapView);
         touchAble = ta.getBoolean(R.styleable.MapView_touchable, true);
-        systemScareFactor = ta.getFloat(R.styleable.MapView_systemScare,0.75f);
+        systemScareFactor = ta.getFloat(R.styleable.MapView_systemScare, 0.75f);
         ta.recycle();  //注意回收
         init();
     }
@@ -324,13 +326,15 @@ public class MapView extends View {
          */
         slamCanvas.drawPath(boxPath, mPaintManager.changeColor(mPaintManager.getMapPaint(), PaintColor.SLAM));
         /**
-         * 绘制room区域
-         */
-        slamCanvas.drawPath(roomGatePath, mPaintManager.changeColor(mPaintManager.getMapPaint(), PaintColor.ROOM_GATE));
-        /**
          * 绘制障碍物
          */
         slamCanvas.drawPath(obstaclePath, mPaintManager.changeColor(mPaintManager.getMapPaint(), PaintColor.OBSTACLE));
+
+        /**
+         * 绘制room区域
+         */
+        slamCanvas.drawPath(roomGatePath, mPaintManager.changeColor(mPaintManager.getMapPaint(), PaintColor.ROOM_GATE));
+
         /**
          * 绘制路径
          */
@@ -532,7 +536,6 @@ public class MapView extends View {
                     if (cleanArea.getPath() != null) {
                         canvas.drawPath(cleanArea.getPath(), mPaintManager.changeColor(mPaintManager.getFillPaint(), PaintColor.CLEAN_AREA));
                         canvas.drawPath(cleanArea.getPath(), mPaintManager.changeColor(mPaintManager.getStrokePaint(), PaintColor.CLEAN_AREA_BOUNDARY));
-
                     }
                     if (mOT == OT.CLEAN_AREA) {
                         if (cleanArea.getBoundaryPath() != null) {
@@ -571,6 +574,7 @@ public class MapView extends View {
                     if (vw.getBoundaryPath() != null) {
                         canvas.drawPath(vw.getBoundaryPath(), mPaintManager.changeColor(mPaintManager.getStrokePaint(), PaintColor.RECTANGLE_BOUNDARY));
                     }
+
                     if (vw.getDeleteIcon() != null) {
                         canvas.drawBitmap(deleteBitmap, vw.getDeleteIcon().left, vw.getDeleteIcon().top, mPaintManager.getIconPaint());
                     }
@@ -1072,6 +1076,7 @@ public class MapView extends View {
             invalidateUI();
             return;
         }
+        List<Coordinate> gateCoordinates = new ArrayList<>();
         pointList.clear();
         pointList.addAll(dataList);
         boxPath.reset();
@@ -1091,17 +1096,18 @@ public class MapView extends View {
                 switch (type) {
                     case 0:
                         //未清扫区域
+                        fixGatesData(gateCoordinates, coordinate);
                         break;
                     case 1://已清扫
                         boxPath.addRect(x, y, x + baseScare, y + baseScare, Path.Direction.CCW);
                         break;
                     case 5:
                     case 2://障碍物
+                        fixGatesData(gateCoordinates, coordinate);
                         obstaclePath.addRect(x, y, x + baseScare, y + baseScare, Path.Direction.CCW);
-                        MyLogger.d(TAG, "(" + x + "," + y + ")");
                         break;
                     case 3://房间门
-                        roomGatePath.addRect(x, y, x + baseScare, y + baseScare, Path.Direction.CCW);
+                        gateCoordinates.add(coordinate);
                         break;
                     case -1://单包路径起点
                         roadPath.moveTo(x, y);
@@ -1119,8 +1125,22 @@ public class MapView extends View {
                 }
             }
         }
+        for (Coordinate gate : gateCoordinates) {
+            x = matrixCoordinateX(gate.getX());
+            y = matrixCoordinateY(gate.getY());
+            roomGatePath.addRect(x, y, x + baseScare, y + baseScare, Path.Direction.CCW);
+        }
     }
 
+    private void fixGatesData(List<Coordinate> gateCoordinates, Coordinate coordinate) {
+        Iterator<Coordinate> iterator = gateCoordinates.iterator();
+        while (iterator.hasNext()) {
+            if (iterator.next().equals(coordinate)) {
+                MyLogger.d(TAG,"删除门数据-------");
+                iterator.remove();
+            }
+        }
+    }
 
     public void invalidateUI() {
         MyLogger.d(TAG, "invalidateUI");

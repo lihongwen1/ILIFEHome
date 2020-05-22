@@ -557,7 +557,7 @@ public class ForbiddenAreaHelper {
      * @param coordinate
      */
     private float[] toMapCoordinate(float[] coordinate) {
-        Matrix matrix=new Matrix();
+        Matrix matrix = new Matrix();
         float[] matrixCoordinate = new float[coordinate.length];
         int index = 0;
         for (float coo : coordinate) {

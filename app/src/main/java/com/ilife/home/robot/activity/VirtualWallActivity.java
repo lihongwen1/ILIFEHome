@@ -207,12 +207,14 @@ public class VirtualWallActivity extends BaseSlamMapActivity {
                 String parData = "{\"ForbiddenAreaData\":\"\"}";
                 JSONObject vrJson = JSONObject.parseObject(vrData);
                 if (mMapView != null) {
+                    showLoadingDialog();
                     vrJson.put(EnvConfigure.VirtualWallData, mMapView.getVirtualWallPointfs());
                     JSONObject parJson = JSONObject.parseObject(parData);
                     parJson.put(EnvConfigure.KEY_FORBIDDEN_AREA, mMapView.getForbiddenData());
                     IlifeAli.getInstance().setProperties(vrJson, aBoolean -> {
                         if (aBoolean) {
                             IlifeAli.getInstance().setProperties(parJson, result -> {
+                                hideLoadingDialog();
                                 if (result) {
                                     ToastUtils.showToast(UiUtil.getString(R.string.setting_success));
                                     removeActivity();

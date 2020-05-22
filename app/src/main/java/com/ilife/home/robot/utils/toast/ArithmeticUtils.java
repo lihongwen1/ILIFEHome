@@ -213,9 +213,14 @@ public class ArithmeticUtils {
         if (scale < 0) {
             throw new IllegalArgumentException("The scale must be a positive integer or zero");
         }
-        BigDecimal b = new BigDecimal(Double.toString(v));
-        return b.setScale(scale, BigDecimal.ROUND_HALF_UP).doubleValue();
+        if (Double.toString(v).equals("NaN")) {
+            return 0.2;
+        } else {
+            BigDecimal b = new BigDecimal(Double.toString(v));
+            return b.setScale(scale, BigDecimal.ROUND_HALF_UP).doubleValue();
+        }
     }
+
     /**
      * 提供精确的小数位四舍五入处理
      *
@@ -230,6 +235,7 @@ public class ArithmeticUtils {
         BigDecimal b = new BigDecimal(Double.toString(v));
         return b.setScale(scale, BigDecimal.ROUND_HALF_UP).floatValue();
     }
+
     /**
      * 提供精确的小数位四舍五入处理
      *

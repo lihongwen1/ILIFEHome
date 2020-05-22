@@ -153,8 +153,8 @@ public class HistoryMapX8Respository {
                 if (bytes != null && bytes.length > 0) {
                     for (int i = 4; i < bytes.length; i += 5) {
                         int type = bytes[i];
-                        if (type == 0) {
-                            continue;
+                        if (type == 1) {//X801实时地图中，已清扫不绘制，是用来清除门数据的
+                            type=0;
                         }
                         pointCoor[0] = bytes[i - 4];
                         pointCoor[1] = bytes[i - 3];
