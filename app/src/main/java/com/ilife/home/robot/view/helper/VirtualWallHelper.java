@@ -33,7 +33,7 @@ public class VirtualWallHelper {
     private RectF curVw;//当前正在操作的虚拟墙
     private Path vwPath;
     private int selectVwNum = -1;
-    private final int ICON_RADIUS = 50;
+    private float ICON_RADIUS;
     private VirtualWallBean curVwBean;//当前操作虚拟墙对象
     private Matrix mMatrix;
     private Matrix mBoundaryMatix;
@@ -75,6 +75,7 @@ public class VirtualWallHelper {
         this.curVw = new RectF();
         this.mMatrix = new Matrix();
         this.mBoundaryMatix = new Matrix();
+        ICON_RADIUS = mapView.getIconBitmapWidth() / 2;
     }
 
     /**
@@ -101,13 +102,16 @@ public class VirtualWallHelper {
     private void doOnActionDown(float mapX, float mapY) {
         downPoint.set(mapX, mapY);
         mMatrix.reset();
+        RectF pull, delete;
         for (VirtualWallBean vw : vwBeans) {
-            if (vw.getPullIcon() != null && vw.getPullIcon().contains(downPoint.x, downPoint.y)) {//点击了拉长图标
+            pull = getMatrixIcon(vw.getPullIcon());
+            delete = getMatrixIcon(vw.getDeleteIcon());
+            if (pull != null && pull.contains(downPoint.x, downPoint.y)) {//点击了拉长图标
                 vwot = VWOT.PULL;
                 Log.d(TAG, "拉伸虚拟墙");
                 curVwBean = vw;
                 break;
-            } else if (vw.getDeleteIcon() != null && vw.getDeleteIcon().contains(downPoint.x, downPoint.y)) {//点击了拉长图标
+            } else if (delete != null && delete.contains(downPoint.x, downPoint.y)) {//点击了删除图标
                 vwot = VWOT.DELETE;
                 Log.d(TAG, "删除虚拟墙");
                 curVwBean = vw;
@@ -124,6 +128,18 @@ public class VirtualWallHelper {
             ToastUtils.showToast(UiUtil.getString(R.string.map_aty_max_count));
             vwot = VWOT.NOON;
         }
+    }
+
+    private RectF getMatrixIcon(RectF rectF) {
+        if (rectF == null) {
+            return null;
+        }
+        float[] reC = new float[]{rectF.left, rectF.top, rectF.right, rectF.bottom};
+        Matrix scareMatrix = new Matrix();
+        scareMatrix.setScale(mMapView.getRealScare(), mMapView.getRealScare(), rectF.centerX(), rectF.centerY());
+        scareMatrix.invert(scareMatrix);
+        scareMatrix.mapPoints(reC);
+        return new RectF(reC[0], reC[1], reC[2], reC[3]);
     }
 
     private void doOnActionMove(float mapX, float mapY) {
@@ -143,7 +159,6 @@ public class VirtualWallHelper {
                 if (curVwBean != null) {//理论上不为空，为空时应该是在添加禁区
                     mMatrix.reset();
                     mMatrix.postTranslate(tx, ty);
-                    MyLogger.d(TAG, "变换后的坐标:" + Arrays.toString(curVwBean.getPointCoordinate()));
                     updateVirtualWall();
                 }
                 break;
@@ -184,17 +199,15 @@ public class VirtualWallHelper {
             case DELETE:
                 if ((mapX == downPoint.x && mapY == downPoint.y) || DataUtils.distance(downPoint.x, downPoint.y, mapX, mapY) < 10) {//点击事件
                     if (curVwBean != null) {
-                        if (curVwBean.getDeleteIcon() != null && curVwBean.getDeleteIcon().contains(downPoint.x, downPoint.y)) {//点击了删除键
-                            if (curVwBean.getState() == 2) {//新增的电子墙，还未保存到服务器，可以直接移除
-                                vwBeans.remove(curVwBean);
-                            }
-                            if (curVwBean.getState() == 1) {//服务器上的电子墙，可能操作会被取消掉，只需要改变状态
-                                curVwBean.setState(3);
-                                curVwBean.clear();
-                            }
-                            selectVwNum = -1;
-                            updateVirtualWall();
+                        if (curVwBean.getState() == 2) {//新增的电子墙，还未保存到服务器，可以直接移除
+                            vwBeans.remove(curVwBean);
                         }
+                        if (curVwBean.getState() == 1) {//服务器上的电子墙，可能操作会被取消掉，只需要改变状态
+                            curVwBean.setState(3);
+                            curVwBean.clear();
+                        }
+                        selectVwNum = -1;
+                        updateVirtualWall();
                     }
                 }
                 break;

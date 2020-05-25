@@ -22,17 +22,15 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * //todo 旋转，拉伸导致禁区区域不为正矩形的bug
+ * //todo 旋转，拉伸导致禁区区域不为正矩形的bug；
+ * //todo 限制最小划区区域，避免图标重叠；
  * contains global forbidden area and mop forbidden area
  */
 public class ForbiddenAreaHelper {
     private static final String TAG = "ForbiddenAreaHelper";
     private List<VirtualWallBean> fbdBeans;
     private MapView mMapView;
-    private Path mGlobalPath;
-    private Path mMopPath;
     private PointF downPoint;
-    private PointF touchPoint;
     private RectF curRectF;
     private final int LENGTH = 20;//一条禁区数据占用的字节数
     private static final int MIN_FBD_LENGTH = 20;
@@ -41,7 +39,7 @@ public class ForbiddenAreaHelper {
     public static final int TYPE_MOP = 1;
     private FAOT faot = FAOT.ADD;
     private int mFbdAreaType = TYPE_GLOBAL;
-    private final int ICON_RADIUS = 50;
+    private float ICON_RADIUS;
     private int selectVwNum = -1;
     private Matrix mMatrix;
     private Matrix boundaryMatrix;
@@ -76,21 +74,11 @@ public class ForbiddenAreaHelper {
     public ForbiddenAreaHelper(MapView mapView) {
         fbdBeans = new ArrayList<>();
         this.mMapView = mapView;
-        this.mGlobalPath = new Path();
-        this.mMopPath = new Path();
         this.downPoint = new PointF();
-        this.touchPoint = new PointF();
         this.curRectF = new RectF();
         this.mMatrix = new Matrix();
         this.boundaryMatrix = new Matrix();
-    }
-
-    public Path getmGlobalPath() {
-        return mGlobalPath;
-    }
-
-    public Path getmMopPath() {
-        return mMopPath;
+        ICON_RADIUS = mapView.getIconBitmapWidth() / 2;
     }
 
     /**
@@ -182,7 +170,6 @@ public class ForbiddenAreaHelper {
      */
     public void onTouch(MotionEvent event, int mapX, int mapY) {
         int action = event.getAction() & MotionEvent.ACTION_MASK;
-        touchPoint.set(mapX, mapY);
         switch (action) {
             case MotionEvent.ACTION_DOWN:
                 doOnActionDown(mapX, mapY);
@@ -200,18 +187,22 @@ public class ForbiddenAreaHelper {
     private void doOnActionDown(float mapX, float mapY) {
         downPoint.set(mapX, mapY);
         mMatrix.reset();
+        RectF pull, delete, rotate;
         for (VirtualWallBean vw : fbdBeans) {
-            if (vw.getPullIcon() != null && vw.getPullIcon().contains(downPoint.x, downPoint.y)) {//点击了拉长图标
+            pull = getMatrixIcon(vw.getPullIcon());
+            delete = getMatrixIcon(vw.getDeleteIcon());
+            rotate = getMatrixIcon(vw.getRotateIcon());
+            if (pull != null && pull.contains(downPoint.x, downPoint.y)) {//点击了拉长图标
                 faot = FAOT.PULL;
                 Log.d(TAG, "拉伸禁区");
                 curFbdBean = vw;
                 break;
-            } else if (vw.getDeleteIcon() != null && vw.getDeleteIcon().contains(downPoint.x, downPoint.y)) {//点击了拉长图标
+            } else if (delete != null && delete.contains(downPoint.x, downPoint.y)) {//点击了拉长图标
                 faot = FAOT.DELETE;
                 Log.d(TAG, "删除禁区");
                 curFbdBean = vw;
                 break;
-            } else if (vw.getRotateIcon() != null && vw.getRotateIcon().contains(Math.round(mapX), Math.round(mapY))) {//drag
+            } else if (rotate != null && rotate.contains(Math.round(mapX), Math.round(mapY))) {//drag
                 Log.d(TAG, "旋转禁区");
                 selectVwNum = vw.getNumber();
                 faot = FAOT.ROTATE;
@@ -229,6 +220,18 @@ public class ForbiddenAreaHelper {
             fbdBeans.remove(curFbdBean);
             fbdBeans.add(0, curFbdBean);
         }
+    }
+
+    private RectF getMatrixIcon(RectF rectF) {
+        if (rectF == null) {
+            return null;
+        }
+        float[] reC = new float[]{rectF.left, rectF.top, rectF.right, rectF.bottom};
+        Matrix scareMatrix = new Matrix();
+        scareMatrix.setScale(mMapView.getRealScare(), mMapView.getRealScare(), rectF.centerX(), rectF.centerY());
+        scareMatrix.invert(scareMatrix);
+        scareMatrix.mapPoints(reC);
+        return new RectF(reC[0], reC[1], reC[2], reC[3]);
     }
 
     private void doOnActionMove(float mapX, float mapY) {
@@ -269,8 +272,28 @@ public class ForbiddenAreaHelper {
                 mMatrix.reset();
                 mMatrix.setTranslate(-matrixCoordinate[0], -matrixCoordinate[1]);
                 mMatrix.postRotate(-degree, 0, 0);
-                updateFbdPath();
-                mMapView.invalidateUI();
+
+                float[] touchCoordinate = new float[]{mapX, mapY};
+                mMatrix.mapPoints(touchCoordinate);
+                mMatrix.mapPoints(matrixCoordinate);
+                matrixCoordinate[2] = touchCoordinate[0];
+                matrixCoordinate[3] = matrixCoordinate[1];
+
+                matrixCoordinate[4] = touchCoordinate[0];
+                matrixCoordinate[5] = touchCoordinate[1];
+
+                matrixCoordinate[6] = matrixCoordinate[0];
+                matrixCoordinate[7] = touchCoordinate[1];
+                mMatrix.invert(mMatrix);
+                mMatrix.mapPoints(matrixCoordinate);
+                float distance1 = DataUtils.distance(mapX, mapY, matrixCoordinate[2], matrixCoordinate[3]);
+                float distance2 = DataUtils.distance(mapX, mapY, matrixCoordinate[6], matrixCoordinate[7]);
+                if (distance1 > 140 && distance2 > 140) {//7个坐标点
+                    curFbdBean.setPointCoordinate(toRobotCoordinate(matrixCoordinate));
+                    mMatrix.reset();
+                    updateFbdPath();
+                    mMapView.invalidateUI();
+                }
                 break;
             default:
                 break;
@@ -305,22 +328,20 @@ public class ForbiddenAreaHelper {
                 }
                 break;
             case DELETE:
-                if ((mapX == downPoint.x && mapY == downPoint.y) || DataUtils.distance(downPoint.x, downPoint.y, mapX, mapY) < 10) {//点击事件
-                    if (curFbdBean != null) {
-                        if (curFbdBean.getDeleteIcon() != null && curFbdBean.getDeleteIcon().contains(downPoint.x, downPoint.y)) {//点击了删除键
-                            if (curFbdBean.getState() == 2) {//新增的电子墙，还未保存到服务器，可以直接移除
-                                fbdBeans.remove(curFbdBean);
-                            }
-                            if (curFbdBean.getState() == 1) {//服务器上的电子墙，可能操作会被取消掉，只需要改变状态
-                                curFbdBean.setState(3);
-                                curFbdBean.clear();
-                            }
-                            selectVwNum = -1;
-                            updateFbdPath();
-                            mMapView.invalidateUI();
-                        }
+//                if ((mapX == downPoint.x && mapY == downPoint.y) || DataUtils.distance(downPoint.x, downPoint.y, mapX, mapY) < 10) {//点击事件
+                if (curFbdBean != null) {
+                    if (curFbdBean.getState() == 2) {//新增的电子墙，还未保存到服务器，可以直接移除
+                        fbdBeans.remove(curFbdBean);
                     }
+                    if (curFbdBean.getState() == 1) {//服务器上的电子墙，可能操作会被取消掉，只需要改变状态
+                        curFbdBean.setState(3);
+                        curFbdBean.clear();
+                    }
+                    selectVwNum = -1;
+                    updateFbdPath();
+                    mMapView.invalidateUI();
                 }
+//                }
                 break;
             case DRAG:
                 float tx = mapX - downPoint.x;//x轴平移距离
@@ -369,30 +390,6 @@ public class ForbiddenAreaHelper {
                 }
                 break;
             case PULL:
-                float[] matrixCoordinate = toMapCoordinate(curFbdBean.getPointCoordinate());
-                float k = (matrixCoordinate[3] - matrixCoordinate[1]) / (matrixCoordinate[2] - matrixCoordinate[0]);
-                float degree = (float) (Math.atan(k) * 180 / Math.PI);
-                mMatrix.reset();
-                mMatrix.setTranslate(-matrixCoordinate[0], -matrixCoordinate[1]);
-                mMatrix.postRotate(-degree, 0, 0);
-
-                float[] touchCoordinate = new float[]{touchPoint.x, touchPoint.y};
-                mMatrix.mapPoints(touchCoordinate);
-                mMatrix.mapPoints(matrixCoordinate);
-                matrixCoordinate[2] = touchCoordinate[0];
-                matrixCoordinate[3] = matrixCoordinate[1];
-
-                matrixCoordinate[4] = touchCoordinate[0];
-                matrixCoordinate[5] = touchCoordinate[1];
-
-                matrixCoordinate[6] = matrixCoordinate[0];
-                matrixCoordinate[7] = touchCoordinate[1];
-                mMatrix.invert(mMatrix);
-                mMatrix.mapPoints(matrixCoordinate);
-                curFbdBean.setPointCoordinate(toRobotCoordinate(matrixCoordinate));
-                mMatrix.reset();
-                updateFbdPath();
-                mMapView.invalidateUI();
                 if (tooCloseToChargePort(curFbdBean)) {
                     ToastUtils.showVirFbdCloseTip(curFbdBean.getType(), 1);
                 }
@@ -429,8 +426,6 @@ public class ForbiddenAreaHelper {
      */
     public void updateFbdPath() {
         //TODO draw forbidden area
-        mGlobalPath.reset();
-        mMopPath.reset();
         boundaryMatrix.reset();
         Path realPath;
         float[] matrixCoordinate;
@@ -442,23 +437,7 @@ public class ForbiddenAreaHelper {
             }
             matrixCoordinate = toMapCoordinate(fbd.getPointCoordinate());
             if (selectVwNum == fbd.getNumber() && mMatrix != null && !mMatrix.isIdentity()) {
-                if (faot == FAOT.PULL && !mMatrix.isIdentity()) {
-                    float[] touchCoordinate = new float[]{touchPoint.x, touchPoint.y};
-                    mMatrix.mapPoints(touchCoordinate);
-                    mMatrix.mapPoints(matrixCoordinate);
-                    matrixCoordinate[2] = touchCoordinate[0];
-                    matrixCoordinate[3] = matrixCoordinate[1];
-
-                    matrixCoordinate[4] = touchCoordinate[0];
-                    matrixCoordinate[5] = touchCoordinate[1];
-
-                    matrixCoordinate[6] = matrixCoordinate[0];
-                    matrixCoordinate[7] = touchCoordinate[1];
-                    mMatrix.invert(mMatrix);
-                    mMatrix.mapPoints(matrixCoordinate);
-                } else {
-                    mMatrix.mapPoints(matrixCoordinate);
-                }
+                mMatrix.mapPoints(matrixCoordinate);
             }
             boundaryCoordinate = new float[matrixCoordinate.length];
             System.arraycopy(matrixCoordinate, 0, boundaryCoordinate, 0, matrixCoordinate.length);
@@ -568,17 +547,6 @@ public class ForbiddenAreaHelper {
             }
             index++;
         }
-//        float k = (matrixCoordinate[3] - matrixCoordinate[1]) / (matrixCoordinate[2] - matrixCoordinate[0]);
-//        float degree = (float) (Math.atan(k) * 180 / Math.PI);
-//        matrix.setTranslate(-matrixCoordinate[0], -matrixCoordinate[1]);
-//        matrix.postRotate(-degree, 0, 0);
-//        matrix.mapPoints(matrixCoordinate);
-//        matrixCoordinate[2] = matrixCoordinate[4];
-//        matrixCoordinate[3] = matrixCoordinate[1];
-//        matrixCoordinate[6] = matrixCoordinate[0];
-//        matrixCoordinate[7] = matrixCoordinate[5];
-//        matrix.invert(matrix);
-//        matrix.mapPoints(matrixCoordinate);
         return matrixCoordinate;
     }
 
@@ -624,6 +592,9 @@ public class ForbiddenAreaHelper {
     }
 
     private boolean tooCloseToRobotPosition(VirtualWallBean bean) {
+        if (bean.getBoundaryRegion() == null) {
+            return false;
+        }
         if (mMapView.getEndX() == mMapView.getEndY() && mMapView.getEndX() == 0) {
             return false;
         }
@@ -633,6 +604,9 @@ public class ForbiddenAreaHelper {
 
 
     public boolean areaToPoint(VirtualWallBean bean, PointF pointF) {
+        if (bean.getBoundaryRegion() == null) {
+            return false;
+        }
         return bean.getBoundaryRegion().contains(Math.round(mMapView.matrixCoordinateX(pointF.x)), Math.round(mMapView.matrixCoordinateY(pointF.y)));
     }
 }

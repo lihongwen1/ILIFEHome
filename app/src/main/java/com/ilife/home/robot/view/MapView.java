@@ -95,6 +95,8 @@ public class MapView extends View {
     private boolean isChargingPortDisplay = false;//是否展示充电座
     private boolean touchAble = true;
     private float systemScareFactor;
+    private float iconBitmapWidth;//delete,pull,rotate icon's width
+    float[] iconBitmapCenter = new float[2];//
 
     /**
      * map operation type
@@ -174,6 +176,12 @@ public class MapView extends View {
     }
 
     private void init() {
+        int iconW = getResources().getDimensionPixelSize(R.dimen.dp_32);
+        deleteBitmap = BitmapUtils.decodeBitmapFromResource(getResources(), R.drawable.operation_btn_closed, iconW, iconW);
+        rotateBitmap = BitmapUtils.decodeBitmapFromResource(getResources(), R.drawable.operation_btn_angle, iconW, iconW);
+        pullBitmap = BitmapUtils.decodeBitmapFromResource(getResources(), R.drawable.operation_btn_zoom, iconW, iconW);
+        standBitmap = BitmapUtils.decodeBitmapFromResource(getResources(), R.drawable.operation_icon_stand, iconW, iconW);
+        iconBitmapWidth = deleteBitmap.getWidth();
         mPaintManager = new PaintManager();
         mVirtualWallHelper = new VirtualWallHelper(this);
         mForbiddenHelper = new ForbiddenAreaHelper(this);
@@ -191,12 +199,11 @@ public class MapView extends View {
         roomGatePath = new Path();
         slamPath = new Path();
         obstaclePath = new Path();
-        int deleteIconW = getResources().getDimensionPixelSize(R.dimen.dp_48);
-        deleteBitmap = BitmapUtils.decodeBitmapFromResource(getResources(), R.drawable.operation_btn_closed, deleteIconW, deleteIconW);
-        rotateBitmap = BitmapUtils.decodeBitmapFromResource(getResources(), R.drawable.operation_btn_angle, deleteIconW, deleteIconW);
-        pullBitmap = BitmapUtils.decodeBitmapFromResource(getResources(), R.drawable.operation_btn_zoom, deleteIconW, deleteIconW);
-        standBitmap = BitmapUtils.decodeBitmapFromResource(getResources(), R.drawable.operation_icon_stand, deleteIconW, deleteIconW);
         boxPath = new Path();
+    }
+
+    public float getIconBitmapWidth() {
+        return iconBitmapWidth;
     }
 
     /**
@@ -484,7 +491,6 @@ public class MapView extends View {
             matrix.postScale(getRealScare(), getRealScare(), sCenter.x, sCenter.y);
             canvas.drawBitmap(slamBitmap, matrix, mPaintManager.getMapPaint());
             canvas.concat(matrix);//应用变换
-
             /**
              * 绘制充电座
              */
@@ -510,13 +516,16 @@ public class MapView extends View {
                         canvas.drawPath(fbd.getBoundaryPath(), mPaintManager.changeColor(mPaintManager.getStrokePaint(), PaintColor.RECTANGLE_BOUNDARY));
                     }
                     if (fbd.getDeleteIcon() != null) {
-                        canvas.drawBitmap(deleteBitmap, fbd.getDeleteIcon().left, fbd.getDeleteIcon().top, mPaintManager.getIconPaint());
+                        drawIconBitmap(deleteBitmap, fbd.getDeleteIcon(), canvas);
+//                        canvas.drawBitmap(deleteBitmap, fbd.getDeleteIcon().left, fbd.getDeleteIcon().top, mPaintManager.getIconPaint());
                     }
                     if (fbd.getPullIcon() != null) {
-                        canvas.drawBitmap(pullBitmap, fbd.getPullIcon().left, fbd.getPullIcon().top, mPaintManager.getIconPaint());
+                        drawIconBitmap(pullBitmap, fbd.getPullIcon(), canvas);
+//                        canvas.drawBitmap(pullBitmap, fbd.getPullIcon().left, fbd.getPullIcon().top, mPaintManager.getIconPaint());
                     }
                     if (fbd.getRotateIcon() != null) {
-                        canvas.drawBitmap(rotateBitmap, fbd.getRotateIcon().left, fbd.getRotateIcon().top, mPaintManager.getIconPaint());
+                        drawIconBitmap(rotateBitmap, fbd.getRotateIcon(), canvas);
+//                        canvas.drawBitmap(rotateBitmap, fbd.getRotateIcon().left, fbd.getRotateIcon().top, mPaintManager.getIconPaint());
                     }
                 }
             }
@@ -542,13 +551,16 @@ public class MapView extends View {
                             canvas.drawPath(cleanArea.getBoundaryPath(), mPaintManager.changeColor(mPaintManager.getStrokePaint(), PaintColor.RECTANGLE_BOUNDARY));
                         }
                         if (cleanArea.getDeleteIcon() != null) {
-                            canvas.drawBitmap(deleteBitmap, cleanArea.getDeleteIcon().left, cleanArea.getDeleteIcon().top, mPaintManager.getIconPaint());
+                            drawIconBitmap(deleteBitmap, cleanArea.getDeleteIcon(), canvas);
+//                            canvas.drawBitmap(deleteBitmap, cleanArea.getDeleteIcon().left, cleanArea.getDeleteIcon().top, mPaintManager.getIconPaint());
                         }
                         if (cleanArea.getPullIcon() != null) {
-                            canvas.drawBitmap(pullBitmap, cleanArea.getPullIcon().left, cleanArea.getPullIcon().top, mPaintManager.getIconPaint());
+                            drawIconBitmap(pullBitmap, cleanArea.getPullIcon(), canvas);
+//                            canvas.drawBitmap(pullBitmap, cleanArea.getPullIcon().left, cleanArea.getPullIcon().top, mPaintManager.getIconPaint());
                         }
                         if (cleanArea.getRotateIcon() != null) {
-                            canvas.drawBitmap(rotateBitmap, cleanArea.getRotateIcon().left, cleanArea.getRotateIcon().top, mPaintManager.getIconPaint());
+                            drawIconBitmap(rotateBitmap, cleanArea.getRotateIcon(), canvas);
+//                            canvas.drawBitmap(rotateBitmap, cleanArea.getRotateIcon().left, cleanArea.getRotateIcon().top, mPaintManager.getIconPaint());
                         }
                     }
                 }
@@ -576,10 +588,12 @@ public class MapView extends View {
                     }
 
                     if (vw.getDeleteIcon() != null) {
-                        canvas.drawBitmap(deleteBitmap, vw.getDeleteIcon().left, vw.getDeleteIcon().top, mPaintManager.getIconPaint());
+                        drawIconBitmap(deleteBitmap, vw.getDeleteIcon(), canvas);
+//                        canvas.drawBitmap(deleteBitmap, vw.getDeleteIcon().left, vw.getDeleteIcon().top, mPaintManager.getIconPaint());
                     }
                     if (vw.getPullIcon() != null) {
-                        canvas.drawBitmap(pullBitmap, vw.getPullIcon().left, vw.getPullIcon().top, mPaintManager.getIconPaint());
+                        drawIconBitmap(pullBitmap, vw.getPullIcon(), canvas);
+//                        canvas.drawBitmap(pullBitmap, vw.getPullIcon().left, vw.getPullIcon().top, mPaintManager.getIconPaint());
                     }
                 }
             }
@@ -614,29 +628,42 @@ public class MapView extends View {
              * draw room tag/绘制房间标记
              * 选房清扫，分割房间清扫；
              */
+            canvas.setMatrix(null);
             if (mOT == OT.MAP || mOT == OT.SELECT_ROOM || mOT == OT.SEGMENT_ROOM || mOT == OT.MERGE_ROOM || mOT == OT.NAME_ROOM) {
                 Paint paint = mPaintManager.getFillPaint();
                 paint.setTextSize(mRoomHelper.getTextSize());
                 for (PartitionBean room : mRoomHelper.getRooms()) {
                     int cx = (int) matrixCoordinateX(room.getX());
                     int cy = (int) matrixCoordinateY(room.getY());
-                    canvas.drawCircle(cx, cy, mRoomHelper.getRadius(), mPaintManager.changeColor(mPaintManager.getFillPaint(), PaintColor.ROOM));
+                    iconBitmapCenter[0] = cx;
+                    iconBitmapCenter[1] = cy;
+                    matrix.mapPoints(iconBitmapCenter);
+                    canvas.drawCircle(iconBitmapCenter[0], iconBitmapCenter[1], mRoomHelper.getRadius(), mPaintManager.changeColor(mPaintManager.getFillPaint(), PaintColor.ROOM));
                     Bitmap roomBitmap = mRoomHelper.getRoomBitmap(room);
                     if (roomBitmap != null) {
                         float bitmapWidth = roomBitmap.getWidth();
-                        canvas.drawBitmap(roomBitmap, cx - bitmapWidth / 2f, cy - bitmapWidth / 2f, mPaintManager.getIconPaint());
+                        canvas.drawBitmap(roomBitmap, iconBitmapCenter[0] - bitmapWidth / 2f, iconBitmapCenter[1] - bitmapWidth / 2f, mPaintManager.getIconPaint());
                     } else {
                         mPaintManager.changeColor(paint, mRoomHelper.isRoomSelected(room.getPartitionId()) ? PaintColor.ROOM_TEXT_SELECT : PaintColor.ROOM_TEXT);
                         // 文字宽
                         float textWidth = paint.measureText(room.getTag());
                         // 文字baseline在y轴方向的位置
                         float baseLineY = Math.abs(paint.ascent() + paint.descent()) / 2;
-                        canvas.drawText(room.getTag(), cx - textWidth / 2, cy + baseLineY, paint);
+                        canvas.drawText(room.getTag(), iconBitmapCenter[0] - textWidth / 2, iconBitmapCenter[1] + baseLineY, paint);
                     }
                 }
             }
         }
         super.onDraw(canvas);
+    }
+
+    private void drawIconBitmap(Bitmap bitmap, RectF rectF, Canvas canvas) {
+        canvas.setMatrix(null);
+        iconBitmapCenter[0] = rectF.centerX();
+        iconBitmapCenter[1] = rectF.centerY();
+        matrix.mapPoints(iconBitmapCenter);
+        canvas.drawBitmap(bitmap, iconBitmapCenter[0] - iconBitmapWidth / 2f, iconBitmapCenter[1] - iconBitmapWidth / 2f, mPaintManager.getIconPaint());
+        canvas.setMatrix(matrix);
     }
 
     public float getEndX() {
@@ -655,7 +682,7 @@ public class MapView extends View {
         sCenter.set(width / 2f, (height - paddingBottom) / 2f);
     }
 
-    private float getRealScare() {
+    public float getRealScare() {
         return userScale * systemScale;
     }
 
@@ -1136,7 +1163,7 @@ public class MapView extends View {
         Iterator<Coordinate> iterator = gateCoordinates.iterator();
         while (iterator.hasNext()) {
             if (iterator.next().equals(coordinate)) {
-                MyLogger.d(TAG,"删除门数据-------");
+                MyLogger.d(TAG, "删除门数据-------");
                 iterator.remove();
             }
         }

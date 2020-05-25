@@ -1,6 +1,7 @@
 package com.ilife.home.robot.view.helper;
 
 import android.graphics.Bitmap;
+import android.graphics.Matrix;
 import android.graphics.Path;
 import android.graphics.RectF;
 import android.graphics.Region;
@@ -42,8 +43,8 @@ public class RoomHelper {
         this.mMapView = mapView;
         rooms = new ArrayList<>();
         selecRoom = new SparseIntArray();
-        radius = MyApplication.getInstance().getResources().getDimensionPixelSize(R.dimen.dp_20);
-        textSize = MyApplication.getInstance().getResources().getDimensionPixelSize(R.dimen.dp_20);
+        radius = MyApplication.getInstance().getResources().getDimensionPixelSize(R.dimen.dp_16);
+        textSize = MyApplication.getInstance().getResources().getDimensionPixelSize(R.dimen.dp_16);
         roomIcons = new HashMap<>();
         roomIcons.put(UiUtil.getString(R.string.room_name_living_room), decodeRoomBitmap(R.drawable.icon_name_living_room_orange));
         roomIcons.put(UiUtil.getString(R.string.room_name_restaurant), decodeRoomBitmap(R.drawable.icon_name_restaurant_orange));
@@ -216,7 +217,7 @@ public class RoomHelper {
         int id;
         boolean isClickedRoom = false;
         for (PartitionBean room : rooms) {
-            if (room.getRegion().contains((int) mapX, (int) mapY)) {
+            if (getMatrixIcon(room.getTagIcon()).contains((int) mapX, (int) mapY)) {
                 isClickedRoom = true;
                 id = room.getPartitionId();
                 if (isSingleChoice) {
@@ -234,6 +235,20 @@ public class RoomHelper {
         }
         mMapView.invalidateUI();
     }
+
+
+    private RectF getMatrixIcon(RectF rectF) {
+        if (rectF == null) {
+            return null;
+        }
+        float[] reC = new float[]{rectF.left, rectF.top, rectF.right, rectF.bottom};
+        Matrix scareMatrix = new Matrix();
+        scareMatrix.setScale(mMapView.getRealScare(), mMapView.getRealScare(), rectF.centerX(), rectF.centerY());
+        scareMatrix.invert(scareMatrix);
+        scareMatrix.mapPoints(reC);
+        return new RectF(reC[0], reC[1], reC[2], reC[3]);
+    }
+
 
     public boolean isRoomSelected(int roomId) {
         return selecRoom.indexOfKey(roomId) >= 0;
