@@ -36,6 +36,7 @@ import com.scwang.smartrefresh.layout.header.ClassicsHeader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import butterknife.BindView;
@@ -126,6 +127,7 @@ public class SelectSaveMapActivity extends BackBaseActivity {
                     ll_no_map.setVisibility(View.VISIBLE);
                     hideLoadingDialog();
                 } else {
+
                     mAdapter.notifyDataSetChanged();
                 }
             }
@@ -211,11 +213,7 @@ public class SelectSaveMapActivity extends BackBaseActivity {
                 @Override
                 public void onSuccess(String[] saveMapDataInfo) {
                     if (saveMapDataInfo != null && saveMapDataInfo.length > 0) {
-                        if (mapId == selectMapId) {
-                            saveMapBeans.add(0, new SaveMapBean(saveMapData, saveMapDataInfo, mapId));
-                        } else {
-                            saveMapBeans.add(new SaveMapBean(saveMapData, saveMapDataInfo, mapId));
-                        }
+                        saveMapBeans.add(new SaveMapBean(saveMapData, saveMapDataInfo, mapId));
                     }
                     updateFetchMapTag();
                 }
@@ -232,6 +230,18 @@ public class SelectSaveMapActivity extends BackBaseActivity {
     private void updateFetchMapTag() {
         fetchMapTag++;
         if (fetchMapTag == 3) {
+            Collections.sort(saveMapBeans, (o1, o2) -> o2.getMapId()-o1.getMapId());
+            SaveMapBean selectMap=null;
+            for (SaveMapBean bean:saveMapBeans) {
+                if (bean.getMapId()==selectMapId){
+                    selectMap=bean;
+                    break;
+                }
+            }
+            if (selectMap!=null){
+                saveMapBeans.remove(selectMap);
+                saveMapBeans.add(0,selectMap);
+            }
             weakHandler.sendEmptyMessageDelayed(1, 200);
         }
     }
