@@ -1,27 +1,19 @@
 package com.ilife.home.robot.activity;
 
 import android.content.Intent;
-import android.graphics.drawable.AnimationDrawable;
-import android.os.Handler;
-import android.os.Message;
 import android.text.TextUtils;
 import android.util.Base64;
 import android.view.View;
 import android.view.animation.AnimationUtils;
-import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 
-import androidx.lifecycle.Observer;
-
 import com.alibaba.fastjson.JSONObject;
 import com.aliyun.iot.aep.sdk._interface.OnAliResponse;
-import com.aliyun.iot.aep.sdk._interface.OnAliResponseSingle;
 import com.aliyun.iot.aep.sdk._interface.OnAliSetPropertyResponse;
-import com.aliyun.iot.aep.sdk.bean.HistoryRecordBean;
 import com.aliyun.iot.aep.sdk.bean.PropertyBean;
 import com.aliyun.iot.aep.sdk.contant.AliSkills;
 import com.aliyun.iot.aep.sdk.contant.EnvConfigure;
@@ -30,21 +22,18 @@ import com.badoo.mobile.util.WeakHandler;
 import com.ilife.home.livebus.LiveEventBus;
 import com.ilife.home.robot.R;
 import com.ilife.home.robot.base.BackBaseActivity;
-import com.ilife.home.robot.bean.Coordinate;
 import com.ilife.home.robot.bean.MapDataBean;
 import com.ilife.home.robot.bean.PartitionBean;
 import com.ilife.home.robot.bean.SaveMapBean;
 import com.ilife.home.robot.bean.SaveMapDataInfoBean;
-import com.ilife.home.robot.model.bean.VirtualWallBean;
 import com.ilife.home.robot.utils.DataUtils;
 import com.ilife.home.robot.utils.MyLogger;
-import com.ilife.home.robot.utils.SpUtils;
 import com.ilife.home.robot.utils.ToastUtils;
 import com.ilife.home.robot.utils.UiUtil;
 import com.ilife.home.robot.view.MapView;
 
-import java.util.ArrayList;
-import java.util.Arrays;
+import org.reactivestreams.Publisher;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -52,10 +41,12 @@ import java.util.concurrent.TimeUnit;
 import butterknife.BindView;
 import butterknife.OnClick;
 import io.reactivex.Observable;
-import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.Single;
+import io.reactivex.SingleObserver;
+import io.reactivex.SingleOnSubscribe;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
-import io.reactivex.functions.Consumer;
+import io.reactivex.functions.Function;
 
 /**
  * //todo 5s操作超时
@@ -102,6 +93,8 @@ public class SegmentationRoomActivity extends BackBaseActivity {
     private HashMap<String, String> roomNames = new HashMap<>();
     private CompositeDisposable mDisposable;
     private boolean isWaitingForResult;
+    private int requestTimes = 0;
+    private WeakHandler weakHandler;
 
     @Override
     public int getLayoutId() {
@@ -110,7 +103,7 @@ public class SegmentationRoomActivity extends BackBaseActivity {
 
     @Override
     public void initView() {
-        tv_title.setText(R.string.segmentation_room);
+        tv_title.setText(R.string.map_edit_map);
         iv_save_map_progress.setAnimation(AnimationUtils.loadAnimation(this, R.anim.anims_ni));
         rg_segmentation_room.setOnCheckedChangeListener((group, checkedId) -> {
             switch (checkedId) {
@@ -153,7 +146,8 @@ public class SegmentationRoomActivity extends BackBaseActivity {
         map_room.setmOT(MapView.OT.SELECT_ROOM);
         LiveEventBus.get(EnvConfigure.KEY_ADD_ROOM_DOOR, Integer.class).observe(this,
                 value -> {
-                    disposableRx();
+                    MyLogger.d(TAG, "添加房间门");
+                    weakHandler.removeMessages(1);
                     if (isWaitingForResult) {
                         switch (value) {
                             case 1:
@@ -175,11 +169,11 @@ public class SegmentationRoomActivity extends BackBaseActivity {
                         }
                     }
                     map_room.getmSegmentHelper().reset();
-                    switchBottomUi(-1);
                     fetchSaveMapDataInfo();
                 });
         LiveEventBus.get(EnvConfigure.KEY_DELETE_ROOM_DOOR, Integer.class).observe(this, value -> {
-            disposableRx();
+            MyLogger.d(TAG, "删除房间门");
+            weakHandler.removeMessages(1);
             if (isWaitingForResult) {
                 if (value == 1) {
                     ToastUtils.showSettingSuccess(true);
@@ -187,7 +181,7 @@ public class SegmentationRoomActivity extends BackBaseActivity {
                     ToastUtils.showSettingSuccess(false);
                 }
             }
-            switchBottomUi(-1);
+            map_room.getmGateHelper().revertGate();
             fetchSaveMapDataInfo();
         });
 
@@ -221,6 +215,12 @@ public class SegmentationRoomActivity extends BackBaseActivity {
     @Override
     public void initData() {
         super.initData();
+        weakHandler = new WeakHandler(msg -> {
+            switchBottomUi(-1);
+            ToastUtils.showSettingSuccess(false);
+            fetchSaveMapDataInfo();
+            return false;
+        });
         mDisposable = new CompositeDisposable();
         mapIdIndex = getIntent().getIntExtra(KEY_MAP_ID_INDEX, 0);
         LiveEventBus.get(SegmentationRoomActivity.KEY_SAVE_MAP_DATA, SaveMapBean.class).observeSticky(this, saveMapBean -> {
@@ -283,40 +283,77 @@ public class SegmentationRoomActivity extends BackBaseActivity {
 
 
     private void fetchSaveMapDataInfo() {
-        if (!TextUtils.isEmpty(saveMapDataInfoKey)) {
-            IlifeAli.getInstance().getSaveMapDataInfo(mapId, saveMapDataInfoKey, new OnAliResponse<String[]>() {
-                @Override
-                public void onSuccess(String[] result) {
-                    if (isDestroyed() || map_room == null) {
+        if (requestTimes != 0) {//重复请求
+            return;
+        }
+        requestTimes++;
+        Single.create((SingleOnSubscribe<String[]>) emitter -> {
+            if (!TextUtils.isEmpty(saveMapDataInfoKey)) {
+                IlifeAli.getInstance().getSaveMapDataInfo(mapId, saveMapDataInfoKey, true, new OnAliResponse<String[]>() {
+                    @Override
+                    public void onSuccess(String[] result) {
+                        emitter.onSuccess(result);
+                    }
+
+                    @Override
+                    public void onFailed(int code, String message) {
+                        emitter.onError(new Exception(message));
+                    }
+                });
+            }
+        }).retryWhen(tf -> tf.flatMap((Function<Throwable, Publisher<?>>) throwable -> (Publisher<Boolean>) s -> {
+            MyLogger.d(TAG, "get room info data error-----:" + throwable.getMessage());
+            if (requestTimes > 5) {
+                s.onError(throwable);
+            } else {
+                Disposable timerDisposable = Observable.timer(2, TimeUnit.SECONDS).subscribe(aLong -> {
+                    s.onNext(true);
+                    MyLogger.d(TAG, "retry to get the room info data");
+                    requestTimes++;
+                });
+                mDisposable.add(timerDisposable);
+            }
+        })).subscribe(new SingleObserver<String[]>() {
+            @Override
+            public void onSubscribe(Disposable d) {
+
+            }
+
+            @Override
+            public void onSuccess(String[] result) {
+                requestTimes = 0;
+                MyLogger.d(TAG, "获取到数据保存地图数据---");
+                if (isDestroyed() || map_room == null) {
+                    return;
+                }
+                if (result != null && result.length > 0) {
+                    SaveMapDataInfoBean saveMapDataInfoBean = DataUtils.parseSaveMapInfo(result);
+                    if (saveMapDataInfoBean == null) {
                         return;
                     }
-                    if (result != null && result.length > 0) {
-                        SaveMapDataInfoBean saveMapDataInfoBean = DataUtils.parseSaveMapInfo(result);
-                        if (saveMapDataInfoBean == null) {
-                            return;
+                    for (PartitionBean room : saveMapDataInfoBean.getRooms()) {//绑定设置的用户名
+                        String roomName = roomNames.get(String.valueOf(room.getPartitionId()));
+                        if (roomName == null) {
+                            roomName = "";
                         }
-                        for (PartitionBean room : saveMapDataInfoBean.getRooms()) {//绑定设置的用户名
-                            String roomName = roomNames.get(String.valueOf(room.getPartitionId()));
-                            if (roomName == null) {
-                                roomName = "";
-                            }
-                            room.setTag(roomName);
-                        }
-
-                        map_room.drawChargePort(saveMapDataInfoBean.getChargePoint().x, saveMapDataInfoBean.getChargePoint().y, true);
-                        map_room.getmGateHelper().drawGate(saveMapDataInfoBean.getGates());
-                        map_room.getmRoomHelper().drawRoom(saveMapDataInfoBean.getRooms());
-                        map_room.getmRoomHelper().setSingleChoice(true);
-                        map_room.invalidateUI();
+                        room.setTag(roomName);
                     }
+                    map_room.drawChargePort(saveMapDataInfoBean.getChargePoint().x, saveMapDataInfoBean.getChargePoint().y, true);
+                    map_room.getmGateHelper().drawGate(saveMapDataInfoBean.getGates());
+                    map_room.getmRoomHelper().drawRoom(saveMapDataInfoBean.getRooms());
+                    map_room.getmRoomHelper().setSingleChoice(true);
+                    map_room.invalidateUI();
+                    switchBottomUi(-1);
                 }
+            }
 
-                @Override
-                public void onFailed(int code, String message) {
-
-                }
-            });
-        }
+            @Override
+            public void onError(Throwable e) {
+                requestTimes = 0;
+                MyLogger.d(TAG, "获取数据保存地图数据失败---");
+                switchBottomUi(-1);
+            }
+        });
     }
 
 
@@ -333,16 +370,8 @@ public class SegmentationRoomActivity extends BackBaseActivity {
                         jsonObject.getJSONObject(EnvConfigure.KEY_ADD_ROOM_DOOR).put("MapId", mapId);
                         jsonObject.getJSONObject(EnvConfigure.KEY_ADD_ROOM_DOOR).put("CmdId", (int) (System.currentTimeMillis() / 1000f));
                         jsonObject.getJSONObject(EnvConfigure.KEY_ADD_ROOM_DOOR).put("ModifyInfo", map_room.getmSegmentHelper().getSegmentationData());
-
                         IlifeAli.getInstance().setProperties(jsonObject, aBoolean -> {
-                            Disposable disposable = Observable.timer(10, TimeUnit.SECONDS).observeOn(AndroidSchedulers.mainThread()).subscribe(new Consumer<Long>() {
-                                @Override
-                                public void accept(Long aLong) {
-                                    switchBottomUi(-1);
-                                    ToastUtils.showSettingSuccess(false);
-                                }
-                            });
-                            mDisposable.add(disposable);
+                            weakHandler.sendEmptyMessageDelayed(1, 10 * 1000);
                         });
                         break;
                     case MERGE_ROOM:
@@ -352,14 +381,7 @@ public class SegmentationRoomActivity extends BackBaseActivity {
                         merge_jo.getJSONObject(EnvConfigure.KEY_DELETE_ROOM_DOOR).put("CmdId", (int) (System.currentTimeMillis() / 1000f));
                         merge_jo.getJSONObject(EnvConfigure.KEY_DELETE_ROOM_DOOR).put("ModifyInfo", map_room.getmGateHelper().getDeleteGate());
                         IlifeAli.getInstance().setProperties(merge_jo, aBoolean -> {
-                            Disposable disposable = Observable.timer(10, TimeUnit.SECONDS).observeOn(AndroidSchedulers.mainThread()).subscribe(new Consumer<Long>() {
-                                @Override
-                                public void accept(Long aLong) {
-                                    switchBottomUi(-1);
-                                    ToastUtils.showSettingSuccess(false);
-                                }
-                            });
-                            mDisposable.add(disposable);
+                            weakHandler.sendEmptyMessageDelayed(1, 10 * 1000);
                         });
                         break;
                     case NAME_ROOM:

@@ -384,6 +384,7 @@
     <string name="setting_failed">Setting failed</string>
     <string name="toast_contains_special_character">Contains special characters, please modify and try again</string>
     <string name="map_edit_map">Edit map</string>
+    <string name="map_updating">Map updating</string>
     <string name="name_room_default_tip">Default (A, B, C …)</string>
     <string name="toast_name_too_long">The name is too long, please modify it and try again</string>
     <string name="volume_adjust">Volume setting</string>

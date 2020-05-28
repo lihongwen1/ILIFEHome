@@ -103,6 +103,7 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
         if (rBean.isIsOnlyRandomMode()) {//V3x只有随机模式
             SpUtils.saveInt(MyApplication.getInstance(), IlifeAli.getInstance().getWorkingDevice().getProductKey() + SettingActivity.KEY_MODE, MsgCodeUtils.STATUE_RANDOM);
         }
+        registerEventBus();
     }
 
     @Override
@@ -231,7 +232,7 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
                 for (int i = 4; i < bytes.length; i += 5) {
                     int type = bytes[i];
                     if (type == 1) {//实时地图已清扫不绘制
-                        type=0;
+                        type = 0;
                     }
                     pointCoor[0] = bytes[i - 4];
                     pointCoor[1] = bytes[i - 3];
@@ -268,7 +269,7 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
         historyRoadList.clear();
         realTimePoints.clear();//X900 series
         pointList.clear();//X800 series
-//        slamPointList.clear();//底图
+        slamPointList.clear();//底图
     }
 
 
@@ -359,7 +360,7 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
                          * 处理保存地图
                          */
 
-                        if (!isWork(curStatus) || mDevicePropertyBean.isInitStatus() && mDevicePropertyBean.getSelectedMapId() != 0) {
+                        if (mDevicePropertyBean.isInitStatus()) {
                             doAboutSlam();
                         } else {
                             LiveEventBus.get(EnvConfigure.VirtualWallData, String.class).post(mDevicePropertyBean.getVirtualWall());
@@ -434,10 +435,10 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
         mView.updateStartStatue(isWork, isWork ? Utils.getString(R.string.map_aty_stop) : Utils.getString(R.string.map_aty_start));
         mView.updateOperationViewStatue(curStatus);
         mView.showBottomView();
-        if (curStatus != MsgCodeUtils.STATUE_CLEAN_AREA && curStatus != MsgCodeUtils.STATUE_CLEAN_ROOM && curStatus != MsgCodeUtils.STATUE_PAUSE) {//非划区，选房清扫清除数据
-            mView.updateCleanTimes(false, 0, 0);
-            mView.drawCleanArea("");
-        }
+//        if (curStatus != MsgCodeUtils.STATUE_CLEAN_AREA && curStatus != MsgCodeUtils.STATUE_CLEAN_ROOM && curStatus != MsgCodeUtils.STATUE_PAUSE) {//非划区，选房清扫清除数据
+//            mView.updateCleanTimes(false, 0, 0);
+//            mView.drawCleanArea("");
+//        }
         switch (curStatus) {
             case MsgCodeUtils.STATUE_RECHARGE://回充
                 mView.updateRecharge(true);
@@ -521,12 +522,6 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
         IlifeAli.getInstance().setTimeZone();
     }
 
-
-    private boolean isNeedQueryVirtual(int curStatus, int lastStatus) {
-        //退出电子墙编辑模式时查询电子墙
-        return curStatus == MsgCodeUtils.STATUE_RECHARGE || curStatus == MsgCodeUtils.STATUE_REMOTE_CONTROL || curStatus == MsgCodeUtils.STATUE_ALONG || curStatus == MsgCodeUtils.STATUE_POINT || curStatus == MsgCodeUtils.STATUE_PLANNING || lastStatus == MsgCodeUtils.STATUE_VIRTUAL_EDIT;
-    }
-
     private String getAreaValue() {
         if (curStatus == MsgCodeUtils.STATUE_WAIT || curStatus == MsgCodeUtils.STATUE_CHARGING || curStatus == MsgCodeUtils.STATUE_SLEEPING || curStatus == MsgCodeUtils.STATUE_CHARGING_ADAPTER_SLEEP ||
                 curStatus == MsgCodeUtils.STATUE_CHARGING_BASE_SLEEP || !havMapData || (!isDrawMap() && curStatus != MsgCodeUtils.STATUE_RANDOM && curStatus != MsgCodeUtils.STATUE_TEMPORARY_POINT)) {
@@ -546,13 +541,7 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
         }
     }
 
-
-    /**
-     * 注册/订阅实时地图数据监听
-     */
-    @Override
-    public void registerPropReceiver() {
-        IlifeAli.getInstance().registerDownStream();
+    private void registerEventBus() {
         LiveEventBus.get(EnvConfigure.KEY_VirtualWallEN, Integer.class).observe((BaseActivity) mView, enable -> {
             if (mDevicePropertyBean != null) {
                 mDevicePropertyBean.setVirtualWallEn(enable);
@@ -565,7 +554,7 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
             }
             MyLogger.e(TAG, "registerPropReceiver----onStatusChange" + workMode);
             curStatus = workMode;
-            if (!isWork(curStatus)) {//非工作模式下，显示已保存地图
+            if (mDevicePropertyBean != null && mDevicePropertyBean.isInitStatus()) {//非工作模式下,非暂停模式下,非编辑模式下，显示已保存地图
                 doAboutSlam();
             }
             setStatus(curStatus, batteryNo);
@@ -579,8 +568,13 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
                 mapStartTime = startTime;
                 mView.updateCleanTime(getTimeValue());
                 mView.updateCleanArea(getAreaValue());
-                prepareToReloadData();
-                if (haveMap && pointList != null && isDrawMap()) {
+                workTime = 0;
+                cleanArea = 0;
+                pointList.clear();//情况实时地图
+                if (!mDevicePropertyBean.isInitStatus()) {//初始化为0，则清空底图
+                    slamPointList.clear();
+                }
+                if (haveMap && isDrawMap()) {
                     mView.drawMapX8(pointList, slamPointList);
                 }
             }
@@ -617,6 +611,16 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
                 //区域清扫
                 MyLogger.d(TAG, "划区数据改变:  " + cleanAreaData);
                 mDevicePropertyBean.setCleanArea(cleanAreaData);
+                if (curStatus == MsgCodeUtils.STATUE_CLEAN_AREA) {
+                    if (mDevicePropertyBean != null) {
+                        JSONObject json = JSON.parseObject(cleanAreaData);
+                        boolean enable = json.getIntValue("Enable") != 0;//0-无效/没有进行 1-开始 2-进行中
+                        if (!enable) {
+                            mView.drawCleanArea("");
+                        }
+                    }
+                }
+
             }
         });
         LiveEventBus.get(EnvConfigure.KEY_FORBIDDEN_AREA, String.class).observe((BaseActivity) mView, fbdArea -> {
@@ -667,6 +671,9 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
          */
         LiveEventBus.get(EnvConfigure.KEY_INIT_STATUS, Integer.class).observe((BaseActivity) mView, initStatus -> {
             MyLogger.d(TAG, "初始化状态改变 init status：" + initStatus);
+            if (mDevicePropertyBean != null) {
+                mDevicePropertyBean.setInitStatus(initStatus == 1);
+            }
             if (initStatus == 0) {
                 slamPointList.clear();
                 mView.drawVirtualWall("");
@@ -692,6 +699,15 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
     }
 
     /**
+     * 注册/订阅实时地图数据监听
+     */
+    @Override
+    public void registerPropReceiver() {
+        IlifeAli.getInstance().registerDownStream();
+
+    }
+
+    /**
      * 处理已保存地图
      */
     private void doAboutSlam() {
@@ -710,7 +726,7 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
         IlifeAli.getInstance().getSaveMapData(mapId, saveMapDataKey, new OnAliResponse<String[]>() {
             @Override
             public void onSuccess(String[] result) {
-                if (result.length == 0) {//应该只有一条数据
+                if (result == null || result.length == 0) {//应该只有一条数据
                     return;
                 }
                 if (!isViewAttached()) {

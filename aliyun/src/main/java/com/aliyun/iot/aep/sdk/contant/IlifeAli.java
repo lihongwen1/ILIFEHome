@@ -454,12 +454,9 @@ public class IlifeAli {
                                 } else if (items.containsKey(EnvConfigure.CleanPartitionData)) {
                                     LiveEventBus.get(EnvConfigure.CleanPartitionData, String.class).post(items.getJSONObject(EnvConfigure.CleanPartitionData).getString(EnvConfigure.KEY_VALUE));
                                 } else if (items.containsKey(EnvConfigure.KEY_INIT_STATUS)) {
-                                    int lastInit = getWorkingDevice().getDeviceInfo().isInitStatus() ? 1 : 0;
                                     int currentInit = items.getJSONObject(EnvConfigure.KEY_INIT_STATUS).getIntValue(EnvConfigure.KEY_VALUE);
-                                    if (currentInit != lastInit) {
-                                        getWorkingDevice().getDeviceInfo().setInitStatus(currentInit == 1);
-                                        LiveEventBus.get(EnvConfigure.KEY_INIT_STATUS, Integer.class).post(currentInit);
-                                    }
+                                    getWorkingDevice().getDeviceInfo().setInitStatus(currentInit == 1);
+                                    LiveEventBus.get(EnvConfigure.KEY_INIT_STATUS, Integer.class).post(currentInit);
                                 } else if (items.containsKey(EnvConfigure.KEY_BeepType)) {
                                     int beepType = items.getJSONObject(EnvConfigure.KEY_BeepType).getIntValue(EnvConfigure.KEY_VALUE);
                                     getWorkingDevice().getDeviceInfo().setLanguageCode(beepType);
@@ -552,9 +549,7 @@ public class IlifeAli {
         }
 
         registerSubscribeTopic();
-        MobileChannel.getInstance().
-
-                registerDownstreamListener(true, downListener);
+        MobileChannel.getInstance().registerDownstreamListener(true, downListener);
 
     }
 
@@ -1034,10 +1029,7 @@ public class IlifeAli {
         }));
     }
 
-    /**
-     * 超过200包处理
-     */
-    public void getSaveMapDataInfo(long selectMapId, String identifierKey, final OnAliResponse<String[]> onAliResponse) {
+    public void getSaveMapDataInfo(long selectMapId, String identifierKey, boolean needFullData, final OnAliResponse<String[]> onAliResponse) {
         HashMap<String, Object> params = new HashMap<>();
         params.clear();
         params.put(EnvConfigure.KEY_IOT_ID, iotId);
@@ -1056,6 +1048,7 @@ public class IlifeAli {
             public void onResponse(IoTRequest ioTRequest, IoTResponse ioTResponse) {
                 long timeSlamp = 0;
                 String[] infos = null;
+                int realPkgNum = 0;
                 if (ioTResponse.getCode() == 200) {
                     JSONObject data = JSONObject.parseObject(ioTResponse.getData().toString());
                     JSONArray jsonArray = data.getJSONArray(EnvConfigure.KEY_ITEMS);
@@ -1071,11 +1064,16 @@ public class IlifeAli {
                             if (timeSlamp == jData.getIntValue("TimeStamp")) {//分包时间戳相同
                                 int index = jData.getIntValue("PackId") - 1;//packId和index差1
                                 infos[index] = jData.getString("MapInfo");
+                                realPkgNum++;
                             }
                         }
                     }
-                    if (infos != null /*&& infos.length == realPkgNum*/) {
-                        onAliResponse.onSuccess(infos);
+                    if (infos != null) {
+                        if (needFullData && infos.length != realPkgNum) {
+                            onAliResponse.onFailed(0, "the data obtained is incomplete.");
+                        } else {
+                            onAliResponse.onSuccess(infos);
+                        }
                     } else {
                         Log.d(TAG, "the data obtained is incomplete.");
                         onAliResponse.onFailed(0, "the data obtained is incomplete.");
@@ -1083,6 +1081,13 @@ public class IlifeAli {
                 }
             }
         }));
+    }
+
+    /**
+     * 超过200包处理
+     */
+    public void getSaveMapDataInfo(long selectMapId, String identifierKey, final OnAliResponse<String[]> onAliResponse) {
+        getSaveMapDataInfo(selectMapId, identifierKey, false, onAliResponse);
     }
 
 

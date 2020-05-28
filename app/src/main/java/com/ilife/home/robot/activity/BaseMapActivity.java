@@ -197,8 +197,8 @@ public abstract class BaseMapActivity extends BackBaseActivity<MapX9Presenter> i
         if (sleepTime >= 3) {
             MyLogger.d(TAG, "prepare for first or reload history map data");
             mPresenter.prepareToReloadData();//重新获取历史map
-            mPresenter.getDevStatus();
         }
+        mPresenter.getDevStatus();
         setDevName();
     }
 
@@ -290,7 +290,7 @@ public abstract class BaseMapActivity extends BackBaseActivity<MapX9Presenter> i
                         startActivity(new Intent(BaseMapActivity.this, VirtualWallActivity.class));
                         weakHandler.sendEmptyMessageDelayed(5, 300);
                     } else {
-                        startActivity(new Intent(BaseMapActivity.this, VirtualWallActivity.class));
+//                        startActivity(new Intent(BaseMapActivity.this, VirtualWallActivity.class));
                         ToastUtils.showToast(UiUtil.getString(R.string.map_enter_virtual_tip));
                     }
 
@@ -302,7 +302,7 @@ public abstract class BaseMapActivity extends BackBaseActivity<MapX9Presenter> i
                         startActivity(new Intent(BaseMapActivity.this, SelectRoomActivity.class));
                         weakHandler.sendEmptyMessageDelayed(5, 300);
                     } else {
-                        startActivity(new Intent(BaseMapActivity.this, SelectRoomActivity.class));
+//                        startActivity(new Intent(BaseMapActivity.this, SelectRoomActivity.class));
                         ToastUtils.showToast(MyApplication.getInstance(), Utils.getString(R.string.toast_ensure_robot_on_charging_dock));
                     }
                     break;
@@ -313,7 +313,7 @@ public abstract class BaseMapActivity extends BackBaseActivity<MapX9Presenter> i
                         startActivity(new Intent(BaseMapActivity.this, CleanAreaActivity.class));
                         weakHandler.sendEmptyMessageDelayed(5, 300);
                     } else {
-                        startActivity(new Intent(BaseMapActivity.this, CleanAreaActivity.class));
+//                        startActivity(new Intent(BaseMapActivity.this, CleanAreaActivity.class));
                         ToastUtils.showToast(MyApplication.getInstance(), Utils.getString(R.string.toast_ensure_robot_on_charging_dock));
                     }
                     break;
@@ -325,7 +325,7 @@ public abstract class BaseMapActivity extends BackBaseActivity<MapX9Presenter> i
                         startActivity(new Intent(BaseMapActivity.this, SelectSaveMapActivity.class));
                         weakHandler.sendEmptyMessageDelayed(5, 300);
                     } else {
-                        startActivity(new Intent(BaseMapActivity.this, SelectSaveMapActivity.class));
+//                        startActivity(new Intent(BaseMapActivity.this, SelectSaveMapActivity.class));
                         ToastUtils.showToast(MyApplication.getInstance(), Utils.getString(R.string.toast_ensure_in_no_work_mode));
                     }
                     break;

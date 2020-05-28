@@ -111,7 +111,7 @@
             <TextView
                 style="@style/Text_16sp_66"
                 android:layout_marginStart="@dimen/dp_8"
-                android:text="地图更新中" />
+                android:text="@string/map_updating" />
         </LinearLayout>
     </FrameLayout>
 </LinearLayout>

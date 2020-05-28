@@ -22,7 +22,9 @@ import com.ilife.home.robot.view.MapView;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 分割房间帮助类
@@ -39,7 +41,8 @@ public class SegmentationRoomHelper {
     private Matrix mMatrix, mBoundaryMatix;
     private int BOUNDARY_LENGTH = 100;
     private float[] mCoordinates = new float[4];
-    private float[] mGateCoordinates = new float[4];
+    private int[] mGateCoordinates = new int[4];
+    private float[] mPreviewGateCoordinates = new float[4];
     private float[] originalCoordinates = new float[4];
     private boolean isHaveLine = false;
     private boolean isNeedCalculateGate;
@@ -83,13 +86,12 @@ public class SegmentationRoomHelper {
             byte[] rb = DataUtils.intToBytes4(roomId);
             System.arraycopy(rb, 0, data, 0, rb.length);
             int srcPos = 4;
-            float[] coos = toRobotCoordinate(mGateCoordinates);
             int coo;
-            for (int i = 0; i < coos.length; i++) {
+            for (int i = 0; i < mGateCoordinates.length; i++) {
                 if (i % 2 == 0) {
-                    coo = Math.round(coos[i]);
+                    coo = Math.round(mGateCoordinates[i]);
                 } else {
-                    coo = Math.round(-coos[i]);
+                    coo = Math.round(-mGateCoordinates[i]);
                 }
                 byte[] bs = DataUtils.intToBytes(coo);
                 System.arraycopy(bs, 0, data, srcPos, bs.length);
@@ -121,7 +123,7 @@ public class SegmentationRoomHelper {
                 break;
         }
         mMapView.invalidateUI();
-        return smOT!=SROT.NOON;
+        return smOT != SROT.NOON;
     }
 
     private void doOnActionDown(float mapX, float mapY) {
@@ -198,7 +200,7 @@ public class SegmentationRoomHelper {
         onRoomClick();
     }
 
-    public void onRoomClick(){
+    public void onRoomClick() {
         PartitionBean room = mMapView.getmRoomHelper().getSelectRoom();
         if (room != null) {
             if (mRoom == null || room.getPartitionId() != mRoom.getPartitionId()) {
@@ -215,8 +217,9 @@ public class SegmentationRoomHelper {
         isNeedCalculateGate = true;
         updateSegmentationLine();
         smOT = SROT.NOON;
-        LiveEventBus.get(SegmentationRoomActivity.KEY_FUNCTION_WORKING,Boolean.class).post(isHaveLine);
+        LiveEventBus.get(SegmentationRoomActivity.KEY_FUNCTION_WORKING, Boolean.class).post(isHaveLine);
     }
+
     /**
      * 绘制电子墙
      * 根据最新的缩放比例刷新虚拟墙
@@ -312,9 +315,11 @@ public class SegmentationRoomHelper {
             }
         }
         List<Float> distance = new ArrayList<>();
+        Map<Float, Coordinate> onLineCoordinate = new HashMap<>();
         for (Coordinate coo : containsCoo) {
             float dis = DataUtils.distance(mCoordinates[0], mCoordinates[1], mMapView.matrixCoordinateX(coo.getX()), mMapView.matrixCoordinateY(coo.getY()));
             distance.add(dis);
+            onLineCoordinate.put(dis, coo);
         }
         Collections.sort(distance, (o1, o2) -> smOT == SROT.PULL_START ? (int) (o2 - o1) : (int) (o1 - o2));
 
@@ -334,17 +339,25 @@ public class SegmentationRoomHelper {
             isGateEffective = false;
             return;
         }
-        isGateEffective = true;
-        PathMeasure pathMeasure = new PathMeasure();
-        pathMeasure.setPath(sgPath, false);
-        float[] pos = new float[2];
-        float[] tan = new float[2];
-        pathMeasure.getPosTan(dis1, pos, tan);
-        mGateCoordinates[0] = pos[0];
-        mGateCoordinates[1] = pos[1];
-        pathMeasure.getPosTan(dis2, pos, tan);
-        mGateCoordinates[2] = pos[0];
-        mGateCoordinates[3] = pos[1];
+        Coordinate coo1 = onLineCoordinate.get(dis1);
+        Coordinate coo2 = onLineCoordinate.get(dis2);
+        if (coo1 != null && coo2 != null) {
+            isGateEffective = true;
+            mGateCoordinates[0] = coo1.getX();
+            mGateCoordinates[1] = coo1.getY();
+            mGateCoordinates[2] = coo2.getX();
+            mGateCoordinates[3] = coo2.getY();
+            PathMeasure pathMeasure = new PathMeasure();
+            pathMeasure.setPath(sgPath, false);
+            float[] pos = new float[2];
+            float[] tan = new float[2];
+            pathMeasure.getPosTan(dis1, pos, tan);
+            mPreviewGateCoordinates[0] = pos[0];
+            mPreviewGateCoordinates[1] = pos[1];
+            pathMeasure.getPosTan(dis2, pos, tan);
+            mPreviewGateCoordinates[2] = pos[0];
+            mPreviewGateCoordinates[3] = pos[1];
+        }
     }
 
 
@@ -372,10 +385,11 @@ public class SegmentationRoomHelper {
         return mCoordinates;
     }
 
-    public float[] getmGateCoordinates() {
-        return mGateCoordinates;
-    }
 
+
+    public float[] getmPreviewGateCoordinates() {
+        return mPreviewGateCoordinates;
+    }
 
     public int getRadius() {
         return radius;
@@ -404,7 +418,6 @@ public class SegmentationRoomHelper {
         }
         return robotCoor;
     }
-
 
     public void reset() {
         mMapView.getmRoomHelper().cleanSelectRoom();

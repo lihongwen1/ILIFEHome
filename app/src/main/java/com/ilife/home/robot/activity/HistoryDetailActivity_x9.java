@@ -213,8 +213,7 @@ public class HistoryDetailActivity_x9 extends BackBaseActivity {
                         if (bj==5){
                            int x = DataUtils.bytesToInt(new byte[]{bytes[1], bytes[2]}, 0);
                            int y = DataUtils.bytesToInt(new byte[]{bytes[3], bytes[4]}, 0);
-                           mapView.drawChargePort(x,y,true);
-
+                           mapView.drawChargePort(x,-y,true);
                         }
                     }
                 }

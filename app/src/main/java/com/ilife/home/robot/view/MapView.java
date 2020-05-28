@@ -322,7 +322,7 @@ public class MapView extends View {
     }
 
     public void drawMapX8(List<Coordinate> dataList) {
-        if (dataList == null || dataList.size() == 0) {
+        if (dataList == null) {
             return;
         }
         MyLogger.d(TAG, "----------drawMapX8---------数据长度：   " + dataList.size());
@@ -345,7 +345,7 @@ public class MapView extends View {
         /**
          * 绘制路径
          */
-        slamCanvas.drawPath(roadPath, mPaintManager.getRoadPaint());
+        slamCanvas.drawPath(roadPath,mPaintManager.getRoadPaint() );
         if (needEndPoint && endX != 0 && endY != 0) {
             slamCanvas.drawCircle(endX, endY, 10f / getRealScare(), mPaintManager.changeColor(mPaintManager.getMapPaint(), PaintColor.END_CIRCLE));
         }
@@ -605,7 +605,7 @@ public class MapView extends View {
                 if (mSegmentHelper.isHaveLine()) {
                     canvas.drawLines(mSegmentHelper.getmCoordinates(), mPaintManager.changeColor(mPaintManager.getDashPaint(), PaintColor.VIRTUAL));
                     if (mSegmentHelper.isGateEffective()) {
-                        canvas.drawLines(mSegmentHelper.getmGateCoordinates(), mPaintManager.changeColor(mPaintManager.getLinePaint(), PaintColor.ROOM_GATE));
+                        canvas.drawLines(mSegmentHelper.getmPreviewGateCoordinates(), mPaintManager.changeColor(mPaintManager.getLinePaint(), PaintColor.ROOM_GATE));
                     }
                     canvas.drawCircle(mSegmentHelper.getStartCircle().centerX(), mSegmentHelper.getStartCircle().centerY(), mSegmentHelper.getRadius(), mPaintManager.changeColor(mPaintManager.getFillPaint(), PaintColor.ROOM_GATE));
                     canvas.drawCircle(mSegmentHelper.getEndCircle().centerX(), mSegmentHelper.getEndCircle().centerY(), mSegmentHelper.getRadius(), mPaintManager.changeColor(mPaintManager.getFillPaint(), PaintColor.ROOM_GATE));
