@@ -413,7 +413,7 @@ public class MapView extends View {
         if (slamCanvas == null && slamBitmap == null) {
             slamBitmap = Bitmap.createBitmap(needWidth, needHeight, Bitmap.Config.ARGB_8888);
             slamCanvas = new Canvas(slamBitmap);
-        } else if (slamBitmap != null && ((needWidth != slamBitmap.getWidth() || needHeight != slamBitmap.getHeight()) || unconditionalRecreate)) {
+        } else if (slamBitmap != null && (needWidth != slamBitmap.getWidth() || needHeight != slamBitmap.getHeight()|| unconditionalRecreate) ) {
             MyLogger.d(TAG, "reCreate the bitmap................");
             slamBitmap.recycle();
             slamBitmap = Bitmap.createBitmap(needWidth, needHeight, Bitmap.Config.ARGB_8888);

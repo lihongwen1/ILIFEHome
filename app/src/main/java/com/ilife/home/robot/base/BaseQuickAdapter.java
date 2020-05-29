@@ -146,6 +146,11 @@ public abstract class BaseQuickAdapter<T, K extends BaseViewHolder> extends Recy
     }
 
 
+    public void cleanSelectPosition(){
+        if (selectPosition!=null){
+            selectPosition.clear();
+        }
+    }
     /**
      * override this method if you want to override longClick event logic
      *

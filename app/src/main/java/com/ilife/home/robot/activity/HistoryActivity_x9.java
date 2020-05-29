@@ -51,7 +51,6 @@ public class HistoryActivity_x9 extends BackBaseActivity implements View.OnClick
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         start = IlifeAli.getInstance().getWorkingDevice().getDeviceInfo().getHistoryMapTimeLine();
-        end = System.currentTimeMillis();
         showLoadingDialog();
         getHistoryRecord();
 
@@ -97,6 +96,7 @@ public class HistoryActivity_x9 extends BackBaseActivity implements View.OnClick
     }
 
     private void getHistoryRecord() {
+        end = System.currentTimeMillis();
         IlifeAli.getInstance().getHistoryRecords(start, end, new OnAliResponse<List<HistoryRecordBean>>() {
             @Override
             public void onSuccess(List<HistoryRecordBean> result) {

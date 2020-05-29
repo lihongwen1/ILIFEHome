@@ -196,12 +196,8 @@ public class SegmentationRoomActivity extends BackBaseActivity {
         });
         LiveEventBus.get(KEY_NEW_ROOM_NAME, String.class).observe(this, (String value) -> {
             if (map_room.getmOT() == MapView.OT.NAME_ROOM) {
-                PartitionBean room = map_room.getmRoomHelper().getSelectRoom();
-                if (room != null) {
-                    room.setTag(value);
-                    room.setTagDefault(false);
-                    map_room.invalidateUI();
-                }
+                map_room.getmRoomHelper().updateSelectRoomTag(value);
+                map_room.invalidateUI();
             }
         });
 

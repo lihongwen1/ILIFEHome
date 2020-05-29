@@ -17,6 +17,7 @@ import com.ilife.home.robot.bean.PartitionBean;
 import com.ilife.home.robot.utils.BitmapUtils;
 import com.ilife.home.robot.utils.DataUtils;
 import com.ilife.home.robot.utils.MyLogger;
+import com.ilife.home.robot.utils.ToastUtils;
 import com.ilife.home.robot.utils.UiUtil;
 import com.ilife.home.robot.view.MapView;
 
@@ -151,9 +152,23 @@ public class RoomHelper {
         }
     }
 
-    public void drawRoom(List<PartitionBean> rooms, int checkedRoom) {
+    public void updateSelectRoomTag(String tag) {
+        PartitionBean room = getSelectRoom();
+        if (room != null) {
+            if (tag.isEmpty()) {
+                String[] tags = UiUtil.getStringArray(R.array.array_room_tag);
+                room.setTag(tags[rooms.indexOf(room)]);
+                room.setTagDefault(true);
+            } else {
+                room.setTag(tag);
+                room.setTagDefault(false);
+            }
+        }
+    }
+
+    public void drawRoom(List<PartitionBean> beans, int checkedRoom) {
         this.rooms.clear();
-        this.rooms.addAll(rooms);
+        this.rooms.addAll(beans);
         Collections.sort(rooms);
         int index = 0;
         String[] tags = UiUtil.getStringArray(R.array.array_room_tag);

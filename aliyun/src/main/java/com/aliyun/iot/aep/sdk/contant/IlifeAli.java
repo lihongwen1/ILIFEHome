@@ -668,7 +668,6 @@ public class IlifeAli {
                     /**
                      * setting页面属性字段
                      */
-
                     if (jsonObject.containsKey(EnvConfigure.KEY_VirtualWallEN)) {//边刷速率
                         int enable = jsonObject.getJSONObject(EnvConfigure.KEY_VirtualWallEN).getIntValue(EnvConfigure.KEY_VALUE);
                         bean.setVirtualWallEn(enable);
@@ -885,7 +884,11 @@ public class IlifeAli {
 
             @Override
             public void onResponse(IoTRequest ioTRequest, IoTResponse ioTResponse) {
-                onAliResponse.onResponse(ioTResponse.getCode() == 200);
+                if(ioTResponse.getCode() == 200){
+                 onAliResponse.onResponse(true);
+                }else {
+                    onAliResponse.onResponse(false);
+                }
             }
         });
 

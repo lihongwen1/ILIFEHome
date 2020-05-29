@@ -446,6 +446,12 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
             case MsgCodeUtils.STATUE_VIRTUAL_EDIT://电子墙编辑模式
                 mView.showVirtualEdit();
                 break;
+            case MsgCodeUtils.STATUE_CHARGING:
+                if (!mDevicePropertyBean.isInitStatus()) {
+                    mView.drawChargePort(0, 0, false);
+                    mView.invalidMap();
+                }
+                break;
             case MsgCodeUtils.STATUE_TEMPORARY_POINT://临时重点
             case MsgCodeUtils.STATUE_POINT://重点
                 mView.updatePoint(true);
@@ -573,6 +579,8 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
                 pointList.clear();//情况实时地图
                 if (!mDevicePropertyBean.isInitStatus()) {//初始化为0，则清空底图
                     slamPointList.clear();
+                } else {//刷新底图
+                    doAboutSlam();
                 }
                 if (haveMap && isDrawMap()) {
                     mView.drawMapX8(pointList, slamPointList);
@@ -638,7 +646,13 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
             mDevicePropertyBean.setCleanRoomData(cleanRoomData);
         });
         LiveEventBus.get(EnvConfigure.KEY_AppRemind, Integer.class).observe((BaseActivity) mView, appRemind -> {
-            MyLogger.d(TAG, "主机需要APP提示");
+            MyLogger.d(TAG, "主机需要APP提示:   " + appRemind);
+            if (mDevicePropertyBean != null && mDevicePropertyBean.isInitStatus() && mDevicePropertyBean.getAppRemind() == 2 && appRemind == 1) {
+                doAboutSlam();
+            }
+            if (mDevicePropertyBean != null) {
+                mDevicePropertyBean.setAppRemind(appRemind);
+            }
             if (appRemind == 1) {
                 mView.showTipDialog();
             }
@@ -649,7 +663,6 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
             if (mDevicePropertyBean != null) {
                 mDevicePropertyBean.setSelectedMapId(selectMapId);
             }
-
         });
 
         LiveEventBus.get(EnvConfigure.ChargerPiont, String.class).observe((BaseActivity) mView, chargingPort -> {
@@ -727,6 +740,9 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
             @Override
             public void onSuccess(String[] result) {
                 if (result == null || result.length == 0) {//应该只有一条数据
+                    return;
+                }
+                if (!mDevicePropertyBean.isInitStatus()) {//请求的过程中初始化状态会改变
                     return;
                 }
                 if (!isViewAttached()) {

@@ -26,6 +26,7 @@ import com.ilife.home.robot.utils.ToastUtils;
 import com.ilife.home.robot.utils.UiUtil;
 import com.ilife.home.robot.view.MapView;
 
+import java.util.HashMap;
 import java.util.List;
 
 import butterknife.BindView;
@@ -52,7 +53,7 @@ public class CleanAreaActivity extends BaseSlamMapActivity {
     @BindView(R.id.image_menu)
     ImageView iv_finish;
     private int times = 1;//清扫次数
-
+    private HashMap<String, String> roomNames = new HashMap<>();
     @Override
     public int getLayoutId() {
         return R.layout.activity_clean_area;
@@ -81,7 +82,15 @@ public class CleanAreaActivity extends BaseSlamMapActivity {
 
     @Override
     protected void onSaveMapBean() {
+        long mapId = propertyBean.getSelectedMapId();
         MapDataBean mapDataBean = DataUtils.parseSaveMapData(saveMapBean.getMapData());
+        boolean isParseRoom = DataUtils.parseRoomInfo(String.valueOf(mapId), propertyBean.getMapRoomInfo1(), roomNames);
+        if (!isParseRoom) {
+            isParseRoom = DataUtils.parseRoomInfo(String.valueOf(mapId), propertyBean.getMapRoomInfo2(), roomNames);
+        }
+        if (!isParseRoom) {
+            DataUtils.parseRoomInfo(String.valueOf(mapId), propertyBean.getMapRoomInfo3(), roomNames);
+        }
         if (mapDataBean != null) {
             map_clean_area.setLeftTopCoordinate(mapDataBean.getLeftX(), mapDataBean.getLeftY());
             map_clean_area.updateSlam(mapDataBean.getMinX(), mapDataBean.getMaxX(), mapDataBean.getMinY(), mapDataBean.getMaxY());
@@ -101,8 +110,16 @@ public class CleanAreaActivity extends BaseSlamMapActivity {
         }
         SaveMapDataInfoBean saveMapDataInfoBean = DataUtils.parseSaveMapInfo(saveMapBean.getMapDataInfo());
         if (saveMapDataInfoBean != null) {
+            for (PartitionBean room : saveMapDataInfoBean.getRooms()) {//绑定设置的用户名
+                String roomName = roomNames.get(String.valueOf(room.getPartitionId()));
+                if (roomName == null) {
+                    roomName = "";
+                }
+                room.setTag(roomName);
+            }
             map_clean_area.drawChargePort(saveMapDataInfoBean.getChargePoint().x, saveMapDataInfoBean.getChargePoint().y, true);
             map_clean_area.getmGateHelper().drawGate(saveMapDataInfoBean.getGates());
+            map_clean_area.getmRoomHelper().drawRoom(saveMapDataInfoBean.getRooms());
             map_clean_area.invalidateUI();
         }
     }

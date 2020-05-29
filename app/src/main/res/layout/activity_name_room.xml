@@ -1,27 +1,50 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:orientation="vertical"
+    android:layout_height="match_parent"
     android:background="@color/bg_color_f5f7fa"
-    android:layout_height="match_parent">
+    android:orientation="vertical">
 
     <include layout="@layout/template_top_title" />
 
-    <TextView
-        android:layout_marginTop="@dimen/dp_10"
+    <LinearLayout
+        android:id="@+id/ll_room_default"
         android:background="@color/white"
-        style="@style/Text_16sp_33"
         android:layout_width="match_parent"
-        android:layout_height="@dimen/dp_60"
-        android:text="@string/name_room_default_tip"
-        android:gravity="center|start"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/dp_10"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
         android:paddingStart="@dimen/dp_20"
-        />
-      <androidx.recyclerview.widget.RecyclerView
-          android:background="@color/white"
-          android:id="@+id/rv_select_name"
-          android:layout_marginTop="@dimen/dp_10"
-          android:layout_width="match_parent"
-          android:layout_weight="1"
-          android:layout_height="0dp"/>
+        android:paddingEnd="@dimen/dp_20">
+
+        <TextView
+            style="@style/Text_16sp_33"
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/dp_60"
+            android:layout_marginTop="@dimen/dp_10"
+            android:gravity="center|start"
+            android:text="@string/name_room_default_tip" />
+
+        <Space
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1" />
+
+        <ImageView
+            android:visibility="gone"
+            android:id="@+id/iv_default_room_selected"
+            android:layout_width="@dimen/dp_24"
+            android:layout_height="@dimen/dp_24"
+            android:layout_marginStart="@dimen/dp_12"
+            android:src="@drawable/annal_icon_finish" />
+    </LinearLayout>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rv_select_name"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginTop="@dimen/dp_10"
+        android:layout_weight="1"
+        android:background="@color/white" />
 </LinearLayout>
