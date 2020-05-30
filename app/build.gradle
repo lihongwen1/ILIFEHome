@@ -67,7 +67,7 @@ android {
             dimension "default"
             applicationId "com.ilife.home.robot_test"
             versionCode = 5
-            versionName = '1.0.2.11'
+            versionName = '1.0.2.12'
             signingConfig signingConfigs.ilife_home
             resValue "string", "app_name", "AliyunGN"
             buildConfigField("String", "environment", "\"product\"")
