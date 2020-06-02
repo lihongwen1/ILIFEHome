@@ -6,14 +6,10 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.os.Environment;
-import android.provider.Settings;
 import android.text.TextUtils;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AlertDialog;
@@ -30,6 +26,8 @@ import com.google.zxing.WriterException;
 import com.google.zxing.activity.CaptureActivity;
 import com.google.zxing.common.BitMatrix;
 import com.google.zxing.integration.android.IntentIntegrator;
+import com.ilife.home.robot.BuildConfig;
+import com.ilife.home.robot.R;
 import com.ilife.home.robot.base.BackBaseActivity;
 import com.ilife.home.robot.fragment.TextSelectorDialog;
 import com.ilife.home.robot.fragment.UniversalDialog;
@@ -37,11 +35,8 @@ import com.ilife.home.robot.utils.AlertDialogUtils;
 import com.ilife.home.robot.utils.MyLogger;
 import com.ilife.home.robot.utils.ToastUtils;
 import com.ilife.home.robot.utils.Utils;
-import com.ilife.home.robot.utils.DisplayUtil;
 import com.journeyapps.barcodescanner.BarcodeEncoder;
 import com.tbruyelle.rxpermissions2.RxPermissions;
-import com.ilife.home.robot.BuildConfig;
-import com.ilife.home.robot.R;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -140,7 +135,8 @@ public class PersonalActivity extends BackBaseActivity implements View.OnClickLi
         });
     }
 
-    @OnClick({R.id.rl_user_information, R.id.rl_delete_account, R.id.rl_protocol, R.id.rl_help, R.id.rl_app_authorization, R.id.rl_scan, R.id.bt_logout, R.id.tv_user_agreement, R.id.tv_protocol_privacy, R.id.rl_share})
+    @OnClick({R.id.rl_user_information, R.id.rl_delete_account, R.id.rl_protocol, R.id.rl_help, R.id.rl_app_authorization, R.id.rl_scan, R.id.bt_logout, R.id.tv_user_agreement,
+            R.id.tv_protocol_privacy, R.id.rl_share,R.id.rl_warranty,R.id.rl_mall})
     public void onClick(View v) {
         Intent i;
         switch (v.getId()) {
@@ -196,6 +192,12 @@ public class PersonalActivity extends BackBaseActivity implements View.OnClickLi
                 break;
             case R.id.rl_delete_account://删除账号
                 showDeleteAcccountDialog();
+                break;
+            case R.id.rl_warranty://三年质保
+                startActivity(new Intent(PersonalActivity.this,ActivityWarranty.class));
+                break;
+            case R.id.rl_mall://商城
+                startActivity(new Intent(PersonalActivity.this,ActivityMall.class));
                 break;
         }
     }

@@ -74,8 +74,7 @@ public class UniversalEditDialog extends DialogFragment {
         return this;
     }
 
-    public UniversalEditDialog setOnRightButtonClick(OnRightButtonClick onRightButtonClick) {
+    public void setOnRightButtonClick(OnRightButtonClick onRightButtonClick) {
         this.onRightButtonClick = onRightButtonClick;
-        return this;
     }
 }

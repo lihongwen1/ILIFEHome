@@ -9,7 +9,7 @@
     <string name="select_x_aty_add">添加机器人</string>
     <string name="guide_ap_prepare">配网准备</string>
     <string name="guide_aty_next">下一步</string>
-    <string name="add_aty_no_wifi">wifi未连接</string>
+    <string name="add_aty_no_wifi">请连接家庭网络</string>
     <string name="ap_guide_gps_cancel">暂时不开启</string>
     <string name="ap_guide_gps_open">去开启</string>
     <string name="ap_aty_input_pass">密码</string>
@@ -216,7 +216,6 @@
     <string name="zaco_phone_server_time">周一到周五09:00–17:00</string>
     <string name="spanish_server_time_sat">(周六10:00–14:00)</string>
     <string name="russia_phone_server_time">(周一到周五09:00–18:00)</string>
-    <string name="start_random_cleaning">已启用随机清扫</string>
     <string name="login_aty_input_email">请输入邮箱</string>
     <string name="adapter_error_ybl_a9">右边轮异常</string>
     <string name="adapter_error_zbl_a9">左边轮异常</string>
@@ -236,8 +235,6 @@
     <string name="adapter_error_bs">边刷异常</string>
     <string name="ap_guide_loading">机器正在启动中，请耐心等待约20秒，直至听到语音\"请按键开始清扫\"，再进行下一步。</string>
     <string name="guide_aty_loading_next">已听到</string>
-    <string name="personal_information">个人信息</string>
-    <string name="set_user_icon">设置头像</string>
     <string name="consumer_tip_side">边刷用于聚拢地面上灰尘，以覆盖更大清扫区域。长时间使用后会出现形变情况，将导致清扫效果下降。 建议每周卸下边刷清理被缠绕异物，3-6个月更换新边刷。\n注：重装时，请注意区分左右边刷安装位置。</string>
     <string name="consumer_tip_roll">滚刷用于卷起垃圾至尘盒中。长时间使用后，可能会被毛发等异物缠绕，将导致滚刷卡死等异常现象。 建议每周卸下滚刷清理被缠绕异物，5-12个月更换新滚刷。\n注：重装时，请注意滚刷以及滚刷盖板安装位置。</string>
     <string name="consumer_tip_fillter">高效过滤网用于过滤气流中小颗粒灰尘，防止风扇组件被堵塞。随着清洁时间的累计，滤网会逐渐被堵塞，导致过滤效果减弱。建议每3-4次清扫后，清洁1次滤网。1-2个月更换新的滤网，以达到最佳清扫效果及延长机器寿命。\n注：滤网禁止水洗。需轻拍或用清洁刷子清理滤网。</string>
@@ -265,7 +262,7 @@
     <string name="consume_detail_remain_life">剩余寿命</string>
     <string name="history_detail_title">清扫详情</string>
     <string name="personal_tiamao">授权天猫精灵</string>
-    <string name="adapter_error_gx">清扫环境光线不足,请开灯</string>
+    <string name="adapter_error_gx">清扫光线弱</string>
     <string name="taobao_authorization_succeeded">授权成功</string>
     <string name="taobao_authorization_failed">授权失败</string>
     <string name="week_monday">周一</string>
@@ -396,6 +393,8 @@
     <string name="open">开启</string>
     <string name="close">关闭</string>
     <string name="setting_voice_setting">语音设置</string>
-
-
+    <string name="personal_aty_warranty">三年质保</string>
+    <string name="personal_aty_shopping_center">商城</string>
+    <string name="buy_from_zaco_mall">在ZACO官方商城购买</string>
+    <string name="buy_from_amazon">在amazon上购买</string>
 </resources>

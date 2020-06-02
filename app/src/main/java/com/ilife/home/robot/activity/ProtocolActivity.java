@@ -58,7 +58,6 @@ public class ProtocolActivity extends BackBaseActivity {
             case 2:
                 fileName = "privacy_policy.pdf";
                 titile = Utils.getString(R.string.personal_aty_protocol_privacy);
-
                 break;
         }
         pdfView = findViewById(R.id.pdfView);

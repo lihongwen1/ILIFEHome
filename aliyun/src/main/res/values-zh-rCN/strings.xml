@@ -11,8 +11,8 @@
     <string name="account_choose_find_pwd_style">请选择重置密码的方式</string>
     <string name="account_choose_find_pwd_style_email">邮箱</string>
     <string name="account_choose_find_pwd_style_phone">手机号码</string>
-    <string name="account_choose_register_style_email">手机号码</string>
-    <string name="account_choose_register_style_phone">邮箱</string>
+    <string name="account_choose_register_style_email">邮箱</string>
+    <string name="account_choose_register_style_phone">手机号码</string>
     <string name="account_phone_register">手机号码</string>
 
     <string name="ali_sdk_openaccount_text_email_register">邮箱</string>

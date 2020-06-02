@@ -83,11 +83,11 @@
                 <ImageView
                     style="@style/Image_Style_Forward"
                     android:layout_marginEnd="@dimen/dp_24" />
+                <View
+                    android:layout_alignParentBottom="true"
+                    style="@style/View_Line_Style"
+                    android:layout_marginStart="@dimen/dp_40" />
             </RelativeLayout>
-
-            <View
-                style="@style/View_Line_Style"
-                android:layout_marginStart="@dimen/dp_70" />
 
             <RelativeLayout
                 android:id="@+id/rl_scan"
@@ -112,11 +112,13 @@
                 <ImageView
                     style="@style/Image_Style_Forward"
                     android:layout_marginEnd="@dimen/dp_24" />
+                <View
+                    android:layout_alignParentBottom="true"
+                    style="@style/View_Line_Style"
+                    android:layout_marginStart="@dimen/dp_40" />
             </RelativeLayout>
 
-            <View
-                style="@style/View_Line_Style"
-                android:layout_marginStart="@dimen/dp_70" />
+
 
             <RelativeLayout
                 android:id="@+id/rl_share"
@@ -142,11 +144,72 @@
                     android:id="@+id/image_forward"
                     style="@style/Image_Style_Forward"
                     android:layout_marginEnd="@dimen/dp_24" />
+                <View
+                    android:layout_alignParentBottom="true"
+                    style="@style/View_Line_Style"
+                    android:layout_marginStart="@dimen/dp_40" />
             </RelativeLayout>
 
-            <View
-                style="@style/View_Line_Style"
-                android:layout_marginStart="@dimen/dp_70" />
+
+
+
+            <RelativeLayout
+                android:id="@+id/rl_warranty"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/dp_60"
+                android:layout_marginStart="@dimen/dp_24"
+                android:background="@color/white">
+
+                <ImageView
+                    android:id="@+id/image_warranty"
+                    style="@style/Image_Style_24"
+                    android:background="@drawable/personal_icon_warranty" />
+
+                <TextView
+                    style="@style/Text_16sp_33"
+                    android:layout_centerVertical="true"
+                    android:layout_marginStart="@dimen/dp_20"
+                    android:layout_toEndOf="@+id/image_warranty"
+                    android:text="@string/personal_aty_warranty"
+                    android:textColor="@color/color_33" />
+
+                <ImageView
+                    style="@style/Image_Style_Forward"
+                    android:layout_marginEnd="@dimen/dp_24" />
+                <View
+                    android:layout_alignParentBottom="true"
+                    style="@style/View_Line_Style"
+                    android:layout_marginStart="@dimen/dp_40" />
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:id="@+id/rl_mall"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/dp_60"
+                android:layout_marginStart="@dimen/dp_24"
+                android:background="@color/white">
+
+                <ImageView
+                    android:id="@+id/image_mall"
+                    style="@style/Image_Style_24"
+                    android:background="@drawable/personal_icon_shop" />
+
+                <TextView
+                    style="@style/Text_16sp_33"
+                    android:layout_centerVertical="true"
+                    android:layout_marginStart="@dimen/dp_20"
+                    android:layout_toEndOf="@+id/image_mall"
+                    android:text="@string/personal_aty_shopping_center"
+                    android:textColor="@color/color_33" />
+
+                <ImageView
+                    style="@style/Image_Style_Forward"
+                    android:layout_marginEnd="@dimen/dp_24" />
+                <View
+                    android:layout_alignParentBottom="true"
+                    style="@style/View_Line_Style"
+                    android:layout_marginStart="@dimen/dp_40" />
+            </RelativeLayout>
 
 
             <RelativeLayout
@@ -174,12 +237,12 @@
                     android:id="@+id/image_forward_policy"
                     style="@style/Image_Style_Forward"
                     android:layout_marginEnd="@dimen/dp_24" />
+                <View
+                    android:layout_alignParentBottom="true"
+                    style="@style/View_Line_Style"
+                    android:layout_marginStart="@dimen/dp_40" />
             </RelativeLayout>
 
-
-            <View
-                style="@style/View_Line_Style"
-                android:layout_marginStart="@dimen/dp_70" />
 
 
             <RelativeLayout
@@ -207,12 +270,12 @@
                     android:id="@+id/image_forward_delete_account"
                     style="@style/Image_Style_Forward"
                     android:layout_marginEnd="@dimen/dp_24" />
+                <View
+                    android:layout_alignParentBottom="true"
+                    style="@style/View_Line_Style"
+                    android:layout_marginStart="@dimen/dp_40" />
             </RelativeLayout>
 
-
-            <View
-                style="@style/View_Line_Style"
-                android:layout_marginStart="@dimen/dp_70" />
 
 
 
@@ -240,11 +303,13 @@
                 <ImageView
                     style="@style/Image_Style_Forward"
                     android:layout_marginEnd="@dimen/dp_24" />
+                <View
+                    android:layout_alignParentBottom="true"
+                    style="@style/View_Line_Style"
+                    android:layout_marginStart="@dimen/dp_40" />
             </RelativeLayout>
 
-            <View
-                style="@style/View_Line_Style"
-                android:layout_marginStart="@dimen/dp_70" />
+
 
 
             <TextView
@@ -323,7 +388,6 @@
                     android:text="@string/personal_aty_protocol_privacy"
                     android:textColor="@color/color_theme"
                     android:textSize="@dimen/dp_14" />
-
             </LinearLayout>
         </LinearLayout>
     </FrameLayout>

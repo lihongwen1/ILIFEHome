@@ -9,7 +9,7 @@
     <string name="select_x_aty_add">Add a robot</string>
     <string name="guide_ap_prepare">Preparing to find a network</string>
     <string name="guide_aty_next">Next</string>
-    <string name="add_aty_no_wifi">WiFi not connected</string>
+    <string name="add_aty_no_wifi">Choose a home network</string>
     <string name="ap_guide_gps_cancel">Cancel</string>
     <string name="ap_guide_gps_open">Open</string>
     <string name="ap_aty_input_pass">Password</string>
@@ -216,7 +216,6 @@
     <string name="zaco_phone_server_time">Mon - Fri 09:00 – 17:00</string>
     <string name="spanish_server_time_sat">(Sat 10:00 - 14:00)</string>
     <string name="russia_phone_server_time">(Mon - Fri: 9:00 A.M. - 6:00 P.M)</string>
-    <string name="start_random_cleaning">Auto mode activated</string>
     <string name="login_aty_input_email">Enter email</string>
     <string name="adapter_error_ybl_a9">Right side wheel error</string>
     <string name="adapter_error_zbl_a9">Left side wheel error</string>
@@ -236,8 +235,6 @@
     <string name="adapter_error_bs">Side brush error</string>
     <string name="ap_guide_loading">After switch on power button,the robot start loading.And please wait until \"ready to clean\".Then go to next step.</string>
     <string name="guide_aty_loading_next">Next</string>
-    <string name="personal_information">Personal information</string>
-    <string name="set_user_icon">Set Avatar</string>
     <string name="consumer_tip_side">The side brush is used to gather dust on the ground to cover a larger cleaning area. Deformation will occur after long-term use, which will cause the cleaning effect to decrease. It is recommended to remove the side brush every week to clean up the entangled foreign objects, and replace it with a new side brush within 3-6 months. \ nNote: Please pay attention to distinguish the installation position of left and right side brushes when installing.</string>
     <string name="consumer_tip_roll">The main brush is used to roll up the garbage into the dustbin. After long-term use, it may be entangled by foreign objects such as hair, which may cause abnormalities. It is recommended to remove the main brush every week to clean up the entangled foreign bodies, and replace it with a new main brush within 5-12 months. \ nNote: Please pay attention to the installation position of main brush and main brush cover when reinstalling.</string>
     <string name="consumer_tip_fillter">The high  performance filter is used to filter the small particles of dust in the airflow to prevent the fan assembly from being blocked. As the cleaning time accumulates, the filter screen will gradually become clogged, causing the filtering effect to weaken. It is recommended to clean the filter once every 3-4 times. Replace the new filter in 1-2 months to achieve the best cleaning effect and extend the life of the robot. \ nNote: The filter is not allowed to be washed. You just need to tap or clean the filter with a cleaning brush.</string>
@@ -265,7 +262,7 @@
     <string name="consume_detail_remain_life">Remaining</string>
     <string name="history_detail_title">Cleaning details</string>
     <string name="personal_tiamao">Authorized Tmall Elf</string>
-    <string name="adapter_error_gx">The cleaning brightness is insufficient,please open the light</string>
+    <string name="adapter_error_gx">The Robot is not working well in darkness</string>
     <string name="taobao_authorization_succeeded">Authorization succeeded</string>
     <string name="taobao_authorization_failed">Authorization failed</string>
     <string name="week_monday">Mon</string>
@@ -396,6 +393,9 @@
     <string name="open">On</string>
     <string name="close">Off</string>
     <string name="setting_voice_setting">Voice settings</string>
-
+    <string name="personal_aty_warranty">Three-year warranty</string>
+    <string name="personal_aty_shopping_center">Mall</string>
+    <string name="buy_from_zaco_mall">Purchase in ZACO official mall</string>
+    <string name="buy_from_amazon">Buy on Amazon</string>
 
 </resources>

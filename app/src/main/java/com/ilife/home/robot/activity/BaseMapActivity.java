@@ -325,7 +325,7 @@ public abstract class BaseMapActivity extends BackBaseActivity<MapX9Presenter> i
                         startActivity(new Intent(BaseMapActivity.this, SelectSaveMapActivity.class));
                         weakHandler.sendEmptyMessageDelayed(5, 300);
                     } else {
-//                        startActivity(new Intent(BaseMapActivity.this, SelectSaveMapActivity.class));
+                        startActivity(new Intent(BaseMapActivity.this, SelectSaveMapActivity.class));
                         ToastUtils.showToast(MyApplication.getInstance(), Utils.getString(R.string.toast_ensure_in_no_work_mode));
                     }
                     break;

@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/bg_color_f5f7fa"
+    android:orientation="vertical">
+
+    <include layout="@layout/template_top_title" />
+    <LinearLayout
+        android:layout_marginTop="1dp"
+        android:background="@color/white"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:paddingLeft="@dimen/dp_24"
+        android:paddingRight="@dimen/dp_24">
+
+        <ImageView
+            android:layout_marginTop="@dimen/dp_24"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:src="@drawable/warranty_icon" />
+
+        <TextView
+            android:layout_marginTop="@dimen/dp_24"
+            style="@style/Text_12sp_33"
+            android:textStyle="bold"
+            android:text="Ab sofort geben wir 3 Jahre Garantie auf alle Modelleder ZACO Saugroboterfamilie.\n\n
+Genau-ab sofort geben wir drei(3!!!) Jahre Garantie auf alle Saug-und Wischrobotermodelle der Marke ZACO. Weil wir von unseren Produkten überzeugtsind und wir gröβten Wert auf die Qualität unserer Produkte legen.\n\n
+Aber noch viel mehr, weil wir Ihnen, unseren Kunden, ein sicheres Gefühl geben wollen. Denn nichts ist unswichtiger als Ihr Vertrauen. In uns und unsere Produkte. Und diesen Anspruch leben wir jeden Tag. Und das soll st du, unser Kunde, immer spüren. Bei den Produkten，beim Service und uberall wo du uns findest. Online oder im Handel.
+" />
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/dp_24"
+            android:src="@drawable/warranty_logo" />
+
+        <TextView
+            style="@style/Text_12sp_33"
+            android:layout_marginTop="@dimen/dp_8"
+            android:textStyle="bold"
+            android:text="SLIM.SMART.SILENT." />
+
+        <TextView
+            android:id="@+id/tv_warranty1"
+            style="@style/Text_12sp_33"
+            android:layout_marginTop="@dimen/dp_24"
+            android:text="Hier geht's zur Garantieverlängerung"
+            android:textColor="@color/color_1B92E2" />
+
+        <TextView
+            android:id="@+id/tv_warranty2"
+            style="@style/Text_12sp_33"
+            android:layout_marginTop="@dimen/dp_12"
+            android:text="Alles über die Garantieverlängerung"
+            android:textColor="@color/color_1B92E2" />
+    </LinearLayout>
+</LinearLayout>

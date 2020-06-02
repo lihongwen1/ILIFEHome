@@ -104,6 +104,19 @@
         <item>A5</item>
         <item>A6</item>
     </string-array>
+    <string-array name="default_room_name_key_cn">
+        <item>客厅</item>
+        <item>餐厅</item>
+        <item>卧室</item>
+        <item>厨房</item>
+        <item>卫浴间</item>
+        <item>书房</item>
+        <item>洗衣房</item>
+        <item>休息室</item>
+        <item>娱乐室</item>
+        <item>儿童房</item>
+        <item>储物室</item>
+    </string-array>
     <string-array name="default_room_name">
         <item>@string/room_name_living_room</item>
         <item>@string/room_name_restaurant</item>

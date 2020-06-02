@@ -37,6 +37,7 @@ public class NameRoomActivity extends BackBaseActivity {
     @BindView(R.id.iv_default_room_selected)
     ImageView iv_default_room_selected;
     private String[] names;
+    private String[] namesCn;
     private UniversalEditDialog editDialog;
     private  RoomNameAdapter adapter;
     @Override
@@ -49,6 +50,7 @@ public class NameRoomActivity extends BackBaseActivity {
     public void initView() {
         tv_title.setText(R.string.name_room);
         names = UiUtil.getStringArray(R.array.default_room_name);
+        namesCn = UiUtil.getStringArray(R.array.default_room_name_key_cn);
         List<String> nameList = new ArrayList<>(Arrays.asList(names));
         adapter = new RoomNameAdapter(R.layout.item_room_name, nameList, new SparseIntArray());
         rv_select_name.setLayoutManager(new LinearLayoutManager(this,RecyclerView.VERTICAL,false));
@@ -60,6 +62,7 @@ public class NameRoomActivity extends BackBaseActivity {
                 if (editDialog == null) {
                     editDialog = new UniversalEditDialog();
                     editDialog.setTitle(UiUtil.getString(R.string.name_room)).setHint(UiUtil.getString(R.string.room_name_other)).setOnRightButtonClick(value -> {
+
                         if (value.getBytes().length > 20) {
                             roomName = value;
                             ToastUtils.showToast(UiUtil.getString(R.string.toast_name_too_long));
@@ -73,7 +76,7 @@ public class NameRoomActivity extends BackBaseActivity {
                 }
                 editDialog.show(getSupportFragmentManager(), "et_input_value");
             } else {
-                roomName = names[position];
+                roomName = namesCn[position];
             }
             adapter.notifyDataSetChanged();
             iv_default_room_selected.setVisibility(View.GONE);

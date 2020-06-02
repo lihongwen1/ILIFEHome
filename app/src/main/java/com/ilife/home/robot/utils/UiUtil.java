@@ -1,9 +1,12 @@
 package com.ilife.home.robot.utils;
 
+import android.content.res.Resources;
 import android.graphics.Color;
 
 import com.ilife.home.robot.R;
 import com.ilife.home.robot.app.MyApplication;
+
+import java.util.Locale;
 
 public class UiUtil {
     public static int getDrawable(String srcName) {
@@ -17,6 +20,7 @@ public class UiUtil {
     public static String getString(int srcId) {
         return MyApplication.getInstance().getResources().getString(srcId);
     }
+
 
     public static int getColor(int srcId) {
         return MyApplication.getInstance().getResources().getColor(srcId);
