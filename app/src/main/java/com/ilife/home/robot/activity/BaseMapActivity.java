@@ -167,7 +167,7 @@ public abstract class BaseMapActivity extends BackBaseActivity<MapX9Presenter> i
                                         mPresenter.setAppRemind();
                                     }).build();
                         }
-                        if (!isDestroyed() && !tipDialog.isAdded()) {
+                        if (isActivityInteraction && !tipDialog.isAdded()) {
                             tipDialog.show(getSupportFragmentManager(), "app_remind");
                         }
                         break;
@@ -176,6 +176,11 @@ public abstract class BaseMapActivity extends BackBaseActivity<MapX9Presenter> i
 
             return false;
         });
+    }
+
+    @Override
+    protected void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
     }
 
     @Override

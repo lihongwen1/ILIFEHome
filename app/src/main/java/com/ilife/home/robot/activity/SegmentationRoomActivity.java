@@ -44,9 +44,11 @@ import io.reactivex.Observable;
 import io.reactivex.Single;
 import io.reactivex.SingleObserver;
 import io.reactivex.SingleOnSubscribe;
+import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Function;
+import io.reactivex.schedulers.Schedulers;
 
 /**
  * //todo 5s操作超时
@@ -309,7 +311,7 @@ public class SegmentationRoomActivity extends BackBaseActivity {
                 });
                 mDisposable.add(timerDisposable);
             }
-        })).subscribe(new SingleObserver<String[]>() {
+        })).subscribeOn(Schedulers.single()).observeOn(AndroidSchedulers.mainThread()).subscribe(new SingleObserver<String[]>() {
             @Override
             public void onSubscribe(Disposable d) {
 
@@ -367,6 +369,7 @@ public class SegmentationRoomActivity extends BackBaseActivity {
                         jsonObject.getJSONObject(EnvConfigure.KEY_ADD_ROOM_DOOR).put("CmdId", (int) (System.currentTimeMillis() / 1000f));
                         jsonObject.getJSONObject(EnvConfigure.KEY_ADD_ROOM_DOOR).put("ModifyInfo", map_room.getmSegmentHelper().getSegmentationData());
                         IlifeAli.getInstance().setProperties(jsonObject, aBoolean -> {
+                            MyLogger.d(TAG,"分割房间");
                             weakHandler.sendEmptyMessageDelayed(1, 10 * 1000);
                         });
                         break;
@@ -377,6 +380,7 @@ public class SegmentationRoomActivity extends BackBaseActivity {
                         merge_jo.getJSONObject(EnvConfigure.KEY_DELETE_ROOM_DOOR).put("CmdId", (int) (System.currentTimeMillis() / 1000f));
                         merge_jo.getJSONObject(EnvConfigure.KEY_DELETE_ROOM_DOOR).put("ModifyInfo", map_room.getmGateHelper().getDeleteGate());
                         IlifeAli.getInstance().setProperties(merge_jo, aBoolean -> {
+                            MyLogger.d(TAG,"合并房间");
                             weakHandler.sendEmptyMessageDelayed(1, 10 * 1000);
                         });
                         break;

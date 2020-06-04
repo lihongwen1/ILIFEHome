@@ -81,7 +81,7 @@ android {
             dimension "default"
             applicationId "com.zaco.home.robot"
             versionCode = 3
-            versionName = '1.0.2.26'
+            versionName = '1.0.2.27'
             signingConfig signingConfigs.ilife_home
             resValue "string", "app_name", "ZACOHome"
             buildConfigField("String", "environment", "\"product\"")

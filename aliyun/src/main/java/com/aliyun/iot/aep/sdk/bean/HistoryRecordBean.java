@@ -129,7 +129,7 @@ public class HistoryRecordBean implements Serializable {
             mapDataArray = new String[packNum + 1];
         }
 
-        if (pkgId < mapDataArray.length && mapDataArray[pkgId] == null) {
+        if (pkgId < mapDataArray.length/* && mapDataArray[pkgId] == null*/) {
             mapDataArray[pkgId] = cleanData;
         }
     }
