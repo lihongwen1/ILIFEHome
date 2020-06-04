@@ -433,7 +433,7 @@ public class IlifeAli {
                     JSONObject object = JSONObject.parseObject(data);
                     String iot = object.getString(EnvConfigure.KEY_IOT_ID);
                     JSONObject items = object.getJSONObject(EnvConfigure.KEY_ITEMS);
-                    if (items==null||!iot.equals(iotId)) {//
+                    if (items == null || !iot.equals(iotId)) {//
                         return;
                     }
                     switch (method) {
@@ -1044,7 +1044,7 @@ public class IlifeAli {
         ioTAPIClient.send(buildRequest(EnvConfigure.PATH_GET_PROPERTY_TIMELINE, params), new IoTUIThreadCallback(new IoTCallback() {
             @Override
             public void onFailure(IoTRequest ioTRequest, Exception e) {
-
+                onAliResponse.onFailed(0, "fetch data error ,and error message is:" + e.getMessage());
             }
 
             @Override
@@ -1081,6 +1081,8 @@ public class IlifeAli {
                         Log.d(TAG, "the data obtained is incomplete.");
                         onAliResponse.onFailed(0, "the data obtained is incomplete.");
                     }
+                } else {
+                    onAliResponse.onFailed(0, "fetch data error ,and error code is: " + ioTResponse.getCode());
                 }
             }
         }));
@@ -1218,29 +1220,13 @@ public class IlifeAli {
     }
 
     public void resetDeviceToFactory(final OnAliSetPropertyResponse onResponse) {
-        JSONObject json = JSONObject.parseObject("{\"ResetFactory\":1}");
-        HashMap<String, Object> params = new HashMap<>();
-        params.put(EnvConfigure.KEY_IOT_ID, iotId);
-        params.put(EnvConfigure.KEY_ITEMS, json);
-        params.put(EnvConfigure.KEY_TAG, EnvConfigure.VALUE_FAC_RESET);
-        ioTAPIClient.send(buildRequest(EnvConfigure.PATH_SET_PROPERTIES, params), new IoTUIThreadCallback(new IoTCallback() {
-            @Override
-            public void onFailure(IoTRequest ioTRequest, Exception e) {
-                onResponse.onFailed(ioTRequest.getPath(), EnvConfigure.VALUE_FAC_RESET, 0, e.getLocalizedMessage());
-            }
-
-            @Override
-            public void onResponse(IoTRequest ioTRequest, IoTResponse ioTResponse) {
-                onResponse.onSuccess(EnvConfigure.PATH_SET_PROPERTIES, EnvConfigure.VALUE_FAC_RESET, 1, ioTResponse.getCode());
-                cloudResetFactory();
-            }
-        }));
+        cloudResetFactory(onResponse);
     }
 
     /**
      * 删除云端的主机数据
      */
-    private void cloudResetFactory() {
+    private void cloudResetFactory(OnAliSetPropertyResponse onResponse) {
         HashMap<String, Object> params = new HashMap<>();
         params.put(EnvConfigure.KEY_IOT_ID, iotId);
         IoTRequest ioTRequest = new IoTRequestBuilder()
@@ -1254,11 +1240,13 @@ public class IlifeAli {
             @Override
             public void onFailure(IoTRequest ioTRequest, Exception e) {
                 Log.d(TAG, "清除云端数据 异常：" + e.getMessage());
+                onResponse.onFailed(ioTRequest.getPath(), EnvConfigure.VALUE_FAC_RESET, 0, e.getLocalizedMessage());
             }
 
             @Override
             public void onResponse(IoTRequest ioTRequest, IoTResponse ioTResponse) {
                 Log.d(TAG, "清除云端数据：" + ioTRequest.toString());
+                onResponse.onSuccess(EnvConfigure.PATH_SET_PROPERTIES, EnvConfigure.VALUE_FAC_RESET, 1, ioTResponse.getCode());
             }
         }));
     }
