@@ -18,6 +18,7 @@ import com.ilife.home.robot.bean.Coordinate;
 import com.ilife.home.robot.bean.PartitionBean;
 import com.ilife.home.robot.model.bean.VirtualWallBean;
 import com.ilife.home.robot.utils.DataUtils;
+import com.ilife.home.robot.utils.MyLogger;
 import com.ilife.home.robot.view.MapView;
 
 import java.util.ArrayList;
@@ -48,7 +49,6 @@ public class SegmentationRoomHelper {
     private boolean isNeedCalculateGate;
     private RectF startCircle, endCircle;
     private int radius;
-    private VirtualWallBean room;
     private boolean isGateEffective;
     private PartitionBean mRoom;
 
@@ -306,7 +306,7 @@ public class SegmentationRoomHelper {
                 if (boundaryRegion.contains((int) mMapView.matrixCoordinateX(coo.getX()), (int) mMapView.matrixCoordinateY(coo.getY()))) {
                     double space = DataUtils.lineToPointSpace(mCoordinates[0], mCoordinates[1], mCoordinates[2], mCoordinates[3],
                             mMapView.matrixCoordinateX(coo.getX()), mMapView.matrixCoordinateY(coo.getY()));
-                    if (space < 10) {
+                    if (space < 15) {
                         containsCoo.add(coo);
                     }
 
@@ -318,23 +318,28 @@ public class SegmentationRoomHelper {
         Map<Float, Coordinate> onLineCoordinate = new HashMap<>();
         for (Coordinate coo : containsCoo) {
             float dis = DataUtils.distance(mCoordinates[0], mCoordinates[1], mMapView.matrixCoordinateX(coo.getX()), mMapView.matrixCoordinateY(coo.getY()));
+            MyLogger.d(TAG, coo.toString() + "      distance    " + dis);
             distance.add(dis);
             onLineCoordinate.put(dis, coo);
         }
-        Collections.sort(distance, (o1, o2) -> smOT == SROT.PULL_START ? (int) (o2 - o1) : (int) (o1 - o2));
+        Collections.sort(distance, (o1, o2) -> (int) (o1 - o2));
 
         if (distance.size() < 2) {
             isGateEffective = false;
             return;
         }
-        float dis1 = distance.get(0);
-        float dis2 = 0;
-        for (float f : distance) {
-            if (Math.abs(f - dis1) > 200) {
-                dis2 = f;
-                break;
+        float dis1=0;
+        float dis2=0;
+        float lastSpace = 0;
+        for (int i = 1; i < distance.size(); i++) {
+            float space = distance.get(i) - distance.get(i - 1);
+            if (space > lastSpace) {
+                lastSpace = space;
+                dis1 = distance.get(i - 1);
+                dis2 = distance.get(i);
             }
         }
+
         if (dis1 == 0 || dis2 == 0) {
             isGateEffective = false;
             return;
@@ -384,7 +389,6 @@ public class SegmentationRoomHelper {
     public float[] getmCoordinates() {
         return mCoordinates;
     }
-
 
 
     public float[] getmPreviewGateCoordinates() {
