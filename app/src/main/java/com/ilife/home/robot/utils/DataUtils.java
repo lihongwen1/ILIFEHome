@@ -444,6 +444,7 @@ public class DataUtils {
      * @return
      */
     public static boolean parseRoomInfo(String mapId, String roomInfo, HashMap<String, String> roomNames) {
+        roomNames.clear();
         if (!TextUtils.isEmpty(roomInfo)) {
             byte[] roomBytes = Base64.decode(roomInfo, Base64.NO_WRAP);
             String str_room = new String(roomBytes);

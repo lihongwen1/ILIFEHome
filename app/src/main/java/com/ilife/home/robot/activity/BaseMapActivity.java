@@ -161,7 +161,9 @@ public abstract class BaseMapActivity extends BackBaseActivity<MapX9Presenter> i
                     case 6:
                         if (tipDialog == null) {
                             DialogFragmentUtil.Builder builder = new DialogFragmentUtil.Builder();
-                            tipDialog = builder.setLayoutId(R.layout.dialog_no_title).setCancelOutSide(false)
+                            tipDialog = builder.setLayoutId(R.layout.dialog_no_title)
+                                    .setText(R.id.tv_tip_content, UiUtil.getString(R.string.dialog_content_robot_moved)).
+                                            setCancelOutSide(false)
                                     .addClickLister(R.id.tv_dialog_ok, v -> {
                                         tipDialog.dismiss();
                                         mPresenter.setAppRemind();

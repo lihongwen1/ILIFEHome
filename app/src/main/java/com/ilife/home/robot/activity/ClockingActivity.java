@@ -120,30 +120,6 @@ public class ClockingActivity extends BackBaseActivity {
             getClockInfo();
             return false;
         });
-//        LiveEventBus.get(EnvConfigure.KEY_SCHEDULE, ScheduleBean.class).observe(this, bean -> {
-//            if (adapter != null) {
-//                ScheduleBean b;
-//                boolean isHave = false;
-//                for (int i = 0; i < scheduleBeans.size(); i++) {
-//                    b = scheduleBeans.get(i);
-//                    if (b.getKeyIndex() == bean.getKeyIndex()) {
-//                        isHave = true;
-//                        if (bean.getWeek() == 0) {//删除
-//                            scheduleBeans.remove(i);
-//                            adapter.notifyDataSetChanged();
-//                        } else {
-//                            b.copy(bean);
-//                            adapter.notifyDataSetChanged();
-//                        }
-//                        break;
-//                    }
-//                }
-//                if (bean.getWeek() != 0 && !isHave) {
-//                    scheduleBeans.add(bean);
-//                    adapter.notifyDataSetChanged();
-//                }
-//            }
-//        });
     }
 
     @OnClick(R.id.ivb_add_clock)

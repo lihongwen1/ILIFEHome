@@ -339,6 +339,9 @@ public class SegmentationRoomActivity extends BackBaseActivity {
     }
 
 
+    /**
+     * 拉取保存地图信息，每隔2s拉取一次，重试5次
+     */
     private void fetchSaveMapDataInfo() {
         if (requestTimes != 0) {//重复请求
             return;
@@ -358,7 +361,7 @@ public class SegmentationRoomActivity extends BackBaseActivity {
                     }
                 });
             }
-        }).retryWhen(tf -> tf.flatMap((Function<Throwable, Publisher<?>>) throwable -> (Publisher<Boolean>) s -> {
+        }).delay(1,TimeUnit.SECONDS).retryWhen(tf -> tf.flatMap((Function<Throwable, Publisher<?>>) throwable -> (Publisher<Boolean>) s -> {
             MyLogger.d(TAG, "get room info data error-----:" + throwable.getMessage());
             if (requestTimes > 5) {
                 s.onError(throwable);

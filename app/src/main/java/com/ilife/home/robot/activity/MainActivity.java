@@ -112,11 +112,10 @@ public class MainActivity extends BaseActivity<MainPresenter> implements View.On
         initAdapter();
         recyclerView.setLayoutManager(new LinearLayoutManager(this, RecyclerView.VERTICAL, false));
         recyclerView.setAdapter(adapter);
-        recyclerView.addItemDecoration(new SpaceItemDecoration(Utils.dip2px(this, 24)));
+        recyclerView.addItemDecoration(new SpaceItemDecoration(Utils.dip2px(this, 24),true));
         image_personal.setOnClickListener(this);
         refreshLayout.setRefreshHeader(new ClassicsHeader(this));
         refreshLayout.setOnRefreshListener(refreshLayout -> mPresenter.getDeviceList());
-
     }
 
     private void initAdapter() {
@@ -176,7 +175,6 @@ public class MainActivity extends BaseActivity<MainPresenter> implements View.On
                     break;
 
                 case R.id.iv_add_device:
-                    //TODO 进入选择activity
                     Intent i = new Intent(context, SelectActivity_x.class);
                     context.startActivity(i);
                     break;

@@ -432,107 +432,97 @@ public class IlifeAli {
                     Log.d(TAG, "onCommand      " + method + "---      data:" + data);
                     JSONObject object = JSONObject.parseObject(data);
                     String iot = object.getString(EnvConfigure.KEY_IOT_ID);
-                    JSONObject items = object.getJSONObject(EnvConfigure.KEY_ITEMS);
-                    if (items == null || !iot.equals(iotId)) {//
+                    if (!iot.equals(iotId)) {//
                         return;
                     }
                     switch (method) {
                         case EnvConfigure.METHOD_THING_PROP:
-                            if (items.containsKey(EnvConfigure.KEY_POWER_SWITCH)) {
-                                ToastUtils.toast(aApplication, items.getJSONObject(EnvConfigure.KEY_POWER_SWITCH).getString(EnvConfigure.KEY_VALUE));
-                            } else if (items.containsKey(EnvConfigure.KEY_WORK_MODE)) {//工作状态
-                                LiveEventBus.get(EnvConfigure.KEY_WORK_MODE, Integer.class).post(items.getJSONObject(EnvConfigure.KEY_WORK_MODE).getIntValue(EnvConfigure.KEY_VALUE));
-                            } else if (items.containsKey(EnvConfigure.KEY_REALTIMEMAP)) {//实时地图数据
-                                LiveEventBus.get(EnvConfigure.KEY_REALTIMEMAP, String.class).post(items.getJSONObject(EnvConfigure.KEY_REALTIMEMAP).getString(EnvConfigure.KEY_VALUE));
-                            } else if (items.containsKey(EnvConfigure.KEY_REAL_TIME_MAP_START)) {
-                                LiveEventBus.get(EnvConfigure.KEY_REAL_TIME_MAP_START, Long.class).post(items.getJSONObject(EnvConfigure.KEY_REAL_TIME_MAP_START).getLongValue(EnvConfigure.KEY_TIME));
-                            } else if (items.containsKey(EnvConfigure.KEY_BATTERY_STATE)) {
-                                LiveEventBus.get(EnvConfigure.KEY_BATTERY_STATE, Integer.class).post(items.getJSONObject(EnvConfigure.KEY_BATTERY_STATE).getIntValue(EnvConfigure.KEY_VALUE));
-                            } else if (items.containsKey(EnvConfigure.VirtualWallData)) {
-                                LiveEventBus.get(EnvConfigure.VirtualWallData, String.class).post(items.getJSONObject(EnvConfigure.VirtualWallData).getString(EnvConfigure.KEY_VALUE));
-                            } else if (items.containsKey(EnvConfigure.KEY_FORBIDDEN_AREA)) {
-                                LiveEventBus.get(EnvConfigure.KEY_FORBIDDEN_AREA, String.class).post(items.getJSONObject(EnvConfigure.KEY_FORBIDDEN_AREA).getString(EnvConfigure.KEY_VALUE));
-                            } else if (items.containsKey(EnvConfigure.CleanAreaData)) {
-                                String cleanArea = items.getJSONObject(EnvConfigure.CleanAreaData).getString(EnvConfigure.KEY_VALUE);
-                                getWorkingDevice().getDeviceInfo().setCleanArea(cleanArea);
-                                LiveEventBus.get(EnvConfigure.CleanAreaData, String.class).post(cleanArea);
-                            } else if (items.containsKey(EnvConfigure.CleanPartitionData)) {
-                                LiveEventBus.get(EnvConfigure.CleanPartitionData, String.class).post(items.getJSONObject(EnvConfigure.CleanPartitionData).getString(EnvConfigure.KEY_VALUE));
-                            } else if (items.containsKey(EnvConfigure.KEY_INIT_STATUS)) {
-                                int currentInit = items.getJSONObject(EnvConfigure.KEY_INIT_STATUS).getIntValue(EnvConfigure.KEY_VALUE);
-                                getWorkingDevice().getDeviceInfo().setInitStatus(currentInit == 1);
-                                LiveEventBus.get(EnvConfigure.KEY_INIT_STATUS, Integer.class).post(currentInit);
-                            } else if (items.containsKey(EnvConfigure.KEY_BeepType)) {
-                                int beepType = items.getJSONObject(EnvConfigure.KEY_BeepType).getIntValue(EnvConfigure.KEY_VALUE);
-                                getWorkingDevice().getDeviceInfo().setLanguageCode(beepType);
-                                LiveEventBus.get(EnvConfigure.KEY_BeepType, Integer.class).post(beepType);
-                            } else if (items.containsKey(EnvConfigure.KEY_BEEP_NO_DISTURB)) {
-                                int disturb = items.getJSONObject(EnvConfigure.KEY_BEEP_NO_DISTURB).getJSONObject(EnvConfigure.KEY_VALUE).getIntValue(EnvConfigure.KEY_SWITCH);
-                                int disturbTime = items.getJSONObject(EnvConfigure.KEY_BEEP_NO_DISTURB).getJSONObject(EnvConfigure.KEY_VALUE).getIntValue("Time");
-                                getWorkingDevice().getDeviceInfo().setDisturb(disturb == 1);
-                                getWorkingDevice().getDeviceInfo().setDisturbTime(disturbTime);
-                                LiveEventBus.get(EnvConfigure.KEY_BEEP_NO_DISTURB, Boolean.class).post(disturb == 1);
-                            } else if (items.containsKey(EnvConfigure.KEY_BeepVolume)) {
-                                int beepVolume = items.getJSONObject(EnvConfigure.KEY_BeepVolume).getIntValue(EnvConfigure.KEY_VALUE);
-                                getWorkingDevice().getDeviceInfo().setVoiceVolume(beepVolume);
-                                LiveEventBus.get(EnvConfigure.KEY_BeepVolume, Integer.class).post(beepVolume);
-                            } else if (items.containsKey(EnvConfigure.KEY_SideBrushPower)) {
-                                int brushSpeed = items.getJSONObject(EnvConfigure.KEY_SideBrushPower).getIntValue(EnvConfigure.KEY_VALUE);
-                                getWorkingDevice().getDeviceInfo().setBrushSpeed(brushSpeed);
-                                LiveEventBus.get(EnvConfigure.KEY_SideBrushPower, Integer.class).post(brushSpeed);
-                            } else if (items.containsKey(EnvConfigure.KEY_CarpetControl)) {
-                                int carpet = items.getJSONObject(EnvConfigure.KEY_CarpetControl).getIntValue(EnvConfigure.KEY_VALUE);
-                                getWorkingDevice().getDeviceInfo().setCarpetControl(carpet);
-                                LiveEventBus.get(EnvConfigure.KEY_CarpetControl, Integer.class).post(carpet);
-                            } else if (items.containsKey(EnvConfigure.KEY_FanPower)) {
-                                int carpet = items.getJSONObject(EnvConfigure.KEY_FanPower).getIntValue(EnvConfigure.KEY_VALUE);
-                                getWorkingDevice().getDeviceInfo().setSuctionNumber(carpet);
-                                LiveEventBus.get(EnvConfigure.KEY_FanPower, Integer.class).post(carpet);
-                            } else if (items.containsKey(EnvConfigure.KEY_AppRemind)) {
-                                int appRemind = items.getJSONObject(EnvConfigure.KEY_AppRemind).getIntValue(EnvConfigure.KEY_VALUE);
-                                if (getWorkingDevice().getDeviceInfo().getAppRemind() == 0 && appRemind == 1) {
-                                    LiveEventBus.get(EnvConfigure.KEY_AppRemind, Integer.class).post(appRemind);
-                                }
-                                getWorkingDevice().getDeviceInfo().setAppRemind(appRemind);
-                            } else if (items.containsKey(EnvConfigure.KEY_SAVE_MAP)) {
-                                long selectMapId = items.getJSONObject(EnvConfigure.KEY_SAVE_MAP).getJSONObject(EnvConfigure.KEY_VALUE).getLongValue(EnvConfigure.KEY_SELECT_MAP_ID);
-                                LiveEventBus.get(EnvConfigure.KEY_SELECT_MAP_ID, Long.class).post(selectMapId);
-                            } else if (items.containsKey(EnvConfigure.KEY_WATER_CONTROL)) {
-                                int water = items.getJSONObject(EnvConfigure.KEY_WATER_CONTROL).getIntValue(EnvConfigure.KEY_VALUE);
-                                getWorkingDevice().getDeviceInfo().setWaterLevel(water);
-                                LiveEventBus.get(EnvConfigure.KEY_WATER_CONTROL, Integer.class).post(water);
-                            } else if (items.containsKey(EnvConfigure.KEY_MAX_MODE)) {
-                                boolean isMax = items.getJSONObject(EnvConfigure.KEY_MAX_MODE).getIntValue(EnvConfigure.KEY_VALUE) == 1;
-                                Log.d("LiveBus", "发送Live Bus 信息");
-                                LiveEventBus.get(EnvConfigure.KEY_MAX_MODE, Boolean.class).post(isMax);
-                                getWorkingDevice().getDeviceInfo().setMaxMode(isMax);
-                            } else if (items.containsKey(EnvConfigure.ChargerPiont)) {
-                                String chargePort = items.getJSONObject(EnvConfigure.ChargerPiont).getString(EnvConfigure.KEY_VALUE);
-                                getWorkingDevice().getDeviceInfo().setChargePort(chargePort);
-                                LiveEventBus.get(EnvConfigure.ChargerPiont, String.class).post(chargePort);
-                            } else if (items.containsKey(EnvConfigure.KEY_ADD_ROOM_DOOR)) {
-                                String result = items.getJSONObject(EnvConfigure.KEY_ADD_ROOM_DOOR).getString(EnvConfigure.KEY_VALUE);
-                                JSONObject jsonObject = JSONObject.parseObject(result);
-                                int value = jsonObject.getIntValue("ModifyResult");
-                                LiveEventBus.get(EnvConfigure.KEY_ADD_ROOM_DOOR, Integer.class).postDelay(value, 2000);
-                            } else if (items.containsKey(EnvConfigure.KEY_DELETE_ROOM_DOOR)) {
-                                String result = items.getJSONObject(EnvConfigure.KEY_DELETE_ROOM_DOOR).getString(EnvConfigure.KEY_VALUE);
-                                JSONObject jsonObject = JSONObject.parseObject(result);
-                                int value = jsonObject.getIntValue("ModifyResult");
-                                LiveEventBus.get(EnvConfigure.KEY_DELETE_ROOM_DOOR, Integer.class).postDelay(value, 2000);
-                            } else if (data.contains(EnvConfigure.KEY_SCHEDULE)) {
-                                for (int i = 1; i <= 7; i++) {
-                                    String key = EnvConfigure.KEY_SCHEDULE + i;
-                                    if (items.containsKey(key)) {
-                                        String value = items.getJSONObject(key).getString(EnvConfigure.KEY_VALUE);
-                                        ScheduleBean bean = JSONObject.parseObject(value, ScheduleBean.class);
-                                        bean.setKeyIndex(i);
-                                        LiveEventBus.get(EnvConfigure.KEY_SCHEDULE, ScheduleBean.class).post(bean);
-                                        break;
+                            JSONObject items = object.getJSONObject(EnvConfigure.KEY_ITEMS);
+                            if (items != null) {
+                                if (items.containsKey(EnvConfigure.KEY_POWER_SWITCH)) {
+                                    ToastUtils.toast(aApplication, items.getJSONObject(EnvConfigure.KEY_POWER_SWITCH).getString(EnvConfigure.KEY_VALUE));
+                                } else if (items.containsKey(EnvConfigure.KEY_WORK_MODE)) {//工作状态
+                                    LiveEventBus.get(EnvConfigure.KEY_WORK_MODE, Integer.class).post(items.getJSONObject(EnvConfigure.KEY_WORK_MODE).getIntValue(EnvConfigure.KEY_VALUE));
+                                } else if (items.containsKey(EnvConfigure.KEY_REALTIMEMAP)) {//实时地图数据
+                                    LiveEventBus.get(EnvConfigure.KEY_REALTIMEMAP, String.class).post(items.getJSONObject(EnvConfigure.KEY_REALTIMEMAP).getString(EnvConfigure.KEY_VALUE));
+                                } else if (items.containsKey(EnvConfigure.KEY_REAL_TIME_MAP_START)) {
+                                    LiveEventBus.get(EnvConfigure.KEY_REAL_TIME_MAP_START, Long.class).post(items.getJSONObject(EnvConfigure.KEY_REAL_TIME_MAP_START).getLongValue(EnvConfigure.KEY_TIME));
+                                } else if (items.containsKey(EnvConfigure.KEY_BATTERY_STATE)) {
+                                    LiveEventBus.get(EnvConfigure.KEY_BATTERY_STATE, Integer.class).post(items.getJSONObject(EnvConfigure.KEY_BATTERY_STATE).getIntValue(EnvConfigure.KEY_VALUE));
+                                } else if (items.containsKey(EnvConfigure.VirtualWallData)) {
+                                    LiveEventBus.get(EnvConfigure.VirtualWallData, String.class).post(items.getJSONObject(EnvConfigure.VirtualWallData).getString(EnvConfigure.KEY_VALUE));
+                                } else if (items.containsKey(EnvConfigure.KEY_FORBIDDEN_AREA)) {
+                                    LiveEventBus.get(EnvConfigure.KEY_FORBIDDEN_AREA, String.class).post(items.getJSONObject(EnvConfigure.KEY_FORBIDDEN_AREA).getString(EnvConfigure.KEY_VALUE));
+                                } else if (items.containsKey(EnvConfigure.CleanAreaData)) {
+                                    String cleanArea = items.getJSONObject(EnvConfigure.CleanAreaData).getString(EnvConfigure.KEY_VALUE);
+                                    getWorkingDevice().getDeviceInfo().setCleanArea(cleanArea);
+                                    LiveEventBus.get(EnvConfigure.CleanAreaData, String.class).post(cleanArea);
+                                } else if (items.containsKey(EnvConfigure.CleanPartitionData)) {
+                                    LiveEventBus.get(EnvConfigure.CleanPartitionData, String.class).post(items.getJSONObject(EnvConfigure.CleanPartitionData).getString(EnvConfigure.KEY_VALUE));
+                                } else if (items.containsKey(EnvConfigure.KEY_INIT_STATUS)) {
+                                    int currentInit = items.getJSONObject(EnvConfigure.KEY_INIT_STATUS).getIntValue(EnvConfigure.KEY_VALUE);
+                                    getWorkingDevice().getDeviceInfo().setInitStatus(currentInit == 1);
+                                    LiveEventBus.get(EnvConfigure.KEY_INIT_STATUS, Integer.class).post(currentInit);
+                                } else if (items.containsKey(EnvConfigure.KEY_BeepType)) {
+                                    int beepType = items.getJSONObject(EnvConfigure.KEY_BeepType).getIntValue(EnvConfigure.KEY_VALUE);
+                                    getWorkingDevice().getDeviceInfo().setLanguageCode(beepType);
+                                    LiveEventBus.get(EnvConfigure.KEY_BeepType, Integer.class).post(beepType);
+                                } else if (items.containsKey(EnvConfigure.KEY_BEEP_NO_DISTURB)) {
+                                    int disturb = items.getJSONObject(EnvConfigure.KEY_BEEP_NO_DISTURB).getJSONObject(EnvConfigure.KEY_VALUE).getIntValue(EnvConfigure.KEY_SWITCH);
+                                    int disturbTime = items.getJSONObject(EnvConfigure.KEY_BEEP_NO_DISTURB).getJSONObject(EnvConfigure.KEY_VALUE).getIntValue("Time");
+                                    getWorkingDevice().getDeviceInfo().setDisturb(disturb == 1);
+                                    getWorkingDevice().getDeviceInfo().setDisturbTime(disturbTime);
+                                    LiveEventBus.get(EnvConfigure.KEY_BEEP_NO_DISTURB, Boolean.class).post(disturb == 1);
+                                } else if (items.containsKey(EnvConfigure.KEY_BeepVolume)) {
+                                    int beepVolume = items.getJSONObject(EnvConfigure.KEY_BeepVolume).getIntValue(EnvConfigure.KEY_VALUE);
+                                    getWorkingDevice().getDeviceInfo().setVoiceVolume(beepVolume);
+                                    LiveEventBus.get(EnvConfigure.KEY_BeepVolume, Integer.class).post(beepVolume);
+                                } else if (items.containsKey(EnvConfigure.KEY_SideBrushPower)) {
+                                    int brushSpeed = items.getJSONObject(EnvConfigure.KEY_SideBrushPower).getIntValue(EnvConfigure.KEY_VALUE);
+                                    getWorkingDevice().getDeviceInfo().setBrushSpeed(brushSpeed);
+                                    LiveEventBus.get(EnvConfigure.KEY_SideBrushPower, Integer.class).post(brushSpeed);
+                                } else if (items.containsKey(EnvConfigure.KEY_CarpetControl)) {
+                                    int carpet = items.getJSONObject(EnvConfigure.KEY_CarpetControl).getIntValue(EnvConfigure.KEY_VALUE);
+                                    getWorkingDevice().getDeviceInfo().setCarpetControl(carpet);
+                                    LiveEventBus.get(EnvConfigure.KEY_CarpetControl, Integer.class).post(carpet);
+                                } else if (items.containsKey(EnvConfigure.KEY_FanPower)) {
+                                    int carpet = items.getJSONObject(EnvConfigure.KEY_FanPower).getIntValue(EnvConfigure.KEY_VALUE);
+                                    getWorkingDevice().getDeviceInfo().setSuctionNumber(carpet);
+                                    LiveEventBus.get(EnvConfigure.KEY_FanPower, Integer.class).post(carpet);
+                                } else if (items.containsKey(EnvConfigure.KEY_AppRemind)) {
+                                    int appRemind = items.getJSONObject(EnvConfigure.KEY_AppRemind).getIntValue(EnvConfigure.KEY_VALUE);
+                                    if (getWorkingDevice().getDeviceInfo().getAppRemind() == 0 && appRemind == 1) {
+                                        LiveEventBus.get(EnvConfigure.KEY_AppRemind, Integer.class).post(appRemind);
                                     }
+                                    getWorkingDevice().getDeviceInfo().setAppRemind(appRemind);
+                                } else if (items.containsKey(EnvConfigure.KEY_SAVE_MAP)) {
+                                    long selectMapId = items.getJSONObject(EnvConfigure.KEY_SAVE_MAP).getJSONObject(EnvConfigure.KEY_VALUE).getLongValue(EnvConfigure.KEY_SELECT_MAP_ID);
+                                    LiveEventBus.get(EnvConfigure.KEY_SELECT_MAP_ID, Long.class).post(selectMapId);
+                                } else if (items.containsKey(EnvConfigure.KEY_WATER_CONTROL)) {
+                                    int water = items.getJSONObject(EnvConfigure.KEY_WATER_CONTROL).getIntValue(EnvConfigure.KEY_VALUE);
+                                    getWorkingDevice().getDeviceInfo().setWaterLevel(water);
+                                    LiveEventBus.get(EnvConfigure.KEY_WATER_CONTROL, Integer.class).post(water);
+                                } else if (items.containsKey(EnvConfigure.KEY_MAX_MODE)) {
+                                    boolean isMax = items.getJSONObject(EnvConfigure.KEY_MAX_MODE).getIntValue(EnvConfigure.KEY_VALUE) == 1;
+                                    Log.d("LiveBus", "发送Live Bus 信息");
+                                    LiveEventBus.get(EnvConfigure.KEY_MAX_MODE, Boolean.class).post(isMax);
+                                    getWorkingDevice().getDeviceInfo().setMaxMode(isMax);
+                                } else if (items.containsKey(EnvConfigure.ChargerPiont)) {
+                                    String chargePort = items.getJSONObject(EnvConfigure.ChargerPiont).getString(EnvConfigure.KEY_VALUE);
+                                    getWorkingDevice().getDeviceInfo().setChargePort(chargePort);
+                                    LiveEventBus.get(EnvConfigure.ChargerPiont, String.class).post(chargePort);
+                                } else if (items.containsKey(EnvConfigure.KEY_ADD_ROOM_DOOR)) {
+                                    String result = items.getJSONObject(EnvConfigure.KEY_ADD_ROOM_DOOR).getString(EnvConfigure.KEY_VALUE);
+                                    JSONObject jsonObject = JSONObject.parseObject(result);
+                                    int value = jsonObject.getIntValue("ModifyResult");
+                                    LiveEventBus.get(EnvConfigure.KEY_ADD_ROOM_DOOR, Integer.class).post(value);
+                                } else if (items.containsKey(EnvConfigure.KEY_DELETE_ROOM_DOOR)) {
+                                    String result = items.getJSONObject(EnvConfigure.KEY_DELETE_ROOM_DOOR).getString(EnvConfigure.KEY_VALUE);
+                                    JSONObject jsonObject = JSONObject.parseObject(result);
+                                    int value = jsonObject.getIntValue("ModifyResult");
+                                    LiveEventBus.get(EnvConfigure.KEY_DELETE_ROOM_DOOR, Integer.class).post(value);
                                 }
                             }
-
                             break;
                         case EnvConfigure.METHOD_THING_EVENT:
                             //TODO 解析初始化状态
@@ -1066,14 +1056,16 @@ public class IlifeAli {
                             }
                             if (timeSlamp == jData.getIntValue("TimeStamp")) {//分包时间戳相同
                                 int index = jData.getIntValue("PackId") - 1;//packId和index差1
-                                infos[index] = jData.getString("MapInfo");
-                                realPkgNum++;
+                                if (infos[index]==null) {
+                                    infos[index] = jData.getString("MapInfo");
+                                    realPkgNum++;
+                                }
                             }
                         }
                     }
                     if (infos != null) {
                         if (needFullData && infos.length != realPkgNum) {
-                            onAliResponse.onFailed(0, "the data obtained is incomplete.  realPkgNum:" + realPkgNum + "  current pkg num  " + infos.length);
+                            onAliResponse.onFailed(0, "the data obtained is incomplete.  realPkgNum:" + realPkgNum + "  need pkg num  " + infos.length);
                         } else {
                             onAliResponse.onSuccess(infos);
                         }

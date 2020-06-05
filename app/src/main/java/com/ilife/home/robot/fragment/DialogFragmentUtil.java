@@ -8,6 +8,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -20,7 +21,6 @@ import com.ilife.home.robot.R;
 public class DialogFragmentUtil extends DialogFragment {
     protected Builder builder;
 
-
     public DialogFragmentUtil(Builder builder) {
         this.builder = builder;
     }
@@ -28,7 +28,11 @@ public class DialogFragmentUtil extends DialogFragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setStyle(DialogFragment.STYLE_NO_FRAME, R.style.normal_dialog);
+        if (builder.needGrayThem) {
+            setStyle(DialogFragment.STYLE_NO_FRAME, R.style.universal_dialog);
+        } else {
+            setStyle(DialogFragment.STYLE_NO_FRAME, R.style.normal_dialog);
+        }
     }
 
     @Override
@@ -60,20 +64,34 @@ public class DialogFragmentUtil extends DialogFragment {
             onClickListener = builder.clickMap.get(id);
             view.findViewById(id).setOnClickListener(onClickListener);
         }
+        for (int i = 0; i < builder.textViewMap.size(); i++) {
+            id = builder.textViewMap.keyAt(i);
+            String text = builder.textViewMap.get(id);
+            TextView tv = view.findViewById(id);
+            tv.setText(text);
+        }
     }
 
     public static class Builder {
         int layoutId;
         boolean cancelOutSide;
         int arrayId;
+        boolean needGrayThem;
         SparseArray<View.OnClickListener> clickMap;
+        SparseArray<String> textViewMap;
 
         public Builder() {
             clickMap = new SparseArray<>();
+            textViewMap = new SparseArray<>();
         }
 
         public Builder setLayoutId(int layoutId) {
             this.layoutId = layoutId;
+            return this;
+        }
+
+        public Builder setNeedGrayThem(boolean needGrayThem) {
+            this.needGrayThem = needGrayThem;
             return this;
         }
 
@@ -89,6 +107,11 @@ public class DialogFragmentUtil extends DialogFragment {
 
         public Builder addClickLister(int viewId, View.OnClickListener onClickListener) {
             clickMap.put(viewId, onClickListener);
+            return this;
+        }
+
+        public Builder setText(int viewId, String text) {
+            textViewMap.put(viewId, text);
             return this;
         }
 

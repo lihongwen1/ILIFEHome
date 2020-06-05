@@ -8,6 +8,7 @@ import androidx.recyclerview.widget.RecyclerView;
 public class SpaceItemDecoration extends RecyclerView.ItemDecoration {
     private int mSpace;
     private boolean oneLine;
+
     /**
      * Retrieve any offsets for the given item. Each field of <code>outRect</code> specifies
      * the number of pixels that the item view should be inset by, similar to padding or margin.
@@ -35,24 +36,23 @@ public class SpaceItemDecoration extends RecyclerView.ItemDecoration {
         outRect.right = mSpace;
         outRect.bottom = mSpace;
         outRect.top = mSpace;
-        if (parent.getChildAdapterPosition(view) == 0 || parent.getChildAdapterPosition(view) == 1) {
-            outRect.top = 0;
+        if (oneLine) {
+            outRect.bottom = 0;
         } else {
-            outRect.top = mSpace;
+            if (parent.getChildAdapterPosition(view) == 0 || parent.getChildAdapterPosition(view) == 1) {
+                outRect.top = 0;
+            } else {
+                outRect.top = mSpace;
+            }
         }
-        if (oneLine){
-            outRect.top=0;
-            outRect.bottom=0;
-        }
-
-
     }
 
     public SpaceItemDecoration(int space) {
         this.mSpace = space;
     }
-    public SpaceItemDecoration(int space,boolean oneLine) {
+
+    public SpaceItemDecoration(int space, boolean oneLine) {
         this.mSpace = space;
-        this.oneLine=oneLine;
+        this.oneLine = oneLine;
     }
 }

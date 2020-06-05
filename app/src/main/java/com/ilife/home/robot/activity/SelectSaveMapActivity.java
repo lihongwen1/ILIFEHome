@@ -8,9 +8,9 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.aliyun.iot.aep.sdk._interface.OnAliResponse;
-import com.aliyun.iot.aep.sdk.bean.HistoryRecordBean;
 import com.aliyun.iot.aep.sdk.bean.PropertyBean;
 import com.aliyun.iot.aep.sdk.contant.EnvConfigure;
 import com.aliyun.iot.aep.sdk.contant.IlifeAli;
@@ -19,14 +19,10 @@ import com.ilife.home.livebus.LiveEventBus;
 import com.ilife.home.robot.R;
 import com.ilife.home.robot.adapter.SelectMapAdapter;
 import com.ilife.home.robot.base.BackBaseActivity;
-import com.ilife.home.robot.base.BaseQuickAdapter;
-import com.ilife.home.robot.bean.PartitionBean;
 import com.ilife.home.robot.bean.SaveMapBean;
-import com.ilife.home.robot.bean.SaveMapDataInfoBean;
+import com.ilife.home.robot.fragment.DialogFragmentUtil;
 import com.ilife.home.robot.fragment.UniversalDialog;
-import com.ilife.home.robot.utils.DataUtils;
 import com.ilife.home.robot.utils.MyLogger;
-import com.ilife.home.robot.utils.ToastUtils;
 import com.ilife.home.robot.utils.UiUtil;
 import com.ilife.home.robot.utils.Utils;
 import com.ilife.home.robot.view.SlideRecyclerView;
@@ -35,9 +31,7 @@ import com.scwang.smartrefresh.layout.SmartRefreshLayout;
 import com.scwang.smartrefresh.layout.header.ClassicsHeader;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 
 import butterknife.BindView;
@@ -60,6 +54,8 @@ public class SelectSaveMapActivity extends BackBaseActivity {
     private long selectMapId;
     private UniversalDialog mDeleteMapDialog;
     private UniversalDialog mApplyMapDialog;
+    private DialogFragmentUtil tipDeleteDialog;
+    private DialogFragmentUtil tipNewMapDialog;
     private List<SaveMapBean> saveMapBeans = new ArrayList<>();
     private int selectPosition;
     private boolean needCorrectMap;//是否需要校正服主机保存的地图数据
@@ -77,8 +73,8 @@ public class SelectSaveMapActivity extends BackBaseActivity {
     public void initView() {
         tv_title.setText(R.string.map_bottom_sheet_select_map);
         mAdapter = new SelectMapAdapter(R.layout.item_save_map, saveMapBeans);
-        rv_save_map.setLayoutManager(new LinearLayoutManager(this));
-        rv_save_map.addItemDecoration(new SpaceItemDecoration(Utils.dip2px(this, 20)));
+        rv_save_map.setLayoutManager((new LinearLayoutManager(this, RecyclerView.VERTICAL, false)));
+        rv_save_map.addItemDecoration(new SpaceItemDecoration(Utils.dip2px(this, 24), true));
         mAdapter.setOnItemChildClickListener((adapter, view, position) -> {
             selectPosition = position;
             switch (view.getId()) {
@@ -105,12 +101,45 @@ public class SelectSaveMapActivity extends BackBaseActivity {
                     startActivity(intent);
                     LiveEventBus.get(SegmentationRoomActivity.KEY_SAVE_MAP_DATA, SaveMapBean.class).post(saveMapBeans.get(selectPosition));
                     break;
+                case R.id.iv_add_device:
+                    if (saveMapBeans.size() < 3) {
+                        if (tipNewMapDialog == null) {
+                            DialogFragmentUtil.Builder builder = new DialogFragmentUtil.Builder();
+                            tipNewMapDialog = builder.setLayoutId(R.layout.dialog_no_title)
+                                    .setText(R.id.tv_tip_content, "扫地机将在下一次完整清扫后自动保存地图，请开始新的清扫").
+                                            setCancelOutSide(false).setNeedGrayThem(true)
+                                    .addClickLister(R.id.tv_dialog_ok, v -> {
+                                        tipNewMapDialog.dismiss();
+                                        selectMapId=0;
+                                        mAdapter.setSelectMapId(0);
+                                        IlifeAli.getInstance().setSelectMapId(selectMapId, encodeSaveMap(), aBoolean -> {
+                                            MyLogger.d(TAG, "build new map" + aBoolean);
+                                            weakHandler.sendEmptyMessageDelayed(1,1*1000);
+                                        });
+                                    }).build();
+                        }
+                        if (!tipNewMapDialog.isAdded()) {
+                            tipNewMapDialog.show(getSupportFragmentManager(), "tip_add_map");
+                        }
+                    } else {
+                        if (tipDeleteDialog == null) {
+                            DialogFragmentUtil.Builder builder = new DialogFragmentUtil.Builder();
+                            tipDeleteDialog = builder.setLayoutId(R.layout.dialog_no_title)
+                                    .setText(R.id.tv_tip_content, "最多只能保存三张地图，请先删除一张地图后再添加").
+                                            setCancelOutSide(false).setNeedGrayThem(true)
+                                    .addClickLister(R.id.tv_dialog_ok, v -> {
+                                        tipDeleteDialog.dismiss();
+                                    }).build();
+
+                        }
+                        tipDeleteDialog.show(getSupportFragmentManager(), "tip_delete_map");
+                    }
+                    break;
             }
         });
-        mAdapter.setOnItemClickListener((adapter, view, position) -> {
-
-        });
         rv_save_map.setAdapter(mAdapter);
+        mAdapter.setOnItemClickListener((adapter, view, position) -> {
+        });
         refresh_map.setRefreshHeader(new ClassicsHeader(this));
         refresh_map.setOnRefreshListener(refreshLayout -> getSaveMapData(false));
     }
@@ -128,7 +157,6 @@ public class SelectSaveMapActivity extends BackBaseActivity {
                     ll_no_map.setVisibility(View.VISIBLE);
                     hideLoadingDialog();
                 } else {
-
                     mAdapter.notifyDataSetChanged();
                 }
             }
@@ -231,17 +259,17 @@ public class SelectSaveMapActivity extends BackBaseActivity {
     private void updateFetchMapTag() {
         fetchMapTag++;
         if (fetchMapTag == 3) {
-            Collections.sort(saveMapBeans, (o1, o2) -> o2.getMapId()-o1.getMapId());
-            SaveMapBean selectMap=null;
-            for (SaveMapBean bean:saveMapBeans) {
-                if (bean.getMapId()==selectMapId){
-                    selectMap=bean;
+            Collections.sort(saveMapBeans, (o1, o2) -> o2.getMapId() - o1.getMapId());
+            SaveMapBean selectMap = null;
+            for (SaveMapBean bean : saveMapBeans) {
+                if (bean.getMapId() == selectMapId) {
+                    selectMap = bean;
                     break;
                 }
             }
-            if (selectMap!=null){
+            if (selectMap != null) {
                 saveMapBeans.remove(selectMap);
-                saveMapBeans.add(0,selectMap);
+                saveMapBeans.add(0, selectMap);
             }
             weakHandler.sendEmptyMessageDelayed(1, 200);
         }
@@ -367,7 +395,6 @@ public class SelectSaveMapActivity extends BackBaseActivity {
         if (needCorrectMap) {
             IlifeAli.getInstance().setSelectMapId(selectMapId, encodeSaveMap(), aBoolean -> {
                 MyLogger.d(TAG, "同步主机与服务器保存的地图" + aBoolean);
-                weakHandler.sendEmptyMessage(1);
             });
         }
     }
