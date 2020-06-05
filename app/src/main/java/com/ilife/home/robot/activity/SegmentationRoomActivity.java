@@ -97,6 +97,7 @@ public class SegmentationRoomActivity extends BackBaseActivity {
     private boolean isWaitingForResult;
     private int requestTimes = 0;
     private WeakHandler weakHandler;
+    private boolean needSynchronizationRoomData;
 
     @Override
     public int getLayoutId() {
@@ -171,6 +172,7 @@ public class SegmentationRoomActivity extends BackBaseActivity {
                         }
                     }
                     map_room.getmSegmentHelper().reset();
+                    needSynchronizationRoomData = true;
                     fetchSaveMapDataInfo();
                 });
         LiveEventBus.get(EnvConfigure.KEY_DELETE_ROOM_DOOR, Integer.class).observe(this, value -> {
@@ -184,7 +186,9 @@ public class SegmentationRoomActivity extends BackBaseActivity {
                 }
             }
             map_room.getmGateHelper().revertGate();
+            needSynchronizationRoomData = true;
             fetchSaveMapDataInfo();
+
         });
 
         LiveEventBus.get(KEY_ROOM_SELECT, Boolean.class).observe(this, value -> {
@@ -206,6 +210,55 @@ public class SegmentationRoomActivity extends BackBaseActivity {
         LiveEventBus.get(SegmentationRoomActivity.KEY_FUNCTION_WORKING, Boolean.class).observe(this, status -> {
             if (status) {
                 switchBottomUi(R.id.ll_map_save_cancel);
+            }
+        });
+    }
+
+    private void sendGateToServer(boolean isFromUser) {
+        List<PartitionBean> rooms = map_room.getmRoomHelper().getRooms();
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append(mapId);
+        for (PartitionBean room : rooms) {
+            if (!room.isTagDefault()) {
+                stringBuilder.append(",");
+                stringBuilder.append(room.getPartitionId());
+                stringBuilder.append(",");
+                stringBuilder.append(room.getTag());
+            }
+        }
+        String roomValue = Base64.encodeToString(stringBuilder.toString().getBytes(), Base64.NO_WRAP);
+        MyLogger.d(TAG, "ROOMINFO:  " + stringBuilder.toString() + "  64value:  " + roomValue);
+        if (TextUtils.isEmpty(saveRoomInfoKey)) {
+            switch (mapIdIndex) {
+                case 0:
+                    saveRoomInfoKey = EnvConfigure.KEY_SAVE_MAP_ROOM_INFO1;
+                    break;
+                case 1:
+                    saveRoomInfoKey = EnvConfigure.KEY_SAVE_MAP_ROOM_INFO2;
+                    break;
+                case 2:
+                    saveRoomInfoKey = EnvConfigure.KEY_SAVE_MAP_ROOM_INFO3;
+                    break;
+            }
+        }
+
+        IlifeAli.getInstance().setProperties(AliSkills.get().roomDataInfo(IlifeAli.getInstance().getIotId(), saveRoomInfoKey, roomValue), new OnAliSetPropertyResponse() {
+            @Override
+            public void onSuccess(String path, int tag, int functionCode, int responseCode) {
+                DataUtils.parseRoomInfo(String.valueOf(mapId), roomValue, roomNames);
+                if (isFromUser) {
+                    ToastUtils.showSettingSuccess(true);
+                    switchBottomUi(-1);
+                }
+            }
+
+            @Override
+            public void onFailed(String path, int tag, int code, String message) {
+                if (isFromUser) {
+                    ToastUtils.showSettingSuccess(true);
+                    switchBottomUi(-1);
+                }
+
             }
         });
     }
@@ -237,14 +290,20 @@ public class SegmentationRoomActivity extends BackBaseActivity {
                             saveMapDataInfoKey = EnvConfigure.KEY_SAVE_MAP_DATA_INFO3;
                         }
                         //解析房间信息
-                        if (DataUtils.parseRoomInfo(String.valueOf(mapId), bean.getMapRoomInfo1(), roomNames)) {
-                            saveRoomInfoKey = EnvConfigure.KEY_SAVE_MAP_ROOM_INFO1;
+                        if (saveRoomInfoKey.isEmpty()) {
+                            if (DataUtils.parseRoomInfo(String.valueOf(mapId), bean.getMapRoomInfo1(), roomNames)) {
+                                saveRoomInfoKey = EnvConfigure.KEY_SAVE_MAP_ROOM_INFO1;
+                            }
                         }
-                        if (DataUtils.parseRoomInfo(String.valueOf(mapId), bean.getMapRoomInfo2(), roomNames)) {
-                            saveRoomInfoKey = EnvConfigure.KEY_SAVE_MAP_ROOM_INFO2;
+                        if (saveRoomInfoKey.isEmpty()) {
+                            if (DataUtils.parseRoomInfo(String.valueOf(mapId), bean.getMapRoomInfo2(), roomNames)) {
+                                saveRoomInfoKey = EnvConfigure.KEY_SAVE_MAP_ROOM_INFO2;
+                            }
                         }
-                        if (DataUtils.parseRoomInfo(String.valueOf(mapId), bean.getMapRoomInfo3(), roomNames)) {
-                            saveRoomInfoKey = EnvConfigure.KEY_SAVE_MAP_ROOM_INFO3;
+                        if (saveRoomInfoKey.isEmpty()) {
+                            if (DataUtils.parseRoomInfo(String.valueOf(mapId), bean.getMapRoomInfo3(), roomNames)) {
+                                saveRoomInfoKey = EnvConfigure.KEY_SAVE_MAP_ROOM_INFO3;
+                            }
                         }
                         //解析地图信息
                         MapDataBean mapDataBean = DataUtils.parseSaveMapData(saveMapBean.getMapData());
@@ -342,6 +401,10 @@ public class SegmentationRoomActivity extends BackBaseActivity {
                     map_room.getmRoomHelper().setSingleChoice(true);
                     map_room.invalidateUI();
                     switchBottomUi(-1);
+                    if (needSynchronizationRoomData) {
+                        sendGateToServer(false);
+                        needSynchronizationRoomData = false;
+                    }
                 }
             }
 
@@ -369,7 +432,7 @@ public class SegmentationRoomActivity extends BackBaseActivity {
                         jsonObject.getJSONObject(EnvConfigure.KEY_ADD_ROOM_DOOR).put("CmdId", (int) (System.currentTimeMillis() / 1000f));
                         jsonObject.getJSONObject(EnvConfigure.KEY_ADD_ROOM_DOOR).put("ModifyInfo", map_room.getmSegmentHelper().getSegmentationData());
                         IlifeAli.getInstance().setProperties(jsonObject, aBoolean -> {
-                            MyLogger.d(TAG,"分割房间");
+                            MyLogger.d(TAG, "分割房间");
                             weakHandler.sendEmptyMessageDelayed(1, 10 * 1000);
                         });
                         break;
@@ -380,52 +443,12 @@ public class SegmentationRoomActivity extends BackBaseActivity {
                         merge_jo.getJSONObject(EnvConfigure.KEY_DELETE_ROOM_DOOR).put("CmdId", (int) (System.currentTimeMillis() / 1000f));
                         merge_jo.getJSONObject(EnvConfigure.KEY_DELETE_ROOM_DOOR).put("ModifyInfo", map_room.getmGateHelper().getDeleteGate());
                         IlifeAli.getInstance().setProperties(merge_jo, aBoolean -> {
-                            MyLogger.d(TAG,"合并房间");
+                            MyLogger.d(TAG, "合并房间");
                             weakHandler.sendEmptyMessageDelayed(1, 10 * 1000);
                         });
                         break;
                     case NAME_ROOM:
-                        List<PartitionBean> rooms = map_room.getmRoomHelper().getRooms();
-                        StringBuilder stringBuilder = new StringBuilder();
-                        stringBuilder.append(mapId);
-                        for (PartitionBean room : rooms) {
-                            if (!room.isTagDefault()) {
-                                stringBuilder.append(",");
-                                stringBuilder.append(room.getPartitionId());
-                                stringBuilder.append(",");
-                                stringBuilder.append(room.getTag());
-                            }
-                        }
-                        String roomValue = Base64.encodeToString(stringBuilder.toString().getBytes(), Base64.NO_WRAP);
-                        MyLogger.d(TAG, "ROOMINFO:  " + stringBuilder.toString() + "  64value:  " + roomValue);
-                        if (TextUtils.isEmpty(saveRoomInfoKey)) {
-                            switch (mapIdIndex) {
-                                case 0:
-                                    saveRoomInfoKey = EnvConfigure.KEY_SAVE_MAP_ROOM_INFO1;
-                                    break;
-                                case 1:
-                                    saveRoomInfoKey = EnvConfigure.KEY_SAVE_MAP_ROOM_INFO2;
-                                    break;
-                                case 2:
-                                    saveRoomInfoKey = EnvConfigure.KEY_SAVE_MAP_ROOM_INFO3;
-                                    break;
-                            }
-                        }
-
-                        IlifeAli.getInstance().setProperties(AliSkills.get().roomDataInfo(IlifeAli.getInstance().getIotId(), saveRoomInfoKey, roomValue), new OnAliSetPropertyResponse() {
-                            @Override
-                            public void onSuccess(String path, int tag, int functionCode, int responseCode) {
-                                ToastUtils.showSettingSuccess(true);
-                                switchBottomUi(-1);
-                            }
-
-                            @Override
-                            public void onFailed(String path, int tag, int code, String message) {
-                                ToastUtils.showSettingSuccess(true);
-                                switchBottomUi(-1);
-
-                            }
-                        });
+                        sendGateToServer(true);
                         break;
                 }
                 switchBottomUi(R.id.ll_map_updating);
