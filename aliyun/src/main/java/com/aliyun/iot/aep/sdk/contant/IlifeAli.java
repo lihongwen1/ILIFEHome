@@ -521,6 +521,15 @@ public class IlifeAli {
                                     JSONObject jsonObject = JSONObject.parseObject(result);
                                     int value = jsonObject.getIntValue("ModifyResult");
                                     LiveEventBus.get(EnvConfigure.KEY_DELETE_ROOM_DOOR, Integer.class).post(value);
+                                } else if (items.containsKey(EnvConfigure.KEY_SAVE_MAP_ROOM_INFO1)) {
+                                    String room = items.getJSONObject(EnvConfigure.KEY_SAVE_MAP_ROOM_INFO1).getString(EnvConfigure.KEY_VALUE);
+                                    LiveEventBus.get(EnvConfigure.KEY_SAVE_MAP_ROOM_INFO1, String.class).post(room);
+                                } else if (items.containsKey(EnvConfigure.KEY_SAVE_MAP_ROOM_INFO2)) {
+                                    String room = items.getJSONObject(EnvConfigure.KEY_SAVE_MAP_ROOM_INFO2).getString(EnvConfigure.KEY_VALUE);
+                                    LiveEventBus.get(EnvConfigure.KEY_SAVE_MAP_ROOM_INFO2, String.class).post(room);
+                                } else if (items.containsKey(EnvConfigure.KEY_SAVE_MAP_ROOM_INFO3)) {
+                                    String room = items.getJSONObject(EnvConfigure.KEY_SAVE_MAP_ROOM_INFO3).getString(EnvConfigure.KEY_VALUE);
+                                    LiveEventBus.get(EnvConfigure.KEY_SAVE_MAP_ROOM_INFO3, String.class).post(room);
                                 }
                             }
                             break;
@@ -658,7 +667,7 @@ public class IlifeAli {
                     /**
                      * setting页面属性字段
                      */
-                    if (jsonObject.containsKey(EnvConfigure.KEY_VirtualWallEN)) {//边刷速率
+                    if (jsonObject.containsKey(EnvConfigure.KEY_VirtualWallEN)) {//虚拟墙使能
                         int enable = jsonObject.getJSONObject(EnvConfigure.KEY_VirtualWallEN).getIntValue(EnvConfigure.KEY_VALUE);
                         bean.setVirtualWallEn(enable);
                     }
@@ -1056,7 +1065,7 @@ public class IlifeAli {
                             }
                             if (timeSlamp == jData.getIntValue("TimeStamp")) {//分包时间戳相同
                                 int index = jData.getIntValue("PackId") - 1;//packId和index差1
-                                if (infos[index]==null) {
+                                if (infos[index] == null) {
                                     infos[index] = jData.getString("MapInfo");
                                     realPkgNum++;
                                 }

@@ -369,11 +369,11 @@
     <string name="room_name_child_room">Children\'s room</string>
     <string name="room_name_store_room">Storage Room</string>
     <string name="room_name_other">Customize</string>
-    <string name="segmentation_room">Split room</string>
+    <string name="segmentation_room">Split area</string>
     <string name="segmentation_room_tip">Please select an area to split</string>
-    <string name="merge_room">Merge room</string>
+    <string name="merge_room">Merge area</string>
     <string name="merge_room_tip">Please remove the dividing line between regions</string>
-    <string name="name_room">Room naming</string>
+    <string name="name_room">Named area</string>
     <string name="name_room_tip">Please select a region to name</string>
     <string name="segmentation_room_error1">The door is not in the room</string>
     <string name="segmentation_room_error2">The room size is too small after division</string>

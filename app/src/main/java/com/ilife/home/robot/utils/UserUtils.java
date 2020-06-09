@@ -118,7 +118,7 @@ public class UserUtils {
      * @return  false:未包含 true：包含
      */
     public static boolean isContainsSpecialCharacter(String value) {
-        String speChat = "[`~!@#$%^&*()+=|{}':;',\\[\\].<>/?~！@#￥%……&*（）——+|{}【】‘；：”“’。，、？]";
+        String speChat = "[`~!@#$%^&*()+=|{}':;',\\[\\].<>/?~！@#￥%……&*（）——+|{}【】‘；：”“’。，、？_]";
         Pattern pattern = Pattern.compile(speChat);
         Log.d("inputJudge", "pattern: "+ pattern);
         Matcher matcher = pattern.matcher(value);

@@ -167,9 +167,15 @@ public class RoomHelper {
         }
     }
 
+    /**
+     * @param beans       null-refresh room ,empty-clean room ,other-draw room
+     * @param checkedRoom
+     */
     public void drawRoom(List<PartitionBean> beans, int checkedRoom) {
-        this.rooms.clear();
-        this.rooms.addAll(beans);
+        if (beans != null) {
+            this.rooms.clear();
+            this.rooms.addAll(beans);
+        }
         Collections.sort(rooms);
         int index = 0;
         String[] tags = UiUtil.getStringArray(R.array.array_room_tag);

@@ -576,11 +576,14 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
                 mView.updateCleanArea(getAreaValue());
                 workTime = 0;
                 cleanArea = 0;
-                pointList.clear();//情况实时地图
+                pointList.clear();//清空实时地图
+                minX=0;
+                maxX=0;
+                minY=0;
+                maxY=0;
                 if (!mDevicePropertyBean.isInitStatus()) {//初始化为0，则清空底图
                     slamPointList.clear();
-                } else {//刷新底图
-                    doAboutSlam();
+                    mView.drawGates(new ArrayList<>());//清除门数据
                 }
                 if (haveMap && isDrawMap()) {
                     mView.drawMapX8(pointList, slamPointList);
@@ -660,6 +663,14 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
         });
         LiveEventBus.get(EnvConfigure.KEY_SELECT_MAP_ID, Long.class).observe((BaseActivity) mView, selectMapId -> {
             MyLogger.d(TAG, "选择地图改变");
+            if (selectMapId == 0) {
+                slamPointList.clear();
+                mView.drawVirtualWall("");
+                mView.drawForbiddenArea("");
+                mView.drawGates(new ArrayList<>());
+                mView.drawChargePort(0, 0, false);
+                mView.drawMapX8(pointList, slamPointList);
+            }
             if (mDevicePropertyBean != null) {
                 mDevicePropertyBean.setSelectedMapId(selectMapId);
             }
@@ -835,8 +846,8 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
                     }
                     if (result != null && result.length > 0) {
                         SaveMapDataInfoBean saveMapDataInfoBean = DataUtils.parseSaveMapInfo(result);
-//                        mView.drawChargePort(saveMapDataInfoBean.getChargePoint().x, saveMapDataInfoBean.getChargePoint().y, true);//该充电座位置与主机上报的位置不一致
                         if (saveMapDataInfoBean != null) {
+                            mView.drawChargePort(saveMapDataInfoBean.getChargePoint().x,saveMapDataInfoBean.getChargePoint().y,true);
                             mView.drawGates(saveMapDataInfoBean.getGates());
                             mView.invalidMap();
                         }

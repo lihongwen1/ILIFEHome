@@ -307,7 +307,7 @@ public abstract class BaseMapActivity extends BackBaseActivity<MapX9Presenter> i
                         ToastUtils.showToast(UiUtil.getString(R.string.map_tip_no_map_yet));
                     } else if (mPresenter.getCurStatus() == MsgCodeUtils.STATUE_CHARGING || mPresenter.getCurStatus() == MsgCodeUtils.STATUE_CHARGING_BASE_SLEEP) {
                         startActivity(new Intent(BaseMapActivity.this, SelectRoomActivity.class));
-                        weakHandler.sendEmptyMessageDelayed(5, 300);
+                        weakHandler.sendEmptyMessageDelayed(5, 500);
                     } else {
 //                        startActivity(new Intent(BaseMapActivity.this, SelectRoomActivity.class));
                         ToastUtils.showToast(MyApplication.getInstance(), Utils.getString(R.string.toast_ensure_robot_on_charging_dock));
@@ -318,7 +318,7 @@ public abstract class BaseMapActivity extends BackBaseActivity<MapX9Presenter> i
                         ToastUtils.showToast(UiUtil.getString(R.string.map_tip_no_map_yet));
                     } else if (mPresenter.getCurStatus() == MsgCodeUtils.STATUE_CHARGING || mPresenter.getCurStatus() == MsgCodeUtils.STATUE_CHARGING_BASE_SLEEP) {
                         startActivity(new Intent(BaseMapActivity.this, CleanAreaActivity.class));
-                        weakHandler.sendEmptyMessageDelayed(5, 300);
+                        weakHandler.sendEmptyMessageDelayed(5, 500);
                     } else {
 //                        startActivity(new Intent(BaseMapActivity.this, CleanAreaActivity.class));
                         ToastUtils.showToast(MyApplication.getInstance(), Utils.getString(R.string.toast_ensure_robot_on_charging_dock));
@@ -330,7 +330,7 @@ public abstract class BaseMapActivity extends BackBaseActivity<MapX9Presenter> i
                             status == MsgCodeUtils.STATUE_CHARGING_ADAPTER_SLEEP || status == MsgCodeUtils.STATUE_CHARGING_BASE_SLEEP
                             || status == MsgCodeUtils.STATUE_WAIT) {
                         startActivity(new Intent(BaseMapActivity.this, SelectSaveMapActivity.class));
-                        weakHandler.sendEmptyMessageDelayed(5, 300);
+                        weakHandler.sendEmptyMessageDelayed(5, 500);
                     } else {
                         startActivity(new Intent(BaseMapActivity.this, SelectSaveMapActivity.class));
                         ToastUtils.showToast(MyApplication.getInstance(), Utils.getString(R.string.toast_ensure_in_no_work_mode));

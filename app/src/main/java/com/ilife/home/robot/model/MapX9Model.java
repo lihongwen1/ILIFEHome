@@ -14,16 +14,6 @@ import com.ilife.home.robot.respository.HistoryMapX8Respository;
  *for store data
  */
 public class MapX9Model extends ViewModel implements MapX9Contract.Model {
-    private MutableLiveData<CleaningDataX8> historyLiveData;
-
-    public MapX9Model() {
-        historyLiveData = new MutableLiveData<>();
-    }
-
-    public MutableLiveData<CleaningDataX8> getHistoryLiveData() {
-        return historyLiveData;
-    }
-
     public void queryHistoryData(long mapStartTime, OnAliResponseSingle<CleaningDataX8> onResponse) {
         HistoryMapX8Respository historyMapX8Respository=new HistoryMapX8Respository();
         historyMapX8Respository.getHistoryData(onResponse,mapStartTime);

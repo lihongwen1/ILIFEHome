@@ -59,6 +59,7 @@ public class MyApplication extends SdkApplication {
                 .tag("ILIFE_ALI")   // (Optional) Global tag for every log. Default PRETTY_LOGGER
                 .build();
         Logger.addLogAdapter(new AndroidLogAdapter(formatStrategy));
+        configLiveBus();
     }
 
     private void configLiveBus() {

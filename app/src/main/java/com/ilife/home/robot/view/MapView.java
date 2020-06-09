@@ -38,7 +38,6 @@ import com.ilife.home.robot.view.helper.VirtualWallHelper;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
@@ -94,6 +93,7 @@ public class MapView extends View {
     private float systemScareFactor;
     private float iconBitmapWidth;//delete,pull,rotate icon's width
     float[] iconBitmapCenter = new float[2];//
+
     /**
      * map operation type
      */
@@ -403,8 +403,6 @@ public class MapView extends View {
                 systemScale = 0.3f;
             }
         }
-
-
         MyLogger.d(TAG, "xLength----" + xLength + "----yLength-----" + yLength + "---------height" + height + "---------width--------" + width);
         MyLogger.d(TAG, "--systemScale--:" + systemScale + "------baseScare----:" + baseScare + "------userScale-------" + userScale);
         slamRect.set(xMin, yMin, xMax, yMax);
@@ -413,7 +411,7 @@ public class MapView extends View {
         if (slamCanvas == null && slamBitmap == null) {
             slamBitmap = Bitmap.createBitmap(needWidth, needHeight, Bitmap.Config.ARGB_8888);
             slamCanvas = new Canvas(slamBitmap);
-        } else if (slamBitmap != null && (needWidth != slamBitmap.getWidth() || needHeight != slamBitmap.getHeight()|| unconditionalRecreate) ) {
+        } else if (slamBitmap != null && (needWidth != slamBitmap.getWidth() || needHeight != slamBitmap.getHeight() || unconditionalRecreate)) {
             MyLogger.d(TAG, "reCreate the bitmap................");
             slamBitmap.recycle();
             slamBitmap = Bitmap.createBitmap(needWidth, needHeight, Bitmap.Config.ARGB_8888);
@@ -426,7 +424,7 @@ public class MapView extends View {
         mGateHelper.updateGate();
     }
 
-    private float caculateSystemScale(int xLength, int yLength, int scale) {
+    private float calculateSystemScale(int xLength, int yLength, int scale) {
         float systemW = (width * 0.9f) / ((xLength * scale));
         float systemH = (height * 0.9f) / ((yLength * scale));
         float value = Math.min(systemH, systemW);
@@ -434,7 +432,7 @@ public class MapView extends View {
             baseScare = scale;
             return value;
         } else {
-            return caculateSystemScale(xLength, yLength, scale - 10);
+            return calculateSystemScale(xLength, yLength, scale - 10);
         }
     }
 
@@ -485,13 +483,13 @@ public class MapView extends View {
             /**
              * 绘制路径
              */
-            canvas.drawPath(roadPath,mPaintManager.getRoadPaint() );
+            canvas.drawPath(roadPath, mPaintManager.getRoadPaint());
 
             /**
              * 绘制房间门
              */
             if (mGateHelper.getGtBeans().size() > 0) {
-                canvas.drawPath(mGateHelper.getGtPath(), mPaintManager.changeColor(mPaintManager.getLinePaint(), PaintColor.ROOM_GATE));
+                canvas.drawPath(mGateHelper.getGtPath(), mPaintManager.getRoomGatePaint());
                 if (mOT == OT.MERGE_ROOM && mGateHelper.getDeleteGate() == -1) {
                     for (VirtualWallBean gate : mGateHelper.getGtBeans()) {
                         if (gate.getDeleteIcon() != null) {
@@ -508,7 +506,6 @@ public class MapView extends View {
                 float width = standBitmap.getWidth() / 2f;
                 canvas.drawBitmap(standBitmap, matrixCoordinateX(standPointF.x) - width, matrixCoordinateY(standPointF.y) - width, mPaintManager.getIconPaint());
             }
-
 
 
             /**
@@ -1274,9 +1271,15 @@ public class MapView extends View {
             paint.setStrokeWidth(width);
         }
 
-        public Paint changeColor(Paint paint, PaintColor color) {
+        Paint changeColor(Paint paint, PaintColor color) {
             paint.setColor(color.color);
             return paint;
+        }
+
+        Paint getRoomGatePaint() {
+           linePaint.setStrokeWidth(20);
+           linePaint.setColor(PaintColor.ROOM_GATE.color);
+            return linePaint;
         }
 
         /**
@@ -1316,6 +1319,7 @@ public class MapView extends View {
         }
 
         public Paint getLinePaint() {
+            linePaint.setStrokeWidth(10);
             return linePaint;
         }
 

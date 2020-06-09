@@ -11,6 +11,8 @@ import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 
+import androidx.lifecycle.Observer;
+
 import com.alibaba.fastjson.JSONObject;
 import com.aliyun.iot.aep.sdk._interface.OnAliResponse;
 import com.aliyun.iot.aep.sdk._interface.OnAliSetPropertyResponse;
@@ -18,7 +20,6 @@ import com.aliyun.iot.aep.sdk.bean.PropertyBean;
 import com.aliyun.iot.aep.sdk.contant.AliSkills;
 import com.aliyun.iot.aep.sdk.contant.EnvConfigure;
 import com.aliyun.iot.aep.sdk.contant.IlifeAli;
-import com.badoo.mobile.util.WeakHandler;
 import com.ilife.home.livebus.LiveEventBus;
 import com.ilife.home.robot.R;
 import com.ilife.home.robot.base.BackBaseActivity;
@@ -34,6 +35,7 @@ import com.ilife.home.robot.view.MapView;
 
 import org.reactivestreams.Publisher;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -51,14 +53,13 @@ import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
 
 /**
- * //todo 5s操作超时
+ * //todo 强制停止获取地图信息
  */
 public class SegmentationRoomActivity extends BackBaseActivity {
     private final String TAG = "SelectRoomActivity";
     public static final String KEY_ROOM_SELECT = "room_select";
     public static final String KEY_NEW_ROOM_NAME = "new_room_name";
     public static final String KEY_FUNCTION_WORKING = "function_working";
-    public static final String KEY_MAP_ID = "map_id";
     public static final String KEY_MAP_ID_INDEX = "map_id_index";
     public static final String KEY_SAVE_MAP_DATA = "save_map_data";
     @BindView(R.id.tv_top_title)
@@ -96,8 +97,8 @@ public class SegmentationRoomActivity extends BackBaseActivity {
     private CompositeDisposable mDisposable;
     private boolean isWaitingForResult;
     private int requestTimes = 0;
-    private WeakHandler weakHandler;
-    private boolean needSynchronizationRoomData;
+    private long fetchMapStartTime = 0;
+    private boolean forceStopFetchRoomData;
 
     @Override
     public int getLayoutId() {
@@ -150,7 +151,7 @@ public class SegmentationRoomActivity extends BackBaseActivity {
         LiveEventBus.get(EnvConfigure.KEY_ADD_ROOM_DOOR, Integer.class).observe(this,
                 value -> {
                     MyLogger.d(TAG, "添加房间门");
-                    weakHandler.removeMessages(1);
+                    forceStopFetchRoomData = value != 1;
                     if (isWaitingForResult) {
                         switch (value) {
                             case 1:
@@ -170,25 +171,26 @@ public class SegmentationRoomActivity extends BackBaseActivity {
                                 ToastUtils.showSettingSuccess(false);
                                 break;
                         }
+                        isWaitingForResult = false;
+                    } else {
+                        fetchMapStartTime = mapId;
+                        fetchSaveMapDataInfo();
                     }
-                    map_room.getmSegmentHelper().reset();
-                    needSynchronizationRoomData = true;
-                    fetchSaveMapDataInfo();
                 });
         LiveEventBus.get(EnvConfigure.KEY_DELETE_ROOM_DOOR, Integer.class).observe(this, value -> {
             MyLogger.d(TAG, "删除房间门");
-            weakHandler.removeMessages(1);
+            forceStopFetchRoomData = value != 1;
             if (isWaitingForResult) {
                 if (value == 1) {
                     ToastUtils.showSettingSuccess(true);
                 } else {
                     ToastUtils.showSettingSuccess(false);
                 }
+                isWaitingForResult = false;
+            } else {
+                fetchMapStartTime = mapId;
+                fetchSaveMapDataInfo();
             }
-            map_room.getmGateHelper().revertGate();
-            needSynchronizationRoomData = true;
-            fetchSaveMapDataInfo();
-
         });
 
         LiveEventBus.get(KEY_ROOM_SELECT, Boolean.class).observe(this, value -> {
@@ -198,15 +200,42 @@ public class SegmentationRoomActivity extends BackBaseActivity {
             } else if (map_room.getmOT() == MapView.OT.SELECT_ROOM) {
                 tv_combine_room.setEnabled(false);
             }
-
         });
+        LiveEventBus.get(EnvConfigure.KEY_SAVE_MAP_ROOM_INFO1, String.class).observe(this, new Observer<String>() {
+            @Override
+            public void onChanged(String roomValue) {
+                if (saveRoomInfoKey.equals(EnvConfigure.KEY_SAVE_MAP_ROOM_INFO1)) {
+                    DataUtils.parseRoomInfo(String.valueOf(mapId), roomValue, roomNames);
+                    doOnRoomNameChange();
+                }
+            }
+        });
+        LiveEventBus.get(EnvConfigure.KEY_SAVE_MAP_ROOM_INFO2, String.class).observe(this, new Observer<String>() {
+            @Override
+            public void onChanged(String roomValue) {
+                if (saveRoomInfoKey.equals(EnvConfigure.KEY_SAVE_MAP_ROOM_INFO2)) {
+                    DataUtils.parseRoomInfo(String.valueOf(mapId), roomValue, roomNames);
+                    doOnRoomNameChange();
+                }
+            }
+        });
+        LiveEventBus.get(EnvConfigure.KEY_SAVE_MAP_ROOM_INFO3, String.class).observe(this, new Observer<String>() {
+            @Override
+            public void onChanged(String roomValue) {
+                if (saveRoomInfoKey.equals(EnvConfigure.KEY_SAVE_MAP_ROOM_INFO3)) {
+                    DataUtils.parseRoomInfo(String.valueOf(mapId), roomValue, roomNames);
+                    doOnRoomNameChange();
+                }
+            }
+        });
+
+
         LiveEventBus.get(KEY_NEW_ROOM_NAME, String.class).observe(this, (String value) -> {
             if (map_room.getmOT() == MapView.OT.NAME_ROOM) {
                 map_room.getmRoomHelper().updateSelectRoomTag(value);
                 map_room.invalidateUI();
             }
         });
-
         LiveEventBus.get(SegmentationRoomActivity.KEY_FUNCTION_WORKING, Boolean.class).observe(this, status -> {
             if (status) {
                 switchBottomUi(R.id.ll_map_save_cancel);
@@ -245,7 +274,6 @@ public class SegmentationRoomActivity extends BackBaseActivity {
         IlifeAli.getInstance().setProperties(AliSkills.get().roomDataInfo(IlifeAli.getInstance().getIotId(), saveRoomInfoKey, roomValue), new OnAliSetPropertyResponse() {
             @Override
             public void onSuccess(String path, int tag, int functionCode, int responseCode) {
-                DataUtils.parseRoomInfo(String.valueOf(mapId), roomValue, roomNames);
                 if (isFromUser) {
                     ToastUtils.showSettingSuccess(true);
                     switchBottomUi(-1);
@@ -266,12 +294,6 @@ public class SegmentationRoomActivity extends BackBaseActivity {
     @Override
     public void initData() {
         super.initData();
-        weakHandler = new WeakHandler(msg -> {
-            switchBottomUi(-1);
-            ToastUtils.showSettingSuccess(false);
-            fetchSaveMapDataInfo();
-            return false;
-        });
         mDisposable = new CompositeDisposable();
         mapIdIndex = getIntent().getIntExtra(KEY_MAP_ID_INDEX, 0);
         LiveEventBus.get(SegmentationRoomActivity.KEY_SAVE_MAP_DATA, SaveMapBean.class).observeSticky(this, saveMapBean -> {
@@ -340,16 +362,18 @@ public class SegmentationRoomActivity extends BackBaseActivity {
 
 
     /**
+     * 分割房间或者合并房间后调用
      * 拉取保存地图信息，每隔2s拉取一次，重试5次
      */
     private void fetchSaveMapDataInfo() {
         if (requestTimes != 0) {//重复请求
             return;
         }
+        MyLogger.d(TAG,"拉取保存地图信息--------------");
         requestTimes++;
         Single.create((SingleOnSubscribe<String[]>) emitter -> {
             if (!TextUtils.isEmpty(saveMapDataInfoKey)) {
-                IlifeAli.getInstance().getSaveMapDataInfo(mapId, saveMapDataInfoKey, true, new OnAliResponse<String[]>() {
+                IlifeAli.getInstance().getSaveMapDataInfo(fetchMapStartTime, saveMapDataInfoKey, true, new OnAliResponse<String[]>() {
                     @Override
                     public void onSuccess(String[] result) {
                         emitter.onSuccess(result);
@@ -361,12 +385,12 @@ public class SegmentationRoomActivity extends BackBaseActivity {
                     }
                 });
             }
-        }).delay(1,TimeUnit.SECONDS).retryWhen(tf -> tf.flatMap((Function<Throwable, Publisher<?>>) throwable -> (Publisher<Boolean>) s -> {
+        }).retryWhen(tf -> tf.flatMap((Function<Throwable, Publisher<?>>) throwable -> (Publisher<Boolean>) s -> {
             MyLogger.d(TAG, "get room info data error-----:" + throwable.getMessage());
-            if (requestTimes > 5) {
+            if (forceStopFetchRoomData || requestTimes > 10) {
                 s.onError(throwable);
             } else {
-                Disposable timerDisposable = Observable.timer(2, TimeUnit.SECONDS).subscribe(aLong -> {
+                Disposable timerDisposable = Observable.timer(1, TimeUnit.SECONDS).subscribe(aLong -> {
                     s.onNext(true);
                     MyLogger.d(TAG, "retry to get the room info data");
                     requestTimes++;
@@ -386,6 +410,10 @@ public class SegmentationRoomActivity extends BackBaseActivity {
                 if (isDestroyed() || map_room == null) {
                     return;
                 }
+                if (isWaitingForResult) {
+                    ToastUtils.showSettingSuccess(true);
+                    isWaitingForResult = false;
+                }
                 if (result != null && result.length > 0) {
                     SaveMapDataInfoBean saveMapDataInfoBean = DataUtils.parseSaveMapInfo(result);
                     if (saveMapDataInfoBean == null) {
@@ -398,23 +426,30 @@ public class SegmentationRoomActivity extends BackBaseActivity {
                         }
                         room.setTag(roomName);
                     }
+                    map_room.getmSegmentHelper().reset();
+                    map_room.getmGateHelper().revertGate();
                     map_room.drawChargePort(saveMapDataInfoBean.getChargePoint().x, saveMapDataInfoBean.getChargePoint().y, true);
                     map_room.getmGateHelper().drawGate(saveMapDataInfoBean.getGates());
                     map_room.getmRoomHelper().drawRoom(saveMapDataInfoBean.getRooms());
                     map_room.getmRoomHelper().setSingleChoice(true);
                     map_room.invalidateUI();
                     switchBottomUi(-1);
-                    if (needSynchronizationRoomData) {
-                        sendGateToServer(false);
-                        needSynchronizationRoomData = false;
-                    }
+                    sendGateToServer(false);
                 }
             }
 
             @Override
             public void onError(Throwable e) {
                 requestTimes = 0;
+                forceStopFetchRoomData = false;
                 MyLogger.d(TAG, "获取数据保存地图数据失败---");
+                if (isWaitingForResult) {
+                    ToastUtils.showSettingSuccess(false);
+                    isWaitingForResult = false;
+                }
+                map_room.getmSegmentHelper().reset();
+                map_room.getmGateHelper().revertGate();
+                map_room.invalidateUI();
                 switchBottomUi(-1);
             }
         });
@@ -434,9 +469,10 @@ public class SegmentationRoomActivity extends BackBaseActivity {
                         jsonObject.getJSONObject(EnvConfigure.KEY_ADD_ROOM_DOOR).put("MapId", mapId);
                         jsonObject.getJSONObject(EnvConfigure.KEY_ADD_ROOM_DOOR).put("CmdId", (int) (System.currentTimeMillis() / 1000f));
                         jsonObject.getJSONObject(EnvConfigure.KEY_ADD_ROOM_DOOR).put("ModifyInfo", map_room.getmSegmentHelper().getSegmentationData());
+                        fetchMapStartTime = System.currentTimeMillis() / 1000;
                         IlifeAli.getInstance().setProperties(jsonObject, aBoolean -> {
                             MyLogger.d(TAG, "分割房间");
-                            weakHandler.sendEmptyMessageDelayed(1, 10 * 1000);
+                            fetchSaveMapDataInfo();
                         });
                         break;
                     case MERGE_ROOM:
@@ -445,9 +481,10 @@ public class SegmentationRoomActivity extends BackBaseActivity {
                         merge_jo.getJSONObject(EnvConfigure.KEY_DELETE_ROOM_DOOR).put("MapId", mapId);
                         merge_jo.getJSONObject(EnvConfigure.KEY_DELETE_ROOM_DOOR).put("CmdId", (int) (System.currentTimeMillis() / 1000f));
                         merge_jo.getJSONObject(EnvConfigure.KEY_DELETE_ROOM_DOOR).put("ModifyInfo", map_room.getmGateHelper().getDeleteGate());
+                        fetchMapStartTime = System.currentTimeMillis() / 1000;
                         IlifeAli.getInstance().setProperties(merge_jo, aBoolean -> {
                             MyLogger.d(TAG, "合并房间");
-                            weakHandler.sendEmptyMessageDelayed(1, 10 * 1000);
+                            fetchSaveMapDataInfo();
                         });
                         break;
                     case NAME_ROOM:
@@ -459,7 +496,9 @@ public class SegmentationRoomActivity extends BackBaseActivity {
             case R.id.iv_map_cancel_function:
                 map_room.getmSegmentHelper().reset();
                 map_room.getmGateHelper().revertGate();
-                map_room.invalidateUI();
+                if (map_room.getmOT() == MapView.OT.NAME_ROOM) {
+                    doOnRoomNameChange();
+                }
                 switchBottomUi(-1);
                 break;
 
@@ -478,6 +517,19 @@ public class SegmentationRoomActivity extends BackBaseActivity {
         if (mDisposable != null && !mDisposable.isDisposed()) {
             mDisposable.dispose();
         }
+    }
+
+    private void doOnRoomNameChange() {
+        List<PartitionBean> rooms = new ArrayList<>(map_room.getmRoomHelper().getRooms());
+        for (PartitionBean room : rooms) {//绑定设置的用户名
+            String roomName = roomNames.get(String.valueOf(room.getPartitionId()));
+            if (roomName == null) {
+                roomName = "";
+            }
+            room.setTag(roomName);
+        }
+        map_room.getmRoomHelper().drawRoom(rooms);
+        map_room.invalidateUI();
     }
 
     @Override
