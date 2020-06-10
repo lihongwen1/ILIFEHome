@@ -306,7 +306,7 @@ public class SegmentationRoomHelper {
                 if (boundaryRegion.contains((int) mMapView.matrixCoordinateX(coo.getX()), (int) mMapView.matrixCoordinateY(coo.getY()))) {
                     double space = DataUtils.lineToPointSpace(mCoordinates[0], mCoordinates[1], mCoordinates[2], mCoordinates[3],
                             mMapView.matrixCoordinateX(coo.getX()), mMapView.matrixCoordinateY(coo.getY()));
-                    if (space < 15) {
+                    if (space < 10) {
                         containsCoo.add(coo);
                     }
 

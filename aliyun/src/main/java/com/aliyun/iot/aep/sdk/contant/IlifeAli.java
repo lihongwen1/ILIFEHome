@@ -551,7 +551,7 @@ public class IlifeAli {
             };
         }
         registerSubscribeTopic();
-        MobileChannel.getInstance().registerDownstreamListener(true, downListener);
+        MobileChannel.getInstance().registerDownstreamListener(false, downListener);
 
     }
 

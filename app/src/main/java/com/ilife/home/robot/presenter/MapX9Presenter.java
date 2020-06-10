@@ -577,10 +577,10 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
                 workTime = 0;
                 cleanArea = 0;
                 pointList.clear();//清空实时地图
-                minX=0;
-                maxX=0;
-                minY=0;
-                maxY=0;
+                minX = 0;
+                maxX = 0;
+                minY = 0;
+                maxY = 0;
                 if (!mDevicePropertyBean.isInitStatus()) {//初始化为0，则清空底图
                     slamPointList.clear();
                     mView.drawGates(new ArrayList<>());//清除门数据
@@ -595,7 +595,6 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
             @Override
             public void onChanged(Integer batteryLevel) {
                 batteryNo = batteryLevel;
-                IlifeAli.getInstance().getWorkingDevice().setBattery(batteryNo);
                 mDevicePropertyBean.setBattery(batteryNo);
                 setStatus(curStatus, batteryNo);
             }
@@ -777,7 +776,9 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
                     /**
                      * 处理充电座
                      */
-                    LiveEventBus.get(EnvConfigure.ChargerPiont, String.class).post(mDevicePropertyBean.getChargePort());
+                    if (isWork(curStatus)) {//非工作模式下，不绘制属性中的充电座，绘制保存地图数据中的充电座；
+                        LiveEventBus.get(EnvConfigure.ChargerPiont, String.class).post(mDevicePropertyBean.getChargePort());
+                    }
                     /**
                      * 处理区域清扫数据
                      */
@@ -847,7 +848,7 @@ public class MapX9Presenter extends BasePresenter<MapX9Contract.View> implements
                     if (result != null && result.length > 0) {
                         SaveMapDataInfoBean saveMapDataInfoBean = DataUtils.parseSaveMapInfo(result);
                         if (saveMapDataInfoBean != null) {
-                            mView.drawChargePort(saveMapDataInfoBean.getChargePoint().x,saveMapDataInfoBean.getChargePoint().y,true);
+                            mView.drawChargePort(saveMapDataInfoBean.getChargePoint().x, saveMapDataInfoBean.getChargePoint().y, true);
                             mView.drawGates(saveMapDataInfoBean.getGates());
                             mView.invalidMap();
                         }

@@ -35,7 +35,6 @@ public class DeviceInfoBean {
     private String nickName;
     private PropertyBean deviceInfo;
     private int work_status;
-    private int battery;
 
     public int getWork_status() {
         return work_status;
@@ -158,14 +157,6 @@ public class DeviceInfoBean {
 
     public void setNickName(String nickName) {
         this.nickName = nickName;
-    }
-
-    public int getBattery() {
-        return battery;
-    }
-
-    public void setBattery(int battery) {
-        this.battery = battery;
     }
 
     public PropertyBean getDeviceInfo() {
